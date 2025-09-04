@@ -1,12 +1,17 @@
 import Header from "@/features/Header";
+import WorkIndex from "@/features/workIndex";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const TopPage = () => {
+  const queryClient = new QueryClient();
   return (
     <>
       <Header />
-      <div>
-        <h1>Welcome to the Top Page</h1>
-      </div>
+      <main>
+        <QueryClientProvider client={queryClient}>
+          <WorkIndex />
+        </QueryClientProvider>
+      </main>
     </>
   );
 };
