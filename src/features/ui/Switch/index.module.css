@@ -1,0 +1,43 @@
+.buttons-wrapper {
+  display: flex;
+  align-items: stretch;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 7px;
+  gap: 7px;
+  border-radius: 25px;
+  height: 75px;
+}
+
+.toy-button {
+  width: 106px;
+  padding: 5px;
+  font-size: 24px;
+  font-weight: 600;
+  border: none;
+  border-radius: 18px;
+  &[data-is-toy="true"] {
+    background-color: var(--button-color);
+    color: var(--font-color);
+  }
+  &[data-is-toy="false"] {
+    background: transparent;
+    color: var(--font-sub-color);
+  }
+}
+
+.blog-button {
+  width: 106px;
+  padding: 5px;
+  font-size: 24px;
+  font-weight: 600;
+  border: none;
+  border-radius: 18px;
+  &[data-is-toy="false"] {
+    background: var(--button-color);
+    color: var(--font-color);
+  }
+  &[data-is-toy="true"] {
+    background: transparent;
+    color: var(--font-sub-color);
+  }
+}
