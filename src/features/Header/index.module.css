@@ -1,0 +1,15 @@
+.header-wrapper {
+  background-color: var(--primary-color);
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-wrapper {
+  margin-left: 50px;
+}
+
+.switch-wrapper {
+  margin-right: 58px;
+}
