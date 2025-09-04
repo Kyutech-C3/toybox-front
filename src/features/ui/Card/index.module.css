@@ -1,0 +1,10 @@
+.card-wrapper {
+  width: 333px;
+  height: 366px;
+  border-radius: 25px;
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.45);
+}
+
+.card-image {
+  border-radius: 25px 25px 0px 0px;
+}
