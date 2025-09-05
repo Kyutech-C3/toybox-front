@@ -1,4 +1,4 @@
-import Avater from "./Avater";
+import Avater from "./Avatar";
 import Batch from "./Batch";
 import styles from "./index.module.css";
 
@@ -19,16 +19,11 @@ const Card = ({
 }: CardProps) => {
   return (
     <div className={styles["card-wrapper"]}>
-      <img
-        src={imageURL}
-        width={333}
-        height={251}
-        className={styles["card-image"]}
-      />
+      <img src={imageURL} alt="card-image" className={styles["card-image"]} />
       <div className={styles["card-discription-wrapper"]}>
         <div className={styles["card-discription-content"]}>
-          <Avater avaterURL={avaterURL} />
-          <div>
+          <Avater avatarURL={avaterURL} />
+          <div className={styles["title-wrapper"]}>
             <p>{title}</p>
             <p>
               {postDate.getFullYear() +
@@ -40,8 +35,8 @@ const Card = ({
           </div>
         </div>
         <div className={styles["batches-wrapper"]}>
-          {tags.map((tag) => (
-            <Batch>{tag}</Batch>
+          {tags.map((tag, index) => (
+            <Batch key={index}>{tag}</Batch>
           ))}
         </div>
       </div>

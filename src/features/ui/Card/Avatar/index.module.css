@@ -1,0 +1,14 @@
+.avatar-wrapper {
+  height: 48px;
+  width: 48px;
+  overflow: hidden;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-image {
+  border: solid 1px var(--border-color);
+  height: 100%;
+}
