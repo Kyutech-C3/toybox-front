@@ -20,6 +20,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+p {
+  margin: 0;
+}
+
 a {
   font-weight: 500;
   color: var(--font-color);
