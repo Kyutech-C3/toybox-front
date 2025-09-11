@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import Card from "../ui/Card";
+import Card from "../../shared/ui/Card";
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
 

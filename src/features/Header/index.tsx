@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Switch from "../ui/Switch";
+import Switch from "../../shared/ui/Switch";
 import styles from "./index.module.css";
 
 const Header = () => {

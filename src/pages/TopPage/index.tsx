@@ -1,5 +1,5 @@
 import Header from "@/features/Header";
-import WorkIndex from "@/features/workIndex";
+import WorkIndex from "@/features/WorkIndex";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import styles from "./index.module.css";
 
