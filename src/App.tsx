@@ -4,11 +4,11 @@ import "./App.css";
 import TopPage from "@/pages/TopPage";
 
 function App() {
-	return (
-		<Routes>
-			<Route path="/" element={<TopPage />} />
-		</Routes>
-	);
+  return (
+    <Routes>
+      <Route path="/" element={<TopPage />} />
+    </Routes>
+  );
 }
 
 export default App;
