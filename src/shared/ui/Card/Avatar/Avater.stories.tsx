@@ -1,5 +1,6 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import Avater from "./index";
+
+import type { Meta, StoryObj } from "@storybook/react";
 
 const meta: Meta<typeof Avater> = {
   title: "UI/Avater",

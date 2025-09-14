@@ -35,8 +35,8 @@ const Card = ({
           </div>
         </div>
         <div className={styles["batches-wrapper"]}>
-          {tags.map((tag, index) => (
-            <Batch key={index}>{tag}</Batch>
+          {tags.map((tag) => (
+            <Batch key="tag">{tag}</Batch>
           ))}
         </div>
       </div>

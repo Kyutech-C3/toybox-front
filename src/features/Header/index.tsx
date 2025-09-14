@@ -1,6 +1,8 @@
 import { useState } from "react";
-import Switch from "../ui/Switch";
+
 import styles from "./index.module.css";
+
+import Switch from "@/shared/ui/Switch";
 
 const Header = () => {
   const [isToy, setIsToy] = useState<boolean>(true);

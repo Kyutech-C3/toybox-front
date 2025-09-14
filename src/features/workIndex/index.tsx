@@ -1,7 +1,7 @@
-import { useMemo } from "react";
-import Card from "../ui/Card";
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
+
+import Card from "@/shared/ui/Card";
 
 const WorkIndex = () => {
   const { data, error, isLoading } = useWorks();
@@ -29,7 +29,7 @@ const WorkIndex = () => {
           key={work.id}
           title={
             work.title.length > 14
-              ? work.title.slice(0, 14) + "..."
+              ? `${work.title.slice(0, 14)}...`
               : work.title
           }
           tags={["test", "mock"]}

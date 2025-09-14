@@ -1,15 +1,16 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import Batch from './index';
+import Batch from "./index";
+
+import type { Meta, StoryObj } from "@storybook/react";
 
 const meta: Meta<typeof Batch> = {
-  title: 'UI/Batch',
+  title: "UI/Batch",
   component: Batch,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
-    children: { control: 'text' },
+    children: { control: "text" },
   },
 };
 
@@ -18,18 +19,18 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: 'React',
+    children: "React",
   },
 };
 
 export const TypeScript: Story = {
   args: {
-    children: 'TypeScript',
+    children: "TypeScript",
   },
 };
 
 export const LongTag: Story = {
   args: {
-    children: 'JavaScript Development',
+    children: "JavaScript Development",
   },
 };

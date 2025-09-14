@@ -1,20 +1,26 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { useState } from 'react';
-import Switch from './index';
+import { useState } from "react";
+
+import Switch from "./index";
+
+import type { Meta, StoryObj } from "@storybook/react";
 
 const meta: Meta<typeof Switch> = {
-  title: 'UI/Switch',
+  title: "UI/Switch",
   component: Switch,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 };
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const SwitchWithState = ({ initialValue = true }: { initialValue?: boolean }) => {
+const SwitchWithState = ({
+  initialValue = true,
+}: {
+  initialValue?: boolean;
+}) => {
   const [isToy, setIsToy] = useState(initialValue);
   return <Switch isToy={isToy} setIsToy={setIsToy} />;
 };

@@ -1,4 +1,5 @@
 import styles from "./index.module.css";
+
 import type { Dispatch, SetStateAction } from "react";
 
 type SwitchProp = {
