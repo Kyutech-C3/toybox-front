@@ -6,7 +6,7 @@
 - ルーティング:react router dom
 - グローバル状態管理:Zustand
 - サーバー状態管理:tanstack query
-- linter:eslint
+- linter:biome
 - UI テスト:Storybook
 - API テスト:Jest
 
