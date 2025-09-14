@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "biome lint ./src",
+    "lint": "npx biome lint ./src",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
@@ -15,7 +15,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "./src/**/*.{js,jsx,ts,tsx}": "npm biome check --write"
+    "./src/**/*.{js,jsx,ts,tsx}": "npx biome check --write"
   },
   "dependencies": {
     "react": "^19.1.1",
