@@ -2,7 +2,7 @@ import useSWR from "swr";
 
 import { fetchData } from "@/util/fetchData";
 
-import type { Work } from "@/types/work";
+import type { Work } from "@/shared/types/work";
 
 const useWorks = () => {
   const fetcher = async (url: string): Promise<Work[]> => {
