@@ -1,5 +1,9 @@
 # Toybox replaced 2025
 
+## 更新ログ
+
+2025/09/23 by semikoron
+
 ## 起動方法
 
 1. パッケージをインストール
@@ -26,6 +30,14 @@ npm run dev
 - linter:biome
 - UI テスト:Storybook
 - API テスト:Jest
+- CI: github workflow + husky + lint-staged
+
+## 開発の始め方
+
+基本的には issue に自分をアサインしてから作業に取り掛かること。
+またその際 project のステータスを to-do から実装中に変更を行うこと。
+また作業が終了し、ブランチがマージされた際には issue のステータスを実装完了に変更し、issue を closed にすること。
+新しく issue を立てて作業にする時も必ず project の追加を忘れないようにすること。
 
 ## ブランチ命名規則
 
