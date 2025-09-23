@@ -6,22 +6,30 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "biome lint ./src",
+    "lint": "npx biome lint ./src",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "ci": "npm install && npx biome check ./src",
     "format": "npx biome check --write ./src",
-    "prepare": "husky"
+    "prepare": "husky",
+    "new:ui": "hygen generator ui",
+    "new:feature": "hygen generator feature",
+    "new:component": "hygen generator component"
   },
   "lint-staged": {
-    "./src/**/*.{js,jsx,ts,tsx}": "pnpm exec biome check --write"
+    "./src/**/*.{js,jsx,ts,tsx}": "npx biome check --write"
   },
   "dependencies": {
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
     "swr": "^2.3.6"
+  },
+  "engines": {
+    "yarn": "このプロジェクトではnpmを使用してください",
+    "bun": "このプロジェクトではnpmを使用してください",
+    "pnpm": "このプロジェクトではnpmを使用してください"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
@@ -43,6 +51,7 @@
     "eslint-plugin-storybook": "^9.1.4",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
+    "hygen": "^6.2.11",
     "lint-staged": "^16.1.6",
     "playwright": "^1.55.0",
     "storybook": "^9.1.4",

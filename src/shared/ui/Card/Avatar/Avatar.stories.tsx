@@ -10,7 +10,7 @@ const meta: Meta<typeof Avater> = {
   },
   tags: ["autodocs"],
   argTypes: {
-    avaterURL: { control: "text" },
+    avatarURL: { control: "text" },
   },
 };
 
@@ -19,12 +19,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    avaterURL: "./comingSoonLugia.webp",
+    avatarURL: "./comingSoonLugia.webp",
   },
 };
 
 export const CustomImage: Story = {
   args: {
-    avaterURL: "https://via.placeholder.com/46x46.png?text=Avatar",
+    avatarURL: "https://via.placeholder.com/46x46.png?text=Avatar",
   },
 };
