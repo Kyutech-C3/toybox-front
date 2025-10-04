@@ -1,0 +1,16 @@
+
+/* Pagination wrapper */
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  padding: 30px;
+}
+
+/* ページ番号の nav */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
