@@ -1,0 +1,46 @@
+/* 共通のボタン */
+.nav-btn,
+.page-btn {
+  height: 48px;
+  min-width: 48px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid #f0f0f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.nav-btn.disabled,
+.nav-btn[disabled],
+.page-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.page-btn {
+  min-width: 48px;
+  padding: 0 14px;
+}
+
+.page-btn:hover:not(.page-btn--active):not([disabled]) {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+.page-btn--active {
+  background: #f6b000; /* 黄色 */
+  color: #000;
+  font-weight: 600;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.nav-btn {
+  min-width: 40px;
+  padding: 0 8px;
+}

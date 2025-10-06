@@ -20,4 +20,11 @@ type Asset = {
   work_id: string;
 };
 
-export type { Work };
+type WorkListResponse = {
+  works: Work[];
+  total_count: number;
+  page: number;
+  limit: number;
+};
+
+export type { Work, WorkListResponse };
