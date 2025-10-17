@@ -26,11 +26,13 @@ npm run dev
 - フレームワーク:Vite + React
 - ルーティング:react router dom
 - グローバル状態管理:Zustand
-- サーバー状態管理:tanstack query
+- サーバー状態管理:swr
 - linter:biome
 - UI テスト:Storybook
 - API テスト:Jest
 - CI: github workflow + husky + lint-staged
+
+詳しくは[こちら](./DesignDocs.md)
 
 ## 開発の始め方
 
@@ -74,7 +76,7 @@ npm run dev
 ## コミット命名規則
 
 基本何をやったか分かるような内容であれば構わない。
-余裕があれば以下のような接頭辞を記載すること。
+余裕があればブランチ命名規則同様に接頭辞を記載すること。
 
 ## ルーティング
 
