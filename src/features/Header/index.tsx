@@ -10,7 +10,7 @@ const Header = () => {
     <header className={styles["header-wrapper"]}>
       <a href="/">
         <div className={styles["logo-wrapper"]}>
-          <img src="./logo.webp" alt="logo-image" height={75} />
+          <img src="/logo.webp" alt="logo-image" height={75} />
         </div>
       </a>
       <div className={styles["switch-wrapper"]}>
