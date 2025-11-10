@@ -7,6 +7,7 @@ import type { Work, WorkListResponse } from "@/shared/types/work";
 interface UseWorksParams {
   page?: number;
   limit?: number;
+  tags?: string[];
 }
 
 interface UseWorksReturn {
@@ -21,6 +22,7 @@ interface UseWorksReturn {
 const useWorks = ({
   page = 1,
   limit = 20,
+  tags = [],
 }: UseWorksParams = {}): UseWorksReturn => {
   const url = `/works?page=${page}&limit=${limit}`;
 
@@ -34,6 +36,9 @@ const useWorks = ({
     error,
     isLoading,
   } = useSWR<WorkListResponse>(url, fetcher);
+
+  // TODO: タグ検索機能が出来次第こちらを利用し、タグによる絞り込み機能を実装する。
+  console.log(tags);
 
   return {
     data: response?.works,
