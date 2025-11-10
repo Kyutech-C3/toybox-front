@@ -1,12 +1,12 @@
 import { create } from "zustand";
 
-type WorksStoreProps = {
+type TagsStoreProps = {
   tags: string[];
   addTag: (tag: string) => void;
   removeTag: (index: number) => void;
 };
 
-export const useWorksStore = create<WorksStoreProps>((set) => ({
+export const useTagsStore = create<TagsStoreProps>((set) => ({
   tags: [],
   addTag: (tag: string) => set((state) => ({ tags: [...state.tags, tag] })),
   removeTag: (index: number) =>

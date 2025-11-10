@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
-import { useWorksStore } from "./store/useWorksStore";
+import { useTagsStore } from "./store/useTagsStore";
 
 import { Pagination } from "@/features/Pagenation";
 import Card from "@/shared/ui/Card";
@@ -12,7 +12,7 @@ const ITEMS_PER_PAGE = 20;
 
 const WorkIndex = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { tags } = useWorksStore();
+  const { tags } = useTagsStore();
   const currentPage = Number(searchParams.get("page")) || 1;
 
   const { data, totalCount, error, isLoading } = useWorks({
