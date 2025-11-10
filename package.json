@@ -21,10 +21,15 @@
     "./src/**/*.{js,jsx,ts,tsx}": "npx biome check --write"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.5",
+    "@mui/material": "^7.3.5",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2",
-    "swr": "^2.3.6"
+    "swr": "^2.3.6",
+    "zustand": "^5.0.8"
   },
   "engines": {
     "yarn": "このプロジェクトではnpmを使用してください",

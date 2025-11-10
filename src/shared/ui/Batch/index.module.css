@@ -1,0 +1,35 @@
+.batch {
+  font-size: 16px;
+  border-radius: 25px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  text-wrap-mode: nowrap;
+  gap: 6px;
+
+  &[data-color="primary"] {
+    background-color: var(--primary-color);
+  }
+
+  &[data-color="secondary"] {
+    background-color: var(--border-color);
+  }
+
+  &[data-onclick="true"] {
+    padding: 0 6px 0 11px;
+  }
+
+  &[data-onclick="false"] {
+    padding: 0px 11px;
+  }
+}
+
+.batch-button {
+  height: 16px;
+  width: 16px;
+  padding: 0;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 9999px;
+}

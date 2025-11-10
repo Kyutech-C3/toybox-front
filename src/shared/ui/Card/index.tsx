@@ -1,5 +1,5 @@
+import Batch from "../Batch";
 import Avater from "./Avatar";
-import Batch from "./Batch";
 import styles from "./index.module.css";
 
 type CardProps = {
@@ -36,7 +36,7 @@ const Card = ({
         </div>
         <div className={styles["batches-wrapper"]}>
           {tags.map((tag) => (
-            <Batch key="tag">{tag}</Batch>
+            <Batch key={tag}>{tag}</Batch>
           ))}
         </div>
       </div>
