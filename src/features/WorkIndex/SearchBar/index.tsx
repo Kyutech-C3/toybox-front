@@ -1,10 +1,10 @@
-import { useWorksStore } from "../store/useWorksStore";
+import { useTagsStore } from "../store/useTagsStore";
 import styles from "./index.module.css";
 
 import Batch from "@/shared/ui/Batch";
 
 export const SearchBar = () => {
-  const { tags, addTag, removeTag } = useWorksStore();
+  const { tags, addTag, removeTag } = useTagsStore();
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
