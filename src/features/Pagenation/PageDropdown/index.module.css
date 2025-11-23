@@ -102,10 +102,10 @@
 }
 
 .itemActive {
-  background: #f6b000;
+  background: #FABE00;
   color: #000;
 }
 
 .itemActive:hover {
-  background: #f6b000;
+  background: #FABE00;
 }
