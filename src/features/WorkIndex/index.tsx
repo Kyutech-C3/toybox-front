@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
@@ -49,21 +49,27 @@ const WorkIndex = () => {
       <SearchBar />
       <div className={styles["works-index"]}>
         {data.map((work) => (
-          <Card
+          <Link
             key={work.id}
-            title={
-              work.title.length > 14
-                ? `${work.title.slice(0, 14)}...`
-                : work.title
-            }
-            tags={["test", "mock"]}
-            imageURL={
-              work.assets[0].asset_type === "image"
-                ? work.assets[0].url
-                : undefined
-            }
-            postDate={new Date(work.created_at.split(" ")[0])}
-          />
+            to={`/work/${work.id}`}
+            className={styles["work-link"]}
+          >
+            <Card
+              key={work.id}
+              title={
+                work.title.length > 14
+                  ? `${work.title.slice(0, 14)}...`
+                  : work.title
+              }
+              tags={["test", "mock"]}
+              imageURL={
+                work.assets[0].asset_type === "image"
+                  ? work.assets[0].url
+                  : undefined
+              }
+              postDate={new Date(work.created_at.split(" ")[0])}
+            />
+          </Link>
         ))}
       </div>
       {totalPages > 1 && (

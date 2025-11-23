@@ -1,13 +1,16 @@
 import styles from "./index.module.css";
 
 import Header from "@/features/Header";
+import { Paper } from "@/shared/ui/Paper";
 
 const WorkPage = () => {
   return (
     <>
       <Header />
       <main className={styles["main-wrapper"]}>
-        <h1>WorkPage</h1>
+        <Paper>
+          <h1>WorkPage</h1>
+        </Paper>
       </main>
     </>
   );

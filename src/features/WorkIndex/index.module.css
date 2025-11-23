@@ -4,3 +4,13 @@
   gap: 48px;
   justify-items: center;
 }
+
+.work-link {
+  text-decoration: none;
+  animation-timing-function: ease-in-out;
+  transition: all 0.2s;
+  &:hover {
+    color: var(--font-color);
+    transform: scale(1.02);
+  }
+}
