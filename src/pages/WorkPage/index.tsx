@@ -1,13 +1,18 @@
+import { useParams } from "react-router-dom";
+
+import CommentSection from "./CommentSection";
 import styles from "./index.module.css";
 
 import Header from "@/features/Header";
 
 const WorkPage = () => {
+  const { id } = useParams<{ id: string }>();
+
   return (
     <>
       <Header />
       <main className={styles["main-wrapper"]}>
-        <h1>WorkPage</h1>
+        <CommentSection postId={id || "1"} />
       </main>
     </>
   );
