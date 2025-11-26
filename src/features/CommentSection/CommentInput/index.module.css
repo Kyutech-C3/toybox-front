@@ -1,4 +1,4 @@
-.inputRow {
+.input-row {
   display: flex;
   gap: 20px;
   align-items: flex-start;
@@ -13,14 +13,14 @@
   border: 2px solid rgba(0, 0, 0, 0.05);
 }
 
-.avatarImg {
+.avatar-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
 }
 
-.rightCol {
+.right-col {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -36,7 +36,7 @@
   text-align: left;
 }
 
-.inputBox {
+.input-box {
   width: 100%;
   background: rgba(239, 239, 239, 0.93);
   border-radius: 20px;
@@ -68,11 +68,11 @@
   font-weight: 700;
 }
 
-.sendWrap {
+.send-wrap {
   display: flex;
 }
 
-.replyInfo {
+.reply-info {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -81,7 +81,7 @@
   margin-bottom: 4px;
 }
 
-.cancelReplyBtn {
+.cancel-reply-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -90,11 +90,11 @@
   padding: 0 4px;
 }
 
-.cancelReplyBtn:hover {
+.cancel-reply-btn:hover {
   color: #333;
 }
 
-.srOnly {
+.sr-only {
   position: absolute;
   width: 1px;
   height: 1px;

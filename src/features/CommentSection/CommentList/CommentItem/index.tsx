@@ -22,9 +22,9 @@ const Avatar: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) => {
   return (
     <div className={styles.avatar} role="img" aria-label={alt || "avatar"}>
       {src ? (
-        <img src={src} alt={alt} className={styles.avatarImg} />
+        <img src={src} alt={alt} className={styles["avatar-img"]} />
       ) : (
-        <div className={styles.avatarPlaceholder} />
+        <div className={styles["avatar-placeholder"]} />
       )}
     </div>
   );
@@ -59,18 +59,18 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.commentRow}>
+      <div className={styles["comment-row"]}>
         <Avatar
           src={comment.user.avatar_url}
           alt={`${comment.user.display_name} avatar`}
         />
-        <div className={styles.commentBody}>
+        <div className={styles["comment-body"]}>
           <div className={styles.header}>
             <div className={styles.username}>{comment.user.display_name}</div>
             {onDelete && (
               <button
                 type="button"
-                className={styles.deleteBtn}
+                className={styles["delete-btn"]}
                 onClick={handleDelete}
                 aria-label="コメントを削除"
               >
@@ -79,11 +79,11 @@ const CommentItem: React.FC<CommentItemProps> = ({
             )}
           </div>
           <div className={styles.bubble}>
-            <p className={styles.bubbleText}>{comment.content}</p>
+            <p className={styles["bubble-text"]}>{comment.content}</p>
           </div>
           <button
             type="button"
-            className={styles.replyBtn}
+            className={styles["reply-btn"]}
             onClick={() => onReply?.(comment)}
           >
             返信
@@ -92,7 +92,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
       </div>
       {/* 返信対象のコメントの場合、入力欄を表示 */}
       {replyingTo?.id === comment.id && (
-        <div className={styles.replyInputWrapper}>
+        <div className={styles["reply-input-wrapper"]}>
           <CommentInput
             onSubmit={(msg) => onSubmitReply?.(msg, comment.id)}
             onCancelReply={onCancelReply}
@@ -103,10 +103,12 @@ const CommentItem: React.FC<CommentItemProps> = ({
       )}
       {/* 子コメントがある場合、再帰的に表示 */}
       {replies.length > 0 && (
-        // 深さが2未満の場合はインデントし、それ以降はフラットに表示（YouTube風）
+        // 深さ2未満の場合はインデントし、それ以降はフラットに表示（YouTube風）
         <div
           className={
-            depth < 2 ? styles.repliesContainer : styles.repliesContainerFlat
+            depth < 2
+              ? styles["replies-container"]
+              : styles["replies-container-flat"]
           }
         >
           {replies.map((reply) => (

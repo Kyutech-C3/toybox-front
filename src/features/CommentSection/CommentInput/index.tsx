@@ -50,32 +50,32 @@ const CommentInput: React.FC<CommentInputProps> = ({
   );
 
   return (
-    <div className={styles.inputRow}>
+    <div className={styles["input-row"]}>
       <div className={styles.avatar}>
         <img
           src="https://s3.ap-northeast-1.wasabisys.com/mastodondb/accounts/avatars/110/275/885/725/745/131/original/c9bc5b34647f2e0d.jpg"
           alt="あなた"
-          className={styles.avatarImg}
+          className={styles["avatar-img"]}
         />
       </div>
-      <div className={styles.rightCol}>
+      <div className={styles["right-col"]}>
         <div className={styles.username}>あなた</div>
         {/* 返信対象がある場合は表示 */}
         {replyingTo && (
-          <div className={styles.replyInfo}>
+          <div className={styles["reply-info"]}>
             <span>{replyingTo.user.display_name} への返信</span>
             <button
               type="button"
               onClick={onCancelReply}
-              className={styles.cancelReplyBtn}
+              className={styles["cancel-reply-btn"]}
               aria-label="返信をキャンセル"
             >
               ×
             </button>
           </div>
         )}
-        <label className={styles.inputBox}>
-          <span className={styles.srOnly}>コメントを入力</span>
+        <label className={styles["input-box"]}>
+          <span className={styles["sr-only"]}>コメントを入力</span>
           <textarea
             ref={textareaRef}
             className={styles.textarea}
@@ -90,7 +90,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
             autoFocus={autoFocus}
           />
         </label>
-        <div className={styles.sendWrap}>
+        <div className={styles["send-wrap"]}>
           <Button onClick={handleSend} disabled={!value.trim()}>
             送信
           </Button>
