@@ -3,7 +3,7 @@ import styles from "./index.module.css";
 import type React from "react";
 
 interface ButtonProps {
-  onClick?: () => void;
+  onClick: () => void;
   disabled?: boolean;
   children?: React.ReactNode;
   type?: "button" | "submit" | "reset";

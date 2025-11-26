@@ -8,10 +8,11 @@ import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentInputProps {
-  onSubmit?: (message: string) => void;
-  replyingTo?: Comment | null;
+  onSubmit: (message: string) => void;
+  replyingTo?: Comment;
   onCancelReply?: () => void;
   autoFocus?: boolean;
+  avatarUrl?: string;
 }
 
 const CommentInput: React.FC<CommentInputProps> = ({
@@ -19,6 +20,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
   replyingTo,
   onCancelReply,
   autoFocus,
+  avatarUrl = "https://s3.ap-northeast-1.wasabisys.com/mastodondb/accounts/avatars/110/275/885/725/745/131/original/c9bc5b34647f2e0d.jpg",
 }) => {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -34,7 +36,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
 
   const handleSend = useCallback(() => {
     if (!value.trim()) return;
-    onSubmit?.(value);
+    onSubmit(value);
     setValue("");
     setTimeout(() => adjustHeight(), 0);
   }, [onSubmit, value, adjustHeight]);
@@ -52,11 +54,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
   return (
     <div className={styles["input-row"]}>
       <div className={styles.avatar}>
-        <img
-          src="https://s3.ap-northeast-1.wasabisys.com/mastodondb/accounts/avatars/110/275/885/725/745/131/original/c9bc5b34647f2e0d.jpg"
-          alt="あなた"
-          className={styles["avatar-img"]}
-        />
+        <img src={avatarUrl} alt="あなた" className={styles["avatar-img"]} />
       </div>
       <div className={styles["right-col"]}>
         <div className={styles.username}>あなた</div>

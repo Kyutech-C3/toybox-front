@@ -7,8 +7,8 @@ import type { Comment } from "@/shared/types/comment";
 interface CommentListProps {
   comments: Comment[];
   onDelete?: (commentId: string) => void;
-  onReply?: (comment: Comment) => void;
-  replyingTo?: Comment | null;
+  onReply: (comment: Comment) => void;
+  replyingTo?: Comment;
   onSubmitReply?: (message: string, parentId?: string) => void;
   onCancelReply?: () => void;
 }

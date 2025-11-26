@@ -17,14 +17,14 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId: _postId }) => {
   // モックデータを使用
   const [comments, setComments] = useState<Comment[]>(mockComments);
   // 返信対象のコメントを管理するState
-  const [replyingTo, setReplyingTo] = useState<Comment | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Comment | undefined>(undefined);
 
   const handleReply = useCallback((comment: Comment) => {
     setReplyingTo(comment);
   }, []);
 
   const handleCancelReply = useCallback(() => {
-    setReplyingTo(null);
+    setReplyingTo(undefined);
   }, []);
 
   // コメント送信（モック）
@@ -50,7 +50,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId: _postId }) => {
     };
     setComments((prev) => [newComment, ...prev]);
     // 送信後は返信モードを解除
-    setReplyingTo(null);
+    setReplyingTo(undefined);
   }, []);
 
   // コメント削除（モック）

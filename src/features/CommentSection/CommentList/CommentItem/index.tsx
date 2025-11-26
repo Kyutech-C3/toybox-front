@@ -9,11 +9,11 @@ import type { Comment } from "@/shared/types/comment";
 interface CommentItemProps {
   comment: Comment;
   onDelete?: (commentId: string) => void;
-  onReply?: (comment: Comment) => void;
+  onReply: (comment: Comment) => void;
   replies?: Comment[];
   allComments?: Comment[];
   depth?: number;
-  replyingTo?: Comment | null;
+  replyingTo?: Comment;
   onSubmitReply?: (message: string, parentId?: string) => void;
   onCancelReply?: () => void;
 }
@@ -84,7 +84,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           <button
             type="button"
             className={styles["reply-btn"]}
-            onClick={() => onReply?.(comment)}
+            onClick={() => onReply(comment)}
           >
             返信
           </button>
