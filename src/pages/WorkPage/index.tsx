@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 
-import CommentSection from "./CommentSection";
 import styles from "./index.module.css";
 
+import CommentSection from "@/features/CommentSection";
 import Header from "@/features/Header";
 
 const WorkPage = () => {

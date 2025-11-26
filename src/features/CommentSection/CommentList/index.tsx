@@ -2,7 +2,7 @@ import CommentItem from "./CommentItem";
 import styles from "./index.module.css";
 
 import type React from "react";
-import type { Comment } from "../../../../shared/types/comment";
+import type { Comment } from "@/shared/types/comment";
 
 interface CommentListProps {
   comments: Comment[];

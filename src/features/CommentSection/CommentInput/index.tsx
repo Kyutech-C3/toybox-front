@@ -1,10 +1,11 @@
 import { useCallback, useRef, useState } from "react";
 
 import styles from "./index.module.css";
-import SendButton from "./SendButton";
+
+import Button from "@/shared/ui/Button";
 
 import type React from "react";
-import type { Comment } from "../../../../shared/types/comment";
+import type { Comment } from "@/shared/types/comment";
 
 interface CommentInputProps {
   onSubmit?: (message: string) => void;
@@ -90,7 +91,9 @@ const CommentInput: React.FC<CommentInputProps> = ({
           />
         </label>
         <div className={styles.sendWrap}>
-          <SendButton onClick={handleSend} disabled={!value.trim()} />
+          <Button onClick={handleSend} disabled={!value.trim()}>
+            送信
+          </Button>
         </div>
       </div>
     </div>

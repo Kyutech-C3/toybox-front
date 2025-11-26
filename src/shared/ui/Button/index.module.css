@@ -1,4 +1,4 @@
-.sendButton {
+.button {
   width: 106px;
   height: 54px;
   background: #fabe00;
@@ -16,11 +16,11 @@
   color: #000000;
 }
 
-.sendButton:hover {
+.button:hover {
   opacity: 0.9;
 }
 
-.sendButton:disabled {
+.button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

@@ -1,12 +1,13 @@
 import { useCallback, useState } from "react";
 
-import { mockComments } from "../../../shared/mocks/commentData";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
 import styles from "./index.module.css";
 
+import { mockComments } from "@/shared/mocks/commentData";
+
 import type React from "react";
-import type { Comment } from "../../../shared/types/comment";
+import type { Comment } from "@/shared/types/comment";
 
 interface CommentSectionProps {
   postId: string;

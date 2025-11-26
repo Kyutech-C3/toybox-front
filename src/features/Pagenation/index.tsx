@@ -1,6 +1,6 @@
-import { Button } from "./Button";
 import styles from "./index.module.css";
 import { PageDropdown } from "./PageDropdown";
+import { PagenationButton } from "./PagenationButton";
 
 interface PaginationProps {
   currentPage: number;
@@ -95,14 +95,14 @@ export const Pagination = ({
   return (
     <div className={styles["pagination-wrapper"]}>
       {/* 前へボタン */}
-      <Button
+      <PagenationButton
         variant="nav"
         disabled={currentPage === 1}
         onClick={handlePrevious}
         ariaLabel="前のページ"
       >
         ＜
-      </Button>
+      </PagenationButton>
 
       {/* ページ番号 */}
       <nav className={styles.pagination} aria-label="ページネーション">
@@ -121,7 +121,7 @@ export const Pagination = ({
           }
 
           return (
-            <Button
+            <PagenationButton
               key={item.value}
               variant="page"
               active={item.value === currentPage}
@@ -129,20 +129,20 @@ export const Pagination = ({
               ariaLabel={`ページ ${item.value}`}
             >
               {item.value}
-            </Button>
+            </PagenationButton>
           );
         })}
       </nav>
 
       {/* 次へボタン */}
-      <Button
+      <PagenationButton
         variant="nav"
         disabled={currentPage === totalPages}
         onClick={handleNext}
         ariaLabel="次のページ"
       >
         ＞
-      </Button>
+      </PagenationButton>
     </div>
   );
 };

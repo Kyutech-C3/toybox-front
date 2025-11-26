@@ -11,7 +11,7 @@ interface ButtonProps {
   ariaLabel?: string;
 }
 
-export const Button = ({
+export const PagenationButton = ({
   variant = "page",
   active = false,
   disabled = false,
