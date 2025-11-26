@@ -2,8 +2,6 @@ import { useCallback, useRef, useState } from "react";
 
 import styles from "./index.module.css";
 
-import Button from "@/shared/ui/Button";
-
 import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
@@ -65,7 +63,7 @@ const CommentInput: React.FC<CommentInputProps> = ({
             <button
               type="button"
               onClick={onCancelReply}
-              className={styles["cancel-reply-btn"]}
+              className={styles["cancel-reply-button"]}
               aria-label="返信をキャンセル"
             >
               ×
@@ -89,9 +87,14 @@ const CommentInput: React.FC<CommentInputProps> = ({
           />
         </label>
         <div className={styles["send-wrap"]}>
-          <Button onClick={handleSend} disabled={!value.trim()}>
+          <button
+            type="button"
+            onClick={handleSend}
+            disabled={!value.trim()}
+            className={styles["send-button"]}
+          >
             送信
-          </Button>
+          </button>
         </div>
       </div>
     </div>
