@@ -70,7 +70,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
             {onDelete && (
               <button
                 type="button"
-                className={styles["delete-btn"]}
+                className={styles["delete-button"]}
                 onClick={handleDelete}
                 aria-label="コメントを削除"
               >
@@ -83,7 +83,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           </div>
           <button
             type="button"
-            className={styles["reply-btn"]}
+            className={styles["reply-button"]}
             onClick={() => onReply(comment)}
           >
             返信

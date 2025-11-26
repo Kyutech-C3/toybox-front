@@ -11,7 +11,7 @@
   width: 100%;
 }
 
-.reply-btn {
+.reply-button {
   background: none;
   border: none;
   padding: 4px 0;
@@ -23,7 +23,7 @@
   margin-top: 4px;
 }
 
-.reply-btn:hover {
+.reply-button:hover {
   text-decoration: underline;
   color: #333;
 }
@@ -96,7 +96,7 @@
   color: var(--font-color);
 }
 
-.delete-btn {
+.delete-button {
   background: transparent;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -108,13 +108,13 @@
   transition: all 0.2s;
 }
 
-.delete-btn:hover {
+.delete-button:hover {
   background: var(--background-color);
   color: var(--font-color);
   border-color: #999;
 }
 
-.delete-btn:active {
+.delete-button:active {
   transform: scale(0.98);
 }
 

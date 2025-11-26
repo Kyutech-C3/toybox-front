@@ -20,9 +20,9 @@ export const PagenationButton = ({
   ariaLabel,
 }: ButtonProps) => {
   const getClassName = () => {
-    const baseClass = styles[`${variant}-btn`];
+    const baseClass = styles[`${variant}-button`];
     if (variant === "page" && active) {
-      return `${baseClass} ${styles["page-btn--active"]}`;
+      return `${baseClass} ${styles["page-button--active"]}`;
     }
     if (disabled) {
       return `${baseClass} ${styles.disabled}`;
