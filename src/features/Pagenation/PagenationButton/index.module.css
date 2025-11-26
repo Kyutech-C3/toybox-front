@@ -9,7 +9,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--button-color);
   cursor: pointer;
   font-size: 14px;
   font-weight: bold;
@@ -34,8 +34,8 @@
 }
 
 .page-btn--active {
-  background: #FABE00; /* 黄色 */
-  color: #000;
+  background: var(--primary-color);
+  color: var(--font-color);
   font-weight: 600;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }

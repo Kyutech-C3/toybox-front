@@ -32,7 +32,7 @@
   font-weight: 500;
   font-size: 16px;
   line-height: 19px;
-  color: #000000;
+  color: var(--font-color);
   text-align: left;
 }
 
@@ -58,13 +58,13 @@
   line-height: 24px;
   resize: none;
   outline: none;
-  color: #000000;
+  color: var(--font-color);
   text-align: left;
   overflow: hidden;
 }
 
 .textarea::placeholder {
-  color: #d9d9d9;
+  color: var(--phrase-holder);
   font-weight: 700;
 }
 
