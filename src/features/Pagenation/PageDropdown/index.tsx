@@ -55,13 +55,13 @@ export const PageDropdown = ({
 
       {isOpen && (
         <div className={styles.dropdown} role="menu">
-          <div className={styles.scrollContainer}>
+          <div className={styles["scroll-container"]}>
             {hiddenPages.map((page) => (
               <button
                 key={page}
                 type="button"
                 className={`${styles.item} ${
-                  page === currentPage ? styles.itemActive : ""
+                  page === currentPage ? styles["item-active"] : ""
                 }`}
                 onClick={() => handlePageClick(page)}
                 role="menuitem"

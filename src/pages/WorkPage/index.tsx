@@ -1,9 +1,14 @@
+import { useParams } from "react-router-dom";
+
 import styles from "./index.module.css";
 
+import CommentSection from "@/features/CommentSection";
 import Header from "@/features/Header";
 import { Paper } from "@/shared/ui/Paper";
 
 const WorkPage = () => {
+  const { id } = useParams<{ id: string }>();
+
   return (
     <>
       <Header />
