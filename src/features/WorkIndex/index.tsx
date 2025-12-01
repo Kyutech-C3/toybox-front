@@ -15,7 +15,7 @@ const WorkIndex = () => {
   const { tags } = useTagsStore();
   const currentPage = Number(searchParams.get("page")) || 1;
 
-  const { data, totalCount, error, isLoading } = useWorks({
+  const { data, totalCount, error } = useWorks({
     page: currentPage,
     limit: ITEMS_PER_PAGE,
     tags: tags,
@@ -27,14 +27,6 @@ const WorkIndex = () => {
     setSearchParams({ page: String(page) });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  if (isLoading) {
-    return (
-      <div>
-        <p>読み込み中...</p>
-      </div>
-    );
-  }
 
   if (error) {
     return <div>エラー: {error.message}</div>;

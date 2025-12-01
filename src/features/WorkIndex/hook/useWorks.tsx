@@ -16,7 +16,6 @@ interface UseWorksReturn {
   currentPage: number;
   limit: number;
   error: Error | undefined;
-  isLoading: boolean;
 }
 
 const useWorks = ({
@@ -31,11 +30,9 @@ const useWorks = ({
     return response;
   };
 
-  const {
-    data: response,
-    error,
-    isLoading,
-  } = useSWR<WorkListResponse>(url, fetcher);
+  const { data: response, error } = useSWR<WorkListResponse>(url, fetcher, {
+    suspense: true,
+  });
 
   // TODO: タグ検索機能が出来次第こちらを利用し、タグによる絞り込み機能を実装する。
   console.log(tags);
@@ -46,7 +43,6 @@ const useWorks = ({
     currentPage: response?.page ?? page,
     limit: response?.limit ?? limit,
     error,
-    isLoading,
   };
 };
 

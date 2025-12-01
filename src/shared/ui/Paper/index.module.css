@@ -1,5 +1,6 @@
-.paper {
+.paper-wrapper {
   border-radius: 16px;
-  background-color: #dfdfdf;
+  background-color: var(--paper-color);
   padding: 16px;
+  width: 80%;
 }

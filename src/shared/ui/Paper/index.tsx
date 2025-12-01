@@ -4,6 +4,8 @@ type PaperProps = {
   children: React.ReactNode;
 };
 
-export const Paper = ({ children }: PaperProps) => {
-  return <div className={styles["papar"]}>{children}</div>;
+const Paper = ({ children }: PaperProps) => {
+  return <div className={styles["paper-wrapper"]}>{children}</div>;
 };
+
+export default Paper;
