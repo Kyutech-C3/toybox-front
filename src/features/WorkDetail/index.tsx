@@ -1,3 +1,6 @@
+import Markdown from "react-markdown";
+
+import CommentSection from "../CommentSection";
 import useWorkDetail from "./hooks/useWorkDetail";
 
 import Paper from "@/shared/ui/Paper";
@@ -16,10 +19,11 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
   if (!data) {
     return <div>データがありません</div>;
   }
+  console.log(data.assets);
   return (
     <Paper>
-      <h1>WorkDetail</h1>
-      <p>{data.title}</p>
+      <h1>{data.title}</h1>
+      <Markdown>{data.description}</Markdown>
     </Paper>
   );
 };

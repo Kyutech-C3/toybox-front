@@ -1,6 +1,8 @@
 .paper-wrapper {
   border-radius: 16px;
   background-color: var(--paper-color);
-  padding: 16px;
+  padding: 40px;
   width: 80%;
+  text-align: left;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.25);
 }

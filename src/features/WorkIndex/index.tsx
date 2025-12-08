@@ -33,7 +33,7 @@ const WorkIndex = () => {
   }
 
   if (!data) {
-    return <div>データがありません</div>;
+    return <div>作品がありません</div>;
   }
 
   return (
