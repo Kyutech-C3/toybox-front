@@ -1,0 +1,38 @@
+.live-editor-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.live-editor {
+  flex: 1;
+}
+
+.live-preview {
+  flex: 1;
+  border-left: 1px solid var(--border-color);
+  padding-left: 16px;
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  hr {
+    border-color: var(--border-color);
+    border-style: dashed;
+  }
+}
+
+.preview-container {
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  hr {
+    border-color: var(--border-color);
+    border-style: dashed;
+  }
+}

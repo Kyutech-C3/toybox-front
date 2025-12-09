@@ -18,7 +18,12 @@ interface CommentItemProps {
   onCancelReply?: () => void;
 }
 
-const Avatar: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) => {
+type AvatarProps = {
+  src: string;
+  alt: string;
+};
+
+const Avatar = ({ src, alt }: AvatarProps) => {
   return (
     <div className={styles.avatar} role="img" aria-label={alt || "avatar"}>
       {src ? (
@@ -30,7 +35,7 @@ const Avatar: React.FC<{ src?: string; alt?: string }> = ({ src, alt }) => {
   );
 };
 
-const CommentItem: React.FC<CommentItemProps> = ({
+const CommentItem = ({
   comment,
   onDelete,
   onReply,
@@ -40,7 +45,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   replyingTo,
   onSubmitReply,
   onCancelReply,
-}) => {
+}: CommentItemProps) => {
   const handleDelete = useCallback(() => {
     if (window.confirm("このコメントを削除しますか?")) {
       onDelete?.(comment.id);

@@ -13,14 +13,14 @@ interface CommentListProps {
   onCancelReply?: () => void;
 }
 
-const CommentList: React.FC<CommentListProps> = ({
+const CommentList = ({
   comments,
   onDelete,
   onReply,
   replyingTo,
   onSubmitReply,
   onCancelReply,
-}) => {
+}: CommentListProps) => {
   // ルートコメント（返信でないコメント）のみを抽出し、新しい順にソート
   const rootComments = comments
     .filter((c) => !c.reply_at)
