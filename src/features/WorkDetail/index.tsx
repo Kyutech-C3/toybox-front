@@ -1,6 +1,5 @@
 import Markdown from "react-markdown";
 
-import CommentSection from "../CommentSection";
 import useWorkDetail from "./hooks/useWorkDetail";
 
 import Paper from "@/shared/ui/Paper";

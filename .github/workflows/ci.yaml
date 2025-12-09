@@ -1,5 +1,5 @@
-name: pnpm ci setup
-description: Set up pnpm in the GitHub Actions environment
+name: npm ci setup
+description: Set up npm in the GitHub Actions environment
 
 on:
   pull_request:
@@ -10,17 +10,20 @@ on:
       - main
 
 jobs:
-  setup:
+  ci:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Use Node.js
+
+      - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version-file: "package.json"
+          node-version: "22"
           cache: "npm"
+
       - name: Install dependencies
-        run: npm install
-      - name: Run Ci
+        run: npm ci
+
+      - name: Run CI checks
         run: npm run ci

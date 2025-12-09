@@ -7,7 +7,6 @@ import styles from "./index.module.css";
 import { mockComments } from "@/shared/mocks/commentData";
 import Paper from "@/shared/ui/Paper";
 
-import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentSectionProps {

@@ -3,7 +3,6 @@ import { useCallback } from "react";
 import CommentInput from "../../CommentInput";
 import styles from "./index.module.css";
 
-import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentItemProps {
