@@ -13,13 +13,13 @@ interface CommentInputProps {
   avatarUrl?: string;
 }
 
-const CommentInput: React.FC<CommentInputProps> = ({
+const CommentInput = ({
   onSubmit,
   replyingTo,
   onCancelReply,
   autoFocus,
   avatarUrl = "https://s3.ap-northeast-1.wasabisys.com/mastodondb/accounts/avatars/110/275/885/725/745/131/original/c9bc5b34647f2e0d.jpg",
-}) => {
+}: CommentInputProps) => {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 

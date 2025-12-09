@@ -1,7 +1,6 @@
 import CommentItem from "./CommentItem";
 import styles from "./index.module.css";
 
-import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentListProps {
@@ -13,14 +12,14 @@ interface CommentListProps {
   onCancelReply?: () => void;
 }
 
-const CommentList: React.FC<CommentListProps> = ({
+const CommentList = ({
   comments,
   onDelete,
   onReply,
   replyingTo,
   onSubmitReply,
   onCancelReply,
-}) => {
+}: CommentListProps) => {
   // ルートコメント（返信でないコメント）のみを抽出し、新しい順にソート
   const rootComments = comments
     .filter((c) => !c.reply_at)

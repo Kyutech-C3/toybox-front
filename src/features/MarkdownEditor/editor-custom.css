@@ -1,0 +1,28 @@
+/* エディタ全体の背景 / ボーダー */
+.w-md-editor {
+  box-shadow: none;
+}
+
+/* textarea 部分の色・フォント */
+.w-md-editor-text-input {
+}
+
+/* プレビュー内のコードブロックの背景色 */
+.w-md-editor-text-pre > code {
+}
+
+/* ツールバーを完全に消したい場合 */
+.w-md-editor-toolbar {
+}
+
+/* ツールバーのアイコンサイズ */
+.w-md-editor-toolbar li button {
+  font-size: 22px !important;
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.w-md-editor-toolbar li button svg {
+  width: 16px !important;
+  height: 16px !important;
+}

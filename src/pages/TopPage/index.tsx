@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import styles from "./index.module.css";
 
 import Header from "@/features/Header";
@@ -8,7 +10,9 @@ const TopPage = () => {
     <>
       <Header />
       <main className={styles["main-wrapper"]}>
-        <WorkIndex />
+        <Suspense fallback={<h2>読み込み中...</h2>}>
+          <WorkIndex />
+        </Suspense>
       </main>
     </>
   );

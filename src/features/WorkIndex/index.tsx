@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
@@ -15,7 +15,7 @@ const WorkIndex = () => {
   const { tags } = useTagsStore();
   const currentPage = Number(searchParams.get("page")) || 1;
 
-  const { data, totalCount, error, isLoading } = useWorks({
+  const { data, totalCount, error } = useWorks({
     page: currentPage,
     limit: ITEMS_PER_PAGE,
     tags: tags,
@@ -28,20 +28,12 @@ const WorkIndex = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  if (isLoading) {
-    return (
-      <div>
-        <p>読み込み中...</p>
-      </div>
-    );
-  }
-
   if (error) {
     return <div>エラー: {error.message}</div>;
   }
 
   if (!data) {
-    return <div>データがありません</div>;
+    return <div>作品がありません</div>;
   }
 
   return (
@@ -49,21 +41,27 @@ const WorkIndex = () => {
       <SearchBar />
       <div className={styles["works-index"]}>
         {data.map((work) => (
-          <Card
+          <Link
             key={work.id}
-            title={
-              work.title.length > 14
-                ? `${work.title.slice(0, 14)}...`
-                : work.title
-            }
-            tags={["test", "mock"]}
-            imageURL={
-              work.assets[0].asset_type === "image"
-                ? work.assets[0].url
-                : undefined
-            }
-            postDate={new Date(work.created_at.split(" ")[0])}
-          />
+            to={`/work/${work.id}`}
+            className={styles["work-link"]}
+          >
+            <Card
+              key={work.id}
+              title={
+                work.title.length > 14
+                  ? `${work.title.slice(0, 14)}...`
+                  : work.title
+              }
+              tags={["test", "mock"]}
+              imageURL={
+                work.assets[0].asset_type === "image"
+                  ? work.assets[0].url
+                  : undefined
+              }
+              postDate={new Date(work.created_at.split(" ")[0])}
+            />
+          </Link>
         ))}
       </div>
       {totalPages > 1 && (

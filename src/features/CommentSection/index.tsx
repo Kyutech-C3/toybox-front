@@ -5,15 +5,15 @@ import CommentList from "./CommentList";
 import styles from "./index.module.css";
 
 import { mockComments } from "@/shared/mocks/commentData";
+import Paper from "@/shared/ui/Paper";
 
-import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentSectionProps {
   postId: string;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ postId: _postId }) => {
+const CommentSection = ({ postId: _postId }: CommentSectionProps) => {
   // モックデータを使用
   const [comments, setComments] = useState<Comment[]>(mockComments);
   // 返信対象のコメントを管理するState
@@ -59,22 +59,20 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId: _postId }) => {
   }, []);
 
   return (
-    <section className={styles.wrapper}>
-      <div className={styles.card}>
-        <h2 className={styles.title}>コメント</h2>
-        <div className={styles.content}>
-          <CommentList
-            comments={comments}
-            onDelete={handleDelete}
-            onReply={handleReply}
-            replyingTo={replyingTo}
-            onSubmitReply={handleSubmit}
-            onCancelReply={handleCancelReply}
-          />
-          <CommentInput onSubmit={(msg) => handleSubmit(msg)} />
-        </div>
+    <Paper>
+      <h2 className={styles.title}>コメント</h2>
+      <div className={styles.content}>
+        <CommentList
+          comments={comments}
+          onDelete={handleDelete}
+          onReply={handleReply}
+          replyingTo={replyingTo}
+          onSubmitReply={handleSubmit}
+          onCancelReply={handleCancelReply}
+        />
+        <CommentInput onSubmit={(msg) => handleSubmit(msg)} />
       </div>
-    </section>
+    </Paper>
   );
 };
 
