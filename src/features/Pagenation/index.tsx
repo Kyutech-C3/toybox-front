@@ -1,6 +1,7 @@
 import styles from "./index.module.css";
-import { PageDropdown } from "./PageDropdown";
-import { PagenationButton } from "./PagenationButton";
+
+import Button from "@/shared/ui/Button";
+import Dropdown from "@/shared/ui/Dropdown";
 
 interface PaginationProps {
   currentPage: number;
@@ -94,55 +95,54 @@ export const Pagination = ({
 
   return (
     <div className={styles["pagination-wrapper"]}>
-      {/* 前へボタン */}
-      <PagenationButton
-        variant="nav"
+      <Button
+        variant="primary"
         disabled={currentPage === 1}
         onClick={handlePrevious}
         ariaLabel="前のページ"
       >
         ＜
-      </PagenationButton>
+      </Button>
 
-      {/* ページ番号 */}
       <nav className={styles.pagination} aria-label="ページネーション">
         {pageNumbers.map((item) => {
           if (item.type === "dots") {
-            // 隠れたページの範囲から一意なキーを生成
-            const key = `dots-${item.hiddenPages[0]}-${item.hiddenPages[item.hiddenPages.length - 1]}`;
             return (
-              <PageDropdown
-                key={key}
-                hiddenPages={item.hiddenPages}
-                onPageSelect={onPageChange}
-                currentPage={currentPage}
+              <Dropdown
+                trigger={
+                  <span className={styles["trigger-button"]}>• • •</span>
+                }
+                options={item.hiddenPages}
+                onSelect={onPageChange}
+                selectedValues={[currentPage]}
+                position="top"
+                key="hidden-pages-dropdown"
               />
             );
           }
 
           return (
-            <PagenationButton
+            <Button
               key={item.value}
-              variant="page"
-              active={item.value === currentPage}
+              variant="primary"
+              isActive={item.value === currentPage}
               onClick={() => onPageChange(item.value)}
               ariaLabel={`ページ ${item.value}`}
             >
               {item.value}
-            </PagenationButton>
+            </Button>
           );
         })}
       </nav>
 
-      {/* 次へボタン */}
-      <PagenationButton
-        variant="nav"
+      <Button
+        variant="primary"
         disabled={currentPage === totalPages}
         onClick={handleNext}
         ariaLabel="次のページ"
       >
         ＞
-      </PagenationButton>
+      </Button>
     </div>
   );
 };
