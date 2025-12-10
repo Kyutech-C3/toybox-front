@@ -4,37 +4,17 @@
 }
 
 .trigger {
-  height: 48px;
-  min-width: 48px;
-  padding: 0 12px;
-  border-radius: 10px;
   border: none;
-  background: transparent;
+  background: none;
+  padding: 0;
   cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  user-select: none;
-  transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--font-color);
-  white-space: nowrap;
-}
-
-.trigger:hover {
-  background: #f8f8f8;
-  color: #666;
-}
-
-.trigger[aria-expanded="true"] {
-  background: #f0f0f0;
-  color: var(--font-color);
 }
 
 .dropdown {
   position: absolute;
-  bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   background: var(--button-color);
@@ -44,6 +24,14 @@
   z-index: 100;
   min-width: 100px;
   animation: fadeIn 0.2s ease;
+}
+
+.dropdown-top {
+  bottom: calc(100% + 8px);
+}
+
+.dropdown-bottom {
+  top: calc(100% + 8px);
 }
 
 @keyframes fadeIn {
