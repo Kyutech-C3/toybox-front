@@ -5,7 +5,7 @@ import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
 import { useTagsStore } from "./store/useTagsStore";
 
-import { Pagination } from "@/features/Pagenation";
+import { Pagination } from "@/features/WorkIndex/Pagenation";
 import Card from "@/shared/ui/Card";
 
 const ITEMS_PER_PAGE = 20;

@@ -8,7 +8,9 @@ type TagsStoreProps = {
 
 export const useTagsStore = create<TagsStoreProps>((set) => ({
   tags: [],
-  addTag: (tag: string) => set((state) => ({ tags: [...state.tags, tag] })),
+  addTag: (tag: string) => {
+    set((state) => ({ tags: [...state.tags, tag] }));
+  },
   removeTag: (index: number) =>
     set((state) => ({
       tags: state.tags.filter((_, i) => i !== index),
