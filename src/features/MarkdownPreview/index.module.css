@@ -79,7 +79,7 @@
   }
 
   pre {
-    background-color: var(--background-color);
+    background-color: rgb(245, 242, 240);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 1rem;
