@@ -1,0 +1,63 @@
+.asset-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.asset-container {
+  margin: 0;
+  padding: 0;
+  border-radius: 25px;
+  height: 540px;
+  width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  columns: 1;
+  background-color: var(--asset-background);
+  text-align: center;
+  gap: 4vw;
+
+  &::column {
+    scroll-snap-align: center;
+  }
+}
+
+.asset-carousel {
+  text-align: left;
+  list-style-type: none;
+  display: inline-block;
+  height: 100%;
+  flex: 0 0 100%;
+}
+
+.scroll-left-button,
+.scroll-right-button {
+  width: 64px;
+  height: 64px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  color: var(--font-color);
+  padding: 10px;
+  cursor: pointer;
+  z-index: 1;
+  border-radius: 50%;
+
+  &[data-disabled="true"] {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: var(--font-sub-color);
+  }
+}
+
+.scroll-left-button {
+  left: 25px;
+}
+
+.scroll-right-button {
+  right: 25px;
+}

@@ -27,4 +27,4 @@ type WorkListResponse = {
   limit: number;
 };
 
-export type { Work, WorkListResponse };
+export type { Work, Asset, WorkListResponse };
