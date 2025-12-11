@@ -8,21 +8,11 @@ export interface DropdownOption<T> {
 }
 
 interface DropdownProps<T> {
-  // 開閉状態（外部制御）
   isOpen: boolean;
-  // オプション（配列または DropdownOption の配列）
   options: T[] | DropdownOption<T>[];
-  // 選択時のコールバック
   onSelect: (value: T) => void;
-  // 現在選択されている値（複数選択対応）
   selectedValues?: T[];
-  // ドロップダウンの位置（デフォルト: "top"）
   position?: "top" | "bottom";
-  // カスタムクラス名
-  className?: string;
-  // ドロップダウンメニューのカスタムクラス名
-  dropdownClassName?: string;
-  // カスタムレンダリング（高度なカスタマイズ用）
   renderOption?: (option: DropdownOption<T>, isSelected: boolean) => ReactNode;
 }
 
@@ -32,11 +22,8 @@ export const Dropdown = <T extends string | number>({
   onSelect,
   selectedValues = [],
   position = "top",
-  className,
-  dropdownClassName,
   renderOption,
 }: DropdownProps<T>) => {
-  // オプションを正規化（配列を DropdownOption 形式に変換）
   const normalizedOptions: DropdownOption<T>[] = options.map((opt) =>
     typeof opt === "object" && "value" in opt
       ? opt
@@ -51,7 +38,7 @@ export const Dropdown = <T extends string | number>({
         position === "bottom"
           ? styles["dropdown-bottom"]
           : styles["dropdown-top"]
-      } ${dropdownClassName || ""} ${className || ""}`}
+      }`}
       role="menu"
     >
       <div className={styles["scroll-container"]}>

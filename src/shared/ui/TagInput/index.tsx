@@ -4,7 +4,7 @@ import Batch from "../Batch";
 import Dropdown from "../Dropdown";
 import styles from "./index.module.css";
 
-import type { ChangeEvent, FormEvent, InputHTMLAttributes } from "react";
+import type { FormEvent, InputHTMLAttributes } from "react";
 
 type TagInputProps = {
   tags: string[];
