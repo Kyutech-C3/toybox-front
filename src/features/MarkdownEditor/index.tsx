@@ -1,11 +1,10 @@
 import React from "react";
-import Markdown from "react-markdown";
 import MDEditor from "@uiw/react-md-editor";
 import rehypeSanitize from "rehype-sanitize";
-import remarkGfm from "remark-gfm";
 
 import styles from "./index.module.css";
 
+import MarkdownPreview from "@/features/MarkdownPreview";
 import Paper from "@/shared/ui/Paper";
 import "./editor-custom.css";
 
@@ -41,9 +40,7 @@ const MarkdownEditor = () => {
           />
         </div>
       ) : editMode === "preview" ? (
-        <div className={styles["preview-container"]}>
-          <Markdown remarkPlugins={[remarkGfm]}>{value}</Markdown>
-        </div>
+        <MarkdownPreview content={value} />
       ) : (
         <div data-color-mode="light" className={styles["live-editor-wrapper"]}>
           <div className={styles["live-editor"]}>
@@ -60,7 +57,7 @@ const MarkdownEditor = () => {
             />
           </div>
           <div className={styles["live-preview"]}>
-            <Markdown remarkPlugins={[remarkGfm]}>{value}</Markdown>
+            <MarkdownPreview content={value} />
           </div>
         </div>
       )}
