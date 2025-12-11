@@ -1,4 +1,5 @@
 import MarkdownPreview from "../MarkdownPreview";
+import AssetCarousel from "./AssetCarousel";
 import useWorkDetail from "./hooks/useWorkDetail";
 
 import Paper from "@/shared/ui/Paper";
@@ -21,6 +22,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
   return (
     <Paper>
       <h1>{data.title}</h1>
+      <AssetCarousel assets={data.assets} />
       <MarkdownPreview content={data.description} />
     </Paper>
   );
