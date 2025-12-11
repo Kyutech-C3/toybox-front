@@ -30,6 +30,7 @@ a {
   color: var(--font-color);
   text-decoration: inherit;
 }
+
 a:hover {
   color: var(--primary-color);
 }

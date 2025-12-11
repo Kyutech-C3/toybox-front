@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import styles from "./index.module.css";
 
+import ImageUpload from "@/features/WorkEditor/WorkDetailForm/ImageUpload";
 import Input from "@/shared/ui/Input";
 import Paper from "@/shared/ui/Paper";
 import TagInput from "@/shared/ui/TagInput";
@@ -27,6 +28,11 @@ const WorkDetailForm = () => {
             setTags((prev) => prev.filter((_, i) => i !== index))
           }
           allTagOptions={allTagOptions}
+        />
+        <ImageUpload
+          onImageSelect={(file: File) => {
+            console.log("Selected file:", file);
+          }}
         />
       </div>
     </Paper>

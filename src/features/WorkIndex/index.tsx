@@ -55,7 +55,7 @@ const WorkIndex = () => {
               }
               tags={["test", "mock"]}
               imageURL={
-                work.assets[0].asset_type === "image"
+                work.assets[0]?.asset_type === "image"
                   ? work.assets[0].url
                   : undefined
               }
