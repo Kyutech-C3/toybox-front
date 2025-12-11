@@ -4,6 +4,7 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 import ImgCard from "./ImgCard";
 import styles from "./index.module.css";
+import MovieCard from "./MovieCard";
 
 import type { Asset } from "@/shared/types/work";
 
@@ -91,6 +92,15 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                   className={styles["asset-carousel"]}
                 >
                   <ImgCard alt="asset-image" src={asset.url} />
+                </li>
+              );
+            case "video":
+              return (
+                <li
+                  key={`${asset.work_id}-asset-${index}`}
+                  className={styles["asset-carousel"]}
+                >
+                  <MovieCard src={asset.url} extension={asset.extension} />
                 </li>
               );
             default:

@@ -1,0 +1,4 @@
+.movie-card {
+  height: 540px;
+  object-fit: contain;
+}
