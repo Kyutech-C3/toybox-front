@@ -33,6 +33,10 @@
   padding: 16px 0 16px 24px;
 }
 
+.input-dropdown-container {
+  position: relative;
+}
+
 .input-field {
   flex-grow: 1;
   padding: 0;

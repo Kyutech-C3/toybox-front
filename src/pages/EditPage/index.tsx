@@ -2,7 +2,6 @@ import styles from "./index.module.css";
 
 import Header from "@/features/Header";
 import WorkEditor from "@/features/WorkEditor";
-import MarkdownEditor from "@/features/WorkEditor/MarkdownEditor";
 
 const EditPage = () => {
   return (

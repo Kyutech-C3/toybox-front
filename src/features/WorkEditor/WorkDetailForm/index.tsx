@@ -10,6 +10,9 @@ const WorkDetailForm = () => {
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
 
+  // TODO: タグ候補はAPIから取得するようにする
+  const allTagOptions = ["React", "TypeScript", "JavaScript", "CSS", "HTML"];
+
   return (
     <Paper>
       <div className={styles["work-detail-form-wrapper"]}>
@@ -17,10 +20,13 @@ const WorkDetailForm = () => {
         <TagInput
           heading="タグ"
           tags={tags}
-          addTag={(tag: string) => setTags((prev) => [...prev, tag])}
+          addTag={(tag: string) =>
+            setTags((prev) => [...prev, tag.toUpperCase()])
+          }
           removeTag={(index: number) =>
             setTags((prev) => prev.filter((_, i) => i !== index))
           }
+          allTagOptions={allTagOptions}
         />
       </div>
     </Paper>
