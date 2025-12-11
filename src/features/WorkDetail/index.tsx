@@ -1,5 +1,4 @@
-import Markdown from "react-markdown";
-
+import MarkdownPreview from "../MarkdownPreview";
 import useWorkDetail from "./hooks/useWorkDetail";
 
 import Paper from "@/shared/ui/Paper";
@@ -22,7 +21,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
   return (
     <Paper>
       <h1>{data.title}</h1>
-      <Markdown>{data.description}</Markdown>
+      <MarkdownPreview content={data.description} />
     </Paper>
   );
 };
