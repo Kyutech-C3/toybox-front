@@ -79,12 +79,12 @@
   }
 
   pre {
+    width: 90%;
     background-color: rgb(245, 242, 240);
     border: 1px solid var(--border-color);
     border-radius: 6px;
-    padding: 1rem;
+    padding: 0.5rem;
     overflow-x: auto;
-    margin: 1rem 0;
 
     code {
       background-color: transparent;
