@@ -11,6 +11,7 @@ export const SearchBar = () => {
     const formData = new FormData(e.currentTarget);
     const tag = formData.get("tag") as string;
     if (tag.trim() !== "") {
+      if (tags.includes(tag.trim())) return;
       addTag(tag.trim());
       e.currentTarget.reset();
     }

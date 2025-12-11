@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from "react";
+
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
@@ -12,7 +14,7 @@ interface PaginationProps {
 
 type PageItem =
   | { type: "page"; value: number }
-  | { type: "dots"; hiddenPages: number[] };
+  | { type: "dots"; id: "left" | "right"; hiddenPages: number[] };
 
 export const Pagination = ({
   currentPage,
@@ -20,57 +22,53 @@ export const Pagination = ({
   onPageChange,
   maxVisiblePages = 3,
 }: PaginationProps) => {
+  const [isLeftDropdownOpen, setIsLeftDropdownOpen] = useState(false);
+  const [isRightDropdownOpen, setIsRightDropdownOpen] = useState(false);
+  const leftDropdownRef = useRef<HTMLDivElement>(null);
+  const rightDropdownRef = useRef<HTMLDivElement>(null);
+
   // ページ番号の配列を生成
   const getPageNumbers = (): PageItem[] => {
     const pages: PageItem[] = [];
 
     if (totalPages <= maxVisiblePages) {
-      // 全ページを表示
       for (let i = 1; i <= totalPages; i++) {
         pages.push({ type: "page", value: i });
       }
     } else {
-      // 省略表示を含むページ番号を生成
       const halfVisible = Math.floor(maxVisiblePages / 2);
       let startPage = Math.max(1, currentPage - halfVisible);
       let endPage = Math.min(totalPages, currentPage + halfVisible);
 
-      // 開始ページの調整
       if (currentPage <= halfVisible) {
         endPage = maxVisiblePages;
       }
-      // 終了ページの調整
       if (currentPage + halfVisible >= totalPages) {
         startPage = totalPages - maxVisiblePages + 1;
       }
 
-      // 最初のページ
       if (startPage > 1) {
         pages.push({ type: "page", value: 1 });
         if (startPage > 2) {
-          // 隠れたページ番号を計算
           const hiddenPages = Array.from(
             { length: startPage - 2 },
             (_, i) => i + 2,
           );
-          pages.push({ type: "dots", hiddenPages });
+          pages.push({ type: "dots", id: "left", hiddenPages });
         }
       }
 
-      // 中間のページ
       for (let i = startPage; i <= endPage; i++) {
         pages.push({ type: "page", value: i });
       }
 
-      // 最後のページ
       if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
-          // 隠れたページ番号を計算
           const hiddenPages = Array.from(
             { length: totalPages - endPage - 1 },
             (_, i) => endPage + i + 1,
           );
-          pages.push({ type: "dots", hiddenPages });
+          pages.push({ type: "dots", id: "right", hiddenPages });
         }
         pages.push({ type: "page", value: totalPages });
       }
@@ -78,6 +76,31 @@ export const Pagination = ({
 
     return pages;
   };
+
+  // 外側クリックで閉じる（左ドロップダウン）
+  useEffect(() => {
+    if (!isLeftDropdownOpen && !isRightDropdownOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        leftDropdownRef.current &&
+        !leftDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsLeftDropdownOpen(false);
+      }
+      if (
+        rightDropdownRef.current &&
+        !rightDropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsRightDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isLeftDropdownOpen, isRightDropdownOpen]);
 
   const handlePrevious = () => {
     if (currentPage > 1) {
@@ -88,6 +111,15 @@ export const Pagination = ({
   const handleNext = () => {
     if (currentPage < totalPages) {
       onPageChange(currentPage + 1);
+    }
+  };
+
+  const handlePageSelect = (page: number, dropdownId: "left" | "right") => {
+    onPageChange(page);
+    if (dropdownId === "left") {
+      setIsLeftDropdownOpen(false);
+    } else {
+      setIsRightDropdownOpen(false);
     }
   };
 
@@ -107,17 +139,39 @@ export const Pagination = ({
       <nav className={styles.pagination} aria-label="ページネーション">
         {pageNumbers.map((item) => {
           if (item.type === "dots") {
+            const isOpen =
+              item.id === "left" ? isLeftDropdownOpen : isRightDropdownOpen;
+            const setIsOpen =
+              item.id === "left"
+                ? setIsLeftDropdownOpen
+                : setIsRightDropdownOpen;
+            const dropdownRef =
+              item.id === "left" ? leftDropdownRef : rightDropdownRef;
+
             return (
-              <Dropdown
-                trigger={
-                  <span className={styles["trigger-button"]}>• • •</span>
-                }
-                options={item.hiddenPages}
-                onSelect={onPageChange}
-                selectedValues={[currentPage]}
-                position="top"
-                key="hidden-pages-dropdown"
-              />
+              <div
+                key={item.id}
+                ref={dropdownRef}
+                className={styles["dropdown-container"]}
+              >
+                <button
+                  type="button"
+                  className={styles["dropdown-trigger"]}
+                  onClick={() => setIsOpen(!isOpen)}
+                  aria-label="隠れたページを表示"
+                  aria-expanded={isOpen}
+                >
+                  • • •
+                </button>
+
+                <Dropdown
+                  isOpen={isOpen}
+                  options={item.hiddenPages}
+                  onSelect={(page) => handlePageSelect(page, item.id)}
+                  selectedValues={[currentPage]}
+                  position="top"
+                />
+              </div>
             );
           }
 

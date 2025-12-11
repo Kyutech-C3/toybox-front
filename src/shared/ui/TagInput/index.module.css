@@ -1,0 +1,49 @@
+.tag-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  h3 {
+    margin: 8px 5px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+.input-wrapper {
+  padding: 0;
+  border: solid 2px var(--primary-color);
+  border-radius: 25px;
+  box-sizing: border-box;
+  background: transparent;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  resize: none;
+  outline: none;
+  color: var(--font-color);
+  text-align: left;
+}
+
+.tags-wrapper {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 0 16px 24px;
+}
+
+.input-field {
+  flex-grow: 1;
+  padding: 0;
+  height: 24px;
+  border: none;
+  background: transparent;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  color: var(--font-color);
+  text-align: left;
+}

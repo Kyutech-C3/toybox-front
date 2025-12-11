@@ -36,6 +36,7 @@ const useWorks = ({
 
   // TODO: タグ検索機能が出来次第こちらを利用し、タグによる絞り込み機能を実装する。
   console.log(tags);
+  console.log(response);
 
   return {
     data: response?.works,
