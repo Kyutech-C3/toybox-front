@@ -1,0 +1,6 @@
+.publish-buttons-wrapper {
+  gap: 12px;
+  width: 80%;
+  display: flex;
+  justify-content: flex-end;
+}

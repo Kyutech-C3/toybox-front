@@ -1,0 +1,44 @@
+.draft-toggle-button-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggle-button {
+  position: relative;
+  display: block;
+  width: 90px;
+  height: 50px;
+  border-radius: 9999px;
+  background-color: var(--border-color);
+  cursor: pointer;
+
+  &:has(:focus-visible) {
+    outline: auto;
+    outline: auto -webkit-focus-ring-color;
+  }
+
+  &:has(:checked) {
+    background-color: var(--primary-color);
+  }
+}
+
+.toggle-button-checkbox {
+  margin: 0;
+  appearance: none;
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  transform: translateY(-50%);
+  outline: none;
+  background-color: var(--button-color);
+  transition: left 0.2s;
+  cursor: pointer;
+
+  &:checked {
+    left: calc(100% - 44px);
+  }
+}

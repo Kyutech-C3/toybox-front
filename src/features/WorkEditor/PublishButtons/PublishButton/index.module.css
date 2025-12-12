@@ -1,0 +1,62 @@
+/* 共通のボタン */
+.publish-button-wrapper {
+  height: 50px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+  border-radius: 20px;
+
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  &[data-active="true"] {
+    background: var(--primary-color);
+    font-weight: 600;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  }
+
+  &[data-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.publish-button {
+  height: 100%;
+  padding: 0 16px 0 24px;
+  border: none;
+  background: none;
+  border-radius: 20px 0 0 20px;
+  background: var(--primary-color);
+
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.button-span {
+  height: 100%;
+  width: 2px;
+  background-color: #ffffff;
+  border-top: solid 5px var(--primary-color);
+  border-bottom: solid 5px var(--primary-color);
+  box-sizing: border-box;
+}
+
+.menu-button {
+  height: 100%;
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  border-radius: 0 20px 20px 0;
+  background: var(--primary-color);
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+}
