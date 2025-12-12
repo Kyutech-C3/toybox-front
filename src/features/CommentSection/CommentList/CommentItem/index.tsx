@@ -65,12 +65,14 @@ const CommentItem = ({
     <div className={styles.wrapper}>
       <div className={styles["comment-row"]}>
         <Avatar
-          src={comment.user.avatar_url}
-          alt={`${comment.user.display_name} avatar`}
+          src={comment.user?.avatar_url}
+          alt={`${comment.user?.display_name} avatar`}
         />
         <div className={styles["comment-body"]}>
           <div className={styles.header}>
-            <div className={styles.username}>{comment.user.display_name}</div>
+            <div className={styles.username}>
+              {comment.user ? comment.user.display_name : "名無しのユーザー"}
+            </div>
             {onDelete && (
               <button
                 type="button"
