@@ -59,7 +59,12 @@ const CommentInput = ({
         {/* 返信対象がある場合は表示 */}
         {replyingTo && (
           <div className={styles["reply-info"]}>
-            <span>{replyingTo.user.display_name} への返信</span>
+            <span>
+              {replyingTo.user
+                ? replyingTo.user.display_name
+                : "名無しのユーザー"}{" "}
+              への返信
+            </span>
             <button
               type="button"
               onClick={onCancelReply}

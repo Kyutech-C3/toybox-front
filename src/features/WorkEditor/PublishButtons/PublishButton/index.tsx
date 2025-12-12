@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ArrowDropUpRoundedIcon from "@mui/icons-material/ArrowDropUpRounded";
 
 import { postWork } from "../../api/postWork";
@@ -21,12 +22,13 @@ const PublishButton = () => {
   } = usePostWorkStore();
   const { accessToken } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handlePublish = () => {
     if (!accessToken) {
       throw new Error("No access token available");
     }
-    postWork(
+    const response = postWork(
       {
         asset_ids,
         description,
@@ -38,6 +40,10 @@ const PublishButton = () => {
       },
       accessToken,
     );
+
+    if (response !== null) {
+      navigate("/");
+    }
   };
 
   return (
