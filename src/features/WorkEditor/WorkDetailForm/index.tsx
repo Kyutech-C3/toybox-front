@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import { uploadAsset } from "../api/uploadAsset";
 import { usePostWorkStore } from "../store/usePostWorkStore";
 import styles from "./index.module.css";
 
