@@ -46,12 +46,17 @@ export const postDataWithAuth = async (
   data: BodyInit,
   accessToken: string,
 ) => {
+  const headers: HeadersInit = {
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  if (!(data instanceof FormData)) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const response = await fetch(`${baseUrl}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
-    },
+    headers,
     body: data,
   });
   if (!response.ok) {

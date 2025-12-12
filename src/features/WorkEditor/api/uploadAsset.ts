@@ -7,7 +7,7 @@ type UploadAssetResponse = {
 
 const uploadAsset = async (file: File, accessToken: string) => {
   const formData = new FormData();
-  formData.append("asset", file);
+  formData.append("file", file);
 
   const response: UploadAssetResponse = await postDataWithAuth(
     "/auth/works/asset",
