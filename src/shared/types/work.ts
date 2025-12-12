@@ -5,10 +5,17 @@ type Work = {
   title: string;
   description: string;
   description_html: string;
-  user_id: string;
+  user: User;
+  thumbnail_url: string;
   visibility: string;
   created_at: string;
   updated_at: string;
+};
+
+type User = {
+  id: string;
+  display_name: string;
+  avatar_url: string;
 };
 
 type WorkRequestData = {

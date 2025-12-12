@@ -54,12 +54,10 @@ const WorkIndex = () => {
                   ? `${work.title.slice(0, 12)}...`
                   : work.title
               }
+              username={work.user.display_name}
+              avaterURL={work.user.avatar_url}
               tags={work.tags}
-              imageURL={
-                work.assets[0]?.asset_type === "image"
-                  ? work.assets[0].url
-                  : undefined
-              }
+              imageURL={work.thumbnail_url}
               postDate={new Date(work.created_at.split(" ")[0])}
             />
           </Link>
