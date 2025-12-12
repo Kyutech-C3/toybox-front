@@ -1,4 +1,5 @@
 .card-movie {
   height: 540px;
   object-fit: contain;
+  max-width: 100%;
 }

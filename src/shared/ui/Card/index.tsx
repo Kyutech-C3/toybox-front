@@ -1,5 +1,5 @@
+import Avater from "../Avatar";
 import Batch from "../Batch";
-import Avater from "./Avatar";
 import styles from "./index.module.css";
 
 import type { Tag } from "@/shared/types/work";
