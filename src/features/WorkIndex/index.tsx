@@ -49,8 +49,8 @@ const WorkIndex = () => {
             <Card
               key={work.id}
               title={
-                work.title.length > 14
-                  ? `${work.title.slice(0, 14)}...`
+                work.title.length > 12
+                  ? `${work.title.slice(0, 12)}...`
                   : work.title
               }
               tags={["test", "mock"]}
