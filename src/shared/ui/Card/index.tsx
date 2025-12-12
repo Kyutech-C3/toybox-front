@@ -4,6 +4,7 @@ import styles from "./index.module.css";
 
 type CardProps = {
   title: string;
+  username?: string;
   postDate: Date;
   tags: string[];
   avaterURL?: string;
@@ -12,6 +13,7 @@ type CardProps = {
 
 const Card = ({
   title,
+  username = "UserName",
   postDate,
   tags,
   avaterURL = "./comingSoonLugia.webp",
@@ -19,13 +21,16 @@ const Card = ({
 }: CardProps) => {
   return (
     <div className={styles["card-wrapper"]}>
-      <img src={imageURL} alt="card-image" className={styles["card-image"]} />
+      <div className={styles["card-image-wrapper"]}>
+        <img src={imageURL} alt="card-image" className={styles["card-image"]} />
+        <p className={styles["card-title"]}>{title}</p>
+      </div>
       <div className={styles["card-discription-wrapper"]}>
         <div className={styles["card-discription-content"]}>
           <Avater avatarURL={avaterURL} />
-          <div className={styles["title-wrapper"]}>
-            <p>{title}</p>
-            <p>
+          <div className={styles["info-wrapper"]}>
+            <p className={styles["card-username"]}>{username}</p>
+            <p className={styles["card-postdate"]}>
               {postDate.getFullYear() +
                 "/" +
                 postDate.getMonth() +

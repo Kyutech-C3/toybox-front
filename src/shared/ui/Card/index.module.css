@@ -6,13 +6,31 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  padding-bottom: 12px;
 }
 
-.card-image {
-  width: 100%;
-  height: 251px;
-  border-radius: 25px 25px 0px 0px;
-  object-fit: cover;
+.card-image-wrapper {
+  position: relative;
+
+  .card-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 25px 25px 0px 0px;
+    object-fit: cover;
+    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, 0.5);
+  }
+
+  .card-title {
+    position: absolute;
+    bottom: 1rem;
+    left: 0.8em;
+    color: white;
+    text-shadow: 1.5px 1.5px 0 black, -1.5px -1.5px 0 black,
+      -1.5px 1.5px 0 black, 1.5px -1.5px 0 black, 0px 1.5px 0 black,
+      0 -1.5px 0 black, -1.5px 0 0 black, 1.5px 0 0 black;
+    font-size: 1.5rem;
+    font-weight: 900;
+  }
 }
 
 .card-discription-wrapper {
@@ -22,9 +40,20 @@
   padding: 14px;
 }
 
-.title-wrapper {
-  float: left;
-  text-align: left;
+.info-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  .card-username {
+    font-size: 1.25rem;
+    font-weight: bold;
+  }
+
+  .card-postdate {
+    font-size: 0.875rem;
+    color: gray;
+  }
 }
 
 .card-discription-content {
