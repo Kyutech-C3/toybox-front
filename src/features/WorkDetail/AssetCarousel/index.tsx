@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
+import AudioCard from "./AudioCard";
 import ImgCard from "./ImgCard";
 import styles from "./index.module.css";
 import MovieCard from "./MovieCard";
@@ -32,7 +33,6 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
       const scrollWidth = container.scrollWidth;
       const clientWidth = container.clientWidth;
 
-      console.log({ scrollLeft, scrollWidth, clientWidth });
       setCanScrollLeft(scrollLeft > 0);
       setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
     };
@@ -101,6 +101,15 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                   className={styles["asset-carousel"]}
                 >
                   <MovieCard src={asset.url} extension={asset.extension} />
+                </li>
+              );
+            case "music":
+              return (
+                <li
+                  key={`${asset.work_id}-asset-${index}`}
+                  className={styles["asset-carousel"]}
+                >
+                  <AudioCard src={asset.url} extension={asset.extension} />
                 </li>
               );
             default:

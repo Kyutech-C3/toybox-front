@@ -57,6 +57,24 @@ const TagInput = ({
     };
   }, [focused]);
 
+  useEffect(() => {
+    if (!focused) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setFocused(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [focused]);
+
   const options = useMemo(() => {
     if (!allTagOptions) return [];
     const lowerInput = inputValue.toLowerCase();
