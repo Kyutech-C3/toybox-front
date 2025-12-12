@@ -14,6 +14,19 @@ type Work = {
 type Tag = {
   id: string;
   name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type TagResponse = {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type TagListResponse = {
+  tags: Tag[];
 };
 
 type Asset = {
@@ -33,4 +46,11 @@ type WorkListResponse = {
   limit: number;
 };
 
-export type { Work, Tag, Asset, WorkListResponse };
+export type {
+  Work,
+  Tag,
+  TagResponse,
+  TagListResponse,
+  Asset,
+  WorkListResponse,
+};

@@ -1,27 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useTagsStore } from "../store/useTagsStore";
+import useTagOptions from "./hook/useTagOptions";
 import styles from "./index.module.css";
+import { useTagsStore } from "./store/useTagsStore";
 
 import Batch from "@/shared/ui/Batch";
 import Dropdown from "@/shared/ui/Dropdown";
 
-import type { Tag } from "@/shared/types/work";
+import type { Tag, TagResponse } from "@/shared/types/work";
 
 export const SearchBar = () => {
   const { tags, addTag, removeTag } = useTagsStore();
   const [inputValue, setInputValue] = useState<string>("");
   const [focused, setFocused] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const allTagOptions = [
-    { id: "1", name: "JavaScript" },
-    { id: "2", name: "TypeScript" },
-    { id: "3", name: "React" },
-    { id: "4", name: "Zustand" },
-    { id: "5", name: "CSS" },
-    { id: "6", name: "HTML" },
-  ];
+  const { data: allTagOptions } = useTagOptions();
 
   const onSelect = (option: Tag) => {
     addTag(option);
@@ -30,18 +23,24 @@ export const SearchBar = () => {
 
   const options = useMemo(() => {
     if (!allTagOptions) return [];
-    const lowerInput = inputValue.toLowerCase();
-    return allTagOptions.filter(
-      (option) =>
-        option.name.toLowerCase().includes(lowerInput) &&
-        !tags.includes(option),
-    );
-  }, [inputValue, tags]);
 
-  const onSubmit = () => {
+    const lowerInput = inputValue.toLowerCase();
+    const filtered = allTagOptions.filter(
+      (tag) =>
+        tag.name.toLowerCase().includes(lowerInput) &&
+        !tags.some((selectedTag) => selectedTag.id === tag.id),
+    );
+
+    return filtered;
+  }, [inputValue, tags, allTagOptions]);
+
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setFocused(false);
     setInputValue("");
-    addTag(options[0]);
+    if (options.length > 0) {
+      addTag(options[0]);
+    }
   };
 
   useEffect(() => {
@@ -70,7 +69,7 @@ export const SearchBar = () => {
     >
       <div className={styles["search-bar"]} ref={containerRef}>
         <span className={styles["input-dropdown-container"]}>
-          <Dropdown<{ id: string; name: string }>
+          <Dropdown<TagResponse>
             options={options}
             onSelect={onSelect}
             isOpen={options.length > 0 && focused}
