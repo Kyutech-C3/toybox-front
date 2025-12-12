@@ -81,7 +81,7 @@ const TagInput = ({
     return allTagOptions.filter(
       (option) =>
         option.toLowerCase().includes(lowerInput) &&
-        !tags.includes(option.toUpperCase()),
+        !tags.includes(option.toLowerCase()),
     );
   }, [inputValue, allTagOptions, tags]);
 
@@ -101,7 +101,7 @@ const TagInput = ({
               options={options}
               position="bottom"
               onSelect={(tag) => {
-                if (tags.includes(tag.toUpperCase())) return;
+                if (tags.includes(tag.toLowerCase())) return;
                 addTag(tag);
                 setInputValue("");
                 setFocused(false);

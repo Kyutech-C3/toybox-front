@@ -22,8 +22,8 @@ const WorkDetailForm = () => {
           heading="タグ"
           tags={tags}
           addTag={(tag: string) => {
-            if (tags.includes(tag.toUpperCase())) return;
-            setTags((prev) => [...prev, tag.toUpperCase()]);
+            if (tags.includes(tag.toLowerCase())) return;
+            setTags((prev) => [...prev, tag.toLowerCase()]);
           }}
           removeTag={(index: number) =>
             setTags((prev) => prev.filter((_, i) => i !== index))
