@@ -19,11 +19,11 @@ type User = {
 };
 
 type WorkRequestData = {
-  assets: string[];
-  discription: string;
+  asset_ids: string[];
+  description: string;
   tag_ids: string[];
   title: string;
-  thumbnail_asset_id: "string";
+  thumbnail_asset_id: string;
   urls: string[];
   visibility: "public" | "private" | "draft";
 };
