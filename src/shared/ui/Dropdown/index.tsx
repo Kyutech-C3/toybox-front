@@ -74,7 +74,7 @@ export const Dropdown = <T extends string | number | Tag>({
 
           return (
             <button
-              key={String(option.value)}
+              key={String(option.label)}
               type="button"
               className={`${styles.item} ${
                 isSelected ? styles["item-active"] : ""

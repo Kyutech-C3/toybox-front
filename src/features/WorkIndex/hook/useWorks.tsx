@@ -23,8 +23,12 @@ const useWorks = ({
   limit = 21,
   tags = [],
 }: UseWorksParams = {}): UseWorksReturn => {
-  const url = `/works?page=${page}&limit=${limit}`;
+  const tagsQuery = tags.map((tag) => `${tag.id}`).join(",");
+  let url = `/works?page=${page}&limit=${limit}`;
 
+  if (tags.length > 0) {
+    url += `&tag_ids=${tagsQuery}`;
+  }
   const fetcher = async (url: string): Promise<WorkListResponse> => {
     const response = await fetchData(url);
     return response;
@@ -33,10 +37,6 @@ const useWorks = ({
   const { data: response, error } = useSWR<WorkListResponse>(url, fetcher, {
     suspense: true,
   });
-
-  // TODO: タグ検索機能が出来次第こちらを利用し、タグによる絞り込み機能を実装する。
-  console.log(tags);
-  console.log(response);
 
   return {
     data: response?.works,

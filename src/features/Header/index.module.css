@@ -13,3 +13,13 @@
 .switch-wrapper {
   margin-right: 58px;
 }
+
+.login-wrapper {
+  margin-right: 58px;
+}
+
+.login-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -11,9 +11,32 @@ type Work = {
   updated_at: string;
 };
 
+type WorkRequestData = {
+  assets: string[];
+  discription: string;
+  tag_ids: string[];
+  title: string;
+  thumbnail_asset_id: "string";
+  urls: string[];
+  visibility: "public" | "private" | "draft";
+};
+
 type Tag = {
   id: string;
   name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type TagResponse = {
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type TagListResponse = {
+  tags: Tag[];
 };
 
 type Asset = {
@@ -33,4 +56,12 @@ type WorkListResponse = {
   limit: number;
 };
 
-export type { Work, Tag, Asset, WorkListResponse };
+export type {
+  Work,
+  WorkListResponse,
+  WorkRequestData,
+  Tag,
+  TagResponse,
+  TagListResponse,
+  Asset,
+};

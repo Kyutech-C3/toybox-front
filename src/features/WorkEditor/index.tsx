@@ -1,5 +1,6 @@
 import styles from "./index.module.css";
 import MarkdownEditor from "./MarkdownEditor";
+import PublishButtons from "./PublishButtons";
 import WorkDetailForm from "./WorkDetailForm";
 
 const WorkEditor = () => {
@@ -7,6 +8,7 @@ const WorkEditor = () => {
     <div className={styles["work-editor-wrapper"]}>
       <WorkDetailForm />
       <MarkdownEditor />
+      <PublishButtons />
     </div>
   );
 };

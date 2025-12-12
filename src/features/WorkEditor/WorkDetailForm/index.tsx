@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { usePostWorkStore } from "../store/usePostWorkStore";
 import styles from "./index.module.css";
 
 import ImageUpload from "@/features/WorkEditor/WorkDetailForm/ImageUpload";
@@ -10,6 +11,7 @@ import TagInput from "@/shared/ui/TagInput";
 const WorkDetailForm = () => {
   const [title, setTitle] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const { addAsset } = usePostWorkStore();
 
   // TODO: タグ候補はAPIから取得するようにする
   const allTagOptions = ["React", "TypeScript", "JavaScript", "CSS", "HTML"];
@@ -32,7 +34,7 @@ const WorkDetailForm = () => {
         />
         <ImageUpload
           onImageSelect={(file: File) => {
-            console.log("Selected file:", file);
+            addAsset(file);
           }}
         />
       </div>

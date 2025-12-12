@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
-import { useTagsStore } from "./store/useTagsStore";
+import { useTagsStore } from "./SearchBar/store/useTagsStore";
 
 import { Pagination } from "@/features/WorkIndex/Pagenation";
 import Card from "@/shared/ui/Card";

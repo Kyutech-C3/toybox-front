@@ -8,8 +8,10 @@ import MarkdownPreview from "@/features/MarkdownPreview";
 import Paper from "@/shared/ui/Paper";
 import "./editor-custom.css";
 
+import { usePostWorkStore } from "../store/usePostWorkStore";
+
 const MarkdownEditor = () => {
-  const [value, setValue] = React.useState("**Hello world!!!**");
+  const { description, setDescription } = usePostWorkStore();
   const [editMode, setEditMode] = React.useState<"edit" | "preview" | "live">(
     "edit",
   );
@@ -29,8 +31,8 @@ const MarkdownEditor = () => {
       {editMode === "edit" ? (
         <div data-color-mode="light">
           <MDEditor
-            value={value}
-            onChange={(val) => setValue(val || "")}
+            value={description}
+            onChange={(val) => setDescription(val || "")}
             previewOptions={{
               rehypePlugins: [[rehypeSanitize]],
             }}
@@ -40,24 +42,24 @@ const MarkdownEditor = () => {
           />
         </div>
       ) : editMode === "preview" ? (
-        <MarkdownPreview content={value} />
+        <MarkdownPreview content={description} />
       ) : (
         <div data-color-mode="light" className={styles["live-editor-wrapper"]}>
           <div className={styles["live-editor"]}>
             <MDEditor
-              value={value}
-              onChange={(val) => setValue(val || "")}
+              value={description}
+              onChange={(val) => setDescription(val || "")}
               previewOptions={{
                 rehypePlugins: [[rehypeSanitize]],
               }}
               height={"100%"}
-              preview="edit" // 編集モードのみ
-              extraCommands={[]} // 追加ツールバーも空に
-              visibleDragbar={false} // 高さドラッグバーを消す（任意）
+              preview="edit"
+              extraCommands={[]}
+              visibleDragbar={false}
             />
           </div>
           <div className={styles["live-preview"]}>
-            <MarkdownPreview content={value} />
+            <MarkdownPreview content={description} />
           </div>
         </div>
       )}
