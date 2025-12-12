@@ -2,12 +2,12 @@ import useSWR from "swr";
 
 import { fetchData } from "@/util/fetchData";
 
-import type { Work, WorkListResponse } from "@/shared/types/work";
+import type { Tag, Work, WorkListResponse } from "@/shared/types/work";
 
 interface UseWorksParams {
   page?: number;
   limit?: number;
-  tags?: string[];
+  tags?: Tag[];
 }
 
 interface UseWorksReturn {
@@ -20,7 +20,7 @@ interface UseWorksReturn {
 
 const useWorks = ({
   page = 1,
-  limit = 20,
+  limit = 21,
   tags = [],
 }: UseWorksParams = {}): UseWorksReturn => {
   const url = `/works?page=${page}&limit=${limit}`;

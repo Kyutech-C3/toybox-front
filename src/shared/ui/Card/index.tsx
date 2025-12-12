@@ -2,17 +2,21 @@ import Batch from "../Batch";
 import Avater from "./Avatar";
 import styles from "./index.module.css";
 
+import type { Tag } from "@/shared/types/work";
+
 type CardProps = {
   title: string;
+  workID: string;
   username?: string;
   postDate: Date;
-  tags: string[];
+  tags: Tag[];
   avaterURL?: string;
   imageURL?: string;
 };
 
 const Card = ({
   title,
+  workID,
   username = "UserName",
   postDate,
   tags,
@@ -41,7 +45,7 @@ const Card = ({
         </div>
         <div className={styles["batches-wrapper"]}>
           {tags.map((tag) => (
-            <Batch key={tag}>{tag}</Batch>
+            <Batch key={`${workID}-${tag.id}`}>{tag.name}</Batch>
           ))}
         </div>
       </div>

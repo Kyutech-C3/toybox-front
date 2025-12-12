@@ -8,7 +8,7 @@ import { useTagsStore } from "./store/useTagsStore";
 import { Pagination } from "@/features/WorkIndex/Pagenation";
 import Card from "@/shared/ui/Card";
 
-const ITEMS_PER_PAGE = 20;
+const ITEMS_PER_PAGE = 21;
 
 const WorkIndex = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -48,12 +48,13 @@ const WorkIndex = () => {
           >
             <Card
               key={work.id}
+              workID={work.id}
               title={
                 work.title.length > 12
                   ? `${work.title.slice(0, 12)}...`
                   : work.title
               }
-              tags={["test", "mock"]}
+              tags={work.tags}
               imageURL={
                 work.assets[0]?.asset_type === "image"
                   ? work.assets[0].url

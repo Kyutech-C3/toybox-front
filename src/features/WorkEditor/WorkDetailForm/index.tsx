@@ -21,9 +21,10 @@ const WorkDetailForm = () => {
         <TagInput
           heading="タグ"
           tags={tags}
-          addTag={(tag: string) =>
-            setTags((prev) => [...prev, tag.toUpperCase()])
-          }
+          addTag={(tag: string) => {
+            if (tags.includes(tag.toLowerCase())) return;
+            setTags((prev) => [...prev, tag.toLowerCase()]);
+          }}
           removeTag={(index: number) =>
             setTags((prev) => prev.filter((_, i) => i !== index))
           }

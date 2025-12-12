@@ -22,10 +22,9 @@ const MovieCard = ({ src, extension }: MovieCardProps) => {
         return "video/mp4";
     }
   };
-  console.log(`Rendering video with src: ${src} and extension: ${extension}`);
 
   return (
-    <video controls className={styles["movie-card"]}>
+    <video controls className={styles["card-movie"]}>
       <source src={src} type={getVideoMimeType(extension)} />
       <track kind="captions" srcLang="jp" label="Japanese" />
     </video>

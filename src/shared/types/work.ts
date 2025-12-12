@@ -1,5 +1,6 @@
 type Work = {
   assets: Asset[];
+  tags: Tag[];
   id: string;
   title: string;
   description: string;
@@ -8,6 +9,11 @@ type Work = {
   visibility: string;
   created_at: string;
   updated_at: string;
+};
+
+type Tag = {
+  id: string;
+  name: string;
 };
 
 type Asset = {
@@ -27,4 +33,4 @@ type WorkListResponse = {
   limit: number;
 };
 
-export type { Work, Asset, WorkListResponse };
+export type { Work, Tag, Asset, WorkListResponse };
