@@ -62,29 +62,31 @@ export const SearchBar = () => {
   }, [focused]);
 
   return (
-    <form
-      className={styles["search-bar-wrapper"]}
-      onFocus={() => setFocused(true)}
-      onSubmit={onSubmit}
-    >
-      <div className={styles["search-bar"]} ref={containerRef}>
-        <span className={styles["input-dropdown-container"]}>
-          <Dropdown<TagResponse>
-            options={options}
-            onSelect={onSelect}
-            isOpen={options.length > 0 && focused}
-            position="bottom"
+    <>
+      <form
+        className={styles["search-bar-wrapper"]}
+        onFocus={() => setFocused(true)}
+        onSubmit={onSubmit}
+      >
+        <div className={styles["search-bar"]} ref={containerRef}>
+          <span className={styles["input-dropdown-container"]}>
+            <Dropdown<TagResponse>
+              options={options}
+              onSelect={onSelect}
+              isOpen={options.length > 0 && focused}
+              position="bottom"
+            />
+          </span>
+          <input
+            type="text"
+            placeholder="# タグで絞り込み"
+            name="tag"
+            className={styles["search-input"]}
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
-        </span>
-        <input
-          type="text"
-          placeholder="# タグで絞り込み"
-          name="tag"
-          className={styles["search-input"]}
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-        />
-      </div>
+        </div>
+      </form>
       <div className={styles["tags-wrapper"]}>
         {tags.map((tag, id) => (
           <Batch key={`${tag}`} color="secondary" onClick={() => removeTag(id)}>
@@ -92,6 +94,6 @@ export const SearchBar = () => {
           </Batch>
         ))}
       </div>
-    </form>
+    </>
   );
 };
