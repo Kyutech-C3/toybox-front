@@ -1,5 +1,3 @@
-import path from "path";
-
 const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 export const fetchData = async (path: string) => {

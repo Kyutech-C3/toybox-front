@@ -11,6 +11,16 @@ type Work = {
   updated_at: string;
 };
 
+type WorkRequestData = {
+  assets: string[];
+  discription: string;
+  tag_ids: string[];
+  title: string;
+  thumbnail_asset_id: "string";
+  urls: string[];
+  visibility: "public" | "private" | "draft";
+};
+
 type Tag = {
   id: string;
   name: string;
@@ -48,9 +58,10 @@ type WorkListResponse = {
 
 export type {
   Work,
+  WorkListResponse,
+  WorkRequestData,
   Tag,
   TagResponse,
   TagListResponse,
   Asset,
-  WorkListResponse,
 };

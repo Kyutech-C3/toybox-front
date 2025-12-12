@@ -60,3 +60,9 @@
   font-weight: bold;
   color: #ffffff;
 }
+
+.menu-button-span {
+  position: relative;
+  right: 20px;
+  bottom: calc(100%);
+}
