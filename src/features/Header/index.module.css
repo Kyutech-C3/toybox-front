@@ -16,6 +16,8 @@
 
 .login-wrapper {
   margin-right: 58px;
+  display: flex;
+  gap: 24px;
 }
 
 .login-container {
