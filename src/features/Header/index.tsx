@@ -1,12 +1,14 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
 import { getLoginUrl } from "../auth/auth";
 import { useAuthStore } from "../auth/store/useAuthStore";
+import { getUserData } from "./api/getUserData";
 import styles from "./index.module.css";
 
+import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
 
 const Header = () => {
@@ -20,6 +22,10 @@ const Header = () => {
   };
 
   const { getAccessToken, accessToken } = useAuthStore();
+  const [userData, setUserData] = useState<{
+    display_name: string;
+    icon_url: string;
+  } | null>(null);
 
   useEffect(() => {
     const code = searchParams[0].get("code");
@@ -33,6 +39,16 @@ const Header = () => {
         });
     }
   }, [searchParams, accessToken, getAccessToken, navigate]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (accessToken) {
+        const data = await getUserData(accessToken);
+        setUserData(data);
+      }
+    };
+    fetchUserData();
+  }, [accessToken]);
 
   return (
     <header className={styles["header-wrapper"]}>
@@ -48,12 +64,16 @@ const Header = () => {
             <AutoAwesomeRoundedIcon />
           </div>
         </Button>
-        <Button variant="primary" onClick={handleLogin}>
-          <div className={styles["login-container"]}>
-            <p>ログイン</p>
-            <LoginRoundedIcon />
-          </div>
-        </Button>
+        {userData ? (
+          <Avatar avatarURL={userData.icon_url} />
+        ) : (
+          <Button variant="primary" onClick={handleLogin}>
+            <div className={styles["login-container"]}>
+              <p>ログイン</p>
+              <LoginRoundedIcon />
+            </div>
+          </Button>
+        )}
       </div>
     </header>
   );
