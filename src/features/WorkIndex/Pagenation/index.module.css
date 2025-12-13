@@ -39,11 +39,9 @@
 }
 
 .dropdown-trigger:hover {
-  background: #f8f8f8;
   color: #666;
 }
 
 .dropdown-trigger[aria-expanded="true"] {
-  background: #f0f0f0;
   color: var(--font-color);
 }
