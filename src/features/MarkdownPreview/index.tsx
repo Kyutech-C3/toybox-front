@@ -15,7 +15,6 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
     <div className={styles.markdownPreview}>
       <Markdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
-        rehypePlugins={[rehypeRaw]}
         components={{
           code(props) {
             const { children, className, ...rest } = props;
