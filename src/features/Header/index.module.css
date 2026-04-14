@@ -1,0 +1,27 @@
+.header-wrapper {
+  background-color: var(--primary-color);
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-wrapper {
+  margin-left: 50px;
+}
+
+.switch-wrapper {
+  margin-right: 58px;
+}
+
+.login-wrapper {
+  margin-right: 58px;
+  display: flex;
+  gap: 24px;
+}
+
+.login-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

@@ -6,26 +6,71 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "npx biome lint ./src",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "ci": "npm install && npx biome check ./src",
+    "format": "npx biome check --write ./src",
+    "prepare": "husky",
+    "new:ui": "hygen generator ui",
+    "new:feature": "hygen generator feature",
+    "new:component": "hygen generator component"
+  },
+  "lint-staged": {
+    "./src/**/*.{js,jsx,ts,tsx}": "npx biome check --write"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.85.9",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.5",
+    "@mui/material": "^7.3.5",
+    "@uiw/react-md-editor": "^4.0.11",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.8.2",
+    "react-syntax-highlighter": "^16.1.0",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1",
+    "swr": "^2.3.6",
+    "zustand": "^5.0.8"
+  },
+  "engines": {
+    "yarn": "このプロジェクトではnpmを使用してください",
+    "bun": "このプロジェクトではnpmを使用してください",
+    "pnpm": "このプロジェクトではnpmを使用してください"
   },
   "devDependencies": {
-    "@eslint/js": "^9.33.0",
+    "@biomejs/biome": "2.2.4",
+    "@chromatic-com/storybook": "^4.1.1",
+    "@storybook/addon-a11y": "^9.1.4",
+    "@storybook/addon-docs": "^9.1.4",
+    "@storybook/addon-onboarding": "^9.1.4",
+    "@storybook/addon-vitest": "^9.1.4",
+    "@storybook/react-vite": "^9.1.4",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^5.0.0",
+    "@vitest/browser": "^3.2.4",
+    "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "eslint-plugin-storybook": "^9.1.4",
     "globals": "^16.3.0",
+    "husky": "^9.1.7",
+    "hygen": "^6.2.11",
+    "lint-staged": "^16.1.6",
+    "playwright": "^1.55.0",
+    "storybook": "^9.1.4",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,0 +1,9 @@
+.card-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--paper-color);
+  overflow: hidden;
+  background-color: var(--asset-background);
+  max-height: 540px;
+}

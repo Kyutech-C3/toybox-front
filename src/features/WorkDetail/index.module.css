@@ -1,0 +1,39 @@
+.work-detail-metadata {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.work-detail-info {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.user-info-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: center;
+
+  & p {
+    margin-left: 12px;
+    font-size: 20px;
+    font-weight: bold;
+  }
+}
+
+.batches-wrapper {
+  display: flex;
+  gap: 8px;
+}
+
+.info-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.work-postdate {
+  font-size: 0.875rem;
+}

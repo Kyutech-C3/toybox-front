@@ -1,0 +1,49 @@
+/* Pagination wrapper */
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  padding: 30px;
+}
+
+/* ページ番号の nav */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-trigger {
+  height: 48px;
+  min-width: 48px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  user-select: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--font-color);
+  white-space: nowrap;
+}
+
+.dropdown-trigger:hover {
+  background: #f8f8f8;
+  color: #666;
+}
+
+.dropdown-trigger[aria-expanded="true"] {
+  background: #f0f0f0;
+  color: var(--font-color);
+}

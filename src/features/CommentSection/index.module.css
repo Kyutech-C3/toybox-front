@@ -1,0 +1,32 @@
+.title {
+  font-style: normal;
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 29px;
+  color: var(--font-color);
+  margin: 0 0 24px;
+  text-align: left;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}
+
+.error {
+  padding: 20px;
+  background: #fff3f3;
+  border: 1px solid #ffcccc;
+  border-radius: 12px;
+  color: #c33;
+  font-size: 14px;
+  text-align: center;
+}
