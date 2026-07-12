@@ -54,7 +54,7 @@ const Header = () => {
     <header className={styles["header-wrapper"]}>
       <div className={styles["logo-wrapper"]}>
         <Link to="/">
-          <img src="/logo.webp" alt="logo-image" height={75} />
+          <img src="/ToyboxLogo.svg" alt="logo-image" height={75} />
         </Link>
       </div>
       <div className={styles["login-wrapper"]}>
