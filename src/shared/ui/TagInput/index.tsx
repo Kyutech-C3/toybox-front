@@ -95,8 +95,6 @@ const TagInput = ({
               key={`${tag}`}
               color="primary"
               onClick={() => {
-                console.log("test");
-                console.log("Removing tag at index:", id);
                 removeTag(id);
               }}
             >

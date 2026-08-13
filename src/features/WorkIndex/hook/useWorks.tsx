@@ -1,6 +1,7 @@
 import useSWR from "swr";
 
-import { fetchData } from "@/util/fetchData";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { fetchData, fetchDataWithAuth } from "@/util/fetchData";
 
 import type { Tag, Work, WorkListResponse } from "@/shared/types/work";
 
@@ -18,25 +19,43 @@ interface UseWorksReturn {
   error: Error | undefined;
 }
 
+const buildWorksUrl = ({ page, limit, tags }: UseWorksParams) => {
+  const tagsQuery = tags?.map((tag) => tag.id).join(",") ?? "";
+  let url = `/works?page=${page ?? 1}&limit=${limit ?? 21}`;
+
+  if (tags && tags.length > 0) {
+    url += `&tag_ids=${tagsQuery}`;
+  }
+
+  return url;
+};
+
+const fetchWorks = async (
+  url: string,
+  accessToken?: string,
+): Promise<WorkListResponse> => {
+  if (!accessToken) {
+    return fetchData(url);
+  }
+
+  return fetchDataWithAuth(url, accessToken);
+};
+
 const useWorks = ({
   page = 1,
   limit = 21,
   tags = [],
 }: UseWorksParams = {}): UseWorksReturn => {
-  const tagsQuery = tags.map((tag) => `${tag.id}`).join(",");
-  let url = `/works?page=${page}&limit=${limit}`;
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const url = buildWorksUrl({ page, limit, tags });
 
-  if (tags.length > 0) {
-    url += `&tag_ids=${tagsQuery}`;
-  }
-  const fetcher = async (url: string): Promise<WorkListResponse> => {
-    const response = await fetchData(url);
-    return response;
-  };
-
-  const { data: response, error } = useSWR<WorkListResponse>(url, fetcher, {
-    suspense: true,
-  });
+  const { data: response, error } = useSWR<WorkListResponse>(
+    accessToken ? [url, accessToken] : url,
+    accessToken
+      ? ([requestUrl, token]) => fetchWorks(requestUrl, token)
+      : (requestUrl) => fetchWorks(requestUrl),
+    { suspense: true },
+  );
 
   return {
     data: response?.works,
