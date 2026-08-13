@@ -91,7 +91,15 @@ const TagInput = ({
       <div ref={containerRef} className={styles["input-wrapper"]}>
         <div className={styles["tags-wrapper"]}>
           {tags.map((tag, id) => (
-            <Batch key={`${tag}`} color="primary" onClick={() => removeTag(id)}>
+            <Batch
+              key={`${tag}`}
+              color="primary"
+              onClick={() => {
+                console.log("test");
+                console.log("Removing tag at index:", id);
+                removeTag(id);
+              }}
+            >
               {tag}
             </Batch>
           ))}
