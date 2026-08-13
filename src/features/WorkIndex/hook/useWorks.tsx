@@ -1,6 +1,7 @@
 import useSWR from "swr";
 
-import { fetchData } from "@/util/fetchData";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { fetchData, fetchDataWithAuth } from "@/util/fetchData";
 
 import type { Tag, Work, WorkListResponse } from "@/shared/types/work";
 
@@ -24,14 +25,21 @@ const useWorks = ({
   tags = [],
 }: UseWorksParams = {}): UseWorksReturn => {
   const tagsQuery = tags.map((tag) => `${tag.id}`).join(",");
+  const accessToken = useAuthStore((state) => state.accessToken);
+
   let url = `/works?page=${page}&limit=${limit}`;
 
   if (tags.length > 0) {
     url += `&tag_ids=${tagsQuery}`;
   }
   const fetcher = async (url: string): Promise<WorkListResponse> => {
-    const response = await fetchData(url);
-    return response;
+    if (!accessToken) {
+      const response = await fetchData(url);
+      return response;
+    } else {
+      const response = await fetchDataWithAuth(url, accessToken);
+      return response;
+    }
   };
 
   const { data: response, error } = useSWR<WorkListResponse>(url, fetcher, {
