@@ -33,13 +33,12 @@ export const usePostWorkStore = create<PostWorkStoreProps>((set) => ({
   setDescription: (description: string) => {
     set({ description });
   },
-  addAssetID: async (asset_id: string) => {
+  addAssetID: (asset_id: string) => {
     set((state) => ({
       asset_ids: [...state.asset_ids, asset_id],
     }));
   },
   removeAssetID: (index: number) => {
-    console.log("Removing asset at index:", index);
     set((state) => ({
       asset_ids: state.asset_ids.filter((_, i) => i !== index),
     }));
