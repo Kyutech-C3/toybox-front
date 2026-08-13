@@ -18,9 +18,14 @@ const Header = () => {
 
   const handleLogin = async () => {
     const url = await getLoginUrl();
+
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      window.location.href = url;
+      return;
+    }
+
     navigate(url);
   };
-
   const { getAccessToken, accessToken } = useAuthStore();
   const [userData, setUserData] = useState<{
     display_name: string;

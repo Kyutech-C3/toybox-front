@@ -1,10 +1,5 @@
 import { create } from "zustand";
 
-import { createTag } from "../api/createTag";
-import { uploadAsset } from "../api/uploadAsset";
-
-import { useAuthStore } from "@/features/auth/store/useAuthStore";
-
 type PostWorkStoreProps = {
   title: string;
   description: string;
@@ -15,11 +10,10 @@ type PostWorkStoreProps = {
   visibility: "public" | "private" | "draft";
   setTitle: (title: string) => void;
   setDescription: (description: string) => void;
-  addAsset: (file: File) => void;
-  removeAsset: (index: number) => void;
-  addTag: (tag: string) => void;
-  addNewTag: (tagName: string) => void;
-  removeTag: (index: number) => void;
+  addAssetID: (asset_id: string) => void;
+  removeAssetID: (index: number) => void;
+  addTagID: (tag_id: string) => void;
+  removeTagID: (index: number) => void;
   addurl: (url: string) => void;
   removeUrl: (index: number) => void;
   setVisibility: (visibility: "public" | "private" | "draft") => void;
@@ -39,37 +33,23 @@ export const usePostWorkStore = create<PostWorkStoreProps>((set) => ({
   setDescription: (description: string) => {
     set({ description });
   },
-  addAsset: async (File) => {
-    const accessToken = useAuthStore.getState().accessToken;
-    if (!accessToken) {
-      throw new Error("No access token available");
-    }
-    const response = await uploadAsset(File, accessToken);
+  addAssetID: async (asset_id: string) => {
     set((state) => ({
-      asset_ids: [...state.asset_ids, response.id],
+      asset_ids: [...state.asset_ids, asset_id],
     }));
   },
-  removeAsset: (index: number) => {
+  removeAssetID: (index: number) => {
+    console.log("Removing asset at index:", index);
     set((state) => ({
       asset_ids: state.asset_ids.filter((_, i) => i !== index),
     }));
   },
-  addTag: (tag: string) => {
+  addTagID: (tag_id: string) => {
     set((state) => ({
-      tag_ids: [...state.tag_ids, tag],
+      tag_ids: [...state.tag_ids, tag_id],
     }));
   },
-  addNewTag: async (tagName: string) => {
-    const accessToken = useAuthStore.getState().accessToken;
-    if (!accessToken) {
-      throw new Error("No access token available");
-    }
-    const newTag = await createTag(tagName, accessToken);
-    set((state) => ({
-      tag_ids: [...state.tag_ids, newTag.id],
-    }));
-  },
-  removeTag: (index: number) => {
+  removeTagID: (index: number) => {
     set((state) => ({
       tag_ids: state.tag_ids.filter((_, i) => i !== index),
     }));

@@ -1,9 +1,12 @@
 import { useState } from "react";
 
+import { createTag } from "../api/createTag";
+import { uploadAsset } from "../api/uploadAsset";
 import { usePostWorkStore } from "../store/usePostWorkStore";
 import useTagOptions from "./hook/useTagOptions";
 import styles from "./index.module.css";
 
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import ImageUpload from "@/features/WorkEditor/WorkDetailForm/ImageUpload";
 import Input from "@/shared/ui/Input";
 import Paper from "@/shared/ui/Paper";
@@ -12,10 +15,9 @@ import TagInput from "@/shared/ui/TagInput";
 import type { Tag } from "@/shared/types/work";
 
 const WorkDetailForm = () => {
-  const { title, setTitle, addTag, addNewTag, removeTag } = usePostWorkStore();
+  const { title, setTitle, addTagID, removeTagID } = usePostWorkStore();
 
   const [tags, setTags] = useState<string[]>([]);
-  const { addAsset } = usePostWorkStore();
   const allTagOptions = useTagOptions();
 
   const tagCheck = (tags: Tag[], newTag: string): string | null => {
@@ -26,6 +28,42 @@ const WorkDetailForm = () => {
     return null;
   };
 
+  const tagValidation = async (tag: string) => {
+    if (tags.includes(tag.toLowerCase())) return;
+    setTags((prev) => [...prev, tag.toLowerCase()]);
+    const tagID = tagCheck(allTagOptions.data || [], tag);
+    if (tagID) {
+      addTagID(tagID);
+    } else {
+      const accessToken = useAuthStore.getState().accessToken;
+      if (!accessToken) {
+        throw new Error("No access token available");
+      }
+      const newTag = await createTag(tag, accessToken);
+      if (!newTag.id) {
+        throw new Error("Failed to create tag");
+      }
+      addTagID(newTag.id);
+    }
+  };
+
+  const handleAssetSelect = async (file: File) => {
+    const accessToken = useAuthStore.getState().accessToken;
+    if (!accessToken) {
+      throw new Error("No access token available");
+    }
+    const response = await uploadAsset(file, accessToken);
+    if (!response.id) {
+      throw new Error("Failed to upload asset");
+    }
+    usePostWorkStore.getState().addAssetID(response.id);
+  };
+
+  const removeTag = (index: number) => {
+    setTags((prev) => prev.filter((_, i) => i !== index));
+    removeTagID(index);
+  };
+
   return (
     <Paper>
       <div className={styles["work-detail-form-wrapper"]}>
@@ -33,24 +71,11 @@ const WorkDetailForm = () => {
         <TagInput
           heading="タグ"
           tags={tags}
-          addTag={(tag: string) => {
-            if (tags.includes(tag.toLowerCase())) return;
-            setTags((prev) => [...prev, tag.toLowerCase()]);
-            const tagID = tagCheck(allTagOptions.data || [], tag);
-            if (tagID) {
-              addTag(tagID);
-            } else {
-              addNewTag(tag);
-            }
-          }}
-          removeTag={(index: number) => removeTag(index)}
+          addTag={tagValidation}
+          removeTag={removeTag}
           allTagOptions={allTagOptions.data.map((tag) => tag.name)}
         />
-        <ImageUpload
-          onImageSelect={(file: File) => {
-            addAsset(file);
-          }}
-        />
+        <ImageUpload onImageSelect={handleAssetSelect} />
       </div>
     </Paper>
   );
