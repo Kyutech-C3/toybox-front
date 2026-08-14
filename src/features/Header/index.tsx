@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
 import { getLoginUrl } from "../auth/auth";
 import { useAuthStore } from "../auth/store/useAuthStore";
+import { useUserStore } from "../auth/store/useUserStore";
 import { getUserData } from "./api/getUserData";
 import styles from "./index.module.css";
 
@@ -27,10 +28,7 @@ const Header = () => {
     navigate(url);
   };
   const { getAccessToken, accessToken } = useAuthStore();
-  const [userData, setUserData] = useState<{
-    display_name: string;
-    icon_url: string;
-  } | null>(null);
+  const { user, setUser, clearUser } = useUserStore();
 
   useEffect(() => {
     const code = searchParams[0].get("code");
@@ -46,14 +44,20 @@ const Header = () => {
   }, [searchParams, accessToken, getAccessToken, navigate]);
 
   useEffect(() => {
+    if (!accessToken) {
+      clearUser();
+      return;
+    }
+
     const fetchUserData = async () => {
-      if (accessToken) {
-        const data = await getUserData(accessToken);
-        setUserData(data);
-      }
+      const data = await getUserData(accessToken);
+      setUser(data);
     };
-    fetchUserData();
-  }, [accessToken]);
+
+    fetchUserData().catch((error) => {
+      console.error("Error fetching user data:", error);
+    });
+  }, [accessToken, clearUser, setUser]);
 
   return (
     <header className={styles["header-wrapper"]}>
@@ -69,8 +73,8 @@ const Header = () => {
             <AutoAwesomeRoundedIcon />
           </div>
         </Button>
-        {userData ? (
-          <Avatar avatarURL={userData.icon_url} />
+        {user ? (
+          <Avatar avatarURL={user.icon_url} />
         ) : (
           <Button variant="primary" onClick={handleLogin}>
             <div className={styles["login-container"]}>

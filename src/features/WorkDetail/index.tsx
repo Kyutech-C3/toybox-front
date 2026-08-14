@@ -21,7 +21,6 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
   if (!data) {
     return <div>データがありません</div>;
   }
-  console.log(data.assets);
   return (
     <Paper>
       <h1>{data.title}</h1>

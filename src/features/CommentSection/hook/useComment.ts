@@ -21,8 +21,6 @@ const useComment = (workID: string): UseCommentOptionsReturn => {
     suspense: true,
   });
 
-  console.log("Comments fetched:", response);
-
   return {
     data: response ?? [],
     error: error,
