@@ -16,45 +16,35 @@ interface CommentSectionProps {
 }
 
 const CommentSection = ({ postId }: CommentSectionProps) => {
-  // モックデータを使用
   const { data } = useComment(postId);
+
   // 返信対象のコメントを管理するState
   const [replyingTo, setReplyingTo] = useState<Comment | undefined>(undefined);
 
-  const handleReply = useCallback((comment: Comment) => {
+  const handleReply = (comment: Comment) => {
     setReplyingTo(comment);
-  }, []);
+  };
 
-  const handleCancelReply = useCallback(() => {
+  const handleCancelReply = () => {
     setReplyingTo(undefined);
-  }, []);
+  };
 
   // コメント送信（モック）
   // parentIdがある場合は返信として扱う
-  const handleSubmit = useCallback(
-    (message: string, parentId?: string) => {
-      const trimmed = message.trim();
-      if (!trimmed) return;
+  const handleSubmit = (message: string) => {
+    const trimmed = message.trim();
+    if (!trimmed) return;
 
-      const { accessToken } = useAuthStore.getState();
-      if (!accessToken) {
-        console.error("No access token available");
-        return;
-      }
+    const { accessToken } = useAuthStore.getState();
+    if (!accessToken) {
+      console.error("No access token available");
+      return;
+    }
 
-      const res = postComment(postId, trimmed, accessToken, parentId);
-      console.log("Posted comment:", res);
-      // setComments((prev) => [newComment, ...prev]);
-      // // 送信後は返信モードを解除
-      setReplyingTo(undefined);
-    },
-    [postId],
-  );
-
-  // コメント削除（モック）
-  const handleDelete = useCallback((commentId: string) => {
-    console.log("Delete comment with ID:", commentId);
-  }, []);
+    const res = postComment(postId, trimmed, accessToken, replyingTo?.id);
+    // 送信後は返信モードを解除
+    setReplyingTo(undefined);
+  };
 
   return (
     <Paper>
@@ -62,13 +52,12 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
       <div className={styles.content}>
         <CommentList
           comments={data}
-          onDelete={handleDelete}
           onReply={handleReply}
           replyingTo={replyingTo}
           onSubmitReply={handleSubmit}
           onCancelReply={handleCancelReply}
         />
-        <CommentInput onSubmit={(msg) => handleSubmit(msg)} />
+        <CommentInput onSubmit={handleSubmit} replyingTo={replyingTo} />
       </div>
     </Paper>
   );
