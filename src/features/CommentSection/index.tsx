@@ -37,11 +37,11 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
 
     const { accessToken } = useAuthStore.getState();
     if (!accessToken) {
-      console.error("No access token available");
+      postComment(postId, trimmed, "", replyingTo?.id);
       return;
     }
 
-    const res = postComment(postId, trimmed, accessToken, replyingTo?.id);
+    postComment(postId, trimmed, accessToken, replyingTo?.id);
     // 送信後は返信モードを解除
     setReplyingTo(undefined);
   };
