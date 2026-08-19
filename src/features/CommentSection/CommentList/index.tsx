@@ -39,7 +39,7 @@ const CommentList = ({
   };
 
   return (
-    <div className={styles.list}>
+    <div className={styles["list"]}>
       {rootComments.map((comment) => (
         <CommentItem
           key={comment.id}

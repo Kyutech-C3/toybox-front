@@ -11,7 +11,7 @@ interface MarkdownPreviewProps {
 
 const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
   return (
-    <div className={styles.markdownPreview}>
+    <div className={styles["markdownPreview"]}>
       <Markdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
         components={{

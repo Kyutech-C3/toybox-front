@@ -24,7 +24,7 @@ type AvatarProps = {
 
 const Avatar = ({ src, alt }: AvatarProps) => {
   return (
-    <div className={styles.avatar} role="img" aria-label={alt || "avatar"}>
+    <div className={styles["avatar"]} role="img" aria-label={alt || "avatar"}>
       {src ? (
         <img src={src} alt={alt} className={styles["avatar-img"]} />
       ) : (
@@ -62,15 +62,15 @@ const CommentItem = ({
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div className={styles["wrapper"]}>
       <div className={styles["comment-row"]}>
         <Avatar
           src={comment.user?.avatar_url}
           alt={`${comment.user?.display_name} avatar`}
         />
         <div className={styles["comment-body"]}>
-          <div className={styles.header}>
-            <div className={styles.username}>
+          <div className={styles["header"]}>
+            <div className={styles["username"]}>
               {comment.user ? comment.user.display_name : "名無しのユーザー"}
             </div>
             {onDelete && (
@@ -84,7 +84,7 @@ const CommentItem = ({
               </button>
             )}
           </div>
-          <div className={styles.bubble}>
+          <div className={styles["bubble"]}>
             <p className={styles["bubble-text"]}>{comment.content}</p>
           </div>
           <button

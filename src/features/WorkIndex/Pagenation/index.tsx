@@ -136,7 +136,7 @@ export const Pagination = ({
         ＜
       </Button>
 
-      <nav className={styles.pagination} aria-label="ページネーション">
+      <nav className={styles["pagination"]} aria-label="ページネーション">
         {pageNumbers.map((item) => {
           if (item.type === "dots") {
             const isOpen =

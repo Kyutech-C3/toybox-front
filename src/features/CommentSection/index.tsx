@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 
 import { useAuthStore } from "../auth/store/useAuthStore";
 import postComment from "./api/postComment";
@@ -48,8 +48,8 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
 
   return (
     <Paper>
-      <h2 className={styles.title}>コメント</h2>
-      <div className={styles.content}>
+      <h2 className={styles["title"]}>コメント</h2>
+      <div className={styles["content"]}>
         <CommentList
           comments={data}
           onReply={handleReply}

@@ -51,11 +51,11 @@ const CommentInput = ({
 
   return (
     <div className={styles["input-row"]}>
-      <div className={styles.avatar}>
+      <div className={styles["avatar"]}>
         <img src={avatarUrl} alt="あなた" className={styles["avatar-img"]} />
       </div>
       <div className={styles["right-col"]}>
-        <div className={styles.username}>あなた</div>
+        <div className={styles["username"]}>あなた</div>
         {/* 返信対象がある場合は表示 */}
         {replyingTo && (
           <div className={styles["reply-info"]}>
@@ -79,7 +79,7 @@ const CommentInput = ({
           <span className={styles["sr-only"]}>コメントを入力</span>
           <textarea
             ref={textareaRef}
-            className={styles.textarea}
+            className={styles["textarea"]}
             placeholder="コメントを追加"
             value={value}
             onChange={(event) => {
