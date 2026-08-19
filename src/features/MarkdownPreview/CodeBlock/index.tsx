@@ -22,10 +22,10 @@ const CodeBlock = ({
   };
 
   return (
-    <div className={styles["codeBlockContainer"]}>
+    <div className={styles["code-block-container"]}>
       <button
         type="button"
-        className={styles["copyButton"]}
+        className={styles["copy-button"]}
         onClick={handleCopy}
         aria-label="コードをコピー"
       >
