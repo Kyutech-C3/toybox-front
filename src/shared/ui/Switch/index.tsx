@@ -1,18 +1,16 @@
 import styles from "./index.module.css";
 
-import type { Dispatch, SetStateAction } from "react";
-
-type SwitchProp = {
-  setIsToy: Dispatch<SetStateAction<boolean>>;
+type SwitchProps = {
+  onChange: (isToy: boolean) => void;
   isToy: boolean;
 };
 
-const Switch = ({ setIsToy, isToy }: SwitchProp) => {
+const Switch = ({ onChange, isToy }: SwitchProps) => {
   return (
     <div className={styles["buttons-wrapper"]}>
       <button
         type="button"
-        onClick={() => setIsToy(true)}
+        onClick={() => onChange(true)}
         data-is-toy={isToy}
         className={styles["toy-button"]}
       >
@@ -20,7 +18,7 @@ const Switch = ({ setIsToy, isToy }: SwitchProp) => {
       </button>
       <button
         type="button"
-        onClick={() => setIsToy(false)}
+        onClick={() => onChange(false)}
         data-is-toy={isToy}
         className={styles["blog-button"]}
       >

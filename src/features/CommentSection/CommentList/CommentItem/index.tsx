@@ -103,7 +103,7 @@ const CommentItem = ({
             onSubmit={(msg) => onSubmitReply?.(msg, comment.id)}
             onCancelReply={onCancelReply}
             replyingTo={comment}
-            autoFocus
+            isAutoFocus
           />
         </div>
       )}

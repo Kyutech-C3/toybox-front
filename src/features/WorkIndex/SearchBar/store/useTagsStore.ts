@@ -2,13 +2,13 @@ import { create } from "zustand";
 
 import type { Tag } from "@/shared/types/work";
 
-type TagsStoreProps = {
+type TagsStore = {
   tags: Tag[];
   addTag: (tag: Tag) => void;
   removeTag: (index: number) => void;
 };
 
-export const useTagsStore = create<TagsStoreProps>((set) => ({
+export const useTagsStore = create<TagsStore>((set) => ({
   tags: [],
   addTag: (tag: Tag) => {
     set((state) => ({ tags: [...state.tags, tag] }));

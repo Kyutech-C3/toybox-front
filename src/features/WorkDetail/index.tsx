@@ -1,9 +1,9 @@
 import MarkdownPreview from "../MarkdownPreview";
 import AssetCarousel from "./AssetCarousel";
-import useWorkDetail from "./hooks/useWorkDetail";
+import useWorkDetail from "./hook/useWorkDetail";
 import styles from "./index.module.css";
 
-import Avater from "@/shared/ui/Avatar";
+import Avatar from "@/shared/ui/Avatar";
 import Batch from "@/shared/ui/Batch";
 import Paper from "@/shared/ui/Paper";
 
@@ -12,7 +12,7 @@ type WorkDetailProps = {
 };
 
 const WorkDetail = ({ workID }: WorkDetailProps) => {
-  const { data, error } = useWorkDetail(workID);
+  const { data, error } = useWorkDetail({ id: workID });
 
   if (error) {
     return <div>エラー: {error.message}</div>;
@@ -30,7 +30,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
       <AssetCarousel assets={data.assets} />
       <div className={styles["work-detail-info"]}>
         <div className={styles["user-info-wrapper"]}>
-          <Avater avatarURL={data.user.avatar_url} />
+          <Avatar avatarURL={data.user.avatar_url} />
           <p>{data.user.display_name}</p>
         </div>
         <div className={styles["batches-wrapper"]}>

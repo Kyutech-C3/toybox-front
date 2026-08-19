@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-type PostWorkStoreProps = {
+type PostWorkStore = {
   title: string;
   description: string;
   tag_ids: string[];
@@ -19,7 +19,7 @@ type PostWorkStoreProps = {
   setVisibility: (visibility: "public" | "private" | "draft") => void;
 };
 
-export const usePostWorkStore = create<PostWorkStoreProps>((set) => ({
+export const usePostWorkStore = create<PostWorkStore>((set) => ({
   title: "",
   description: "",
   tag_ids: [],

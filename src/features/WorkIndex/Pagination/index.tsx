@@ -129,7 +129,7 @@ export const Pagination = ({
     <div className={styles["pagination-wrapper"]}>
       <Button
         variant="primary"
-        disabled={currentPage === 1}
+        isDisabled={currentPage === 1}
         onClick={handlePrevious}
         ariaLabel="前のページ"
       >
@@ -191,7 +191,7 @@ export const Pagination = ({
 
       <Button
         variant="primary"
-        disabled={currentPage === totalPages}
+        isDisabled={currentPage === totalPages}
         onClick={handleNext}
         ariaLabel="次のページ"
       >

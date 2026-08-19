@@ -15,11 +15,11 @@
     background-color: var(--border-color);
   }
 
-  &[data-onclick="true"] {
+  &[data-clickable="true"] {
     padding: 0 6px 0 11px;
   }
 
-  &[data-onclick="false"] {
+  &[data-clickable="false"] {
     padding: 0px 11px;
   }
 }

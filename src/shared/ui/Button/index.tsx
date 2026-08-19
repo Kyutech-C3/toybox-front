@@ -6,7 +6,7 @@ type ButtonProps = {
   children: ReactNode;
   onClick: () => void;
   variant?: "primary" | "secondary";
-  disabled?: boolean;
+  isDisabled?: boolean;
   isActive?: boolean;
   ariaLabel?: string;
 };
@@ -15,7 +15,7 @@ const Button = ({
   children,
   onClick,
   variant = "primary",
-  disabled = false,
+  isDisabled = false,
   isActive = false,
   ariaLabel,
 }: ButtonProps) => {
@@ -24,9 +24,9 @@ const Button = ({
       type="button"
       className={styles[`${variant}-button`]}
       onClick={onClick}
-      disabled={disabled}
+      disabled={isDisabled}
       aria-label={ariaLabel}
-      data-disabled={disabled ? "true" : "false"}
+      data-disabled={isDisabled ? "true" : "false"}
       data-active={isActive ? "true" : "false"}
     >
       {children}

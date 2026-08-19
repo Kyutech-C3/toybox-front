@@ -1,6 +1,6 @@
 import type { Comment } from "../types/comment";
 
-export const mockComments: Comment[] = [
+export const MOCK_COMMENTS: Comment[] = [
   {
     id: "1",
     content: "進捗無いです。",

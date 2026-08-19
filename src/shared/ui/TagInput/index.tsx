@@ -9,8 +9,8 @@ import type { FormEvent, InputHTMLAttributes } from "react";
 type TagInputProps = {
   tags: string[];
   allTagOptions?: string[];
-  addTag: (tag: string) => void;
-  removeTag: (index: number) => void;
+  onAddTag: (tag: string) => void;
+  onRemoveTag: (index: number) => void;
   heading?: string;
 } & Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -20,27 +20,27 @@ type TagInputProps = {
 const TagInput = ({
   tags,
   allTagOptions,
-  addTag,
-  removeTag,
+  onAddTag,
+  onRemoveTag,
   heading,
   ...props
 }: TagInputProps) => {
-  const [focused, setFocused] = useState(false);
+  const [isFocused, setFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const tag = inputValue.trim();
     if (tag !== "") {
       if (tags.includes(tag)) return;
-      addTag(tag);
+      onAddTag(tag);
       setInputValue("");
     }
   };
 
   useEffect(() => {
-    if (!focused) return;
+    if (!isFocused) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -55,10 +55,10 @@ const TagInput = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [focused]);
+  }, [isFocused]);
 
   useEffect(() => {
-    if (!focused) return;
+    if (!isFocused) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -73,7 +73,7 @@ const TagInput = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [focused]);
+  }, [isFocused]);
 
   const options = useMemo(() => {
     if (!allTagOptions) return [];
@@ -86,7 +86,7 @@ const TagInput = ({
   }, [inputValue, allTagOptions, tags]);
 
   return (
-    <form className={styles["tag-input-wrapper"]} onSubmit={onSubmit}>
+    <form className={styles["tag-input-wrapper"]} onSubmit={handleSubmit}>
       {heading && <h3>{heading}</h3>}
       <div ref={containerRef} className={styles["input-wrapper"]}>
         <div className={styles["tags-wrapper"]}>
@@ -95,7 +95,7 @@ const TagInput = ({
               key={`${tag}`}
               color="primary"
               onClick={() => {
-                removeTag(id);
+                onRemoveTag(id);
               }}
             >
               {tag}
@@ -103,12 +103,12 @@ const TagInput = ({
           ))}
           <span className={styles["input-dropdown-container"]}>
             <Dropdown
-              isOpen={options.length > 0 && focused}
+              isOpen={options.length > 0 && isFocused}
               options={options}
               position="bottom"
               onSelect={(tag) => {
                 if (tags.includes(tag.toLowerCase())) return;
-                addTag(tag);
+                onAddTag(tag);
                 setInputValue("");
                 setFocused(false);
               }}

@@ -1,4 +1,4 @@
-import Avater from "../Avatar";
+import Avatar from "../Avatar";
 import Batch from "../Batch";
 import styles from "./index.module.css";
 
@@ -10,7 +10,7 @@ type CardProps = {
   username?: string;
   postDate: Date;
   tags: Tag[];
-  avaterURL?: string;
+  avatarURL?: string;
   imageURL?: string;
 };
 
@@ -20,7 +20,7 @@ const Card = ({
   username = "UserName",
   postDate,
   tags,
-  avaterURL = "./comingSoonLugia.webp",
+  avatarURL = "./comingSoonLugia.webp",
   imageURL = "./comingSoonHo-Oh.webp",
 }: CardProps) => {
   return (
@@ -31,7 +31,7 @@ const Card = ({
       </div>
       <div className={styles["card-discription-wrapper"]}>
         <div className={styles["card-discription-content"]}>
-          <Avater avatarURL={avaterURL} />
+          <Avatar avatarURL={avatarURL} />
           <div className={styles["info-wrapper"]}>
             <p className={styles["card-username"]}>{username}</p>
             <p className={styles["card-postdate"]}>

@@ -6,13 +6,13 @@ export type UserProfile = {
   icon_url: string;
 };
 
-type UserStoreProps = {
+type UserStore = {
   user: UserProfile | null;
   setUser: (user: UserProfile | null) => void;
   clearUser: () => void;
 };
 
-export const useUserStore = create<UserStoreProps>()(
+export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
       user: null,

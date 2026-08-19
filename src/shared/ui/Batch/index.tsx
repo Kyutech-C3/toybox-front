@@ -15,7 +15,7 @@ const Batch = ({ children, color = "primary", onClick = null }: BatchProps) => {
     <span
       className={styles["batch"]}
       data-color={color}
-      data-onclick={onClick ? "true" : "false"}
+      data-clickable={onClick ? "true" : "false"}
     >
       {children}
       {onClick && (

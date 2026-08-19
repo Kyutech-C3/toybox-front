@@ -4,7 +4,7 @@ import Switch from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof Switch> = {
+const META: Meta<typeof Switch> = {
   title: "UI/Switch",
   component: Switch,
   parameters: {
@@ -13,22 +13,22 @@ const meta: Meta<typeof Switch> = {
   tags: ["autodocs"],
 };
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default META;
+type Story = StoryObj<typeof META>;
 
-const SwitchWithState = ({
-  initialValue = true,
-}: {
-  initialValue?: boolean;
-}) => {
-  const [isToy, setIsToy] = useState(initialValue);
-  return <Switch isToy={isToy} setIsToy={setIsToy} />;
+type SwitchWithStateProps = {
+  isInitiallyToy?: boolean;
+};
+
+const SwitchWithState = ({ isInitiallyToy = true }: SwitchWithStateProps) => {
+  const [isToy, setIsToy] = useState(isInitiallyToy);
+  return <Switch isToy={isToy} onChange={setIsToy} />;
 };
 
 export const ToySelected: Story = {
-  render: () => <SwitchWithState initialValue={true} />,
+  render: () => <SwitchWithState isInitiallyToy={true} />,
 };
 
 export const BlogSelected: Story = {
-  render: () => <SwitchWithState initialValue={false} />,
+  render: () => <SwitchWithState isInitiallyToy={false} />,
 };

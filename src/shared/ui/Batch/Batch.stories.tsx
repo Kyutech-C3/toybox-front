@@ -2,7 +2,7 @@ import Batch from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof Batch> = {
+const META: Meta<typeof Batch> = {
   title: "UI/Batch",
   component: Batch,
   parameters: {
@@ -14,8 +14,8 @@ const meta: Meta<typeof Batch> = {
   },
 };
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default META;
+type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
   args: {

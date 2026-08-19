@@ -12,11 +12,11 @@ import type { Tag, TagResponse } from "@/shared/types/work";
 export const SearchBar = () => {
   const { tags, addTag, removeTag } = useTagsStore();
   const [inputValue, setInputValue] = useState<string>("");
-  const [focused, setFocused] = useState<boolean>(false);
+  const [isFocused, setFocused] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const { data: allTagOptions } = useTagOptions();
 
-  const onSelect = (option: Tag) => {
+  const handleSelect = (option: Tag) => {
     addTag(option);
     setFocused(false);
   };
@@ -34,7 +34,7 @@ export const SearchBar = () => {
     return filtered;
   }, [inputValue, tags, allTagOptions]);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFocused(false);
     setInputValue("");
@@ -44,7 +44,7 @@ export const SearchBar = () => {
   };
 
   useEffect(() => {
-    if (!focused) return;
+    if (!isFocused) return;
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -59,21 +59,21 @@ export const SearchBar = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [focused]);
+  }, [isFocused]);
 
   return (
     <>
       <form
         className={styles["search-bar-wrapper"]}
         onFocus={() => setFocused(true)}
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
       >
         <div className={styles["search-bar"]} ref={containerRef}>
           <span className={styles["input-dropdown-container"]}>
             <Dropdown<TagResponse>
               options={options}
-              onSelect={onSelect}
-              isOpen={options.length > 0 && focused}
+              onSelect={handleSelect}
+              isOpen={options.length > 0 && isFocused}
               position="bottom"
             />
           </span>
