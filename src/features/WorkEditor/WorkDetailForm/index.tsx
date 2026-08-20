@@ -13,28 +13,23 @@ import Paper from "@/shared/ui/Paper";
 import TagInput from "@/shared/ui/TagInput";
 
 import type { Tag } from "@/shared/types/work";
+import type { TagInputTag } from "@/shared/ui/TagInput";
 
 const WorkDetailForm = () => {
   const { title, setTitle, addTagID, removeTagID } = usePostWorkStore();
 
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<TagInputTag[]>([]);
   const allTagOptions = useTagOptions();
 
-  const tagCheck = (tags: Tag[], newTag: string): string | null => {
-    const foundTag = tags.find((tag) => tag.name === newTag);
-    if (foundTag) {
-      return foundTag.id;
-    }
-    return null;
-  };
+  const findTag = (tags: Tag[], tagName: string): Tag | undefined =>
+    tags.find((tag) => tag.name.toLowerCase() === tagName.toLowerCase());
 
   const handleAddTag = async (tag: string) => {
-    if (tags.includes(tag.toLowerCase())) return;
-    setTags((prev) => [...prev, tag.toLowerCase()]);
-    const tagID = tagCheck(allTagOptions.data || [], tag);
-    if (tagID) {
-      addTagID(tagID);
-    } else {
+    const tagName = tag.toLowerCase();
+    if (tags.some(({ name }) => name === tagName)) return;
+
+    let tagID = findTag(allTagOptions.data, tagName)?.id;
+    if (!tagID) {
       const accessToken = useAuthStore.getState().accessToken;
       if (!accessToken) {
         throw new Error("No access token available");
@@ -43,8 +38,11 @@ const WorkDetailForm = () => {
       if (!newTag.id) {
         throw new Error("Failed to create tag");
       }
-      addTagID(newTag.id);
+      tagID = newTag.id;
     }
+
+    setTags((prev) => [...prev, { id: tagID, name: tagName }]);
+    addTagID(tagID);
   };
 
   const handleAssetSelect = async (file: File) => {
@@ -59,9 +57,9 @@ const WorkDetailForm = () => {
     usePostWorkStore.getState().addAssetID(response.id);
   };
 
-  const handleRemoveTag = (index: number) => {
-    setTags((prev) => prev.filter((_, i) => i !== index));
-    removeTagID(index);
+  const handleRemoveTag = (tagID: string) => {
+    setTags((prev) => prev.filter((tag) => tag.id !== tagID));
+    removeTagID(tagID);
   };
 
   return (
