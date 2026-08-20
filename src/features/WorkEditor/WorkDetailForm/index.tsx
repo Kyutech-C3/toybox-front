@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { createTag } from "../api/createTag";
 import { uploadAsset } from "../api/uploadAsset";
@@ -19,6 +19,7 @@ const WorkDetailForm = () => {
   const { title, setTitle, addTagID, removeTagID } = usePostWorkStore();
 
   const [tags, setTags] = useState<TagInputTag[]>([]);
+  const selectedTagNamesRef = useRef<Set<string>>(new Set());
   const allTagOptions = useTagOptions();
 
   const findTag = (tags: Tag[], tagName: string): Tag | undefined =>
@@ -26,23 +27,29 @@ const WorkDetailForm = () => {
 
   const handleAddTag = async (tag: string) => {
     const tagName = tag.toLowerCase();
-    if (tags.some(({ name }) => name === tagName)) return;
+    if (selectedTagNamesRef.current.has(tagName)) return;
+    selectedTagNamesRef.current.add(tagName);
 
-    let tagID = findTag(allTagOptions.data, tagName)?.id;
-    if (!tagID) {
-      const accessToken = useAuthStore.getState().accessToken;
-      if (!accessToken) {
-        throw new Error("No access token available");
+    try {
+      let tagID = findTag(allTagOptions.data, tagName)?.id;
+      if (!tagID) {
+        const accessToken = useAuthStore.getState().accessToken;
+        if (!accessToken) {
+          throw new Error("No access token available");
+        }
+        const newTag = await createTag(tag, accessToken);
+        if (!newTag.id) {
+          throw new Error("Failed to create tag");
+        }
+        tagID = newTag.id;
       }
-      const newTag = await createTag(tag, accessToken);
-      if (!newTag.id) {
-        throw new Error("Failed to create tag");
-      }
-      tagID = newTag.id;
+
+      setTags((prev) => [...prev, { id: tagID, name: tagName }]);
+      addTagID(tagID);
+    } catch (error) {
+      selectedTagNamesRef.current.delete(tagName);
+      throw error;
     }
-
-    setTags((prev) => [...prev, { id: tagID, name: tagName }]);
-    addTagID(tagID);
   };
 
   const handleAssetSelect = async (file: File) => {
@@ -58,6 +65,10 @@ const WorkDetailForm = () => {
   };
 
   const handleRemoveTag = (tagID: string) => {
+    const removedTag = tags.find((tag) => tag.id === tagID);
+    if (removedTag) {
+      selectedTagNamesRef.current.delete(removedTag.name);
+    }
     setTags((prev) => prev.filter((tag) => tag.id !== tagID));
     removeTagID(tagID);
   };
