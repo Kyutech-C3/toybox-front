@@ -8,6 +8,10 @@ export interface DropdownOption<T> {
   label?: string;
 }
 
+interface NormalizedDropdownOption<T> extends DropdownOption<T> {
+  label: string;
+}
+
 interface DropdownProps<T> {
   isOpen: boolean;
   options: T[] | DropdownOption<T>[];
@@ -25,18 +29,20 @@ export const Dropdown = <T extends string | number | Tag>({
   position = "top",
   renderOption,
 }: DropdownProps<T>) => {
-  const normalizedOptions: DropdownOption<T>[] = options.map((opt) => {
-    if (typeof opt === "object" && "value" in opt) {
-      return opt;
-    }
+  const normalizedOptions: NormalizedDropdownOption<T>[] = options.map(
+    (opt) => {
+      if (typeof opt === "object" && "value" in opt) {
+        return { ...opt, label: opt.label || String(opt.value) };
+      }
 
-    // Tag型の場合はnameプロパティを使用
-    if (typeof opt === "object" && "name" in opt) {
-      return { value: opt as T, label: (opt as Tag).name };
-    }
+      // Tag型の場合はnameプロパティを使用
+      if (typeof opt === "object" && "name" in opt) {
+        return { value: opt as T, label: (opt as Tag).name };
+      }
 
-    return { value: opt as T, label: String(opt) };
-  });
+      return { value: opt as T, label: String(opt) };
+    },
+  );
 
   if (!isOpen) return null;
 
