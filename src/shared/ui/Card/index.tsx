@@ -37,7 +37,7 @@ const Card = ({
           <div className={styles["info-wrapper"]}>
             <p className={styles["card-username"]}>{username}</p>
             <p className={styles["card-postdate"]}>
-              {pad(postDate.getFullYear()) +
+              {postDate.getFullYear() +
                 "/" +
                 pad(postDate.getMonth() + 1) +
                 "/" +
