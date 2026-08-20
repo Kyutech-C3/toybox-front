@@ -16,7 +16,7 @@ interface CommentSectionProps {
 }
 
 const CommentSection = ({ postId }: CommentSectionProps) => {
-  const { data } = useComment(postId);
+  const { data } = useComment({ workId: postId });
 
   // 返信対象のコメントを管理するState
   const [replyingTo, setReplyingTo] = useState<Comment | undefined>(undefined);

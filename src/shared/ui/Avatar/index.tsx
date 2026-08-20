@@ -1,10 +1,10 @@
 import styles from "./index.module.css";
 
-type AvaterProps = {
+type AvatarProps = {
   avatarURL?: string;
 };
 
-const Avater = ({ avatarURL = "./comingSoonLugia.webp" }: AvaterProps) => {
+const Avatar = ({ avatarURL = "./comingSoonLugia.webp" }: AvatarProps) => {
   return (
     <div className={styles["avatar-wrapper"]}>
       <img
@@ -16,4 +16,4 @@ const Avater = ({ avatarURL = "./comingSoonLugia.webp" }: AvaterProps) => {
   );
 };
 
-export default Avater;
+export default Avatar;

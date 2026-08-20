@@ -5,7 +5,7 @@ import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
 import { useTagsStore } from "./SearchBar/store/useTagsStore";
 
-import { Pagination } from "@/features/WorkIndex/Pagenation";
+import { Pagination } from "@/features/WorkIndex/Pagination";
 import Card from "@/shared/ui/Card";
 
 const ITEMS_PER_PAGE = 21;
@@ -55,7 +55,7 @@ const WorkIndex = () => {
                   : work.title
               }
               username={work.user.display_name}
-              avaterURL={work.user.avatar_url}
+              avatarURL={work.user.avatar_url}
               tags={work.tags}
               imageURL={work.thumbnail_url}
               postDate={new Date(work.created_at.split(" ")[0])}

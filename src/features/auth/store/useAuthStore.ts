@@ -3,13 +3,13 @@ import { createJSONStorage, persist } from "zustand/middleware";
 
 import { getAccessToken, refreshAccessToken } from "../auth";
 
-type AuthStoreProps = {
+type AuthStore = {
   accessToken: string | null;
   getAccessToken: (code: string) => Promise<void>;
   refreshAccessToken: () => Promise<void>;
 };
 
-export const useAuthStore = create<AuthStoreProps>()(
+export const useAuthStore = create<AuthStore>()(
   persist(
     (set, get) => ({
       accessToken: null,

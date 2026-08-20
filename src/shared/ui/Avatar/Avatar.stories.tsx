@@ -1,10 +1,10 @@
-import Avater from "./index";
+import Avatar from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof Avater> = {
-  title: "UI/Avater",
-  component: Avater,
+const META: Meta<typeof Avatar> = {
+  title: "UI/Avatar",
+  component: Avatar,
   parameters: {
     layout: "centered",
   },
@@ -14,8 +14,8 @@ const meta: Meta<typeof Avater> = {
   },
 };
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default META;
+type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
   args: {

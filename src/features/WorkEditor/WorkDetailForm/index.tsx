@@ -28,7 +28,7 @@ const WorkDetailForm = () => {
     return null;
   };
 
-  const tagValidation = async (tag: string) => {
+  const handleAddTag = async (tag: string) => {
     if (tags.includes(tag.toLowerCase())) return;
     setTags((prev) => [...prev, tag.toLowerCase()]);
     const tagID = tagCheck(allTagOptions.data || [], tag);
@@ -59,7 +59,7 @@ const WorkDetailForm = () => {
     usePostWorkStore.getState().addAssetID(response.id);
   };
 
-  const removeTag = (index: number) => {
+  const handleRemoveTag = (index: number) => {
     setTags((prev) => prev.filter((_, i) => i !== index));
     removeTagID(index);
   };
@@ -71,8 +71,8 @@ const WorkDetailForm = () => {
         <TagInput
           heading="タグ"
           tags={tags}
-          addTag={tagValidation}
-          removeTag={removeTag}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTag}
           allTagOptions={allTagOptions.data.map((tag) => tag.name)}
         />
         <ImageUpload onImageSelect={handleAssetSelect} />

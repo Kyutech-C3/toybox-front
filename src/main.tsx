@@ -6,10 +6,10 @@ import { SWRConfig } from "swr";
 
 import App from "./App.tsx";
 
-const root = document.getElementById("root");
-if (!root) throw new Error("Failed to find the root element");
+const ROOT = document.getElementById("root");
+if (!ROOT) throw new Error("Failed to find the root element");
 
-createRoot(root).render(
+createRoot(ROOT).render(
   <StrictMode>
     <BrowserRouter>
       <SWRConfig value={{ suspense: true }}>

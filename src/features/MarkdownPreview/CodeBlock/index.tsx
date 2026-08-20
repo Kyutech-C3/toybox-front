@@ -6,14 +6,13 @@ import { prism as style } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import styles from "./index.module.css";
 
-const CodeBlock = ({
-  language,
-  children,
-}: {
+type CodeBlockProps = {
   language: string;
   children: string;
-}) => {
-  const [copied, setCopied] = useState(false);
+};
+
+const CodeBlock = ({ language, children }: CodeBlockProps) => {
+  const [isCopied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(children);
@@ -29,7 +28,7 @@ const CodeBlock = ({
         onClick={handleCopy}
         aria-label="コードをコピー"
       >
-        {copied ? (
+        {isCopied ? (
           <CheckIcon fontSize="small" />
         ) : (
           <ContentCopyIcon fontSize="small" />

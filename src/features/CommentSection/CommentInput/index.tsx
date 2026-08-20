@@ -9,7 +9,7 @@ interface CommentInputProps {
   onSubmit: (message: string) => void;
   replyingTo?: Comment;
   onCancelReply?: () => void;
-  autoFocus?: boolean;
+  isAutoFocus?: boolean;
   avatarUrl?: string;
 }
 
@@ -17,7 +17,7 @@ const CommentInput = ({
   onSubmit,
   replyingTo,
   onCancelReply,
-  autoFocus,
+  isAutoFocus,
   avatarUrl = "/comingSoonHo-Oh.webp",
 }: CommentInputProps) => {
   const [value, setValue] = useState("");
@@ -88,7 +88,7 @@ const CommentInput = ({
             }}
             onKeyDown={handleKeyDown}
             // biome-ignore lint/a11y/noAutofocus: 返信時にフォーカスを当てるため
-            autoFocus={autoFocus}
+            autoFocus={isAutoFocus}
           />
         </label>
         <div className={styles["send-wrap"]}>

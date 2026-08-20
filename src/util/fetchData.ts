@@ -1,7 +1,7 @@
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 export const fetchData = async (path: string) => {
-  const response = await fetch(`${baseUrl}${path}`, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -14,7 +14,7 @@ export const fetchData = async (path: string) => {
 };
 
 export const fetchDataWithAuth = async (path: string, accessToken: string) => {
-  const response = await fetch(`${baseUrl}${path}`, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -28,7 +28,7 @@ export const fetchDataWithAuth = async (path: string, accessToken: string) => {
 };
 
 export const postData = async (path: string, data: BodyInit) => {
-  const response = await fetch(`${baseUrl}${path}`, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -54,7 +54,7 @@ export const postDataWithAuth = async (
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(`${baseUrl}${path}`, {
+  const response = await fetch(`${BASE_URL}${path}`, {
     method: "POST",
     headers,
     body: data,
