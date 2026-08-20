@@ -11,6 +11,12 @@ type WorkDetailProps = {
   workID: string;
 };
 
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const pad = (num: number) => num.toString().padStart(2, "0");
+  return ` ${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};
+
 const WorkDetail = ({ workID }: WorkDetailProps) => {
   const { data, error } = useWorkDetail({ id: workID });
 
@@ -40,28 +46,12 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
         </div>
         <div className={styles["info-wrapper"]}>
           <p className={styles["work-postdate"]}>
-            投稿日：
-            {new Date(data.created_at).getFullYear() +
-              "/" +
-              (new Date(data.created_at).getMonth() + 1) +
-              "/" +
-              new Date(data.created_at).getDate() +
-              " " +
-              new Date(data.created_at).getHours() +
-              ":" +
-              new Date(data.created_at).getMinutes()}
+            投稿日
+            {formatDate(data.created_at)}
           </p>
           <p className={styles["work-postdate"]}>
-            更新日：
-            {new Date(data.updated_at).getFullYear() +
-              "/" +
-              (new Date(data.updated_at).getMonth() + 1) +
-              "/" +
-              new Date(data.updated_at).getDate() +
-              " " +
-              new Date(data.updated_at).getHours() +
-              ":" +
-              new Date(data.updated_at).getMinutes()}
+            更新日
+            {formatDate(data.updated_at)}
           </p>
         </div>
       </div>
