@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { createTag } from "../api/createTag";
 import { uploadAsset } from "../api/uploadAsset";
@@ -13,37 +13,42 @@ import Paper from "@/shared/ui/Paper";
 import TagInput from "@/shared/ui/TagInput";
 
 import type { Tag } from "@/shared/types/work";
+import type { TagInputTag } from "@/shared/ui/TagInput";
 
 const WorkDetailForm = () => {
   const { title, setTitle, addTagID, removeTagID } = usePostWorkStore();
 
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<TagInputTag[]>([]);
+  const selectedTagNamesRef = useRef<Set<string>>(new Set());
   const allTagOptions = useTagOptions();
 
-  const tagCheck = (tags: Tag[], newTag: string): string | null => {
-    const foundTag = tags.find((tag) => tag.name === newTag);
-    if (foundTag) {
-      return foundTag.id;
-    }
-    return null;
-  };
+  const findTag = (tags: Tag[], tagName: string): Tag | undefined =>
+    tags.find((tag) => tag.name.toLowerCase() === tagName.toLowerCase());
 
   const handleAddTag = async (tag: string) => {
-    if (tags.includes(tag.toLowerCase())) return;
-    setTags((prev) => [...prev, tag.toLowerCase()]);
-    const tagID = tagCheck(allTagOptions.data || [], tag);
-    if (tagID) {
+    const tagName = tag.toLowerCase();
+    if (selectedTagNamesRef.current.has(tagName)) return;
+    selectedTagNamesRef.current.add(tagName);
+
+    try {
+      let tagID = findTag(allTagOptions.data, tagName)?.id;
+      if (!tagID) {
+        const accessToken = useAuthStore.getState().accessToken;
+        if (!accessToken) {
+          throw new Error("No access token available");
+        }
+        const newTag = await createTag(tag, accessToken);
+        if (!newTag.id) {
+          throw new Error("Failed to create tag");
+        }
+        tagID = newTag.id;
+      }
+
+      setTags((prev) => [...prev, { id: tagID, name: tagName }]);
       addTagID(tagID);
-    } else {
-      const accessToken = useAuthStore.getState().accessToken;
-      if (!accessToken) {
-        throw new Error("No access token available");
-      }
-      const newTag = await createTag(tag, accessToken);
-      if (!newTag.id) {
-        throw new Error("Failed to create tag");
-      }
-      addTagID(newTag.id);
+    } catch (error) {
+      selectedTagNamesRef.current.delete(tagName);
+      throw error;
     }
   };
 
@@ -59,9 +64,13 @@ const WorkDetailForm = () => {
     usePostWorkStore.getState().addAssetID(response.id);
   };
 
-  const handleRemoveTag = (index: number) => {
-    setTags((prev) => prev.filter((_, i) => i !== index));
-    removeTagID(index);
+  const handleRemoveTag = (tagID: string) => {
+    const removedTag = tags.find((tag) => tag.id === tagID);
+    if (removedTag) {
+      selectedTagNamesRef.current.delete(removedTag.name);
+    }
+    setTags((prev) => prev.filter((tag) => tag.id !== tagID));
+    removeTagID(tagID);
   };
 
   return (

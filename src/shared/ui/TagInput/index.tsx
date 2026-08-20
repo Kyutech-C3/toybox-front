@@ -6,11 +6,16 @@ import styles from "./index.module.css";
 
 import type { FormEvent, InputHTMLAttributes } from "react";
 
+export type TagInputTag = {
+  id: string;
+  name: string;
+};
+
 type TagInputProps = {
-  tags: string[];
+  tags: TagInputTag[];
   allTagOptions?: string[];
   onAddTag: (tag: string) => void;
-  onRemoveTag: (index: number) => void;
+  onRemoveTag: (tagID: string) => void;
   heading?: string;
 } & Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -33,7 +38,9 @@ const TagInput = ({
     e.preventDefault();
     const tag = inputValue.trim();
     if (tag !== "") {
-      if (tags.includes(tag)) return;
+      if (tags.some(({ name }) => name.toLowerCase() === tag.toLowerCase())) {
+        return;
+      }
       onAddTag(tag);
       setInputValue("");
     }
@@ -81,7 +88,7 @@ const TagInput = ({
     return allTagOptions.filter(
       (option) =>
         option.toLowerCase().includes(lowerInput) &&
-        !tags.includes(option.toLowerCase()),
+        !tags.some(({ name }) => name.toLowerCase() === option.toLowerCase()),
     );
   }, [inputValue, allTagOptions, tags]);
 
@@ -90,15 +97,15 @@ const TagInput = ({
       {heading && <h3>{heading}</h3>}
       <div ref={containerRef} className={styles["input-wrapper"]}>
         <div className={styles["tags-wrapper"]}>
-          {tags.map((tag, id) => (
+          {tags.map((tag) => (
             <Batch
-              key={`${tag}`}
+              key={tag.id}
               color="primary"
               onClick={() => {
-                onRemoveTag(id);
+                onRemoveTag(tag.id);
               }}
             >
-              {tag}
+              {tag.name}
             </Batch>
           ))}
           <span className={styles["input-dropdown-container"]}>
@@ -107,7 +114,13 @@ const TagInput = ({
               options={options}
               position="bottom"
               onSelect={(tag) => {
-                if (tags.includes(tag.toLowerCase())) return;
+                if (
+                  tags.some(
+                    ({ name }) => name.toLowerCase() === tag.toLowerCase(),
+                  )
+                ) {
+                  return;
+                }
                 onAddTag(tag);
                 setInputValue("");
                 setFocused(false);

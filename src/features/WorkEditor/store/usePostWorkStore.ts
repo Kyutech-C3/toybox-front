@@ -13,7 +13,7 @@ type PostWorkStore = {
   addAssetID: (asset_id: string) => void;
   removeAssetID: (index: number) => void;
   addTagID: (tag_id: string) => void;
-  removeTagID: (index: number) => void;
+  removeTagID: (tag_id: string) => void;
   addurl: (url: string) => void;
   removeUrl: (index: number) => void;
   setVisibility: (visibility: "public" | "private" | "draft") => void;
@@ -48,9 +48,9 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
       tag_ids: [...state.tag_ids, tag_id],
     }));
   },
-  removeTagID: (index: number) => {
+  removeTagID: (tag_id: string) => {
     set((state) => ({
-      tag_ids: state.tag_ids.filter((_, i) => i !== index),
+      tag_ids: state.tag_ids.filter((id) => id !== tag_id),
     }));
   },
   addurl: (url: string) => {
