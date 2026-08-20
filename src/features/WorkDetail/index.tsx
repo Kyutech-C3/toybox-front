@@ -43,7 +43,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
             投稿日：
             {new Date(data.created_at).getFullYear() +
               "/" +
-              new Date(data.created_at).getMonth() +
+              (new Date(data.created_at).getMonth() + 1) +
               "/" +
               new Date(data.created_at).getDate() +
               " " +
@@ -55,7 +55,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
             更新日：
             {new Date(data.updated_at).getFullYear() +
               "/" +
-              new Date(data.updated_at).getMonth() +
+              (new Date(data.updated_at).getMonth() + 1) +
               "/" +
               new Date(data.updated_at).getDate() +
               " " +
