@@ -42,7 +42,7 @@ export const Dropdown = <T extends string | number | Tag>({
 
   return (
     <div
-      className={`${styles.dropdown} ${
+      className={`${styles["dropdown"]} ${
         position === "bottom"
           ? styles["dropdown-bottom"]
           : styles["dropdown-top"]
@@ -76,7 +76,7 @@ export const Dropdown = <T extends string | number | Tag>({
             <button
               key={String(option.label)}
               type="button"
-              className={`${styles.item} ${
+              className={`${styles["item"]} ${
                 isSelected ? styles["item-active"] : ""
               }`}
               onClick={() => onSelect(option.value)}

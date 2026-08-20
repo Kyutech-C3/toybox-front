@@ -1,9 +1,9 @@
-.codeBlockContainer {
+.code-block-container {
   position: relative;
   margin: 1rem 0;
 }
 
-.copyButton {
+.copy-button {
   position: absolute;
   top: -0.5rem;
   right: 0.5rem;
