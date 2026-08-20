@@ -1,34 +1,42 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
 
-import { getAccessToken, refreshAccessToken } from "../auth";
+import { refreshAccessToken } from "../auth";
 
 type AuthStore = {
   accessToken: string | null;
-  getAccessToken: (code: string) => Promise<void>;
-  refreshAccessToken: () => Promise<void>;
+  isSessionRestoring: boolean;
+  restoreSession: () => Promise<boolean>;
+  clearAccessToken: () => void;
 };
 
-export const useAuthStore = create<AuthStore>()(
-  persist(
-    (set, get) => ({
-      accessToken: null,
-      getAccessToken: async (code: string) => {
-        const accessToken = await getAccessToken(code);
-        set({ accessToken: accessToken });
-      },
-      refreshAccessToken: async () => {
-        const currentToken = get().accessToken;
-        if (!currentToken) {
-          throw new Error("No access token available");
-        }
-        const newAccessToken = await refreshAccessToken(currentToken);
-        set({ accessToken: newAccessToken });
-      },
-    }),
-    {
-      name: "auth-storage",
-      storage: createJSONStorage(() => localStorage),
-    },
-  ),
-);
+let RESTORE_SESSION_PROMISE: Promise<boolean> | null = null;
+
+export const useAuthStore = create<AuthStore>((set) => ({
+  accessToken: null,
+  isSessionRestoring: false,
+  restoreSession: () => {
+    if (RESTORE_SESSION_PROMISE) {
+      return RESTORE_SESSION_PROMISE;
+    }
+
+    set({ isSessionRestoring: true });
+    RESTORE_SESSION_PROMISE = refreshAccessToken()
+      .then((accessToken) => {
+        set({ accessToken });
+        return true;
+      })
+      .catch(() => {
+        set({ accessToken: null });
+        return false;
+      })
+      .finally(() => {
+        set({ isSessionRestoring: false });
+        RESTORE_SESSION_PROMISE = null;
+      });
+
+    return RESTORE_SESSION_PROMISE;
+  },
+  clearAccessToken: () => {
+    set({ accessToken: null });
+  },
+}));

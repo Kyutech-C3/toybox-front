@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
@@ -14,34 +14,28 @@ import Button from "@/shared/ui/Button";
 
 const Header = () => {
   const navigate = useNavigate();
-
-  const searchParams = useSearchParams();
+  const [isLoginRequesting, setIsLoginRequesting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const handleLogin = async () => {
-    const url = await getLoginUrl();
+    setIsLoginRequesting(true);
+    setLoginError(null);
 
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      window.location.href = url;
-      return;
+    try {
+      const url = new URL(await getLoginUrl());
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        throw new Error("Invalid login URL");
+      }
+      window.location.assign(url.toString());
+    } catch {
+      setLoginError(
+        "ログインを開始できませんでした。時間をおいて再試行してください。",
+      );
+      setIsLoginRequesting(false);
     }
-
-    navigate(url);
   };
-  const { getAccessToken, accessToken } = useAuthStore();
+  const { accessToken } = useAuthStore();
   const { user, setUser, clearUser } = useUserStore();
-
-  useEffect(() => {
-    const code = searchParams[0].get("code");
-    if (code && !accessToken) {
-      getAccessToken(code)
-        .then(() => {
-          navigate("/");
-        })
-        .catch((error) => {
-          console.error("Error during login:", error);
-        });
-    }
-  }, [searchParams, accessToken, getAccessToken, navigate]);
 
   useEffect(() => {
     if (!accessToken) {
@@ -76,12 +70,23 @@ const Header = () => {
         {user ? (
           <Avatar avatarURL={user.icon_url} />
         ) : (
-          <Button variant="primary" onClick={handleLogin}>
+          <Button
+            variant="primary"
+            onClick={handleLogin}
+            isDisabled={isLoginRequesting}
+          >
             <div className={styles["login-container"]}>
-              <p>ログイン</p>
+              <p>
+                {isLoginRequesting ? "ログイン画面へ移動中..." : "ログイン"}
+              </p>
               <LoginRoundedIcon />
             </div>
           </Button>
+        )}
+        {loginError && (
+          <p className={styles["login-error"]} role="alert">
+            {loginError}
+          </p>
         )}
       </div>
     </header>

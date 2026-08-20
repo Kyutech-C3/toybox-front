@@ -41,6 +41,17 @@ export const postData = async (path: string, data: BodyInit) => {
   return response.json();
 };
 
+export const postDataWithCredentials = async <T>(path: string): Promise<T> => {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json() as Promise<T>;
+};
+
 export const postDataWithAuth = async (
   path: string,
   data: BodyInit,
