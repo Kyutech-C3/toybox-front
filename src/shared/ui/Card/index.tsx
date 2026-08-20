@@ -2,6 +2,8 @@ import Avatar from "../Avatar";
 import Batch from "../Batch";
 import styles from "./index.module.css";
 
+import { formatDateTime } from "@/util/formatDateTime";
+
 import type { Tag } from "@/shared/types/work";
 
 type CardProps = {
@@ -35,11 +37,7 @@ const Card = ({
           <div className={styles["info-wrapper"]}>
             <p className={styles["card-username"]}>{username}</p>
             <p className={styles["card-postdate"]}>
-              {postDate.getFullYear() +
-                "/" +
-                postDate.getMonth() +
-                "/" +
-                postDate.getDate()}
+              {formatDateTime(postDate)}
             </p>
           </div>
         </div>

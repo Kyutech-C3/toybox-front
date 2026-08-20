@@ -6,6 +6,7 @@ import styles from "./index.module.css";
 import Avatar from "@/shared/ui/Avatar";
 import Batch from "@/shared/ui/Batch";
 import Paper from "@/shared/ui/Paper";
+import { formatDateTime } from "@/util/formatDateTime";
 
 type WorkDetailProps = {
   workID: string;
@@ -40,28 +41,10 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
         </div>
         <div className={styles["info-wrapper"]}>
           <p className={styles["work-postdate"]}>
-            投稿日：
-            {new Date(data.created_at).getFullYear() +
-              "/" +
-              new Date(data.created_at).getMonth() +
-              "/" +
-              new Date(data.created_at).getDate() +
-              " " +
-              new Date(data.created_at).getHours() +
-              ":" +
-              new Date(data.created_at).getMinutes()}
+            投稿日 {formatDateTime(data.created_at)}
           </p>
           <p className={styles["work-postdate"]}>
-            更新日：
-            {new Date(data.updated_at).getFullYear() +
-              "/" +
-              new Date(data.updated_at).getMonth() +
-              "/" +
-              new Date(data.updated_at).getDate() +
-              " " +
-              new Date(data.updated_at).getHours() +
-              ":" +
-              new Date(data.updated_at).getMinutes()}
+            更新日 {formatDateTime(data.updated_at)}
           </p>
         </div>
       </div>
