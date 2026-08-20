@@ -9,7 +9,7 @@
   margin-top: 64px;
   padding: 32px;
   border-radius: 12px;
-  background-color: var(--card-color);
+  background-color: var(--paper-color);
 }
 
 .auth-actions {

@@ -13,6 +13,17 @@ export const fetchData = async (path: string) => {
   return response.json();
 };
 
+export const fetchDataWithCredentials = async <T>(path: string): Promise<T> => {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: "GET",
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json() as Promise<T>;
+};
+
 export const fetchDataWithAuth = async (path: string, accessToken: string) => {
   const response = await fetch(`${BASE_URL}${path}`, {
     method: "GET",

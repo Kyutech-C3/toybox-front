@@ -1,7 +1,20 @@
-import { fetchData, postDataWithCredentials } from "@/util/fetchData";
+import {
+  fetchDataWithCredentials,
+  postDataWithCredentials,
+} from "@/util/fetchData";
 
-const getLoginUrl = async () => {
-  const response = await fetchData("/auth/discord");
+type GetLoginUrlResponse = {
+  url: string;
+};
+
+const getLoginUrl = async (): Promise<string> => {
+  const response =
+    await fetchDataWithCredentials<GetLoginUrlResponse>("/auth/discord");
+
+  if (!response.url) {
+    throw new Error("Failed to get login URL");
+  }
+
   return response.url;
 };
 
