@@ -2,6 +2,8 @@ import Avatar from "../Avatar";
 import Batch from "../Batch";
 import styles from "./index.module.css";
 
+import { formatDateTime } from "@/util/formatDateTime";
+
 import type { Tag } from "@/shared/types/work";
 
 type CardProps = {
@@ -23,8 +25,6 @@ const Card = ({
   avatarURL = "./comingSoonLugia.webp",
   imageURL = "./comingSoonHo-Oh.webp",
 }: CardProps) => {
-  const pad = (num: number) => num.toString().padStart(2, "0");
-
   return (
     <div className={styles["card-wrapper"]}>
       <div className={styles["card-image-wrapper"]}>
@@ -37,15 +37,7 @@ const Card = ({
           <div className={styles["info-wrapper"]}>
             <p className={styles["card-username"]}>{username}</p>
             <p className={styles["card-postdate"]}>
-              {postDate.getFullYear() +
-                "/" +
-                pad(postDate.getMonth() + 1) +
-                "/" +
-                pad(postDate.getDate()) +
-                " " +
-                pad(postDate.getHours()) +
-                ":" +
-                pad(postDate.getMinutes())}
+              {formatDateTime(postDate)}
             </p>
           </div>
         </div>

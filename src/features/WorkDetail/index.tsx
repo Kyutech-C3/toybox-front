@@ -6,15 +6,10 @@ import styles from "./index.module.css";
 import Avatar from "@/shared/ui/Avatar";
 import Batch from "@/shared/ui/Batch";
 import Paper from "@/shared/ui/Paper";
+import { formatDateTime } from "@/util/formatDateTime";
 
 type WorkDetailProps = {
   workID: string;
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  const pad = (num: number) => num.toString().padStart(2, "0");
-  return ` ${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
 };
 
 const WorkDetail = ({ workID }: WorkDetailProps) => {
@@ -46,12 +41,10 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
         </div>
         <div className={styles["info-wrapper"]}>
           <p className={styles["work-postdate"]}>
-            投稿日
-            {formatDate(data.created_at)}
+            投稿日：{formatDateTime(data.created_at)}
           </p>
           <p className={styles["work-postdate"]}>
-            更新日
-            {formatDate(data.updated_at)}
+            更新日：{formatDateTime(data.updated_at)}
           </p>
         </div>
       </div>
