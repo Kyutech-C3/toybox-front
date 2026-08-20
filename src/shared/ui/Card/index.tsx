@@ -37,7 +37,7 @@ const Card = ({
             <p className={styles["card-postdate"]}>
               {postDate.getFullYear() +
                 "/" +
-                postDate.getMonth() +
+                (postDate.getMonth() + 1) +
                 "/" +
                 postDate.getDate()}
             </p>
