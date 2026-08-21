@@ -3,6 +3,7 @@
 ## 更新ログ
 
 2025/09/23 by semikoron
+2026/08/22 by keitan
 
 ## 起動方法
 
@@ -46,7 +47,7 @@ npm run dev
 ブランチの命名規則は以下のようにすること
 
 ```
-接頭辞/issue番号-内容-内容
+接頭辞/#issue番号-内容-内容
 ```
 
 内容はケバブケースを使用し、接頭辞には以下のような内容を使用すること。
@@ -93,165 +94,28 @@ npm run dev
 
 ```
 src
-├── App.css
-├── App.tsx
+├── assets
+│   └── react.svg
 ├── features
-│   ├── CommentSection
-│   │   ├── CommentInput
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── CommentList
-│   │   │   ├── CommentItem
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── api
-│   │   │   └── postComment.ts
-│   │   ├── hook
-│   │   │   └── useComment.ts
-│   │   ├── index.module.css
-│   │   └── index.tsx
 │   ├── Header
-│   │   ├── api
-│   │   │   └── getUserData.ts
 │   │   ├── index.module.css
 │   │   └── index.tsx
-│   ├── MarkdownPreview
-│   │   ├── CodeBlock
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── index.module.css
-│   │   └── index.tsx
-│   ├── WorkDetail
-│   │   ├── AssetCarousel
-│   │   │   ├── AudioCard
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── CardWrapper
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── ImgCard
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── MovieCard
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── hook
-│   │   │   └── useWorkDetail.ts
-│   │   ├── index.module.css
-│   │   └── index.tsx
-│   ├── WorkEditor
-│   │   ├── MarkdownEditor
-│   │   │   ├── editor-custom.css
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── PublishButtons
-│   │   │   ├── DraftToggleButton
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── PublishButton
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── WorkDetailForm
-│   │   │   ├── ImageUpload
-│   │   │   │   ├── index.module.css
-│   │   │   │   └── index.tsx
-│   │   │   ├── hook
-│   │   │   │   └── useTagOptions.ts
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── api
-│   │   │   ├── createTag.ts
-│   │   │   ├── postWork.ts
-│   │   │   └── uploadAsset.ts
-│   │   ├── index.module.css
-│   │   ├── index.tsx
-│   │   └── store
-│   │       └── usePostWorkStore.ts
-│   ├── WorkIndex
-│   │   ├── Pagination
-│   │   │   ├── index.module.css
-│   │   │   └── index.tsx
-│   │   ├── SearchBar
-│   │   │   ├── hook
-│   │   │   │   └── useTagOptions.ts
-│   │   │   ├── index.module.css
-│   │   │   ├── index.tsx
-│   │   │   └── store
-│   │   │       └── useTagsStore.ts
-│   │   ├── hook
-│   │   │   └── useWorks.tsx
-│   │   ├── index.module.css
-│   │   └── index.tsx
-│   └── auth
-│       ├── auth.ts
-│       └── store
-│           ├── useAuthStore.ts
-│           └── useUserStore.ts
-├── index.css
-├── main.tsx
+│   └── WorkIndex
+│       ├── hook
+│       ├── index.module.css
+│       └── index.tsx
 ├── pages
-│   ├── AuthPage
-│   │   ├── index.module.css
-│   │   └── index.tsx
-│   ├── EditPage
-│   │   ├── index.module.css
-│   │   └── index.tsx
-│   ├── TopPage
-│   │   ├── index.module.css
-│   │   └── index.tsx
-│   ├── UserPage
-│   │   ├── index.module.css
-│   │   └── index.tsx
-│   └── WorkPage
+│   └── TopPage
 │       ├── index.module.css
 │       └── index.tsx
 ├── shared
-│   ├── mocks
-│   │   └── commentData.ts
-│   ├── types
-│   │   ├── comment.ts
-│   │   └── work.ts
 │   └── ui
-│       ├── Avatar
-│       │   ├── Avatar.stories.tsx
-│       │   ├── index.module.css
-│       │   └── index.tsx
-│       ├── Batch
-│       │   ├── Batch.stories.tsx
-│       │   ├── index.module.css
-│       │   └── index.tsx
-│       ├── Button
-│       │   ├── index.module.css
-│       │   └── index.tsx
 │       ├── Card
-│       │   ├── index.module.css
-│       │   └── index.tsx
-│       ├── Dropdown
-│       │   ├── index.module.css
-│       │   └── index.tsx
-│       ├── Input
-│       │   ├── index.module.css
-│       │   └── index.tsx
-│       ├── Paper
-│       │   ├── index.module.css
-│       │   └── index.tsx
-│       ├── Switch
-│       │   ├── Switch.stories.tsx
-│       │   ├── index.module.css
-│       │   └── index.tsx
-│       └── TagInput
-│           ├── index.module.css
-│           └── index.tsx
-├── util
-│   ├── fetchData.ts
-│   └── formatDateTime.ts
-└── vite-env.d.ts
+│       └── Switch
+├── types
+│   └── work.ts
+└── util
+    └── fetchData.ts
 ```
 
 ### assets ディレクトリ
