@@ -12,15 +12,15 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "ci": "npm install && npx biome check ./src",
-    "format": "npx biome check --write ./src",
+    "ci": "npm install && npx biome check ./src ./biome.json ./package.json ./tsconfig.json ./tsconfig.app.json ./tsconfig.node.json",
+    "format": "npx biome check --write ./src ./biome.json ./package.json ./tsconfig.json ./tsconfig.app.json ./tsconfig.node.json",
     "prepare": "husky",
     "new:ui": "hygen generator ui",
     "new:feature": "hygen generator feature",
     "new:component": "hygen generator component"
   },
   "lint-staged": {
-    "./src/**/*.{js,jsx,ts,tsx}": "npx biome check --write"
+    "./src/**/*.{js,jsx,ts,tsx,css,json,jsonc}": "npx biome check --write"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

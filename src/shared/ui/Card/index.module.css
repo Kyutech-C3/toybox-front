@@ -25,9 +25,15 @@
     bottom: 1rem;
     left: 0.8em;
     color: white;
-    text-shadow: 1.5px 1.5px 0 black, -1.5px -1.5px 0 black,
-      -1.5px 1.5px 0 black, 1.5px -1.5px 0 black, 0px 1.5px 0 black,
-      0 -1.5px 0 black, -1.5px 0 0 black, 1.5px 0 0 black;
+    text-shadow:
+      1.5px 1.5px 0 black,
+      -1.5px -1.5px 0 black,
+      -1.5px 1.5px 0 black,
+      1.5px -1.5px 0 black,
+      0px 1.5px 0 black,
+      0 -1.5px 0 black,
+      -1.5px 0 0 black,
+      1.5px 0 0 black;
     font-size: 1.5rem;
     font-weight: 900;
   }
