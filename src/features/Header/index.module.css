@@ -20,14 +20,8 @@
   gap: 24px;
 }
 
-.login-container {
+.post-container {
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.login-error {
-  color: var(--font-color);
-  font-size: 14px;
-  max-width: 240px;
 }

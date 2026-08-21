@@ -1,9 +1,6 @@
 import { create } from "zustand";
 
-export type UserProfile = {
-  display_name: string;
-  icon_url: string;
-};
+import type { UserProfile } from "../types";
 
 type UserStore = {
   user: UserProfile | null;
