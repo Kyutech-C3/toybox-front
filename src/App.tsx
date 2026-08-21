@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 
-import AuthSessionInitializer from "@/features/auth/AuthSessionInitializer";
 import AuthPage from "@/pages/AuthPage";
 import EditPage from "@/pages/EditPage";
 import TopPage from "@/pages/TopPage";
@@ -10,16 +9,13 @@ import WorkPage from "@/pages/WorkPage";
 
 function App() {
   return (
-    <>
-      <AuthSessionInitializer />
-      <Routes>
-        <Route path="/" element={<TopPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/work/:id" element={<WorkPage />} />
-        <Route path="/user/:id" element={<UserPage />} />
-        <Route path="/edit/:id" element={<EditPage />} />
-      </Routes>
-    </>
+    <Routes>
+      <Route path="/" element={<TopPage />} />
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/work/:id" element={<WorkPage />} />
+      <Route path="/user/:id" element={<UserPage />} />
+      <Route path="/edit/:id" element={<EditPage />} />
+    </Routes>
   );
 }
 
