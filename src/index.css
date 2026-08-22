@@ -16,7 +16,7 @@
   --error-color: #c62828;
   --link-color: #4a90e2;
   --paper-overlay-color: rgba(255, 255, 255, 0.9);
-  --primary-soft-color: rgba(251, 191, 36, 0.1);
+  --primary-soft-color: rgba(250, 190, 0, 0.1);
   --shadow-soft-color: rgba(0, 0, 0, 0.1);
 
   color: var(--font-color);
