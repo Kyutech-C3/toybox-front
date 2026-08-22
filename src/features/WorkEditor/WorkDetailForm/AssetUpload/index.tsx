@@ -212,6 +212,15 @@ const AssetUpload = ({ onUpload, onRemove }: AssetUploadProps) => {
             </div>
           </article>
         ))}
+        <input
+          ref={fileInputRef}
+          className={styles["file-input"]}
+          type="file"
+          accept={ASSET_ACCEPT}
+          multiple
+          onChange={handleInputChange}
+          tabIndex={-1}
+        />
         <button
           type="button"
           className={styles["add-button"]}
@@ -227,15 +236,6 @@ const AssetUpload = ({ onUpload, onRemove }: AssetUploadProps) => {
         >
           <CloudUploadRoundedIcon />
           <span>選択またはドロップ</span>
-          <input
-            ref={fileInputRef}
-            className={styles["file-input"]}
-            type="file"
-            accept={ASSET_ACCEPT}
-            multiple
-            onChange={handleInputChange}
-            tabIndex={-1}
-          />
         </button>
       </div>
       {validationError && (

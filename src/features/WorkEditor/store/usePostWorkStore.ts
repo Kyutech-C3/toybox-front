@@ -21,9 +21,10 @@ type PostWorkStore = {
   addurl: (url: string) => void;
   removeUrl: (index: number) => void;
   setVisibility: (visibility: "public" | "private" | "draft") => void;
+  resetPostWork: () => void;
 };
 
-export const usePostWorkStore = create<PostWorkStore>((set) => ({
+const INITIAL_POST_WORK_STATE = {
   title: "",
   description: "",
   tag_ids: [],
@@ -32,6 +33,20 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
   pending_upload_count: 0,
   urls: [],
   visibility: "draft",
+} satisfies Pick<
+  PostWorkStore,
+  | "title"
+  | "description"
+  | "tag_ids"
+  | "asset_ids"
+  | "thumbnail_asset_id"
+  | "pending_upload_count"
+  | "urls"
+  | "visibility"
+>;
+
+export const usePostWorkStore = create<PostWorkStore>((set) => ({
+  ...INITIAL_POST_WORK_STATE,
   setTitle: (title: string) => {
     set({ title });
   },
@@ -81,5 +96,8 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
   },
   setVisibility: (visibility: "public" | "private" | "draft") => {
     set({ visibility });
+  },
+  resetPostWork: () => {
+    set(INITIAL_POST_WORK_STATE);
   },
 }));

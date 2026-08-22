@@ -126,14 +126,6 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
           disabled={status === "uploading"}
           aria-label="サムネイル画像をアップロード"
         >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={THUMBNAIL_ACCEPT}
-            onChange={handleInputChange}
-            className={styles["file-input"]}
-            tabIndex={-1}
-          />
           {preview ? (
             <img
               src={preview}
@@ -151,6 +143,14 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
             />
           )}
         </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={THUMBNAIL_ACCEPT}
+          onChange={handleInputChange}
+          className={styles["file-input"]}
+          tabIndex={-1}
+        />
         {file && status !== "uploading" && (
           <button
             type="button"

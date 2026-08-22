@@ -21,6 +21,7 @@ const PublishButton = () => {
     title,
     urls,
     setVisibility,
+    resetPostWork,
   } = usePostWorkStore();
   const { accessToken } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -55,8 +56,10 @@ const PublishButton = () => {
         accessToken,
       );
 
-      if (response !== null) navigate("/");
-      else setSubmitError("作品の投稿に失敗しました");
+      if (response !== null) {
+        resetPostWork();
+        navigate("/");
+      } else setSubmitError("作品の投稿に失敗しました");
     } finally {
       setIsSubmitting(false);
     }
