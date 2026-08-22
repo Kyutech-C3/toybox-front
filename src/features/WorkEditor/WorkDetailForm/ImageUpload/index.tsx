@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import CloudUploadRoundedIcon from "@mui/icons-material/CloudUploadRounded";
 
+import UploadPrompt from "../UploadPrompt";
+import UploadRemoveButton from "../UploadRemoveButton";
+import UploadRetryButton from "../UploadRetryButton";
 import styles from "./index.module.css";
 
 type ImageUploadProps = {
@@ -133,14 +134,7 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
               className={styles["preview-image"]}
             />
           ) : (
-            <CloudUploadRoundedIcon
-              style={{
-                fontSize: 128,
-                color: isDragging
-                  ? "var(--primary-color)"
-                  : "var(--font-muted-color)",
-              }}
-            />
+            <UploadPrompt />
           )}
         </button>
         <input
@@ -151,15 +145,13 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
           className={styles["file-input"]}
           tabIndex={-1}
         />
-        {file && status !== "uploading" && (
-          <button
-            type="button"
+        {file && (
+          <UploadRemoveButton
             className={styles["remove-button"]}
             onClick={handleRemove}
-            aria-label="サムネイルを削除"
-          >
-            <CloseRoundedIcon />
-          </button>
+            isDisabled={status === "uploading"}
+            ariaLabel={`${file.name}を削除`}
+          />
         )}
       </div>
       <div className={styles["upload-meta"]} aria-live="polite">
@@ -167,9 +159,7 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
         {status === "uploading" && <span>アップロード中</span>}
         {status === "success" && <span>アップロード完了</span>}
         {status === "error" && file && (
-          <button type="button" onClick={() => void uploadFile(file)}>
-            再試行
-          </button>
+          <UploadRetryButton onClick={() => void uploadFile(file)} />
         )}
       </div>
       {errorMessage && (

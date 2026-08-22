@@ -54,18 +54,6 @@
   right: 8px;
   width: 30px;
   height: 30px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: var(--paper-overlay-color);
-  cursor: pointer;
-}
-
-.remove-button:disabled {
-  cursor: wait;
-  opacity: 0.5;
 }
 
 .asset-details {
@@ -93,22 +81,6 @@
   color: var(--error-color);
 }
 
-.retry-button {
-  display: inline-flex;
-  gap: 4px;
-  align-items: center;
-  align-self: flex-start;
-  padding: 0;
-  border: 0;
-  color: var(--font-color);
-  background: transparent;
-  cursor: pointer;
-}
-
-.retry-button svg {
-  font-size: 16px;
-}
-
 .add-button {
   display: flex;
   flex-direction: column;
@@ -127,14 +99,6 @@
 .add-button:hover,
 .add-button[data-dragging="true"] {
   background: var(--primary-soft-color);
-}
-
-.add-button svg {
-  font-size: 50px;
-}
-
-.add-button span {
-  font-size: 12px;
 }
 
 .file-input {

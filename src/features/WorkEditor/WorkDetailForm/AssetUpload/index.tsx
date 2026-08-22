@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import AudiotrackRoundedIcon from "@mui/icons-material/AudiotrackRounded";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import CloudUploadRoundedIcon from "@mui/icons-material/CloudUploadRounded";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
-import ReplayRoundedIcon from "@mui/icons-material/ReplayRounded";
 
+import UploadPrompt from "../UploadPrompt";
+import UploadRemoveButton from "../UploadRemoveButton";
+import UploadRetryButton from "../UploadRetryButton";
 import styles from "./index.module.css";
 
 type AssetUploadProps = {
@@ -179,15 +179,12 @@ const AssetUpload = ({ onUpload, onRemove }: AssetUploadProps) => {
               )}
               {asset.kind === "音声" && <AudiotrackRoundedIcon />}
               {asset.kind === "ZIP" && <FolderZipRoundedIcon />}
-              <button
-                type="button"
+              <UploadRemoveButton
                 className={styles["remove-button"]}
                 onClick={() => handleRemove(asset.key)}
-                disabled={asset.status === "uploading"}
-                aria-label={`${asset.file.name}を削除`}
-              >
-                <CloseRoundedIcon />
-              </button>
+                isDisabled={asset.status === "uploading"}
+                ariaLabel={`${asset.file.name}を削除`}
+              />
             </div>
             <div className={styles["asset-details"]}>
               <span className={styles["file-name"]} title={asset.file.name}>
@@ -200,14 +197,7 @@ const AssetUpload = ({ onUpload, onRemove }: AssetUploadProps) => {
                 {asset.status === "error" && asset.errorMessage}
               </span>
               {asset.status === "error" && (
-                <button
-                  type="button"
-                  className={styles["retry-button"]}
-                  onClick={() => handleRetry(asset)}
-                >
-                  <ReplayRoundedIcon />
-                  再試行
-                </button>
+                <UploadRetryButton onClick={() => handleRetry(asset)} />
               )}
             </div>
           </article>
@@ -234,8 +224,7 @@ const AssetUpload = ({ onUpload, onRemove }: AssetUploadProps) => {
           data-dragging={isDragging ? "true" : "false"}
           aria-label="アセットを追加"
         >
-          <CloudUploadRoundedIcon />
-          <span>選択またはドロップ</span>
+          <UploadPrompt />
         </button>
       </div>
       {validationError && (
