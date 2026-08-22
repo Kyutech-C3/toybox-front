@@ -1,7 +1,7 @@
 .buttons-wrapper {
   display: flex;
   align-items: stretch;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--font-muted-color);
   padding: 7px;
   gap: 7px;
   border-radius: 25px;

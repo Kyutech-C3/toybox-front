@@ -39,7 +39,7 @@
 }
 
 .dropdown-trigger:hover {
-  color: #666;
+  color: var(--font-muted-color);
 }
 
 .dropdown-trigger[aria-expanded="true"] {

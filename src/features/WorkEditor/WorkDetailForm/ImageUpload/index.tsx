@@ -144,7 +144,9 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
             <CloudUploadRoundedIcon
               style={{
                 fontSize: 128,
-                color: isDragging ? "var(--primary-color)" : "#999",
+                color: isDragging
+                  ? "var(--primary-color)"
+                  : "var(--font-muted-color)",
               }}
             />
           )}

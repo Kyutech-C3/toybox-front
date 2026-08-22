@@ -23,7 +23,7 @@
   overflow: hidden;
   border: 1px solid var(--border-color);
   border-radius: 20px;
-  background: #fff;
+  background: var(--paper-color);
 }
 
 .preview {
@@ -33,8 +33,8 @@
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
-  background: #f5f5f5;
-  color: #777;
+  background: var(--background-color);
+  color: var(--font-muted-color);
 }
 
 .preview > img,
@@ -59,7 +59,7 @@
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--paper-overlay-color);
   cursor: pointer;
 }
 
@@ -85,12 +85,12 @@
 }
 
 .asset-details [data-status="success"] {
-  color: #2e7d32;
+  color: var(--font-color);
 }
 
 .asset-details [data-status="error"],
 .validation-error {
-  color: #c62828;
+  color: var(--error-color);
 }
 
 .retry-button {
@@ -100,7 +100,7 @@
   align-self: flex-start;
   padding: 0;
   border: 0;
-  color: #8a6500;
+  color: var(--font-color);
   background: transparent;
   cursor: pointer;
 }
@@ -120,13 +120,13 @@
   border: 4px dashed var(--primary-color);
   border-radius: 20px;
   color: var(--font-color);
-  background: #fff;
+  background: var(--paper-color);
   cursor: pointer;
 }
 
 .add-button:hover,
 .add-button[data-dragging="true"] {
-  background: rgba(251, 191, 36, 0.08);
+  background: var(--primary-soft-color);
 }
 
 .add-button svg {
@@ -152,7 +152,7 @@
 }
 
 .format-help {
-  color: #666;
+  color: var(--font-muted-color);
   font-size: 12px;
 }
 

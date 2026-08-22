@@ -4,5 +4,5 @@
   padding: 40px;
   width: 80%;
   text-align: left;
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 4px 4px 8px var(--shadow-soft-color);
 }

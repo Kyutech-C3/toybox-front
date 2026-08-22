@@ -25,14 +25,14 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: #fff;
+  background: var(--paper-color);
   position: relative;
   overflow: hidden;
   padding: 0;
 
   &:hover {
     border-color: var(--primary-color);
-    background: rgba(251, 191, 36, 0.05);
+    background: var(--primary-soft-color);
   }
 
   &[data-has-image="true"] {
@@ -71,7 +71,7 @@
   place-items: center;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--paper-overlay-color);
   cursor: pointer;
 }
 
@@ -85,7 +85,7 @@
 
 .upload-meta button {
   border: 0;
-  color: #8a6500;
+  color: var(--font-color);
   background: transparent;
   text-decoration: underline;
   cursor: pointer;
@@ -100,12 +100,12 @@
 
 .error-message {
   margin: 0;
-  color: #c62828;
+  color: var(--error-color);
   font-size: 14px;
 }
 
 .format-help {
   margin: 0;
-  color: #666;
+  color: var(--font-muted-color);
   font-size: 12px;
 }

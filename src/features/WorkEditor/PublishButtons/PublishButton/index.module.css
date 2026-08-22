@@ -11,13 +11,13 @@
   border-radius: 20px;
 
   &:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 12px var(--shadow-soft-color);
   }
 
   &[data-active="true"] {
     background: var(--primary-color);
     font-weight: 600;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 14px var(--shadow-soft-color);
   }
 
   &[data-disabled="true"] {
@@ -44,7 +44,7 @@
 }
 
 .submit-error {
-  color: #c62828;
+  color: var(--error-color);
 }
 
 .publish-button {
@@ -57,13 +57,13 @@
 
   font-size: 16px;
   font-weight: bold;
-  color: #ffffff;
+  color: var(--paper-color);
 }
 
 .button-span {
   height: 100%;
   width: 2px;
-  background-color: #ffffff;
+  background-color: var(--paper-color);
   border-top: solid 5px var(--primary-color);
   border-bottom: solid 5px var(--primary-color);
   box-sizing: border-box;
@@ -79,7 +79,7 @@
   background: var(--primary-color);
   font-size: 16px;
   font-weight: bold;
-  color: #ffffff;
+  color: var(--paper-color);
 }
 
 .menu-button-span {

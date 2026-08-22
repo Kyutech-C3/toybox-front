@@ -10,8 +10,14 @@
   --asset-background: #222222;
   --font-color: #000000;
   --font-sub-color: #d9d9d9;
+  --font-muted-color: #777777;
   --phrase-holder: #d9d9d9;
   --border-color: #d9d9d9;
+  --error-color: #c62828;
+  --link-color: #4a90e2;
+  --paper-overlay-color: rgba(255, 255, 255, 0.9);
+  --primary-soft-color: rgba(251, 191, 36, 0.1);
+  --shadow-soft-color: rgba(0, 0, 0, 0.1);
 
   color: var(--font-color);
   background-color: var(--background-color);

@@ -2,7 +2,7 @@
   width: 333px;
   height: 366px;
   border-radius: 25px;
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 4px 4px 8px var(--shadow-soft-color);
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -17,23 +17,23 @@
     aspect-ratio: 4 / 3;
     border-radius: 25px 25px 0px 0px;
     object-fit: cover;
-    box-shadow: 0 2px 2px -2px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 2px 2px -2px var(--shadow-soft-color);
   }
 
   .card-title {
     position: absolute;
     bottom: 1rem;
     left: 0.8em;
-    color: white;
+    color: var(--paper-color);
     text-shadow:
-      1.5px 1.5px 0 black,
-      -1.5px -1.5px 0 black,
-      -1.5px 1.5px 0 black,
-      1.5px -1.5px 0 black,
-      0px 1.5px 0 black,
-      0 -1.5px 0 black,
-      -1.5px 0 0 black,
-      1.5px 0 0 black;
+      1.5px 1.5px 0 var(--font-color),
+      -1.5px -1.5px 0 var(--font-color),
+      -1.5px 1.5px 0 var(--font-color),
+      1.5px -1.5px 0 var(--font-color),
+      0px 1.5px 0 var(--font-color),
+      0 -1.5px 0 var(--font-color),
+      -1.5px 0 0 var(--font-color),
+      1.5px 0 0 var(--font-color);
     font-size: 1.5rem;
     font-weight: 900;
   }
@@ -58,7 +58,7 @@
 
   .card-postdate {
     font-size: 0.875rem;
-    color: gray;
+    color: var(--font-color);
   }
 }
 
