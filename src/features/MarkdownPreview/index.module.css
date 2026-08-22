@@ -74,7 +74,7 @@
     border-radius: 3px;
     font-family: "Consolas", "Monaco", "Courier New", monospace;
     font-size: 0.9em;
-    color: var(--link-color);
+    color: var(--font-color);
     border: 1px solid var(--border-color);
   }
 
