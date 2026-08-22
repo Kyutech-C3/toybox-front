@@ -59,6 +59,7 @@ const AssetUpload = ({ onUpload, onRemove }: AssetUploadProps) => {
   }, [assets]);
 
   useEffect(() => {
+    isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
       for (const asset of assetsRef.current) {
