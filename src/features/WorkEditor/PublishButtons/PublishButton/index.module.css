@@ -1,5 +1,6 @@
 /* 共通のボタン */
 .publish-button-wrapper {
+  position: relative;
   height: 50px;
   display: inline-flex;
   align-items: center;
@@ -24,6 +25,26 @@
     cursor: not-allowed;
     box-shadow: none;
   }
+}
+
+.publish-button:disabled,
+.menu-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.upload-notice,
+.submit-error {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  width: max-content;
+  max-width: 320px;
+  font-size: 13px;
+}
+
+.submit-error {
+  color: #c62828;
 }
 
 .publish-button {

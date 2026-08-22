@@ -6,12 +6,16 @@ type PostWorkStore = {
   tag_ids: string[];
   asset_ids: string[];
   thumbnail_asset_id: string;
+  pending_upload_count: number;
   urls: string[];
   visibility: "public" | "private" | "draft";
   setTitle: (title: string) => void;
   setDescription: (description: string) => void;
   addAssetID: (asset_id: string) => void;
-  removeAssetID: (index: number) => void;
+  removeAssetID: (asset_id: string) => void;
+  setThumbnailAssetID: (thumbnail_asset_id: string) => void;
+  beginUpload: () => void;
+  finishUpload: () => void;
   addTagID: (tag_id: string) => void;
   removeTagID: (tag_id: string) => void;
   addurl: (url: string) => void;
@@ -25,6 +29,7 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
   tag_ids: [],
   asset_ids: [],
   thumbnail_asset_id: "",
+  pending_upload_count: 0,
   urls: [],
   visibility: "draft",
   setTitle: (title: string) => {
@@ -38,9 +43,22 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
       asset_ids: [...state.asset_ids, asset_id],
     }));
   },
-  removeAssetID: (index: number) => {
+  removeAssetID: (asset_id: string) => {
     set((state) => ({
-      asset_ids: state.asset_ids.filter((_, i) => i !== index),
+      asset_ids: state.asset_ids.filter((id) => id !== asset_id),
+    }));
+  },
+  setThumbnailAssetID: (thumbnail_asset_id: string) => {
+    set({ thumbnail_asset_id });
+  },
+  beginUpload: () => {
+    set((state) => ({
+      pending_upload_count: state.pending_upload_count + 1,
+    }));
+  },
+  finishUpload: () => {
+    set((state) => ({
+      pending_upload_count: Math.max(0, state.pending_upload_count - 1),
     }));
   },
   addTagID: (tag_id: string) => {

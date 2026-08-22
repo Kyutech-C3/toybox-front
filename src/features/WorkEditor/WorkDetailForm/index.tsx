@@ -7,6 +7,7 @@ import useTagOptions from "./hook/useTagOptions";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import AssetUpload from "@/features/WorkEditor/WorkDetailForm/AssetUpload";
 import ImageUpload from "@/features/WorkEditor/WorkDetailForm/ImageUpload";
 import Input from "@/shared/ui/Input";
 import Paper from "@/shared/ui/Paper";
@@ -16,7 +17,17 @@ import type { Tag } from "@/shared/types/work";
 import type { TagInputTag } from "@/shared/ui/TagInput";
 
 const WorkDetailForm = () => {
-  const { title, setTitle, addTagID, removeTagID } = usePostWorkStore();
+  const {
+    title,
+    setTitle,
+    addTagID,
+    removeTagID,
+    addAssetID,
+    removeAssetID,
+    setThumbnailAssetID,
+    beginUpload,
+    finishUpload,
+  } = usePostWorkStore();
 
   const [tags, setTags] = useState<TagInputTag[]>([]);
   const selectedTagNamesRef = useRef<Set<string>>(new Set());
@@ -52,16 +63,33 @@ const WorkDetailForm = () => {
     }
   };
 
-  const handleAssetSelect = async (file: File) => {
+  const handleUpload = async (file: File) => {
     const accessToken = useAuthStore.getState().accessToken;
     if (!accessToken) {
       throw new Error("No access token available");
     }
-    const response = await uploadAsset(file, accessToken);
-    if (!response.id) {
-      throw new Error("Failed to upload asset");
+    beginUpload();
+    try {
+      const response = await uploadAsset(file, accessToken);
+      if (!response.id) {
+        throw new Error("Failed to upload asset");
+      }
+      return response.id;
+    } finally {
+      finishUpload();
     }
-    usePostWorkStore.getState().addAssetID(response.id);
+  };
+
+  const handleThumbnailSelect = async (file: File) => {
+    setThumbnailAssetID("");
+    const assetID = await handleUpload(file);
+    setThumbnailAssetID(assetID);
+  };
+
+  const handleAssetUpload = async (file: File) => {
+    const assetID = await handleUpload(file);
+    addAssetID(assetID);
+    return assetID;
   };
 
   const handleRemoveTag = (tagID: string) => {
@@ -84,7 +112,11 @@ const WorkDetailForm = () => {
           onRemoveTag={handleRemoveTag}
           allTagOptions={allTagOptions.data.map((tag) => tag.name)}
         />
-        <ImageUpload onImageSelect={handleAssetSelect} />
+        <ImageUpload
+          onImageSelect={handleThumbnailSelect}
+          onRemove={() => setThumbnailAssetID("")}
+        />
+        <AssetUpload onUpload={handleAssetUpload} onRemove={removeAssetID} />
       </div>
     </Paper>
   );

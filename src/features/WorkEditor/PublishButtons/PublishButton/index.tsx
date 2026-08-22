@@ -14,6 +14,8 @@ const PublishButton = () => {
   const {
     visibility,
     asset_ids,
+    thumbnail_asset_id,
+    pending_upload_count,
     tag_ids,
     description,
     title,
@@ -22,34 +24,55 @@ const PublishButton = () => {
   } = usePostWorkStore();
   const { accessToken } = useAuthStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
+  const isPublishDisabled = pending_upload_count > 0 || isSubmitting;
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
+    if (isPublishDisabled) return;
     if (!accessToken) {
-      throw new Error("No access token available");
+      setSubmitError("ログインが必要です");
+      return;
     }
-    const response = postWork(
-      {
-        asset_ids,
-        description,
-        tag_ids,
-        title,
-        thumbnail_asset_id: asset_ids[0],
-        urls,
-        visibility,
-      },
-      accessToken,
-    );
+    if (!thumbnail_asset_id) {
+      setSubmitError("サムネイルのアップロードを完了してください");
+      return;
+    }
+    setIsSubmitting(true);
+    setSubmitError("");
+    try {
+      const response = await postWork(
+        {
+          asset_ids,
+          description,
+          tag_ids,
+          title,
+          thumbnail_asset_id,
+          urls,
+          visibility,
+        },
+        accessToken,
+      );
 
-    if (response !== null) {
-      navigate("/");
+      if (response !== null) navigate("/");
+      else setSubmitError("作品の投稿に失敗しました");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className={styles["publish-button-wrapper"]}>
+    <div
+      className={styles["publish-button-wrapper"]}
+      data-disabled={isPublishDisabled ? "true" : "false"}
+    >
       {visibility === "draft" ? (
-        <Button variant="primary" onClick={handlePublish}>
+        <Button
+          variant="primary"
+          onClick={() => void handlePublish()}
+          isDisabled={isPublishDisabled}
+        >
           下書き保存
         </Button>
       ) : (
@@ -57,7 +80,8 @@ const PublishButton = () => {
           <button
             type="button"
             className={styles["publish-button"]}
-            onClick={handlePublish}
+            onClick={() => void handlePublish()}
+            disabled={isPublishDisabled}
           >
             {visibility === "private" ? "限定公開" : "全体公開"}
           </button>
@@ -66,6 +90,7 @@ const PublishButton = () => {
             type="button"
             className={styles["menu-button"]}
             onClick={() => setIsMenuOpen((prev) => !prev)}
+            disabled={isPublishDisabled}
           >
             <ArrowDropUpRoundedIcon />
           </button>
@@ -84,6 +109,16 @@ const PublishButton = () => {
             />
           </span>
         </>
+      )}
+      {pending_upload_count > 0 && (
+        <output className={styles["upload-notice"]}>
+          アップロード完了後に投稿できます
+        </output>
+      )}
+      {submitError && (
+        <span className={styles["submit-error"]} role="alert">
+          {submitError}
+        </span>
       )}
     </div>
   );
