@@ -16,7 +16,7 @@
   border: none;
   padding: 4px 0;
   font-size: 12px;
-  color: #666;
+  color: var(--font-muted-color);
   cursor: pointer;
   text-align: left;
   align-self: flex-start;
@@ -25,7 +25,7 @@
 
 .reply-button:hover {
   text-decoration: underline;
-  color: #333;
+  color: var(--font-color);
 }
 
 .reply-input-wrapper {
@@ -39,7 +39,7 @@
   gap: 12px;
   margin-left: 20px;
   padding-left: 20px;
-  border-left: 2px solid #f0f0f0;
+  border-left: 2px solid var(--border-color);
 }
 
 .replies-container-flat {
@@ -57,7 +57,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(0, 0, 0, 0.05);
+  border: 2px solid var(--border-color);
 }
 
 .avatar-img {
@@ -103,7 +103,7 @@
   padding: 4px 12px;
   font-size: 12px;
   font-weight: 500;
-  color: #666;
+  color: var(--font-muted-color);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -111,7 +111,7 @@
 .delete-button:hover {
   background: var(--background-color);
   color: var(--font-color);
-  border-color: #999;
+  border-color: var(--font-muted-color);
 }
 
 .delete-button:active {
@@ -119,7 +119,7 @@
 }
 
 .bubble {
-  background: rgba(239, 239, 239, 0.93);
+  background: var(--background-color);
   border-radius: 20px;
   padding: 18px 20px;
 }

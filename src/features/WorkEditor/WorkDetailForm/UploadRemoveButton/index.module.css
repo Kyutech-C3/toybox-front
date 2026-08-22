@@ -1,0 +1,24 @@
+.remove-button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--font-color);
+  background: var(--paper-overlay-color);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.remove-button:hover:not(:disabled),
+.remove-button:focus-visible {
+  color: var(--primary-color);
+  background: var(--paper-color);
+}
+
+.remove-button:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}

@@ -18,15 +18,15 @@
   padding: 40px;
   text-align: center;
   font-size: 16px;
-  color: #666;
+  color: var(--font-muted-color);
 }
 
 .error {
   padding: 20px;
-  background: #fff3f3;
-  border: 1px solid #ffcccc;
+  background: var(--paper-color);
+  border: 1px solid var(--error-color);
   border-radius: 12px;
-  color: #c33;
+  color: var(--error-color);
   font-size: 14px;
   text-align: center;
 }

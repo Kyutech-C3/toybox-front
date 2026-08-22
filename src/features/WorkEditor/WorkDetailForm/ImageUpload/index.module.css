@@ -11,6 +11,10 @@
   color: var(--font-color);
 }
 
+.upload-frame {
+  position: relative;
+}
+
 .upload-area {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -21,14 +25,14 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: #fff;
+  background: var(--paper-color);
   position: relative;
   overflow: hidden;
   padding: 0;
 
   &:hover {
     border-color: var(--primary-color);
-    background: rgba(251, 191, 36, 0.05);
+    background: var(--primary-soft-color);
   }
 
   &[data-has-image="true"] {
@@ -41,6 +45,15 @@
   }
 }
 
+.upload-area:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.upload-area[data-dragging="true"] svg {
+  color: var(--primary-color);
+}
+
 .file-input {
   display: none;
 }
@@ -50,4 +63,39 @@
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
+}
+
+.remove-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+}
+
+.upload-meta {
+  min-height: 24px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.file-name {
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.error-message {
+  margin: 0;
+  color: var(--error-color);
+  font-size: 14px;
+}
+
+.format-help {
+  margin: 0;
+  color: var(--font-muted-color);
+  font-size: 12px;
 }

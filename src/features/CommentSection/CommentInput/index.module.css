@@ -10,7 +10,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  border: 2px solid rgba(0, 0, 0, 0.05);
+  border: 2px solid var(--border-color);
 }
 
 .avatar-img {
@@ -37,7 +37,7 @@
 }
 
 .input-box {
-  background: rgba(239, 239, 239, 0.93);
+  background: var(--background-color);
   border-radius: 20px;
   padding: 18px 20px;
   display: flex;
@@ -103,7 +103,7 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #666;
+  color: var(--font-muted-color);
   margin-bottom: 4px;
 }
 
@@ -112,12 +112,12 @@
   border: none;
   cursor: pointer;
   font-size: 16px;
-  color: #999;
+  color: var(--font-muted-color);
   padding: 0 4px;
 }
 
 .cancel-reply-button:hover {
-  color: #333;
+  color: var(--font-color);
 }
 
 .sr-only {

@@ -4,7 +4,7 @@
   min-width: 48px;
   padding: 0 12px;
   border-radius: 10px;
-  border: 1px solid #f0f0f0;
+  border: 1px solid var(--border-color);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -16,14 +16,14 @@
   transition: all 0.2s ease;
 
   &:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 12px var(--shadow-soft-color);
   }
 
   &[data-active="true"] {
     background: var(--primary-color);
     color: var(--font-color);
     font-weight: 600;
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 6px 14px var(--shadow-soft-color);
   }
 
   &[data-disabled="true"] {

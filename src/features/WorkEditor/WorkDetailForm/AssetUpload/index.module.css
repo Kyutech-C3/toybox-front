@@ -1,0 +1,134 @@
+.asset-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.heading {
+  margin: 0;
+  color: var(--font-color);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.asset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px;
+}
+
+.asset-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--paper-color);
+}
+
+.preview {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: var(--background-color);
+  color: var(--font-muted-color);
+}
+
+.preview > img,
+.preview > video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview > svg {
+  font-size: 64px;
+}
+
+.remove-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+}
+
+.asset-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px;
+  font-size: 12px;
+}
+
+.file-name {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-details [data-status="success"] {
+  color: var(--font-color);
+}
+
+.asset-details [data-status="error"],
+.validation-error {
+  color: var(--error-color);
+}
+
+.add-button {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 16px;
+  border: 4px dashed var(--primary-color);
+  border-radius: 20px;
+  color: var(--font-color);
+  background: var(--paper-color);
+  cursor: pointer;
+}
+
+.add-button:hover,
+.add-button[data-dragging="true"] {
+  background: var(--primary-soft-color);
+}
+
+.file-input {
+  display: none;
+}
+
+.validation-error,
+.format-help {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.validation-error {
+  font-size: 14px;
+}
+
+.format-help {
+  color: var(--font-muted-color);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .asset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  .asset-grid {
+    grid-template-columns: 1fr;
+  }
+}
