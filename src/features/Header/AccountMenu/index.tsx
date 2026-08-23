@@ -98,7 +98,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
             onClick={() => setIsOpen(false)}
             ref={userPageLinkRef}
           >
-            ユーザーページ
+            マイページ
           </Link>
           <button
             type="button"
