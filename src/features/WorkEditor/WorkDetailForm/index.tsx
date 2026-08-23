@@ -9,6 +9,7 @@ import styles from "./index.module.css";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import AssetUpload from "@/features/WorkEditor/WorkDetailForm/AssetUpload";
 import ImageUpload from "@/features/WorkEditor/WorkDetailForm/ImageUpload";
+import LinkInput from "@/features/WorkEditor/WorkDetailForm/LinkInput";
 import Input from "@/shared/ui/Input";
 import Paper from "@/shared/ui/Paper";
 import TagInput from "@/shared/ui/TagInput";
@@ -19,7 +20,9 @@ import type { TagInputTag } from "@/shared/ui/TagInput";
 const WorkDetailForm = () => {
   const {
     title,
+    urls,
     setTitle,
+    setUrls,
     addTagID,
     removeTagID,
     addAssetID,
@@ -117,6 +120,7 @@ const WorkDetailForm = () => {
           onRemove={() => setThumbnailAssetID("")}
         />
         <AssetUpload onUpload={handleAssetUpload} onRemove={removeAssetID} />
+        <LinkInput urls={urls} onChangeUrls={setUrls} />
       </div>
     </Paper>
   );
