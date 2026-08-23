@@ -75,18 +75,19 @@ const Header = () => {
         </Link>
       </div>
       <div className={styles["login-wrapper"]}>
-        <Button variant="primary" onClick={() => navigate("/edit/new")}>
-          <div className={styles["login-container"]}>
-            <p>新規投稿する</p>
-            <AutoAwesomeRoundedIcon />
-          </div>
-        </Button>
+        {accessToken && (
+          <Button variant="primary" onClick={() => navigate("/edit/new")}>
+            <div className={styles["login-container"]}>
+              <p>新規投稿する</p>
+              <AutoAwesomeRoundedIcon />
+            </div>
+          </Button>
+        )}
         {user ? (
           <AccountMenu user={user} onLogout={handleLogout} />
         ) : (
           <Button variant="primary" onClick={handleLogin}>
             <div className={styles["login-container"]}>
-              <p>ログイン</p>
               <LoginRoundedIcon />
             </div>
           </Button>
