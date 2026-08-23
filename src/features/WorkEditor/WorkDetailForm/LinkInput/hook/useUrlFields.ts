@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 import { MAX_WORK_URL_COUNT } from "@/features/WorkEditor/constants";
 
@@ -84,7 +84,7 @@ const useUrlFields = ({
   const emittedUrlsRef = useRef<string[] | null>(null);
   const hasReachedUrlLimit = fields.length >= MAX_WORK_URL_COUNT;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (
       emittedUrlsRef.current !== null &&
       areUrlsEqual(emittedUrlsRef.current, urls)
