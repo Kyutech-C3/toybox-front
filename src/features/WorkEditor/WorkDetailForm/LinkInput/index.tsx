@@ -21,6 +21,10 @@ type UrlField = {
   error: string;
 };
 
+type UrlFaviconProps = {
+  url: string;
+};
+
 const GOOGLE_FAVICON_ENDPOINT = "https://t0.gstatic.com/faviconV2";
 
 const createUrlField = (value = ""): UrlField => ({
@@ -76,6 +80,33 @@ const getFaviconUrl = (url: string): string => {
     size: "64",
   });
   return `${GOOGLE_FAVICON_ENDPOINT}?${params.toString()}`;
+};
+
+const UrlFavicon = ({ url }: UrlFaviconProps) => {
+  const [hasLoadError, setHasLoadError] = useState(false);
+
+  return (
+    <a
+      className={styles["favicon"]}
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${url}を開く`}
+    >
+      {hasLoadError ? (
+        <LanguageRoundedIcon />
+      ) : (
+        <img
+          src={getFaviconUrl(url)}
+          alt=""
+          width="24"
+          height="24"
+          referrerPolicy="no-referrer"
+          onError={() => setHasLoadError(true)}
+        />
+      )}
+    </a>
+  );
 };
 
 const LinkInput = ({ urls, onChangeUrls }: LinkInputProps) => {
@@ -186,26 +217,10 @@ const LinkInput = ({ urls, onChangeUrls }: LinkInputProps) => {
               >
                 <span className={styles["favicon-slot"]}>
                   {field.committedUrl !== null && (
-                    <a
-                      className={styles["favicon"]}
-                      href={field.committedUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`${field.committedUrl}を開く`}
-                    >
-                      <LanguageRoundedIcon />
-                      <img
-                        key={field.committedUrl}
-                        src={getFaviconUrl(field.committedUrl)}
-                        alt=""
-                        width="24"
-                        height="24"
-                        referrerPolicy="no-referrer"
-                        onError={(event) => {
-                          event.currentTarget.hidden = true;
-                        }}
-                      />
-                    </a>
+                    <UrlFavicon
+                      key={field.committedUrl}
+                      url={field.committedUrl}
+                    />
                   )}
                 </span>
                 <div className={styles["input-control"]}>
