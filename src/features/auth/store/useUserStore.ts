@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 export type UserProfile = {
+  id: string;
   display_name: string;
   icon_url: string;
 };
