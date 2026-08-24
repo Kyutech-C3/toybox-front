@@ -8,12 +8,13 @@ import styles from "./index.module.css";
 import { Pagination } from "@/features/WorkIndex/Pagination";
 import Avatar from "@/shared/ui/Avatar";
 import Card from "@/shared/ui/Card";
+import WorkCardGrid from "@/shared/ui/WorkCardGrid";
 
 type UserPortfolioProps = {
   userID: string;
 };
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 21;
 
 const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const worksHeadingID = useId();
@@ -104,7 +105,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
           <p className={styles["works-status"]}>表示できる作品はありません。</p>
         )}
         {!worksError && displayedWorks && displayedWorks.length > 0 && (
-          <div className={styles["works-grid"]}>
+          <WorkCardGrid>
             {displayedWorks.map((work) => (
               <Card
                 key={work.id}
@@ -124,7 +125,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
                 isEditable={isOwner}
               />
             ))}
-          </div>
+          </WorkCardGrid>
         )}
 
         {!worksError && totalPages > 1 && (

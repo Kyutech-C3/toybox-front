@@ -1,12 +1,12 @@
 import { useSearchParams } from "react-router-dom";
 
 import useWorks from "./hook/useWorks";
-import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
 import { useTagsStore } from "./SearchBar/store/useTagsStore";
 
 import { Pagination } from "@/features/WorkIndex/Pagination";
 import Card from "@/shared/ui/Card";
+import WorkCardGrid from "@/shared/ui/WorkCardGrid";
 
 const ITEMS_PER_PAGE = 21;
 
@@ -39,7 +39,7 @@ const WorkIndex = () => {
   return (
     <>
       <SearchBar />
-      <div className={styles["works-index"]}>
+      <WorkCardGrid>
         {data.map((work) => (
           <Card
             key={work.id}
@@ -58,7 +58,7 @@ const WorkIndex = () => {
             visibility={work.visibility}
           />
         ))}
-      </div>
+      </WorkCardGrid>
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
