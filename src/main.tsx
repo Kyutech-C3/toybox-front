@@ -6,7 +6,7 @@ import { SWRConfig } from "swr";
 
 import App from "./App.tsx";
 
-import AuthCallbackProvider from "@/features/auth/AuthCallbackProvider";
+import AuthSessionProvider from "@/features/auth/AuthSessionProvider";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 
 const ROOT = document.getElementById("root");
@@ -16,11 +16,11 @@ createRoot(ROOT).render(
   <StrictMode>
     <BrowserRouter>
       <ToastProvider>
-        <AuthCallbackProvider>
+        <AuthSessionProvider>
           <SWRConfig value={{ suspense: true }}>
             <App />
           </SWRConfig>
-        </AuthCallbackProvider>
+        </AuthSessionProvider>
       </ToastProvider>
     </BrowserRouter>
   </StrictMode>,
