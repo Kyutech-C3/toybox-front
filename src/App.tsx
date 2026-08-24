@@ -17,7 +17,7 @@ function App() {
         path="/edit/new"
         element={
           <ProtectedRoute>
-            <EditPage />
+            <EditPage isNewWork />
           </ProtectedRoute>
         }
       />

@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import { MAX_WORK_URL_COUNT } from "../constants";
+
 type PostWorkStore = {
   title: string;
   description: string;
@@ -18,8 +20,9 @@ type PostWorkStore = {
   finishUpload: () => void;
   addTagID: (tag_id: string) => void;
   removeTagID: (tag_id: string) => void;
-  addurl: (url: string) => void;
-  removeUrl: (index: number) => void;
+  addUrl: (url: string) => void;
+  removeUrl: (url: string) => void;
+  setUrls: (urls: string[]) => void;
   setVisibility: (visibility: "public" | "private" | "draft") => void;
   resetPostWork: () => void;
 };
@@ -86,13 +89,21 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
       tag_ids: state.tag_ids.filter((id) => id !== tag_id),
     }));
   },
-  addurl: (url: string) => {
-    set((state) => ({ urls: [...state.urls, url] }));
-  },
-  removeUrl: (index: number) => {
+  addUrl: (url: string) => {
     set((state) => ({
-      urls: state.urls.filter((_, i) => i !== index),
+      urls:
+        state.urls.includes(url) || state.urls.length >= MAX_WORK_URL_COUNT
+          ? state.urls
+          : [...state.urls, url],
     }));
+  },
+  removeUrl: (url: string) => {
+    set((state) => ({
+      urls: state.urls.filter((storedUrl) => storedUrl !== url),
+    }));
+  },
+  setUrls: (urls: string[]) => {
+    set({ urls: urls.slice(0, MAX_WORK_URL_COUNT) });
   },
   setVisibility: (visibility: "public" | "private" | "draft") => {
     set({ visibility });
