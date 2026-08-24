@@ -13,11 +13,15 @@
   --font-muted-color: #777777;
   --phrase-holder: #d9d9d9;
   --border-color: #d9d9d9;
+<<<<<<< HEAD
   --error-color: #c62828;
   --link-color: #4a90e2;
   --paper-overlay-color: rgba(255, 255, 255, 0.9);
   --primary-soft-color: rgba(250, 190, 0, 0.1);
   --shadow-soft-color: rgba(0, 0, 0, 0.1);
+=======
+  --error-color: #d93025;
+>>>>>>> 33c94e7 (UrlInputコンポーネント作成)
 
   color: var(--font-color);
   background-color: var(--background-color);

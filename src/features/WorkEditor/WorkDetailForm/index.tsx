@@ -12,9 +12,21 @@ import ImageUpload from "@/features/WorkEditor/WorkDetailForm/ImageUpload";
 import Input from "@/shared/ui/Input";
 import Paper from "@/shared/ui/Paper";
 import TagInput from "@/shared/ui/TagInput";
+import UrlInput from "@/shared/ui/UrlInput";
 
 import type { Tag } from "@/shared/types/work";
 import type { TagInputTag } from "@/shared/ui/TagInput";
+
+const MAX_URL_COUNT = 5;
+
+const isAbsoluteHttpUrl = (value: string): boolean => {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === "http:" || protocol === "https:";
+  } catch {
+    return false;
+  }
+};
 
 const WorkDetailForm = () => {
   const {
@@ -27,6 +39,9 @@ const WorkDetailForm = () => {
     setThumbnailAssetID,
     beginUpload,
     finishUpload,
+    urls,
+    addUrl,
+    removeUrl,
   } = usePostWorkStore();
 
   const [tags, setTags] = useState<TagInputTag[]>([]);
@@ -101,6 +116,47 @@ const WorkDetailForm = () => {
     removeTagID(tagID);
   };
 
+  const [url, setUrl] = useState<string>("");
+  const [urlErrorMessage, setUrlErrorMessage] = useState<string>("");
+
+  const handleUrlChange = (newUrl: string) => {
+    setUrl(newUrl);
+    setUrlErrorMessage("");
+  };
+
+  const validateUrl = (newUrl: string): string => {
+    if (newUrl === "") {
+      return "URLを入力してください";
+    }
+    if (!isAbsoluteHttpUrl(newUrl)) {
+      return "http:// または https:// から始まるURLを入力してください";
+    }
+    if (urls.length >= MAX_URL_COUNT) {
+      return `URLは最大${MAX_URL_COUNT}個まで登録できます`;
+    }
+    if (urls.includes(newUrl)) {
+      return "このURLは既に登録されています";
+    }
+    return "";
+  };
+
+  const handleAddUrl = () => {
+    const trimmedUrl = url.trim();
+    const errorMessage = validateUrl(trimmedUrl);
+    if (errorMessage !== "") {
+      setUrlErrorMessage(errorMessage);
+      return;
+    }
+
+    addUrl(trimmedUrl);
+    setUrl("");
+  };
+
+  const handleRemoveUrl = (index: number) => {
+    removeUrl(index);
+    setUrlErrorMessage("");
+  };
+
   return (
     <Paper>
       <div className={styles["work-detail-form-wrapper"]}>
@@ -117,6 +173,18 @@ const WorkDetailForm = () => {
           onRemove={() => setThumbnailAssetID("")}
         />
         <AssetUpload onUpload={handleAssetUpload} onRemove={removeAssetID} />
+        <UrlInput
+          heading="リンク"
+          isOptional
+          urls={urls}
+          maxUrlCount={MAX_URL_COUNT}
+          value={url}
+          onChange={handleUrlChange}
+          onAddUrl={handleAddUrl}
+          onRemoveUrl={handleRemoveUrl}
+          errorMessage={urlErrorMessage}
+          placeholder="https://example.com"
+        />
       </div>
     </Paper>
   );

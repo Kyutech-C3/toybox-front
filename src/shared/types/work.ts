@@ -7,6 +7,7 @@ type Work = {
   description_html: string;
   user: User;
   thumbnail_url: string;
+  urls: string[];
   visibility: string;
   created_at: string;
   updated_at: string;

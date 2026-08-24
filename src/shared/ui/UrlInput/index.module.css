@@ -1,0 +1,123 @@
+.url-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+.heading-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 5px;
+}
+
+.url-count {
+  margin-left: auto;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.input-wrapper {
+  padding: 12px 24px;
+  min-height: 60px;
+  border: solid 2px var(--primary-color);
+  border-radius: 25px;
+  box-sizing: border-box;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  color: var(--font-color);
+  text-align: left;
+
+  &[data-error="true"] {
+    border-color: var(--error-color);
+  }
+}
+
+.input-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.input-field {
+  flex-grow: 1;
+  min-width: 0;
+  padding: 0;
+  height: 28px;
+  border: none;
+  background: transparent;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  resize: none;
+  outline: none;
+  color: var(--font-color);
+  text-align: left;
+}
+
+.add-button {
+  height: 28px;
+  width: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  border: none;
+  background: transparent;
+  color: var(--font-color);
+  cursor: pointer;
+}
+
+.error-message {
+  font-size: 14px;
+  color: var(--error-color);
+}
+
+.urls-wrapper {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.url-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 24px;
+  border-bottom: solid 1px var(--border-color);
+}
+
+.url-text {
+  flex-grow: 1;
+  min-width: 0;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.remove-button {
+  height: 20px;
+  width: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  border: none;
+  background: transparent;
+  color: var(--font-color);
+  cursor: pointer;
+}

@@ -18,7 +18,8 @@ type PostWorkStore = {
   finishUpload: () => void;
   addTagID: (tag_id: string) => void;
   removeTagID: (tag_id: string) => void;
-  addurl: (url: string) => void;
+  setUrls: (urls: string[]) => void;
+  addUrl: (url: string) => void;
   removeUrl: (index: number) => void;
   setVisibility: (visibility: "public" | "private" | "draft") => void;
   resetPostWork: () => void;
@@ -86,7 +87,10 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
       tag_ids: state.tag_ids.filter((id) => id !== tag_id),
     }));
   },
-  addurl: (url: string) => {
+  setUrls: (urls: string[]) => {
+    set({ urls });
+  },
+  addUrl: (url: string) => {
     set((state) => ({ urls: [...state.urls, url] }));
   },
   removeUrl: (index: number) => {

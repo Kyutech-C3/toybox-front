@@ -5,7 +5,7 @@ import { fetchData } from "@/util/fetchData";
 import type { Work } from "@/shared/types/work";
 
 interface UseWorkDetailParams {
-  id: string;
+  id?: string;
 }
 
 interface UseWorkDetailReturn {
@@ -14,7 +14,7 @@ interface UseWorkDetailReturn {
 }
 
 const useWorkDetail = ({ id }: UseWorkDetailParams): UseWorkDetailReturn => {
-  const url = `/works/${id}`;
+  const url = id ? `/works/${id}` : null;
 
   const fetcher = async (url: string): Promise<Work> => {
     const response = await fetchData(url);
