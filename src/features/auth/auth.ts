@@ -1,5 +1,6 @@
 import { mutate } from "swr";
 
+import requestLogout from "./api/logout";
 import { useAuthStore } from "./store/useAuthStore";
 import { useUserStore } from "./store/useUserStore";
 
@@ -26,6 +27,9 @@ const clearAuthSession = async () => {
   useAuthStore.getState().clearAuth();
   useUserStore.getState().clearUser();
   await mutate((key) => Array.isArray(key), undefined, { revalidate: false });
+  await mutate((key) => typeof key === "string", undefined, {
+    revalidate: true,
+  });
 };
 
 const getLoginUrl = async () => {
@@ -115,17 +119,22 @@ const refreshAccessToken = () => {
 };
 
 const logout = async () => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+  let requestError: unknown;
 
-    if (!response.ok) {
-      throw new Error("Failed to log out");
-    }
-  } finally {
+  try {
+    await requestLogout();
+  } catch (error) {
+    requestError = error;
+  }
+
+  try {
     await clearAuthSession();
+  } catch (error) {
+    console.error("Failed to clear authenticated cache:", error);
+  }
+
+  if (requestError) {
+    throw requestError;
   }
 };
 
