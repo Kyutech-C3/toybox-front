@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
+import LockRoundedIcon from "@mui/icons-material/LockRounded";
+import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 
 import Avatar from "../Avatar";
 import Batch from "../Batch";
@@ -21,11 +24,6 @@ type CardProps = {
   isEditable?: boolean;
 };
 
-const VISIBILITY_LABELS = {
-  private: "非公開",
-  draft: "下書き",
-} as const;
-
 const Card = ({
   title,
   workID,
@@ -38,9 +36,6 @@ const Card = ({
   visibility = "public",
   isEditable = false,
 }: CardProps) => {
-  const visibilityLabel =
-    visibility === "public" ? null : VISIBILITY_LABELS[visibility];
-
   return (
     <article className={styles["card-wrapper"]}>
       <Link
@@ -58,9 +53,18 @@ const Card = ({
         </div>
       </Link>
       <div className={styles["card-actions"]}>
-        {visibilityLabel && (
-          <span className={styles["visibility-label"]}>{visibilityLabel}</span>
-        )}
+        <span className={styles["visibility-label"]}>
+          {visibility === "public" && (
+            <PublicRoundedIcon fontSize="small" aria-hidden="true" />
+          )}
+          {visibility === "private" && (
+            <LockRoundedIcon fontSize="small" aria-hidden="true" />
+          )}
+          {visibility === "draft" && (
+            <EditNoteRoundedIcon fontSize="small" aria-hidden="true" />
+          )}
+          {visibility}
+        </span>
         {isEditable && (
           <Link to={`/edit/${workID}`} className={styles["edit-link"]}>
             編集

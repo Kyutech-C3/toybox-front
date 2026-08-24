@@ -55,6 +55,7 @@ const WorkIndex = () => {
             tags={work.tags}
             imageURL={work.thumbnail_url}
             postDate={new Date(work.created_at)}
+            visibility={work.visibility}
           />
         ))}
       </div>

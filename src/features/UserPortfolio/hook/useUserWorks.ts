@@ -23,23 +23,28 @@ const useUserWorks = ({ userID }: UseUserWorksParams): UseUserWorksReturn => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const currentUser = useUserStore((state) => state.user);
   const isOwner = Boolean(accessToken && currentUser?.id === userID);
-  const ownerAccessToken = isOwner ? accessToken : null;
 
   const {
     data: response,
     error,
     isLoading,
-  } = useSWR([`/works/users/${userID}`, ownerAccessToken], () =>
+  } = useSWR([`/works/users/${userID}`, accessToken], () =>
     getUserWorks({
       userID,
-      accessToken: ownerAccessToken ?? undefined,
+      accessToken: accessToken ?? undefined,
     }),
   );
 
   const works = response?.works ?? [];
-  const visibleWorks = isOwner
-    ? works
-    : works.filter((work) => work.visibility === "public");
+  const visibleWorks = works.filter((work) => {
+    if (work.visibility === "public") {
+      return true;
+    }
+    if (work.visibility === "private") {
+      return Boolean(accessToken);
+    }
+    return isOwner;
+  });
 
   return {
     data: response ? visibleWorks : undefined,
