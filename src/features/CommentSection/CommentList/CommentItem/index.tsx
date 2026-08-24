@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { Link } from "react-router-dom";
 
 import CommentInput from "../../CommentInput";
 import styles from "./index.module.css";
@@ -64,10 +65,20 @@ const CommentItem = ({
   return (
     <div className={styles["wrapper"]}>
       <div className={styles["comment-row"]}>
-        <Avatar
-          src={comment.user?.avatar_url}
-          alt={`${comment.user?.display_name} avatar`}
-        />
+        {comment.user ? (
+          <Link
+            to={`/user/${comment.user.id}`}
+            className={styles["avatar-link"]}
+            aria-label={`${comment.user.display_name}のユーザーページを開く`}
+          >
+            <Avatar
+              src={comment.user.avatar_url}
+              alt={`${comment.user.display_name}のアバター`}
+            />
+          </Link>
+        ) : (
+          <Avatar src="" alt="名無しのユーザーのアバター" />
+        )}
         <div className={styles["comment-body"]}>
           <div className={styles["header"]}>
             <div className={styles["username"]}>

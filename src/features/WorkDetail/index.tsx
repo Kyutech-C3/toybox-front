@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import MarkdownPreview from "../MarkdownPreview";
 import AssetCarousel from "./AssetCarousel";
 import useWorkDetail from "./hook/useWorkDetail";
@@ -30,10 +32,17 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
       </div>
       <AssetCarousel assets={data.assets} />
       <div className={styles["work-detail-info"]}>
-        <div className={styles["user-info-wrapper"]}>
-          <Avatar avatarURL={data.user.avatar_url} />
+        <Link
+          to={`/user/${data.user.id}`}
+          className={styles["user-info-wrapper"]}
+          aria-label={`${data.user.display_name}のユーザーページを開く`}
+        >
+          <Avatar
+            avatarURL={data.user.avatar_url || undefined}
+            alt={`${data.user.display_name}のアバター`}
+          />
           <p>{data.user.display_name}</p>
-        </div>
+        </Link>
         <div className={styles["batches-wrapper"]}>
           {data.tags.map((tag) => (
             <Batch key={`${data.id}-${tag.id}`}>{tag.name}</Batch>

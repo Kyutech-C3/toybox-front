@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 
 import styles from "./index.module.css";
 
@@ -72,16 +71,6 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
 
   return (
     <div className={styles["account-menu-wrapper"]} ref={wrapperRef}>
-      <Link
-        to={`/user/${user.id}`}
-        className={styles["account-page-link"]}
-        aria-label={`${user.display_name}のユーザーページを開く`}
-      >
-        <Avatar
-          avatarURL={user.icon_url}
-          alt={`${user.display_name}のアバター`}
-        />
-      </Link>
       <button
         type="button"
         className={styles["account-menu-trigger"]}
@@ -92,7 +81,10 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
         onClick={() => setIsOpen((currentIsOpen) => !currentIsOpen)}
         ref={triggerRef}
       >
-        <ExpandMoreRoundedIcon aria-hidden="true" />
+        <Avatar
+          avatarURL={user.icon_url}
+          alt={`${user.display_name}のアバター`}
+        />
       </button>
       {isOpen && (
         <div
