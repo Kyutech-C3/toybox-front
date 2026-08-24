@@ -27,10 +27,14 @@
 
 .card-image-wrapper {
   position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 25px 25px 0 0;
 
   .card-image {
+    display: block;
     width: 100%;
-    aspect-ratio: 4 / 3;
+    height: 100%;
     border-radius: 25px 25px 0px 0px;
     object-fit: cover;
     box-shadow: 0 2px 2px -2px var(--shadow-soft-color);

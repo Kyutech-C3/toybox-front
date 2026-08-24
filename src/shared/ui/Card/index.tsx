@@ -9,6 +9,7 @@ import styles from "./index.module.css";
 
 import { formatDateTime } from "@/util/formatDateTime";
 
+import type { SyntheticEvent } from "react";
 import type { Tag } from "@/shared/types/work";
 
 type CardProps = {
@@ -24,6 +25,8 @@ type CardProps = {
   isEditable?: boolean;
 };
 
+const DEFAULT_CARD_IMAGE_URL = "/comingSoonLugia.webp";
+
 const Card = ({
   title,
   workID,
@@ -31,11 +34,18 @@ const Card = ({
   username = "UserName",
   postDate,
   tags,
-  avatarURL = "./comingSoonLugia.webp",
-  imageURL = "./comingSoonHo-Oh.webp",
+  avatarURL,
+  imageURL,
   visibility = "public",
   isEditable = false,
 }: CardProps) => {
+  const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
+    const image = event.currentTarget;
+    if (!image.src.endsWith(DEFAULT_CARD_IMAGE_URL)) {
+      image.src = DEFAULT_CARD_IMAGE_URL;
+    }
+  };
+
   return (
     <article className={styles["card-wrapper"]}>
       <Link
@@ -45,9 +55,10 @@ const Card = ({
       >
         <div className={styles["card-image-wrapper"]}>
           <img
-            src={imageURL}
+            src={imageURL || DEFAULT_CARD_IMAGE_URL}
             alt={`${title}のサムネイル`}
             className={styles["card-image"]}
+            onError={handleImageError}
           />
           <p className={styles["card-title"]}>{title}</p>
         </div>

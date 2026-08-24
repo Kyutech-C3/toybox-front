@@ -7,7 +7,7 @@ type AvatarProps = {
 };
 
 const Avatar = ({
-  avatarURL = "./comingSoonLugia.webp",
+  avatarURL = "/comingSoonLugia.webp",
   alt = "ユーザーのアバター",
   size = "default",
 }: AvatarProps) => {
