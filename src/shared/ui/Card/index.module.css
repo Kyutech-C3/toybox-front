@@ -1,5 +1,6 @@
 .card-wrapper {
-  width: 333px;
+  position: relative;
+  width: min(333px, 100%);
   height: 366px;
   border-radius: 25px;
   box-shadow: 4px 4px 8px var(--shadow-soft-color);
@@ -7,6 +8,21 @@
   flex-direction: column;
   align-items: stretch;
   padding-bottom: 12px;
+  background: var(--paper-color);
+  overflow: hidden;
+  transition: transform 0.2s ease-in-out;
+}
+
+.card-wrapper:hover {
+  transform: scale(1.02);
+}
+
+.work-link {
+  display: block;
+}
+
+.work-link:hover {
+  color: var(--font-color);
 }
 
 .card-image-wrapper {
@@ -66,6 +82,47 @@
   width: 100%;
   display: flex;
   gap: 14px;
+  text-decoration: none;
+}
+
+.card-discription-content:hover,
+.card-discription-content:focus-visible {
+  color: var(--font-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.card-actions {
+  position: absolute;
+  z-index: 1;
+  top: 12px;
+  right: 12px;
+  left: 12px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.visibility-label,
+.edit-link {
+  padding: 6px 10px;
+  border-radius: 9999px;
+  background: var(--paper-overlay-color);
+  color: var(--font-color);
+  box-shadow: 0 2px 4px var(--shadow-soft-color);
+  font-size: 0.875rem;
+  font-weight: bold;
+  pointer-events: auto;
+}
+
+.edit-link {
+  margin-left: auto;
+}
+
+.edit-link:hover,
+.edit-link:focus-visible {
+  background: var(--primary-color);
+  color: var(--font-color);
 }
 
 .batches-wrapper {

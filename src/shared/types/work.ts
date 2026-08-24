@@ -7,10 +7,12 @@ type Work = {
   description_html: string;
   user: User;
   thumbnail_url: string;
-  visibility: string;
+  visibility: WorkVisibility;
   created_at: string;
   updated_at: string;
 };
+
+type WorkVisibility = "public" | "private" | "draft";
 
 type User = {
   id: string;
@@ -71,4 +73,5 @@ export type {
   TagResponse,
   TagListResponse,
   Asset,
+  WorkVisibility,
 };

@@ -5,12 +5,14 @@
   justify-items: center;
 }
 
-.work-link {
-  text-decoration: none;
-  animation-timing-function: ease-in-out;
-  transition: all 0.2s;
-  &:hover {
-    color: var(--font-color);
-    transform: scale(1.02);
+@media (max-width: 1120px) {
+  .works-index {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 740px) {
+  .works-index {
+    grid-template-columns: 1fr;
   }
 }

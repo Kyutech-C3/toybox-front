@@ -2,8 +2,18 @@ import { clearAuthSession, refreshAccessToken } from "@/features/auth/auth";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { API_BASE_URL } from "@/util/apiConfig";
 
-const throwResponseError = (response: Response) => {
-  throw new Error(`Network response was not ok (${response.status})`);
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number) {
+    super(`Network response was not ok (${status})`);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
+const throwResponseError = (response: Response): never => {
+  throw new ApiError(response.status);
 };
 
 const fetchWithAuth = async (
@@ -47,7 +57,7 @@ export const fetchData = async (path: string) => {
     },
   });
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throwResponseError(response);
   }
   return response.json();
 };

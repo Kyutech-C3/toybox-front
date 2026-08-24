@@ -1,12 +1,25 @@
 .account-menu-wrapper {
   position: relative;
   display: flex;
+  align-items: center;
+}
+
+.account-page-link {
+  border-radius: 9999px;
+}
+
+.account-page-link:focus-visible {
+  outline: 2px solid var(--font-color);
+  outline-offset: 3px;
 }
 
 .account-menu-trigger {
+  width: 24px;
+  height: 40px;
   padding: 0;
   border: 0;
-  border-radius: 9999px;
+  display: grid;
+  place-items: center;
   background: transparent;
   cursor: pointer;
 }
