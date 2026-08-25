@@ -1,3 +1,8 @@
+.main-wrapper {
+  min-height: calc(100vh - 140px);
+  background: var(--primary-color);
+}
+
 .page-status {
   min-height: calc(100vh - 140px);
   margin: 0;

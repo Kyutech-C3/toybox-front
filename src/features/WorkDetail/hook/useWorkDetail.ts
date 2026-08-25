@@ -10,7 +10,6 @@ interface UseWorkDetailParams {
 
 interface UseWorkDetailReturn {
   data: Work | undefined;
-  error: Error | undefined;
 }
 
 const useWorkDetail = ({ id }: UseWorkDetailParams): UseWorkDetailReturn => {
@@ -21,13 +20,12 @@ const useWorkDetail = ({ id }: UseWorkDetailParams): UseWorkDetailReturn => {
     return response;
   };
 
-  const { data: response, error } = useSWR<Work>(url, fetcher, {
+  const { data: response } = useSWR<Work>(url, fetcher, {
     suspense: true,
   });
 
   return {
     data: response,
-    error: error,
   };
 };
 

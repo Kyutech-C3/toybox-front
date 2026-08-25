@@ -21,37 +21,8 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const viewerUserID = useUserStore((state) => state.user?.id);
   const requestedPage = Number(searchParams.get("page")) || 1;
-  const {
-    data: userProfile,
-    error: userError,
-    isLoading: isUserLoading,
-  } = useUserProfile({ userID });
-  const {
-    data: works,
-    error: worksError,
-    isLoading: areWorksLoading,
-    isOwner,
-  } = useUserWorks({ userID });
-
-  if (userError?.status === 404) {
-    return (
-      <section className={styles["page-status"]}>
-        <h1>ユーザーが見つかりません</h1>
-      </section>
-    );
-  }
-
-  if (userError || worksError) {
-    return (
-      <section className={styles["page-status"]}>
-        <h1>データを取得できませんでした</h1>
-      </section>
-    );
-  }
-
-  if (isUserLoading || areWorksLoading || !userProfile) {
-    return <p className={styles["page-status"]}>読み込み中...</p>;
-  }
+  const { data: userProfile } = useUserProfile({ userID });
+  const { data: works, isOwner } = useUserWorks({ userID });
 
   const workList = works ?? [];
   const totalPages = Math.max(1, Math.ceil(workList.length / ITEMS_PER_PAGE));
@@ -68,7 +39,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   };
 
   return (
-    <main className={styles["main-wrapper"]}>
+    <>
       <section className={styles["profile-section"]}>
         <div className={styles["profile-content"]}>
           <Avatar
@@ -106,7 +77,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
           />
         )}
       </section>
-    </main>
+    </>
   );
 };
 

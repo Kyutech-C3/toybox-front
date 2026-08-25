@@ -1,8 +1,3 @@
-.main-wrapper {
-  min-height: calc(100vh - 140px);
-  background: var(--primary-color);
-}
-
 .profile-section {
   position: relative;
   min-height: 660px;
@@ -80,18 +75,6 @@
   background: var(--paper-overlay-color);
   font-size: 1.125rem;
   font-weight: 700;
-}
-
-.page-status {
-  min-height: calc(100vh - 140px);
-  margin: 0;
-  padding: 80px 24px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
 }
 
 @media (max-width: 740px) {

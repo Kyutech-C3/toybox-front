@@ -6,16 +6,13 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 
 import type { Work } from "@/shared/types/work";
-import type { ApiError } from "@/util/fetchData";
 
 type UseUserWorksParams = {
   userID: string;
 };
 
 type UseUserWorksReturn = {
-  data: Work[] | undefined;
-  error: ApiError | undefined;
-  isLoading: boolean;
+  data: Work[];
   isOwner: boolean;
 };
 
@@ -24,18 +21,14 @@ const useUserWorks = ({ userID }: UseUserWorksParams): UseUserWorksReturn => {
   const currentUser = useUserStore((state) => state.user);
   const isOwner = Boolean(accessToken && currentUser?.id === userID);
 
-  const {
-    data: response,
-    error,
-    isLoading,
-  } = useSWR(
+  const { data: response } = useSWR(
     [`/works/users/${userID}`, accessToken],
     () =>
       getUserWorks({
         userID,
         accessToken: accessToken ?? undefined,
       }),
-    { suspense: false },
+    { suspense: true },
   );
 
   const works = response?.works ?? [];
@@ -50,9 +43,7 @@ const useUserWorks = ({ userID }: UseUserWorksParams): UseUserWorksReturn => {
   });
 
   return {
-    data: response ? visibleWorks : undefined,
-    error,
-    isLoading,
+    data: visibleWorks,
     isOwner,
   };
 };

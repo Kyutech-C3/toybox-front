@@ -13,11 +13,7 @@ type WorkDetailProps = {
 };
 
 const WorkDetail = ({ workID }: WorkDetailProps) => {
-  const { data, error } = useWorkDetail({ id: workID });
-
-  if (error) {
-    return <div>エラー: {error.message}</div>;
-  }
+  const { data } = useWorkDetail({ id: workID });
 
   if (!data) {
     return <div>データがありません</div>;

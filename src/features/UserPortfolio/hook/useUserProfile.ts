@@ -10,21 +10,23 @@ type UseUserProfileParams = {
 };
 
 type UseUserProfileReturn = {
-  data: UserProfileData | undefined;
-  error: ApiError | undefined;
-  isLoading: boolean;
+  data: UserProfileData;
 };
 
 const useUserProfile = ({
   userID,
 }: UseUserProfileParams): UseUserProfileReturn => {
-  const { data, error, isLoading } = useSWR<UserProfileData, ApiError>(
+  const { data } = useSWR<UserProfileData, ApiError>(
     `/users/${userID}`,
     () => getUserProfile(userID),
-    { suspense: false },
+    { suspense: true },
   );
 
-  return { data, error, isLoading };
+  if (!data) {
+    throw new Error("User profile response is empty");
+  }
+
+  return { data };
 };
 
 export default useUserProfile;

@@ -10,7 +10,6 @@ interface UseCommentParams {
 
 interface UseCommentReturn {
   data: Comment[];
-  error: Error | undefined;
 }
 
 const useComment = ({ workId }: UseCommentParams): UseCommentReturn => {
@@ -21,13 +20,12 @@ const useComment = ({ workId }: UseCommentParams): UseCommentReturn => {
     return response;
   };
 
-  const { data: response, error } = useSWR<Comment[]>(url, fetcher, {
+  const { data: response } = useSWR<Comment[]>(url, fetcher, {
     suspense: true,
   });
 
   return {
     data: response ?? [],
-    error: error,
   };
 };
 

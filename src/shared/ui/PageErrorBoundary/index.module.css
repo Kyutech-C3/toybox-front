@@ -1,0 +1,8 @@
+.page-error {
+  min-height: calc(100vh - 260px);
+  padding: 48px 24px;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
