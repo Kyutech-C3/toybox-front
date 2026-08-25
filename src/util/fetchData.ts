@@ -89,6 +89,24 @@ export const postData = async (path: string, data: BodyInit) => {
   return response.json();
 };
 
+export const patchDataWithAuth = async (
+  path: string,
+  data: BodyInit,
+  accessToken: string,
+) => {
+  const response = await fetchWithAuth(path, accessToken, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: data,
+  });
+  if (!response.ok) {
+    throw new Error("Network response was not ok");
+  }
+  return response.json();
+};
+
 export const postDataWithAuth = async (
   path: string,
   data: BodyInit,

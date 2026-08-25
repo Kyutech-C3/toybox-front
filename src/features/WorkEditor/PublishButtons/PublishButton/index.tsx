@@ -1,99 +1,107 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ArrowDropUpRoundedIcon from "@mui/icons-material/ArrowDropUpRounded";
+import { mutate } from "swr";
 
 import { postWork } from "../../api/postWork";
-import { usePostWorkStore } from "../../store/usePostWorkStore";
+import { toWorkPayload } from "../../api/toWorkPayload";
+import { updateWork } from "../../api/updateWork";
+import {
+  selectIsUploading,
+  useWorkEditorStore,
+} from "../../store/useWorkEditorStore";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import Button from "@/shared/ui/Button";
 import Dropdown from "@/shared/ui/Dropdown";
+import useToast from "@/shared/ui/Toast/hook/useToast";
 
 const PublishButton = () => {
-  const {
-    visibility,
-    asset_ids,
-    thumbnail_asset_id,
-    pending_upload_count,
-    tag_ids,
-    description,
-    title,
-    urls,
-    setVisibility,
-    resetPostWork,
-  } = usePostWorkStore();
-  const { accessToken } = useAuthStore();
+  const mode = useWorkEditorStore((state) => state.mode);
+  const workID = useWorkEditorStore((state) => state.workID);
+  const current = useWorkEditorStore((state) => state.current);
+  const setVisibility = useWorkEditorStore((state) => state.setVisibility);
+  const isUploading = useWorkEditorStore(selectIsUploading);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { showToast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
-  const isPublishDisabled = pending_upload_count > 0 || isSubmitting;
 
-  const handlePublish = async () => {
-    if (isPublishDisabled) return;
+  const { visibility } = current;
+  const isEditMode = mode === "edit";
+  const isSubmitDisabled = isUploading || isSubmitting;
+
+  const handleSubmit = async () => {
+    if (isSubmitDisabled) return;
     if (!accessToken) {
       setSubmitError("ログインが必要です");
       return;
     }
-    if (!thumbnail_asset_id) {
+    if (!current.thumbnail?.assetID) {
       setSubmitError("サムネイルのアップロードを完了してください");
       return;
     }
+
     setIsSubmitting(true);
     setSubmitError("");
     try {
-      const response = await postWork(
-        {
-          asset_ids,
-          description,
-          tag_ids,
-          title,
-          thumbnail_asset_id,
-          urls,
-          visibility,
-        },
-        accessToken,
+      const payload = toWorkPayload(current);
+      if (isEditMode && workID) {
+        const updatedWork = await updateWork(workID, payload, accessToken);
+        // 遷移先の作品詳細が古いキャッシュを表示しないよう、
+        // PATCH のレスポンスでキャッシュを差し替える（再取得は不要）
+        await mutate(`/works/${workID}`, updatedWork, { revalidate: false });
+        showToast({ message: "作品を保存しました", severity: "success" });
+        navigate(`/work/${workID}`);
+        return;
+      }
+      await postWork(payload, accessToken);
+      showToast({ message: "作品を投稿しました", severity: "success" });
+      navigate("/");
+    } catch {
+      setSubmitError(
+        isEditMode ? "作品の保存に失敗しました" : "作品の投稿に失敗しました",
       );
-
-      if (response !== null) {
-        resetPostWork();
-        navigate("/");
-      } else setSubmitError("作品の投稿に失敗しました");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const draftLabel = isEditMode ? "下書きとして保存" : "下書き保存";
+  const publishLabel = visibility === "private" ? "限定公開" : "全体公開";
+
   return (
     <div
       className={styles["publish-button-wrapper"]}
-      data-disabled={isPublishDisabled ? "true" : "false"}
+      data-disabled={isSubmitDisabled ? "true" : "false"}
     >
       {visibility === "draft" ? (
         <Button
           variant="primary"
-          onClick={() => void handlePublish()}
-          isDisabled={isPublishDisabled}
+          onClick={() => void handleSubmit()}
+          isDisabled={isSubmitDisabled}
         >
-          下書き保存
+          {draftLabel}
         </Button>
       ) : (
         <>
           <button
             type="button"
             className={styles["publish-button"]}
-            onClick={() => void handlePublish()}
-            disabled={isPublishDisabled}
+            onClick={() => void handleSubmit()}
+            disabled={isSubmitDisabled}
           >
-            {visibility === "private" ? "限定公開" : "全体公開"}
+            {isEditMode ? `${publishLabel}で保存` : publishLabel}
           </button>
           <span className={styles["button-span"]} />
           <button
             type="button"
             className={styles["menu-button"]}
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            disabled={isPublishDisabled}
+            disabled={isSubmitDisabled}
           >
             <ArrowDropUpRoundedIcon />
           </button>
@@ -113,9 +121,9 @@ const PublishButton = () => {
           </span>
         </>
       )}
-      {pending_upload_count > 0 && (
+      {isUploading && (
         <output className={styles["upload-notice"]}>
-          アップロード完了後に投稿できます
+          アップロード完了後に保存できます
         </output>
       )}
       {submitError && (

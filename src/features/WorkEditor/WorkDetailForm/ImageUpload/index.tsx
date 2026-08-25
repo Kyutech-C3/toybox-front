@@ -1,114 +1,55 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
+import useThumbnailUpload, {
+  THUMBNAIL_ACCEPT,
+} from "../hook/useThumbnailUpload";
 import UploadPrompt from "../UploadPrompt";
 import UploadRemoveButton from "../UploadRemoveButton";
 import UploadRetryButton from "../UploadRetryButton";
 import styles from "./index.module.css";
 
-type ImageUploadProps = {
-  onImageSelect: (file: File) => Promise<void>;
-  onRemove: () => void;
-};
+import type { ChangeEvent, DragEvent } from "react";
 
-const THUMBNAIL_ACCEPT = ".png,.jpg,.jpeg,.bmp,.gif";
-const MAX_THUMBNAIL_SIZE = 5 * 1024 * 1024;
-
-type UploadStatus = "idle" | "uploading" | "success" | "error";
-
-const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
-  const [preview, setPreview] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<UploadStatus>("idle");
-  const [errorMessage, setErrorMessage] = useState("");
+const ImageUpload = () => {
+  const {
+    thumbnail,
+    validationError,
+    handleSelectFile,
+    handleRetry,
+    handleRemove,
+  } = useThumbnailUpload();
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const previewRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    };
-  }, []);
-
-  const replacePreview = (nextPreview: string | null) => {
-    if (previewRef.current) URL.revokeObjectURL(previewRef.current);
-    previewRef.current = nextPreview;
-    setPreview(nextPreview);
-  };
-
-  const uploadFile = async (nextFile: File) => {
-    setStatus("uploading");
-    setErrorMessage("");
-    try {
-      await onImageSelect(nextFile);
-      setStatus("success");
-    } catch {
-      setStatus("error");
-      setErrorMessage("アップロードに失敗しました");
-    }
-  };
-
-  const handleFileChange = (file: File | null) => {
-    if (!file) return;
-
-    if (file.size > MAX_THUMBNAIL_SIZE) {
-      setErrorMessage("ファイルサイズは5MB以下にしてください");
-      return;
-    }
-
-    const extension = `.${file.name.split(".").pop()?.toLowerCase()}`;
-    if (!THUMBNAIL_ACCEPT.split(",").includes(extension)) {
-      setErrorMessage("対応していない画像形式です");
-      return;
-    }
-
-    const nextPreview = URL.createObjectURL(file);
-    replacePreview(nextPreview);
-    setFile(file);
-    void uploadFile(file);
-  };
+  const isUploading = thumbnail?.status === "uploading";
 
   const handleClick = () => {
-    if (status === "uploading") return;
+    if (isUploading) return;
     fileInputRef.current?.click();
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleDragOver = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     setIsDragging(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleDragLeave = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLButtonElement>) => {
-    e.preventDefault();
+  const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     setIsDragging(false);
-
-    if (status === "uploading") return;
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileChange(files[0]);
-    }
+    if (isUploading) return;
+    const files = event.dataTransfer.files;
+    if (files.length > 0) handleSelectFile(files[0]);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileChange(files[0]);
-    }
-    e.target.value = "";
-  };
-
-  const handleRemove = () => {
-    if (status === "uploading") return;
-    replacePreview(null);
-    setFile(null);
-    setStatus("idle");
-    setErrorMessage("");
-    onRemove();
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) handleSelectFile(files[0]);
+    event.target.value = "";
   };
 
   return (
@@ -123,14 +64,14 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           data-dragging={isDragging ? "true" : "false"}
-          data-has-image={preview ? "true" : "false"}
-          disabled={status === "uploading"}
+          data-has-image={thumbnail?.previewURL ? "true" : "false"}
+          disabled={isUploading}
           aria-label="サムネイル画像をアップロード"
         >
-          {preview ? (
+          {thumbnail?.previewURL ? (
             <img
-              src={preview}
-              alt="アップロードされた画像のプレビュー"
+              src={thumbnail.previewURL}
+              alt="サムネイル画像のプレビュー"
               className={styles["preview-image"]}
             />
           ) : (
@@ -145,26 +86,30 @@ const ImageUpload = ({ onImageSelect, onRemove }: ImageUploadProps) => {
           className={styles["file-input"]}
           tabIndex={-1}
         />
-        {file && (
+        {thumbnail && (
           <UploadRemoveButton
             className={styles["remove-button"]}
             onClick={handleRemove}
-            isDisabled={status === "uploading"}
-            ariaLabel={`${file.name}を削除`}
+            isDisabled={isUploading}
+            ariaLabel={`${thumbnail.fileName}を削除`}
           />
         )}
       </div>
       <div className={styles["upload-meta"]} aria-live="polite">
-        {file && <span className={styles["file-name"]}>{file.name}</span>}
-        {status === "uploading" && <span>アップロード中</span>}
-        {status === "success" && <span>アップロード完了</span>}
-        {status === "error" && file && (
-          <UploadRetryButton onClick={() => void uploadFile(file)} />
+        {thumbnail && (
+          <span className={styles["file-name"]}>{thumbnail.fileName}</span>
+        )}
+        {thumbnail?.status === "uploading" && <span>アップロード中</span>}
+        {thumbnail?.status === "success" && thumbnail.file && (
+          <span>アップロード完了</span>
+        )}
+        {thumbnail?.status === "error" && (
+          <UploadRetryButton onClick={handleRetry} />
         )}
       </div>
-      {errorMessage && (
+      {(validationError || thumbnail?.errorMessage) && (
         <p className={styles["error-message"]} role="alert">
-          {errorMessage}
+          {validationError || thumbnail?.errorMessage}
         </p>
       )}
       <p className={styles["format-help"]}>

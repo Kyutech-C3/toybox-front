@@ -8,10 +8,11 @@ import MarkdownPreview from "@/features/MarkdownPreview";
 import Paper from "@/shared/ui/Paper";
 import "./editor-custom.css";
 
-import { usePostWorkStore } from "../store/usePostWorkStore";
+import { useWorkEditorStore } from "../store/useWorkEditorStore";
 
 const MarkdownEditor = () => {
-  const { description, setDescription } = usePostWorkStore();
+  const description = useWorkEditorStore((state) => state.current.description);
+  const setDescription = useWorkEditorStore((state) => state.setDescription);
   const [editMode, setEditMode] = React.useState<"edit" | "preview" | "live">(
     "edit",
   );
