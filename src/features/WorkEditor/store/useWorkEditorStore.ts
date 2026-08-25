@@ -1,205 +1,31 @@
-import { create } from "zustand";
+import { useContext } from "react";
+import { useStore } from "zustand";
 
-import { MAX_WORK_URL_COUNT } from "../constants";
-import {
-  cloneWorkEditorValues,
-  EMPTY_WORK_EDITOR_VALUES,
-  revokePreviewURL,
-  revokeValuesPreviewURLs,
-  toWorkEditorValues,
-} from "../editorAsset";
+import WORK_EDITOR_STORE_CONTEXT from "./workEditorStoreContext";
 
-import type { Work, WorkVisibility } from "@/shared/types/work";
-import type {
-  EditorAsset,
-  EditorTag,
-  WorkEditorMode,
-  WorkEditorValues,
-} from "../types";
+import type { WorkEditorStore } from "./createWorkEditorStore";
 
 /**
- * ページスコープ化の準備:
- * 現状はモジュールシングルトンだが、将来 createStore + Context に切り替えられるよう、
- * 他ファイルからは必ずこの useWorkEditorStore フック経由でアクセスする。
- * store.getState() を外部から直接呼ばないこと。
+ * 編集画面の store へアクセスする唯一の入口。
+ * store は WorkEditorStoreProvider がページごとに作るので、
+ * このフックを経由せずに store の実体へ触らないこと。
  *
- * 永続化について:
- * current には File と blob URL が含まれ JSON 化できないため、
- * persist ミドルウェアは適用しない。
+ * 命名規約チェックは `const useXxx = (...)` の形に対して
+ * UseXxxParams / UseXxxReturn を要求するが、このフックはセレクタの
+ * 戻り値をそのまま返すジェネリクスなので関数宣言で定義している。
  */
+export function useWorkEditorStore<T>(
+  selector: (state: WorkEditorStore) => T,
+): T {
+  const store = useContext(WORK_EDITOR_STORE_CONTEXT);
 
-type WorkEditorStore = {
-  mode: WorkEditorMode;
-  workID: string | null;
-  /** 二重初期化の防止。新規は "new"、編集は作品 ID */
-  initializedKey: string | null;
-  /** 画面が表示・更新する値 */
-  current: WorkEditorValues;
-  /**
-   * 取得直後のスナップショット。
-   * 差分判定・未保存判定はこれと current を比較して行う（今回は保持のみ）。
-   */
-  baseline: WorkEditorValues;
-
-  initializeForNew: () => void;
-  initializeForEdit: (work: Work) => void;
-  resetEditor: () => void;
-
-  setTitle: (title: string) => void;
-  setDescription: (description: string) => void;
-  setVisibility: (visibility: WorkVisibility) => void;
-  addTag: (tag: EditorTag) => void;
-  removeTag: (tagID: string) => void;
-  setUrls: (urls: string[]) => void;
-  addAssets: (assets: EditorAsset[]) => void;
-  updateAsset: (key: string, update: Partial<EditorAsset>) => void;
-  removeAsset: (key: string) => void;
-  setThumbnail: (thumbnail: EditorAsset) => void;
-  updateThumbnail: (update: Partial<EditorAsset>) => void;
-  removeThumbnail: () => void;
-};
-
-const updateCurrent = (
-  state: WorkEditorStore,
-  update: Partial<WorkEditorValues>,
-) => ({ current: { ...state.current, ...update } });
-
-export const useWorkEditorStore = create<WorkEditorStore>((set) => ({
-  mode: "new",
-  workID: null,
-  initializedKey: null,
-  current: EMPTY_WORK_EDITOR_VALUES,
-  baseline: EMPTY_WORK_EDITOR_VALUES,
-
-  initializeForNew: () => {
-    set((state) => {
-      if (state.initializedKey === "new") return state;
-      revokeValuesPreviewURLs(state.current);
-      return {
-        mode: "new",
-        workID: null,
-        initializedKey: "new",
-        current: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
-        baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
-      };
-    });
-  },
-
-  initializeForEdit: (work: Work) => {
-    set((state) => {
-      if (state.initializedKey === work.id) return state;
-      revokeValuesPreviewURLs(state.current);
-      const values = toWorkEditorValues(work);
-      return {
-        mode: "edit",
-        workID: work.id,
-        initializedKey: work.id,
-        current: values,
-        baseline: cloneWorkEditorValues(values),
-      };
-    });
-  },
-
-  resetEditor: () => {
-    set((state) => {
-      revokeValuesPreviewURLs(state.current);
-      return {
-        mode: "new",
-        workID: null,
-        initializedKey: null,
-        current: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
-        baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
-      };
-    });
-  },
-
-  setTitle: (title: string) => {
-    set((state) => updateCurrent(state, { title }));
-  },
-
-  setDescription: (description: string) => {
-    set((state) => updateCurrent(state, { description }));
-  },
-
-  setVisibility: (visibility: WorkVisibility) => {
-    set((state) => updateCurrent(state, { visibility }));
-  },
-
-  addTag: (tag: EditorTag) => {
-    set((state) => {
-      if (state.current.tags.some((current) => current.id === tag.id)) {
-        return state;
-      }
-      return updateCurrent(state, { tags: [...state.current.tags, tag] });
-    });
-  },
-
-  removeTag: (tagID: string) => {
-    set((state) =>
-      updateCurrent(state, {
-        tags: state.current.tags.filter((tag) => tag.id !== tagID),
-      }),
+  if (!store) {
+    throw new Error(
+      "useWorkEditorStore must be used within WorkEditorStoreProvider",
     );
-  },
+  }
 
-  setUrls: (urls: string[]) => {
-    set((state) =>
-      updateCurrent(state, { urls: urls.slice(0, MAX_WORK_URL_COUNT) }),
-    );
-  },
+  return useStore(store, selector);
+}
 
-  addAssets: (assets: EditorAsset[]) => {
-    set((state) =>
-      updateCurrent(state, { assets: [...state.current.assets, ...assets] }),
-    );
-  },
-
-  updateAsset: (key: string, update: Partial<EditorAsset>) => {
-    set((state) =>
-      updateCurrent(state, {
-        assets: state.current.assets.map((asset) =>
-          asset.key === key ? { ...asset, ...update } : asset,
-        ),
-      }),
-    );
-  },
-
-  removeAsset: (key: string) => {
-    set((state) => {
-      const target = state.current.assets.find((asset) => asset.key === key);
-      if (!target) return state;
-      revokePreviewURL(target.previewURL);
-      return updateCurrent(state, {
-        assets: state.current.assets.filter((asset) => asset.key !== key),
-      });
-    });
-  },
-
-  setThumbnail: (thumbnail: EditorAsset) => {
-    set((state) => {
-      revokePreviewURL(state.current.thumbnail?.previewURL ?? null);
-      return updateCurrent(state, { thumbnail });
-    });
-  },
-
-  updateThumbnail: (update: Partial<EditorAsset>) => {
-    set((state) => {
-      if (!state.current.thumbnail) return state;
-      return updateCurrent(state, {
-        thumbnail: { ...state.current.thumbnail, ...update },
-      });
-    });
-  },
-
-  removeThumbnail: () => {
-    set((state) => {
-      revokePreviewURL(state.current.thumbnail?.previewURL ?? null);
-      return updateCurrent(state, { thumbnail: null });
-    });
-  },
-}));
-
-/** アップロード中のアセットが 1 つでもあるか（保存を止める判定に使う） */
-export const selectIsUploading = (state: WorkEditorStore): boolean =>
-  state.current.assets.some((asset) => asset.status === "uploading") ||
-  state.current.thumbnail?.status === "uploading";
+export { selectIsUploading } from "./createWorkEditorStore";

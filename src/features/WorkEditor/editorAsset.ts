@@ -39,7 +39,6 @@ const getFileNameFromURL = (url: string) => {
   return path.split("/").pop() || url;
 };
 
-/** サーバー上の URL は解放不要。blob URL だけを解放する */
 export const revokePreviewURL = (previewURL: string | null) => {
   if (previewURL?.startsWith("blob:")) URL.revokeObjectURL(previewURL);
 };
@@ -94,7 +93,6 @@ const toThumbnailAsset = (work: Work): EditorAsset | null => {
   };
 };
 
-/** API の Work をエディタの編集値に変換する */
 export const toWorkEditorValues = (work: Work): WorkEditorValues => ({
   title: work.title,
   description: work.description,
@@ -107,7 +105,6 @@ export const toWorkEditorValues = (work: Work): WorkEditorValues => ({
     .map(toEditorAssetFromAsset),
 });
 
-/** baseline を current と切り離して保持するための浅いコピー */
 export const cloneWorkEditorValues = (
   values: WorkEditorValues,
 ): WorkEditorValues => ({

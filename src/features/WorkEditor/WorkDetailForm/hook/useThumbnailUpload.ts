@@ -54,7 +54,6 @@ const useThumbnailUpload = (): UseThumbnailUploadReturn => {
     }
 
     setValidationError("");
-    // 差し替え前の blob URL は setThumbnail の中で解放される
     setThumbnail(createUploadingAsset(file));
     void upload(file);
   };

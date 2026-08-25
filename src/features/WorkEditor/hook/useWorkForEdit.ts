@@ -10,12 +10,6 @@ type GetWorkEditorSWRKeyParams = {
   workID: string;
 };
 
-/**
- * 編集画面専用の SWR キー。
- * 作品詳細（/works/{id}）とキャッシュを共有すると、詳細画面で取得済みの
- * 古い内容から編集画面が初期化されてしまうため、キーを分けている。
- * 画面を離れるときに破棄するので、開き直せば必ずサーバーから取り直す。
- */
 export const getWorkEditorSWRKey = ({ workID }: GetWorkEditorSWRKeyParams) => [
   "work-editor",
   workID,
@@ -39,17 +33,17 @@ const useWorkForEdit = ({
     return getWork(workID, accessToken ?? undefined);
   };
 
-  const { data } = useSWR<Work>(
+  const { data, isValidating } = useSWR<Work>(
     workID ? getWorkEditorSWRKey({ workID }) : null,
     fetchWork,
     {
-      // 編集中に勝手に取り直させない
+      revalidateOnMount: true,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
     },
   );
 
-  return { data };
+  return { data: isValidating ? undefined : data };
 };
 
 export default useWorkForEdit;
