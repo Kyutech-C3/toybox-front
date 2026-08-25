@@ -6,7 +6,6 @@ import type { Tag, TagListResponse } from "@/shared/types/work";
 
 interface UseTagOptionsReturn {
   data: Tag[];
-  error: Error | undefined;
 }
 
 const useTagOptions = (): UseTagOptionsReturn => {
@@ -17,13 +16,12 @@ const useTagOptions = (): UseTagOptionsReturn => {
     return response;
   };
 
-  const { data: response, error } = useSWR<TagListResponse>(url, fetcher, {
+  const { data: response } = useSWR<TagListResponse>(url, fetcher, {
     suspense: true,
   });
 
   return {
     data: response?.tags ?? [],
-    error: error,
   };
 };
 

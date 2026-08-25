@@ -16,7 +16,6 @@ interface UseWorksReturn {
   totalCount: number;
   currentPage: number;
   limit: number;
-  error: Error | undefined;
 }
 
 const buildWorksUrl = ({ page, limit, tags }: UseWorksParams) => {
@@ -49,7 +48,7 @@ const useWorks = ({
   const accessToken = useAuthStore((state) => state.accessToken);
   const url = buildWorksUrl({ page, limit, tags });
 
-  const { data: response, error } = useSWR<WorkListResponse>(
+  const { data: response } = useSWR<WorkListResponse>(
     accessToken ? [url, accessToken] : url,
     accessToken
       ? ([requestUrl, token]) => fetchWorks(requestUrl, token)
@@ -62,7 +61,6 @@ const useWorks = ({
     totalCount: response?.total_count ?? 0,
     currentPage: response?.page ?? page,
     limit: response?.limit ?? limit,
-    error,
   };
 };
 

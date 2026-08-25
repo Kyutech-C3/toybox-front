@@ -16,7 +16,7 @@ const WorkIndex = () => {
   const viewerUserID = useUserStore((state) => state.user?.id);
   const currentPage = Number(searchParams.get("page")) || 1;
 
-  const { data, totalCount, error } = useWorks({
+  const { data, totalCount } = useWorks({
     page: currentPage,
     limit: ITEMS_PER_PAGE,
     tags: tags,
@@ -28,10 +28,6 @@ const WorkIndex = () => {
     setSearchParams({ page: String(page) });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  if (error) {
-    return <div>エラー: {error.message}</div>;
-  }
 
   if (!data) {
     return <div>作品がありません</div>;
