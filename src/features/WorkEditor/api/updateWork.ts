@@ -4,7 +4,7 @@ import type { WorkRequestData } from "@/shared/types/work";
 
 const updateWork = async (
   workID: string,
-  data: WorkRequestData,
+  data: Partial<WorkRequestData>,
   accessToken: string,
 ) =>
   patchDataWithAuth(`/auth/works/${workID}`, JSON.stringify(data), accessToken);

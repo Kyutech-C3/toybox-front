@@ -4,7 +4,7 @@ import ArrowDropUpRoundedIcon from "@mui/icons-material/ArrowDropUpRounded";
 import { mutate } from "swr";
 
 import { postWork } from "../../api/postWork";
-import { toWorkPayload } from "../../api/toWorkPayload";
+import { buildWorkUpdatePayload, toWorkPayload } from "../../api/toWorkPayload";
 import { updateWork } from "../../api/updateWork";
 import {
   selectIsUploading,
@@ -21,6 +21,7 @@ const PublishButton = () => {
   const mode = useWorkEditorStore((state) => state.mode);
   const workID = useWorkEditorStore((state) => state.workID);
   const current = useWorkEditorStore((state) => state.current);
+  const baseline = useWorkEditorStore((state) => state.baseline);
   const setVisibility = useWorkEditorStore((state) => state.setVisibility);
   const isUploading = useWorkEditorStore(selectIsUploading);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -48,17 +49,24 @@ const PublishButton = () => {
     setIsSubmitting(true);
     setSubmitError("");
     try {
-      const payload = toWorkPayload(current);
       if (isEditMode && workID) {
-        const updatedWork = await updateWork(workID, payload, accessToken);
-        // 遷移先の作品詳細が古いキャッシュを表示しないよう、
-        // PATCH のレスポンスでキャッシュを差し替える（再取得は不要）
+        const updatePayload = buildWorkUpdatePayload(current, baseline);
+        if (Object.keys(updatePayload).length === 0) {
+          showToast({ message: "変更はありません", severity: "info" });
+          navigate(`/work/${workID}`);
+          return;
+        }
+        const updatedWork = await updateWork(
+          workID,
+          updatePayload,
+          accessToken,
+        );
         await mutate(`/works/${workID}`, updatedWork, { revalidate: false });
         showToast({ message: "作品を保存しました", severity: "success" });
         navigate(`/work/${workID}`);
         return;
       }
-      await postWork(payload, accessToken);
+      await postWork(toWorkPayload(current), accessToken);
       showToast({ message: "作品を投稿しました", severity: "success" });
       navigate("/");
     } catch {
