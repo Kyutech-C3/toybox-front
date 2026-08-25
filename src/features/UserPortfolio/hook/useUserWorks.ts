@@ -28,11 +28,14 @@ const useUserWorks = ({ userID }: UseUserWorksParams): UseUserWorksReturn => {
     data: response,
     error,
     isLoading,
-  } = useSWR([`/works/users/${userID}`, accessToken], () =>
-    getUserWorks({
-      userID,
-      accessToken: accessToken ?? undefined,
-    }),
+  } = useSWR(
+    [`/works/users/${userID}`, accessToken],
+    () =>
+      getUserWorks({
+        userID,
+        accessToken: accessToken ?? undefined,
+      }),
+    { suspense: false },
   );
 
   const works = response?.works ?? [];

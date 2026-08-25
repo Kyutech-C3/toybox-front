@@ -21,6 +21,7 @@ const useUserProfile = ({
   const { data, error, isLoading } = useSWR<UserProfileData, ApiError>(
     `/users/${userID}`,
     () => getUserProfile(userID),
+    { suspense: false },
   );
 
   return { data, error, isLoading };

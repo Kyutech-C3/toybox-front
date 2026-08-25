@@ -33,34 +33,31 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
     isOwner,
   } = useUserWorks({ userID });
 
-  if (isUserLoading) {
-    return <p className={styles["page-status"]}>ユーザーを読み込み中...</p>;
-  }
-
   if (userError?.status === 404) {
     return (
       <section className={styles["page-status"]}>
         <h1>ユーザーが見つかりません</h1>
-        <p>URLをご確認ください。</p>
       </section>
     );
   }
 
-  if (userError || !userProfile) {
+  if (userError || worksError) {
     return (
       <section className={styles["page-status"]}>
-        <h1>ユーザー情報を取得できませんでした</h1>
-        <p>時間をおいて、もう一度お試しください。</p>
+        <h1>データを取得できませんでした</h1>
       </section>
     );
   }
 
-  const totalPages = works
-    ? Math.max(1, Math.ceil(works.length / ITEMS_PER_PAGE))
-    : 1;
+  if (isUserLoading || areWorksLoading || !userProfile) {
+    return <p className={styles["page-status"]}>読み込み中...</p>;
+  }
+
+  const workList = works ?? [];
+  const totalPages = Math.max(1, Math.ceil(workList.length / ITEMS_PER_PAGE));
   const currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
   const firstWorkIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const displayedWorks = works?.slice(
+  const displayedWorks = workList.slice(
     firstWorkIndex,
     firstWorkIndex + ITEMS_PER_PAGE,
   );
@@ -94,22 +91,14 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
           {isOwner ? "あなたの作品" : `${userProfile.display_name}の作品`}
         </h2>
 
-        {areWorksLoading && (
-          <p className={styles["works-status"]}>作品を読み込み中...</p>
+        {displayedWorks.length === 0 && (
+          <p className={styles["works-status"]}>作品はありません。</p>
         )}
-        {worksError && (
-          <p className={styles["works-status"]}>
-            作品を取得できませんでした。時間をおいて再度お試しください。
-          </p>
-        )}
-        {!areWorksLoading && !worksError && displayedWorks?.length === 0 && (
-          <p className={styles["works-status"]}>表示できる作品はありません。</p>
-        )}
-        {!worksError && displayedWorks && displayedWorks.length > 0 && (
+        {displayedWorks.length > 0 && (
           <WorkCardGrid works={displayedWorks} viewerUserID={viewerUserID} />
         )}
 
-        {!worksError && totalPages > 1 && (
+        {totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
