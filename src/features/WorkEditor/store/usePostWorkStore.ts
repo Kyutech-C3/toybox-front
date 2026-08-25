@@ -2,6 +2,8 @@ import { create } from "zustand";
 
 import { MAX_WORK_URL_COUNT } from "../constants";
 
+import type { WorkVisibility } from "@/shared/types/work";
+
 type PostWorkStore = {
   title: string;
   description: string;
@@ -10,7 +12,7 @@ type PostWorkStore = {
   thumbnail_asset_id: string;
   pending_upload_count: number;
   urls: string[];
-  visibility: "public" | "private" | "draft";
+  visibility: WorkVisibility;
   setTitle: (title: string) => void;
   setDescription: (description: string) => void;
   addAssetID: (asset_id: string) => void;
@@ -23,7 +25,7 @@ type PostWorkStore = {
   addUrl: (url: string) => void;
   removeUrl: (url: string) => void;
   setUrls: (urls: string[]) => void;
-  setVisibility: (visibility: "public" | "private" | "draft") => void;
+  setVisibility: (visibility: WorkVisibility) => void;
   resetPostWork: () => void;
 };
 
@@ -105,7 +107,7 @@ export const usePostWorkStore = create<PostWorkStore>((set) => ({
   setUrls: (urls: string[]) => {
     set({ urls: urls.slice(0, MAX_WORK_URL_COUNT) });
   },
-  setVisibility: (visibility: "public" | "private" | "draft") => {
+  setVisibility: (visibility: WorkVisibility) => {
     set({ visibility });
   },
   resetPostWork: () => {

@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
+import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 import styles from "./index.module.css";
 
@@ -133,7 +135,7 @@ export const Pagination = ({
         onClick={handlePrevious}
         ariaLabel="前のページ"
       >
-        ＜
+        <ChevronLeftRoundedIcon fontSize="small" aria-hidden="true" />
       </Button>
 
       <nav className={styles["pagination"]} aria-label="ページネーション">
@@ -195,7 +197,7 @@ export const Pagination = ({
         onClick={handleNext}
         ariaLabel="次のページ"
       >
-        ＞
+        <ChevronRightRoundedIcon fontSize="small" aria-hidden="true" />
       </Button>
     </div>
   );

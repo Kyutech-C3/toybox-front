@@ -81,7 +81,10 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
         onClick={() => setIsOpen((currentIsOpen) => !currentIsOpen)}
         ref={triggerRef}
       >
-        <Avatar avatarURL={user.icon_url} />
+        <Avatar
+          avatarURL={user.icon_url}
+          alt={`${user.display_name}のアバター`}
+        />
       </button>
       {isOpen && (
         <div

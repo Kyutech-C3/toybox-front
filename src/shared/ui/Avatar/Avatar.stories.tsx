@@ -11,6 +11,8 @@ const META: Meta<typeof Avatar> = {
   tags: ["autodocs"],
   argTypes: {
     avatarURL: { control: "text" },
+    alt: { control: "text" },
+    size: { control: "radio", options: ["default", "profile"] },
   },
 };
 
@@ -26,5 +28,13 @@ export const Default: Story = {
 export const CustomImage: Story = {
   args: {
     avatarURL: "https://via.placeholder.com/46x46.png?text=Avatar",
+  },
+};
+
+export const Profile: Story = {
+  args: {
+    avatarURL: "./comingSoonLugia.webp",
+    alt: "プロフィール画像",
+    size: "profile",
   },
 };

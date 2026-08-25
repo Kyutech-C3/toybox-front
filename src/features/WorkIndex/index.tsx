@@ -1,18 +1,19 @@
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import useWorks from "./hook/useWorks";
-import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
 import { useTagsStore } from "./SearchBar/store/useTagsStore";
 
-import { Pagination } from "@/features/WorkIndex/Pagination";
-import Card from "@/shared/ui/Card";
+import { useUserStore } from "@/features/auth/store/useUserStore";
+import { Pagination } from "@/shared/ui/Pagination";
+import WorkCardGrid from "@/shared/ui/WorkCardGrid";
 
 const ITEMS_PER_PAGE = 21;
 
 const WorkIndex = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { tags } = useTagsStore();
+  const viewerUserID = useUserStore((state) => state.user?.id);
   const currentPage = Number(searchParams.get("page")) || 1;
 
   const { data, totalCount, error } = useWorks({
@@ -39,30 +40,7 @@ const WorkIndex = () => {
   return (
     <>
       <SearchBar />
-      <div className={styles["works-index"]}>
-        {data.map((work) => (
-          <Link
-            key={work.id}
-            to={`/work/${work.id}`}
-            className={styles["work-link"]}
-          >
-            <Card
-              key={work.id}
-              workID={work.id}
-              title={
-                work.title.length > 12
-                  ? `${work.title.slice(0, 12)}...`
-                  : work.title
-              }
-              username={work.user.display_name}
-              avatarURL={work.user.avatar_url}
-              tags={work.tags}
-              imageURL={work.thumbnail_url}
-              postDate={new Date(work.created_at.split(" ")[0])}
-            />
-          </Link>
-        ))}
-      </div>
+      <WorkCardGrid works={data} viewerUserID={viewerUserID} />
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}

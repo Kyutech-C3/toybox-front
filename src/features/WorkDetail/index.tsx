@@ -3,9 +3,9 @@ import AssetCarousel from "./AssetCarousel";
 import useWorkDetail from "./hook/useWorkDetail";
 import styles from "./index.module.css";
 
-import Avatar from "@/shared/ui/Avatar";
 import Batch from "@/shared/ui/Batch";
 import Paper from "@/shared/ui/Paper";
+import UserButton from "@/shared/ui/UserButton";
 import { formatDateTime } from "@/util/formatDateTime";
 
 type WorkDetailProps = {
@@ -30,10 +30,11 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
       </div>
       <AssetCarousel assets={data.assets} />
       <div className={styles["work-detail-info"]}>
-        <div className={styles["user-info-wrapper"]}>
-          <Avatar avatarURL={data.user.avatar_url} />
-          <p>{data.user.display_name}</p>
-        </div>
+        <UserButton
+          userID={data.user.id}
+          displayName={data.user.display_name}
+          avatarURL={data.user.avatar_url || undefined}
+        />
         <div className={styles["batches-wrapper"]}>
           {data.tags.map((tag) => (
             <Batch key={`${data.id}-${tag.id}`}>{tag.name}</Batch>
