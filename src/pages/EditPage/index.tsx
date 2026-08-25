@@ -27,7 +27,6 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
       <main className={styles["main-wrapper"]}>
         <PageErrorBoundary resetKey={locationKey}>
           <Suspense fallback={<PageLoading />}>
-            <h1>EditPage</h1>
             <WorkEditor />
           </Suspense>
         </PageErrorBoundary>
