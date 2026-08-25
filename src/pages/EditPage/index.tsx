@@ -1,5 +1,6 @@
 import { Suspense, useLayoutEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { mutate } from "swr";
 
 import styles from "./index.module.css";
 
@@ -21,11 +22,15 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
     if (isNewWork) resetPostWork();
   }, [isNewWork, resetPostWork]);
 
+  const handleRetry = async () => {
+    await mutate("/tags", undefined, { revalidate: false });
+  };
+
   return (
     <>
       <Header />
       <main className={styles["main-wrapper"]}>
-        <PageErrorBoundary resetKey={locationKey}>
+        <PageErrorBoundary resetKey={locationKey} onRetry={handleRetry}>
           <Suspense fallback={<PageLoading />}>
             <WorkEditor />
           </Suspense>

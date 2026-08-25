@@ -4,5 +4,7 @@
   box-sizing: border-box;
   display: grid;
   place-items: center;
+  align-content: center;
+  gap: 16px;
   text-align: center;
 }

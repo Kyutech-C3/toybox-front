@@ -1,8 +1,7 @@
 import { useId } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import useUserProfile from "./hook/useUserProfile";
-import useUserWorks from "./hook/useUserWorks";
+import useUserPortfolio from "./hook/useUserPortfolio";
 import styles from "./index.module.css";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
@@ -21,8 +20,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const viewerUserID = useUserStore((state) => state.user?.id);
   const requestedPage = Number(searchParams.get("page")) || 1;
-  const { data: userProfile } = useUserProfile({ userID });
-  const { data: works, isOwner } = useUserWorks({ userID });
+  const { userProfile, works, isOwner } = useUserPortfolio({ userID });
 
   const workList = works ?? [];
   const totalPages = Math.max(1, Math.ceil(workList.length / ITEMS_PER_PAGE));
@@ -82,3 +80,5 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
 };
 
 export default UserPortfolio;
+
+export { getUserPortfolioSWRKey } from "./hook/useUserPortfolio";

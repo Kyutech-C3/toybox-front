@@ -2,16 +2,20 @@ import { Component } from "react";
 
 import styles from "./index.module.css";
 
+import Button from "@/shared/ui/Button";
+
 import type { ReactNode } from "react";
 
 type PageErrorBoundaryProps = {
   children: ReactNode;
   getErrorMessage?: (error: Error) => string;
+  onRetry: () => Promise<unknown>;
   resetKey?: string;
 };
 
 type PageErrorBoundaryState = {
   error: Error | undefined;
+  isRetrying: boolean;
 };
 
 class PageErrorBoundary extends Component<
@@ -20,10 +24,11 @@ class PageErrorBoundary extends Component<
 > {
   state: PageErrorBoundaryState = {
     error: undefined,
+    isRetrying: false,
   };
 
   static getDerivedStateFromError(error: Error): PageErrorBoundaryState {
-    return { error };
+    return { error, isRetrying: false };
   }
 
   componentDidUpdate(previousProps: PageErrorBoundaryProps) {
@@ -32,9 +37,21 @@ class PageErrorBoundary extends Component<
     }
   }
 
+  handleRetry = async () => {
+    const { onRetry } = this.props;
+
+    this.setState({ isRetrying: true });
+    try {
+      await onRetry();
+      this.setState({ error: undefined, isRetrying: false });
+    } catch {
+      this.setState({ isRetrying: false });
+    }
+  };
+
   render() {
     const { children, getErrorMessage } = this.props;
-    const { error } = this.state;
+    const { error, isRetrying } = this.state;
 
     if (error) {
       const message =
@@ -43,6 +60,9 @@ class PageErrorBoundary extends Component<
       return (
         <section className={styles["page-error"]} role="alert">
           <h1>{message}</h1>
+          <Button onClick={this.handleRetry} isDisabled={isRetrying}>
+            {isRetrying ? "再試行中..." : "再試行"}
+          </Button>
         </section>
       );
     }

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { useLocation, useParams } from "react-router-dom";
+import { mutate } from "swr";
 
 import styles from "./index.module.css";
 
@@ -22,6 +23,15 @@ const WorkPage = () => {
     return "データを取得できませんでした";
   };
 
+  const handleRetry = async () => {
+    if (!id) return;
+
+    await Promise.all([
+      mutate(`/works/${id}`, undefined, { revalidate: false }),
+      mutate(`/works/${id}/comments`, undefined, { revalidate: false }),
+    ]);
+  };
+
   return (
     <>
       <Header />
@@ -29,6 +39,7 @@ const WorkPage = () => {
         <PageErrorBoundary
           resetKey={locationKey}
           getErrorMessage={getErrorMessage}
+          onRetry={handleRetry}
         >
           <Suspense fallback={<PageLoading />}>
             {id ? (
