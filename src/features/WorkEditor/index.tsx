@@ -2,16 +2,20 @@ import useWorkEditorSetup from "./hook/useWorkEditorSetup";
 import styles from "./index.module.css";
 import MarkdownEditor from "./MarkdownEditor";
 import PublishButtons from "./PublishButtons";
+import WorkEditorStoreProvider from "./store/WorkEditorStoreProvider";
 import WorkDetailForm from "./WorkDetailForm";
 
 import PageLoading from "@/shared/ui/PageLoading";
 
 type WorkEditorProps = {
-  /** 新規投稿なら null、編集なら対象作品の ID */
   workID: string | null;
 };
 
-const WorkEditor = ({ workID }: WorkEditorProps) => {
+type WorkEditorContentProps = {
+  workID: string | null;
+};
+
+const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
   const { status } = useWorkEditorSetup({ workID });
 
   if (status === "forbidden") {
@@ -27,15 +31,20 @@ const WorkEditor = ({ workID }: WorkEditorProps) => {
 
   return (
     <>
-      <h1 className={styles["editor-heading"]}>
-        {workID === null ? "作品を投稿" : "作品を編集"}
-      </h1>
       <div className={styles["work-editor-wrapper"]}>
         <WorkDetailForm />
         <MarkdownEditor />
         <PublishButtons />
       </div>
     </>
+  );
+};
+
+const WorkEditor = ({ workID }: WorkEditorProps) => {
+  return (
+    <WorkEditorStoreProvider key={workID ?? "new"}>
+      <WorkEditorContent workID={workID} />
+    </WorkEditorStoreProvider>
   );
 };
 

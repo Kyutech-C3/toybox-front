@@ -7,11 +7,6 @@
   padding: 95px 0;
 }
 
-.editor-heading {
-  margin: 40px 0 0;
-  color: var(--font-color);
-}
-
 .editor-status {
   min-height: calc(100vh - 140px);
   margin: 0;
