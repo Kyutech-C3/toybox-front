@@ -1,8 +1,11 @@
 .user-button {
   position: relative;
   z-index: 2;
+  align-self: flex-start;
+  width: fit-content;
   max-width: 100%;
   padding: 4px 12px 4px 4px;
+  box-sizing: border-box;
   border: 1px solid transparent;
   border-radius: 9999px;
   display: inline-flex;
@@ -21,6 +24,7 @@
 }
 
 .display-name {
+  min-width: 0;
   overflow: hidden;
   font-size: 1.25rem;
   font-weight: bold;

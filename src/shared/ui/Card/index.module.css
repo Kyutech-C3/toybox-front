@@ -75,17 +75,17 @@
 .card-discription-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   padding: 14px;
 }
 
 .card-postdate {
   width: 100%;
   margin-top: 4px;
-  padding-left: 4px;
   box-sizing: border-box;
   color: var(--font-color);
   font-size: 0.875rem;
+  text-align: left;
 }
 
 .card-actions {
