@@ -11,27 +11,6 @@
   gap: 16px;
 }
 
-.user-info-wrapper {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  color: var(--font-color);
-  text-decoration: none;
-
-  & p {
-    margin-left: 12px;
-    font-size: 20px;
-    font-weight: bold;
-  }
-}
-
-.user-info-wrapper:hover,
-.user-info-wrapper:focus-visible {
-  color: var(--font-color);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 .batches-wrapper {
   display: flex;
   gap: 8px;

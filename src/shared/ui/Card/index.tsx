@@ -3,8 +3,8 @@ import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 
-import Avatar from "../Avatar";
 import Batch from "../Batch";
+import UserButton from "../UserButton";
 import styles from "./index.module.css";
 
 import { formatDateTime } from "@/util/formatDateTime";
@@ -83,19 +83,12 @@ const Card = ({
         )}
       </div>
       <div className={styles["card-discription-wrapper"]}>
-        <Link
-          to={`/user/${userID}`}
-          className={styles["card-discription-content"]}
-          aria-label={`${username}のユーザーページを開く`}
-        >
-          <Avatar avatarURL={avatarURL} alt={`${username}のアバター`} />
-          <div className={styles["info-wrapper"]}>
-            <p className={styles["card-username"]}>{username}</p>
-            <p className={styles["card-postdate"]}>
-              {formatDateTime(postDate)}
-            </p>
-          </div>
-        </Link>
+        <UserButton
+          userID={userID}
+          displayName={username}
+          avatarURL={avatarURL}
+        />
+        <p className={styles["card-postdate"]}>{formatDateTime(postDate)}</p>
         <div className={styles["batches-wrapper"]}>
           {tags.map((tag) => (
             <Batch key={`${workID}-${tag.id}`}>{tag.name}</Batch>

@@ -1,0 +1,29 @@
+.user-button {
+  position: relative;
+  z-index: 2;
+  max-width: 100%;
+  padding: 4px 12px 4px 4px;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  color: var(--font-color);
+  text-decoration: none;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.user-button:hover,
+.user-button:focus-visible {
+  background: var(--primary-soft-color);
+  color: var(--font-color);
+}
+
+.display-name {
+  overflow: hidden;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
