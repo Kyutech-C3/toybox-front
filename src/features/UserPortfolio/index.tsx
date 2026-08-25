@@ -5,9 +5,9 @@ import useUserProfile from "./hook/useUserProfile";
 import useUserWorks from "./hook/useUserWorks";
 import styles from "./index.module.css";
 
-import { Pagination } from "@/features/WorkIndex/Pagination";
+import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
-import Card from "@/shared/ui/Card";
+import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid from "@/shared/ui/WorkCardGrid";
 
 type UserPortfolioProps = {
@@ -19,6 +19,7 @@ const ITEMS_PER_PAGE = 21;
 const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const worksHeadingID = useId();
   const [searchParams, setSearchParams] = useSearchParams();
+  const viewerUserID = useUserStore((state) => state.user?.id);
   const requestedPage = Number(searchParams.get("page")) || 1;
   const {
     data: userProfile,
@@ -105,27 +106,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
           <p className={styles["works-status"]}>表示できる作品はありません。</p>
         )}
         {!worksError && displayedWorks && displayedWorks.length > 0 && (
-          <WorkCardGrid>
-            {displayedWorks.map((work) => (
-              <Card
-                key={work.id}
-                workID={work.id}
-                userID={work.user.id}
-                title={
-                  work.title.length > 12
-                    ? `${work.title.slice(0, 12)}...`
-                    : work.title
-                }
-                username={work.user.display_name}
-                avatarURL={work.user.avatar_url || undefined}
-                tags={work.tags}
-                imageURL={work.thumbnail_url || undefined}
-                postDate={new Date(work.created_at)}
-                visibility={work.visibility}
-                isEditable={isOwner}
-              />
-            ))}
-          </WorkCardGrid>
+          <WorkCardGrid works={displayedWorks} viewerUserID={viewerUserID} />
         )}
 
         {!worksError && totalPages > 1 && (

@@ -1,13 +1,22 @@
 import styles from "./index.module.css";
 
-import type { ReactNode } from "react";
+import Card from "@/shared/ui/Card";
+
+import type { Work } from "@/shared/types/work";
 
 type WorkCardGridProps = {
-  children: ReactNode;
+  works: Work[];
+  viewerUserID?: string;
 };
 
-const WorkCardGrid = ({ children }: WorkCardGridProps) => {
-  return <div className={styles["work-card-grid"]}>{children}</div>;
+const WorkCardGrid = ({ works, viewerUserID }: WorkCardGridProps) => {
+  return (
+    <div className={styles["work-card-grid"]}>
+      {works.map((work) => (
+        <Card key={work.id} work={work} viewerUserID={viewerUserID} />
+      ))}
+    </div>
+  );
 };
 
 export default WorkCardGrid;

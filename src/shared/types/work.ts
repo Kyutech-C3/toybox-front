@@ -27,7 +27,7 @@ type WorkRequestData = {
   title: string;
   thumbnail_asset_id: string;
   urls: string[];
-  visibility: "public" | "private" | "draft";
+  visibility: WorkVisibility;
 };
 
 type Tag = {

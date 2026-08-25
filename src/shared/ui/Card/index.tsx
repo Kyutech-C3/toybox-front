@@ -10,35 +10,20 @@ import styles from "./index.module.css";
 import { formatDateTime } from "@/util/formatDateTime";
 
 import type { SyntheticEvent } from "react";
-import type { Tag } from "@/shared/types/work";
+import type { Work } from "@/shared/types/work";
 
 type CardProps = {
-  title: string;
-  workID: string;
-  userID: string;
-  username?: string;
-  postDate: Date;
-  tags: Tag[];
-  avatarURL?: string;
-  imageURL?: string;
-  visibility?: "public" | "private" | "draft";
-  isEditable?: boolean;
+  work: Work;
+  viewerUserID?: string;
 };
 
 const DEFAULT_CARD_IMAGE_URL = "/comingSoonLugia.webp";
 
-const Card = ({
-  title,
-  workID,
-  userID,
-  username = "UserName",
-  postDate,
-  tags,
-  avatarURL,
-  imageURL,
-  visibility = "public",
-  isEditable = false,
-}: CardProps) => {
+const Card = ({ work, viewerUserID }: CardProps) => {
+  const isEditable = viewerUserID === work.user.id;
+  const displayTitle =
+    work.title.length > 12 ? `${work.title.slice(0, 12)}...` : work.title;
+
   const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
     const image = event.currentTarget;
     if (!image.src.endsWith(DEFAULT_CARD_IMAGE_URL)) {
@@ -49,49 +34,51 @@ const Card = ({
   return (
     <article className={styles["card-wrapper"]}>
       <Link
-        to={`/work/${workID}`}
+        to={`/work/${work.id}`}
         className={styles["work-link"]}
-        aria-label={`${title}の作品ページを開く`}
+        aria-label={`${work.title}の作品ページを開く`}
       >
         <div className={styles["card-image-wrapper"]}>
           <img
-            src={imageURL || DEFAULT_CARD_IMAGE_URL}
-            alt={`${title}のサムネイル`}
+            src={work.thumbnail_url || DEFAULT_CARD_IMAGE_URL}
+            alt={`${work.title}のサムネイル`}
             className={styles["card-image"]}
             onError={handleImageError}
           />
-          <p className={styles["card-title"]}>{title}</p>
+          <p className={styles["card-title"]}>{displayTitle}</p>
         </div>
       </Link>
       <div className={styles["card-actions"]}>
         <span className={styles["visibility-label"]}>
-          {visibility === "public" && (
+          {work.visibility === "public" && (
             <PublicRoundedIcon fontSize="small" aria-hidden="true" />
           )}
-          {visibility === "private" && (
+          {work.visibility === "private" && (
             <LockRoundedIcon fontSize="small" aria-hidden="true" />
           )}
-          {visibility === "draft" && (
+          {work.visibility === "draft" && (
             <EditNoteRoundedIcon fontSize="small" aria-hidden="true" />
           )}
-          {visibility}
+          {work.visibility}
         </span>
         {isEditable && (
-          <Link to={`/edit/${workID}`} className={styles["edit-link"]}>
+          <Link to={`/edit/${work.id}`} className={styles["edit-link"]}>
             編集
           </Link>
         )}
       </div>
       <div className={styles["card-discription-wrapper"]}>
         <UserButton
-          userID={userID}
-          displayName={username}
-          avatarURL={avatarURL}
+          userID={work.user.id}
+          displayName={work.user.display_name}
+          avatarURL={work.user.avatar_url || undefined}
         />
-        <p className={styles["card-postdate"]}>{formatDateTime(postDate)}</p>
+        <p className={styles["card-postdate"]}>
+          {formatDateTime(new Date(work.created_at))}
+        </p>
         <div className={styles["batches-wrapper"]}>
-          {tags.map((tag) => (
-            <Batch key={`${workID}-${tag.id}`}>{tag.name}</Batch>
+          {work.tags.map((tag) => (
+            <Batch key={`${work.id}-${tag.id}`}>{tag.name}</Batch>
           ))}
         </div>
       </div>
