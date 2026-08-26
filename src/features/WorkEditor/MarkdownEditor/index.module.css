@@ -1,15 +1,63 @@
-.live-editor-wrapper {
+.markdown-editor {
+  /* Edit Mode の初期表示行数と 1 行の高さ。エディタ本体の高さは固定せず、
+     この行数を下限として入力量に合わせて伸びる */
+  --editor-line-height: 24px;
+  --editor-initial-lines: 7;
+  --editor-text-padding: 12px;
+  --editor-min-height: calc(
+    var(--editor-line-height) *
+    var(--editor-initial-lines) +
+    var(--editor-text-padding) *
+    2
+  );
+  --editor-radius: 12px;
+
   display: flex;
+  flex-direction: column;
+  gap: 16px;
   width: 100%;
 }
 
-.live-editor {
-  flex: 1;
+.markdown-editor-header {
+  display: flex;
+  justify-content: flex-start;
 }
 
-.live-preview {
-  flex: 1;
-  border-left: 1px solid var(--border-color);
-  padding-left: 16px;
-  overflow-y: auto;
+.markdown-editor-panel {
+  width: 100%;
+}
+
+/* ---------------- Edit Mode ---------------- */
+
+.edit-pane {
+  width: 100%;
+}
+
+/* ---------------- Preview Mode ---------------- */
+
+.preview-pane {
+  min-height: var(--editor-min-height);
+  border: 1px solid var(--border-color);
+  border-radius: var(--editor-radius);
+}
+
+.preview-empty {
+  padding: 24px 16px;
+  color: var(--font-muted-color);
+  font-size: 14px;
+  text-align: center;
+}
+
+/* ---------------- Live Mode ---------------- */
+
+/* 全画面ダイアログを開いている間、背後のページの高さを保つためのプレースホルダ */
+.live-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--editor-min-height);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--editor-radius);
+  color: var(--font-muted-color);
+  font-size: 14px;
 }

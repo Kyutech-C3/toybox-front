@@ -1,0 +1,101 @@
+.mode-tabs {
+  --tab-count: 3;
+
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(var(--tab-count), minmax(96px, 1fr));
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background-color: var(--background-color);
+  isolation: isolate;
+}
+
+/* 選択中のタブを示すスライダー */
+.mode-tabs-thumb {
+  position: absolute;
+  z-index: 0;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  width: calc((100% - 10px - 4px * (var(--tab-count) - 1)) / var(--tab-count));
+  border-radius: 999px;
+  background-color: var(--primary-color);
+  box-shadow: 0 2px 6px var(--shadow-soft-color);
+  transition: transform 0.25s ease;
+}
+
+.mode-tabs[data-mode="edit"] .mode-tabs-thumb {
+  transform: translateX(0);
+}
+
+.mode-tabs[data-mode="preview"] .mode-tabs-thumb {
+  transform: translateX(calc(100% + 4px));
+}
+
+.mode-tabs[data-mode="live"] .mode-tabs-thumb {
+  transform: translateX(calc(200% + 8px));
+}
+
+.mode-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--font-muted-color);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+
+  &[data-selected="true"] {
+    color: var(--font-color);
+  }
+
+  &[data-selected="false"]:hover {
+    background-color: var(--primary-soft-color);
+    color: var(--font-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
+  }
+}
+
+.mode-tab-label {
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-tabs-thumb {
+    transition: none;
+  }
+}
+
+@media (width <= 600px) {
+  .mode-tabs {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(var(--tab-count), 1fr);
+  }
+
+  .mode-tab {
+    padding: 0 8px;
+  }
+
+  .mode-tab-label {
+    font-size: 13px;
+  }
+}

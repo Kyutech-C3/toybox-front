@@ -1,28 +1,126 @@
-/* エディタ全体の背景 / ボーダー */
-.w-md-editor {
+/*
+ * @uiw/react-md-editor の見た目調整。
+ * ライブラリのクラス名は module 化できないため、
+ * MarkdownEditor が付与する [data-markdown-editor] の配下に限定して上書きする。
+ * サイズ用の CSS custom property は同じ要素の index.module.css で定義している。
+ */
+
+[data-markdown-editor] .w-md-editor {
+  --md-editor-background-color: var(--paper-color);
+  --md-editor-box-shadow-color: var(--border-color);
+
+  border: 1px solid var(--border-color);
+  border-radius: var(--editor-radius);
   box-shadow: none;
 }
 
-/* textarea 部分の色・フォント */
-.w-md-editor-text-input {
+/* ツールバー */
+
+[data-markdown-editor] .w-md-editor-toolbar {
+  padding: 8px;
+  border-bottom: 1px solid var(--border-color);
+  border-radius: calc(var(--editor-radius) - 1px)
+    calc(var(--editor-radius) - 1px) 0 0;
+  background-color: var(--paper-color);
 }
 
-/* プレビュー内のコードブロックの背景色 */
-.w-md-editor-text-pre > code {
+/* Live Mode はペイン側が枠とスクロールを持つので、エディタ本体の枠は外す */
+[data-markdown-editor][data-mode="live"] .w-md-editor {
+  border: none;
 }
 
-/* ツールバーを完全に消したい場合 */
-.w-md-editor-toolbar {
+[data-markdown-editor][data-mode="live"] .w-md-editor,
+[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar,
+[data-markdown-editor][data-mode="live"] .w-md-editor-content {
+  border-radius: 0;
 }
 
-/* ツールバーのアイコンサイズ */
-.w-md-editor-toolbar li button {
-  font-size: 22px !important;
-  width: 30px !important;
-  height: 30px !important;
+/* スクロールしてもツールバーは触れる位置に残す */
+[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
-.w-md-editor-toolbar li button svg {
-  width: 16px !important;
-  height: 16px !important;
+[data-markdown-editor] .w-md-editor-toolbar ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+}
+
+[data-markdown-editor] .w-md-editor-toolbar li {
+  display: inline-flex;
+}
+
+[data-markdown-editor] .w-md-editor-toolbar li > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border-radius: 10px;
+  color: var(--font-muted-color);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+[data-markdown-editor] .w-md-editor-toolbar li > button:hover,
+[data-markdown-editor] .w-md-editor-toolbar li > button:focus-visible {
+  background-color: var(--primary-soft-color);
+  color: var(--font-color);
+}
+
+[data-markdown-editor] .w-md-editor-toolbar li > button:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: -2px;
+}
+
+[data-markdown-editor] .w-md-editor-toolbar li > button:active,
+[data-markdown-editor] .w-md-editor-toolbar li.active > button {
+  background-color: var(--primary-pale-color);
+  color: var(--font-color);
+}
+
+[data-markdown-editor] .w-md-editor-toolbar li > button:disabled {
+  color: var(--font-sub-color);
+}
+
+[data-markdown-editor] .w-md-editor-toolbar li > button svg {
+  width: 18px;
+  height: 18px;
+}
+
+[data-markdown-editor] .w-md-editor-toolbar-divider {
+  height: 20px;
+  margin: 0 6px !important;
+  background-color: var(--border-color);
+}
+
+/* 入力エリア */
+
+[data-markdown-editor] .w-md-editor-content {
+  border-radius: 0 0 calc(var(--editor-radius) - 1px)
+    calc(var(--editor-radius) - 1px);
+}
+
+/* 入力量に応じてエディタ自体が伸びる。初期表示は既定行数ぶんを確保する */
+[data-markdown-editor] .w-md-editor-text {
+  min-height: var(--editor-min-height) !important;
+  padding: var(--editor-text-padding) 16px;
+  font-size: 15px !important;
+  line-height: var(--editor-line-height) !important;
+}
+
+[data-markdown-editor] .w-md-editor-text-pre > code {
+  font-size: 15px !important;
+  line-height: var(--editor-line-height) !important;
+}
+
+[data-markdown-editor] .w-md-editor-text-input::placeholder {
+  color: var(--phrase-holder);
+  -webkit-text-fill-color: var(--phrase-holder);
 }
