@@ -1,3 +1,4 @@
+import useUnsavedChangesGuard from "./hook/useUnsavedChangesGuard";
 import useWorkEditorSetup from "./hook/useWorkEditorSetup";
 import styles from "./index.module.css";
 import MarkdownEditor from "./MarkdownEditor";
@@ -17,6 +18,7 @@ type WorkEditorContentProps = {
 
 const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
   const { status } = useWorkEditorSetup({ workID });
+  useUnsavedChangesGuard();
 
   if (status === "forbidden") {
     return (
@@ -30,13 +32,11 @@ const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
   if (status === "loading") return <PageLoading />;
 
   return (
-    <>
-      <div className={styles["work-editor-wrapper"]}>
-        <WorkDetailForm />
-        <MarkdownEditor />
-        <PublishButtons />
-      </div>
-    </>
+    <div className={styles["work-editor-wrapper"]}>
+      <WorkDetailForm />
+      <MarkdownEditor />
+      <PublishButtons />
+    </div>
   );
 };
 

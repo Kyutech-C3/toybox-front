@@ -41,6 +41,7 @@ const PublishButton = () => {
   const current = useWorkEditorStore((state) => state.current);
   const baseline = useWorkEditorStore((state) => state.baseline);
   const setVisibility = useWorkEditorStore((state) => state.setVisibility);
+  const markSaved = useWorkEditorStore((state) => state.markSaved);
   const isUploading = useWorkEditorStore(selectIsUploading);
   const accessToken = useAuthStore((state) => state.accessToken);
   const { showToast } = useToast();
@@ -80,11 +81,14 @@ const PublishButton = () => {
           accessToken,
         );
         await mutate(`/works/${workID}`, updatedWork, { revalidate: false });
+
+        markSaved();
         showToast({ message: "作品を保存しました", severity: "success" });
         navigate(`/work/${workID}`);
         return;
       }
       await postWork(toWorkPayload(current), accessToken);
+      markSaved();
       showToast({ message: "作品を投稿しました", severity: "success" });
       navigate("/");
     } catch (error) {

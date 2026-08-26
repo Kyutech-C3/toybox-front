@@ -26,6 +26,7 @@ export type WorkEditorStore = {
 
   initializeForNew: () => void;
   initializeForEdit: (work: Work) => void;
+  markSaved: () => void;
   resetEditor: () => void;
 
   setTitle: (title: string) => void;
@@ -84,6 +85,11 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(values),
         };
       });
+    },
+
+    // 保存が成功した時点の内容を baseline に取り込み、未保存差分を無くす
+    markSaved: () => {
+      set((state) => ({ baseline: cloneWorkEditorValues(state.current) }));
     },
 
     resetEditor: () => {
