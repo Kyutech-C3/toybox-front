@@ -5,7 +5,7 @@ import useWorkForEdit from "./useWorkForEdit";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
 
-export type WorkEditorSetupStatus = "loading" | "ready" | "forbidden";
+export type WorkEditorSetupStatus = "loading" | "ready" | "forbidden" | "error";
 
 type UseWorkEditorSetupParams = {
   workID: string | null;
@@ -19,6 +19,7 @@ const useWorkEditorSetup = ({
   workID,
 }: UseWorkEditorSetupParams): UseWorkEditorSetupReturn => {
   const currentUser = useUserStore((state) => state.user);
+  const hasUserLoadFailed = useUserStore((state) => state.hasLoadFailed);
   const initializedKey = useWorkEditorStore((state) => state.initializedKey);
   const initializeForNew = useWorkEditorStore(
     (state) => state.initializeForNew,
@@ -45,8 +46,10 @@ const useWorkEditorSetup = ({
   if (workID === null) {
     return { status: initializedKey === "new" ? "ready" : "loading" };
   }
-
-  if (!data || !currentUser) return { status: "loading" };
+  if (!currentUser) {
+    return { status: hasUserLoadFailed ? "error" : "loading" };
+  }
+  if (!data) return { status: "loading" };
   if (!isOwner) return { status: "forbidden" };
   return { status: initializedKey === workID ? "ready" : "loading" };
 };

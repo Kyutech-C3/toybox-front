@@ -28,7 +28,7 @@ const Header = () => {
     navigate(url);
   };
   const { accessToken } = useAuthStore();
-  const { user, setUser, clearUser } = useUserStore();
+  const { user, setUser, setUserLoadFailed, clearUser } = useUserStore();
 
   useEffect(() => {
     if (!accessToken) {
@@ -39,19 +39,20 @@ const Header = () => {
     let isActive = true;
     const fetchUserData = async () => {
       const data = await getUserData(accessToken);
-      if (isActive) {
-        setUser(data);
-      }
+      if (!isActive) return;
+      if (data) setUser(data);
+      else setUserLoadFailed();
     };
 
     fetchUserData().catch((error) => {
       console.error("Error fetching user data:", error);
+      if (isActive) setUserLoadFailed();
     });
 
     return () => {
       isActive = false;
     };
-  }, [accessToken, clearUser, setUser]);
+  }, [accessToken, clearUser, setUser, setUserLoadFailed]);
 
   const handleLogout = async () => {
     try {

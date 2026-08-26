@@ -6,6 +6,7 @@ import PublishButtons from "./PublishButtons";
 import WorkEditorStoreProvider from "./store/WorkEditorStoreProvider";
 import WorkDetailForm from "./WorkDetailForm";
 
+import Button from "@/shared/ui/Button";
 import PageLoading from "@/shared/ui/PageLoading";
 
 type WorkEditorProps = {
@@ -25,6 +26,16 @@ const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
       <section className={styles["editor-status"]}>
         <h1>この作品は編集できません</h1>
         <p>編集できるのは作品を投稿した本人だけです。</p>
+      </section>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <section className={styles["editor-status"]} role="alert">
+        <h1>ユーザー情報を取得できませんでした</h1>
+        <p>通信環境を確認して、ページを再読み込みしてください。</p>
+        <Button onClick={() => window.location.reload()}>再読み込み</Button>
       </section>
     );
   }
