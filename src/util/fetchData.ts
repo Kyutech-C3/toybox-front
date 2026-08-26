@@ -84,7 +84,7 @@ export const postData = async (path: string, data: BodyInit) => {
     body: data,
   });
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throwResponseError(response);
   }
   return response.json();
 };
@@ -102,7 +102,7 @@ export const patchDataWithAuth = async (
     body: data,
   });
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throwResponseError(response);
   }
   return response.json();
 };
@@ -126,7 +126,7 @@ export const postDataWithAuth = async (
     body: data,
   });
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throwResponseError(response);
   }
   return response.json();
 };

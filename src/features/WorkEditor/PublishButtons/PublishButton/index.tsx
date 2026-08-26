@@ -16,6 +16,24 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import Button from "@/shared/ui/Button";
 import Dropdown from "@/shared/ui/Dropdown";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import { ApiError } from "@/util/fetchData";
+
+const getSubmitErrorMessage = (error: unknown, isEditMode: boolean) => {
+  if (error instanceof ApiError) {
+    if (error.status === 401) return "ログインの有効期限が切れました";
+    if (error.status === 403) return "この作品を編集する権限がありません";
+    if (error.status === 404)
+      return "作品が見つかりません（削除された可能性があります）";
+    if (error.status === 409) {
+      return "他の場所で作品が更新されています。再読み込みしてください";
+    }
+    if (error.status >= 500) {
+      return "サーバーエラーが発生しました。時間をおいて再試行してください";
+    }
+  }
+
+  return isEditMode ? "作品の保存に失敗しました" : "作品の投稿に失敗しました";
+};
 
 const PublishButton = () => {
   const mode = useWorkEditorStore((state) => state.mode);
@@ -69,10 +87,8 @@ const PublishButton = () => {
       await postWork(toWorkPayload(current), accessToken);
       showToast({ message: "作品を投稿しました", severity: "success" });
       navigate("/");
-    } catch {
-      setSubmitError(
-        isEditMode ? "作品の保存に失敗しました" : "作品の投稿に失敗しました",
-      );
+    } catch (error) {
+      setSubmitError(getSubmitErrorMessage(error, isEditMode));
     } finally {
       setIsSubmitting(false);
     }

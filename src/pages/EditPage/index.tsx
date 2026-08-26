@@ -5,7 +5,7 @@ import { mutate } from "swr";
 import styles from "./index.module.css";
 
 import Header from "@/features/Header";
-import WorkEditor, { getWorkEditorSWRKey } from "@/features/WorkEditor";
+import WorkEditor, { isWorkEditorSWRKey } from "@/features/WorkEditor";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
 import { ApiError } from "@/util/fetchData";
@@ -23,19 +23,19 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
     if (error instanceof ApiError && error.status === 404) {
       return "作品が見つかりません";
     }
+    if (error instanceof ApiError && error.status === 403) {
+      return "この作品を編集する権限がありません";
+    }
 
     return "データを取得できませんでした";
   };
 
   const handleRetry = async () => {
-    await Promise.all([
-      mutate("/tags", undefined, { revalidate: false }),
-      workID
-        ? mutate(getWorkEditorSWRKey({ workID }), undefined, {
-            revalidate: false,
-          })
-        : undefined,
-    ]);
+    await mutate(
+      (key) => key === "/tags" || isWorkEditorSWRKey(key),
+      undefined,
+      { revalidate: false },
+    );
   };
 
   return (
