@@ -20,6 +20,7 @@ import type {
 export type WorkEditorStore = {
   mode: WorkEditorMode;
   workID: string | null;
+  ownerID: string | null;
   initializedKey: string | null;
   current: WorkEditorValues;
   baseline: WorkEditorValues;
@@ -54,6 +55,7 @@ export const createWorkEditorStore = () =>
   createStore<WorkEditorStore>((set) => ({
     mode: "new",
     workID: null,
+    ownerID: null,
     initializedKey: null,
     current: EMPTY_WORK_EDITOR_VALUES,
     baseline: EMPTY_WORK_EDITOR_VALUES,
@@ -65,6 +67,7 @@ export const createWorkEditorStore = () =>
         return {
           mode: "new",
           workID: null,
+          ownerID: null,
           initializedKey: "new",
           current: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
@@ -80,6 +83,7 @@ export const createWorkEditorStore = () =>
         return {
           mode: "edit",
           workID: work.id,
+          ownerID: work.user.id,
           initializedKey: work.id,
           current: values,
           baseline: cloneWorkEditorValues(values),
@@ -98,6 +102,7 @@ export const createWorkEditorStore = () =>
         return {
           mode: "new",
           workID: null,
+          ownerID: null,
           initializedKey: null,
           current: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),

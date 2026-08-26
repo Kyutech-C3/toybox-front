@@ -107,6 +107,21 @@ export const patchDataWithAuth = async (
   return response.json();
 };
 
+export const deleteDataWithAuth = async (
+  path: string,
+  accessToken: string,
+): Promise<void> => {
+  const response = await fetchWithAuth(path, accessToken, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    throwResponseError(response);
+  }
+};
+
 export const postDataWithAuth = async (
   path: string,
   data: BodyInit,

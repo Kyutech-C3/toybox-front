@@ -1,0 +1,23 @@
+.delete-work-button {
+  height: 50px;
+  padding: 0 20px;
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  background: var(--paper-color);
+  color: var(--error-color);
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 6px 12px var(--shadow-soft-color);
+  }
+
+  &[data-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
