@@ -101,7 +101,7 @@ const AssetUpload = () => {
       )}
       <p className={styles["format-help"]}>
         画像（PNG・JPG・JPEG・BMP・GIF）、動画（MP4・MOV）、音声（MP3・WAV・M4A）、ZIP
-        / 1ファイル100MB以下
+        / 1ファイル2GB以下
       </p>
     </section>
   );

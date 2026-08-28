@@ -14,7 +14,7 @@ import type { EditorAsset } from "../../types";
 
 export const ASSET_ACCEPT =
   ".png,.jpg,.jpeg,.bmp,.gif,.mp4,.mov,.mp3,.wav,.m4a,.zip";
-const MAX_ASSET_SIZE = 100 * 1024 * 1024;
+const MAX_ASSET_SIZE = 2000 * 1024 * 1024;
 
 type UseAssetUploadReturn = {
   assets: EditorAsset[];
@@ -64,7 +64,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
         continue;
       }
       if (file.size > MAX_ASSET_SIZE) {
-        messages.push(`${file.name} は100MBを超えています`);
+        messages.push(`${file.name} は2GBを超えています`);
         continue;
       }
 
