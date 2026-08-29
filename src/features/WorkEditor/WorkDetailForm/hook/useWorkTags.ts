@@ -1,13 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { createTag } from "../../api/createTag";
-import { useWorkEditorStore } from "../../store/useWorkEditorStore";
+import {
+  useWorkEditorStore,
+  useWorkEditorStoreApi,
+} from "../../store/useWorkEditorStore";
 import useTagOptions from "./useTagOptions";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 
 import type { Tag } from "@/shared/types/work";
 import type { EditorTag } from "../../types";
+
+const TAG_ERROR_MESSAGE = "タグの作成に失敗しました。再試行してください。";
 
 type UseWorkTagsReturn = {
   tags: EditorTag[];
@@ -28,16 +33,23 @@ const useWorkTags = (): UseWorkTagsReturn => {
   const tags = useWorkEditorStore((state) => state.current.tags);
   const addTag = useWorkEditorStore((state) => state.addTag);
   const removeTag = useWorkEditorStore((state) => state.removeTag);
+  const storeApi = useWorkEditorStoreApi();
+  const failedTags = useWorkEditorStore((state) => state.failedTagNames);
+  const addCreatingTagName = useWorkEditorStore(
+    (state) => state.addCreatingTagName,
+  );
+  const removeCreatingTagName = useWorkEditorStore(
+    (state) => state.removeCreatingTagName,
+  );
+  const addFailedTagName = useWorkEditorStore(
+    (state) => state.addFailedTagName,
+  );
+  const removeFailedTagName = useWorkEditorStore(
+    (state) => state.removeFailedTagName,
+  );
   const allTagOptions = useTagOptions();
 
-  const pendingTagNamesRef = useRef<Set<string>>(new Set());
-  const [failedTags, setFailedTags] = useState<string[]>([]);
   const [retryingTags, setRetryingTags] = useState<string[]>([]);
-  const [tagError, setTagError] = useState("");
-
-  useEffect(() => {
-    if (failedTags.length === 0) setTagError("");
-  }, [failedTags]);
 
   const resolveTagID = async (tagName: string): Promise<string> => {
     const normalizedName = tagName.toLowerCase();
@@ -54,25 +66,21 @@ const useWorkTags = (): UseWorkTagsReturn => {
 
   const addTagByName = async (tagName: string) => {
     const normalizedName = tagName.toLowerCase();
-    if (pendingTagNamesRef.current.has(normalizedName)) return;
+    const isCreating = storeApi
+      .getState()
+      .creatingTagNames.some((name) => name.toLowerCase() === normalizedName);
+    if (isCreating) return;
     if (tags.some((tag) => tag.name.toLowerCase() === normalizedName)) return;
-    pendingTagNamesRef.current.add(normalizedName);
+    addCreatingTagName(tagName);
 
     try {
       const tagID = await resolveTagID(tagName);
       addTag({ id: tagID, name: normalizedName });
-      setFailedTags((prev) =>
-        prev.filter((name) => name.toLowerCase() !== normalizedName),
-      );
+      removeFailedTagName(tagName);
     } catch {
-      setFailedTags((prev) =>
-        prev.some((name) => name.toLowerCase() === normalizedName)
-          ? prev
-          : [...prev, tagName],
-      );
-      setTagError("タグの作成に失敗しました。再試行してください。");
+      addFailedTagName(tagName);
     } finally {
-      pendingTagNamesRef.current.delete(normalizedName);
+      removeCreatingTagName(tagName);
     }
   };
 
@@ -91,23 +99,16 @@ const useWorkTags = (): UseWorkTagsReturn => {
     }
   };
 
-  const handleRemoveFailedTag = (tagName: string) => {
-    const normalizedName = tagName.toLowerCase();
-    setFailedTags((prev) =>
-      prev.filter((name) => name.toLowerCase() !== normalizedName),
-    );
-  };
-
   return {
     tags,
     allTagOptions: allTagOptions.data.map((tag) => tag.name),
     failedTags,
     retryingTags,
-    tagError,
+    tagError: failedTags.length > 0 ? TAG_ERROR_MESSAGE : "",
     handleAddTag: addTagByName,
     handleRemoveTag: removeTag,
     handleRetryTag,
-    handleRemoveFailedTag,
+    handleRemoveFailedTag: removeFailedTagName,
   };
 };
 

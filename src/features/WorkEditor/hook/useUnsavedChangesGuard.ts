@@ -1,8 +1,10 @@
 import { useCallback, useEffect } from "react";
 import { useBlocker } from "react-router-dom";
 
-import { buildWorkUpdatePayload } from "../api/toWorkPayload";
-import { useWorkEditorStoreApi } from "../store/useWorkEditorStore";
+import {
+  selectIsDirty,
+  useWorkEditorStoreApi,
+} from "../store/useWorkEditorStore";
 
 import type { BlockerFunction } from "react-router-dom";
 
@@ -12,10 +14,10 @@ const LEAVE_CONFIRM_MESSAGE =
 function useUnsavedChangesGuard(): void {
   const storeApi = useWorkEditorStoreApi();
   const getHasUnsavedChanges = useCallback(() => {
-    const { initializedKey, current, baseline } = storeApi.getState();
-    if (initializedKey === null) return false;
+    const state = storeApi.getState();
+    if (state.initializedKey === null) return false;
 
-    return Object.keys(buildWorkUpdatePayload(current, baseline)).length > 0;
+    return selectIsDirty(state);
   }, [storeApi]);
 
   const shouldBlock = useCallback<BlockerFunction>(

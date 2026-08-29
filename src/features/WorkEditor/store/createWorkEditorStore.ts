@@ -1,5 +1,6 @@
 import { createStore } from "zustand";
 
+import { buildWorkUpdatePayload } from "../api/toWorkPayload";
 import { MAX_WORK_URL_COUNT } from "../constants";
 import {
   cloneWorkEditorValues,
@@ -24,6 +25,8 @@ export type WorkEditorStore = {
   initializedKey: string | null;
   current: WorkEditorValues;
   baseline: WorkEditorValues;
+  creatingTagNames: string[];
+  failedTagNames: string[];
 
   initializeForNew: () => void;
   initializeForEdit: (work: Work) => void;
@@ -35,6 +38,10 @@ export type WorkEditorStore = {
   setVisibility: (visibility: WorkVisibility) => void;
   addTag: (tag: EditorTag) => void;
   removeTag: (tagID: string) => void;
+  addCreatingTagName: (tagName: string) => void;
+  removeCreatingTagName: (tagName: string) => void;
+  addFailedTagName: (tagName: string) => void;
+  removeFailedTagName: (tagName: string) => void;
   setUrls: (urls: string[]) => void;
   addAssets: (assets: EditorAsset[]) => void;
   updateAsset: (key: string, update: Partial<EditorAsset>) => void;
@@ -59,6 +66,8 @@ export const createWorkEditorStore = () =>
     initializedKey: null,
     current: EMPTY_WORK_EDITOR_VALUES,
     baseline: EMPTY_WORK_EDITOR_VALUES,
+    creatingTagNames: [],
+    failedTagNames: [],
 
     initializeForNew: () => {
       set((state) => {
@@ -71,6 +80,8 @@ export const createWorkEditorStore = () =>
           initializedKey: "new",
           current: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
+          creatingTagNames: [],
+          failedTagNames: [],
         };
       });
     },
@@ -87,13 +98,30 @@ export const createWorkEditorStore = () =>
           initializedKey: work.id,
           current: values,
           baseline: cloneWorkEditorValues(values),
+          creatingTagNames: [],
+          failedTagNames: [],
         };
       });
     },
 
-    // 保存が成功した時点の内容を baseline に取り込み、未保存差分を無くす
     markSaved: () => {
-      set((state) => ({ baseline: cloneWorkEditorValues(state.current) }));
+      set((state) => {
+        for (const asset of state.current.assets) {
+          if (asset.assetID === null) revokePreviewURL(asset.previewURL);
+        }
+        const current = {
+          ...state.current,
+          assets: state.current.assets.filter(
+            (asset) => asset.assetID !== null,
+          ),
+        };
+        return {
+          current,
+          baseline: cloneWorkEditorValues(current),
+          creatingTagNames: [],
+          failedTagNames: [],
+        };
+      });
     },
 
     resetEditor: () => {
@@ -106,6 +134,8 @@ export const createWorkEditorStore = () =>
           initializedKey: null,
           current: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
+          creatingTagNames: [],
+          failedTagNames: [],
         };
       });
     },
@@ -137,6 +167,56 @@ export const createWorkEditorStore = () =>
           tags: state.current.tags.filter((tag) => tag.id !== tagID),
         }),
       );
+    },
+
+    addCreatingTagName: (tagName: string) => {
+      set((state) => {
+        const normalizedName = tagName.toLowerCase();
+        if (
+          state.creatingTagNames.some(
+            (name) => name.toLowerCase() === normalizedName,
+          )
+        ) {
+          return state;
+        }
+        return { creatingTagNames: [...state.creatingTagNames, tagName] };
+      });
+    },
+
+    removeCreatingTagName: (tagName: string) => {
+      set((state) => {
+        const normalizedName = tagName.toLowerCase();
+        return {
+          creatingTagNames: state.creatingTagNames.filter(
+            (name) => name.toLowerCase() !== normalizedName,
+          ),
+        };
+      });
+    },
+
+    addFailedTagName: (tagName: string) => {
+      set((state) => {
+        const normalizedName = tagName.toLowerCase();
+        if (
+          state.failedTagNames.some(
+            (name) => name.toLowerCase() === normalizedName,
+          )
+        ) {
+          return state;
+        }
+        return { failedTagNames: [...state.failedTagNames, tagName] };
+      });
+    },
+
+    removeFailedTagName: (tagName: string) => {
+      set((state) => {
+        const normalizedName = tagName.toLowerCase();
+        return {
+          failedTagNames: state.failedTagNames.filter(
+            (name) => name.toLowerCase() !== normalizedName,
+          ),
+        };
+      });
     },
 
     setUrls: (urls: string[]) => {
@@ -199,3 +279,19 @@ export const createWorkEditorStore = () =>
 export const selectIsUploading = (state: WorkEditorStore): boolean =>
   state.current.assets.some((asset) => asset.status === "uploading") ||
   state.current.thumbnail?.status === "uploading";
+
+const isUnsettledAsset = (asset: EditorAsset): boolean =>
+  asset.status === "uploading" || asset.status === "error";
+
+export const selectHasUnsettledBackendWork = (
+  state: WorkEditorStore,
+): boolean =>
+  state.current.assets.some(isUnsettledAsset) ||
+  (state.current.thumbnail !== null &&
+    isUnsettledAsset(state.current.thumbnail)) ||
+  state.creatingTagNames.length > 0 ||
+  state.failedTagNames.length > 0;
+
+export const selectIsDirty = (state: WorkEditorStore): boolean =>
+  Object.keys(buildWorkUpdatePayload(state.current, state.baseline)).length >
+    0 || selectHasUnsettledBackendWork(state);

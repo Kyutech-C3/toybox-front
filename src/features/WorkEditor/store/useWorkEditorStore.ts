@@ -28,4 +28,4 @@ export function useWorkEditorStore<T>(
   return useStore(useWorkEditorStoreApi(), selector);
 }
 
-export { selectIsUploading } from "./createWorkEditorStore";
+export { selectIsDirty, selectIsUploading } from "./createWorkEditorStore";
