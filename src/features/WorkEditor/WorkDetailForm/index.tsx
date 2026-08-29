@@ -14,7 +14,17 @@ const WorkDetailForm = () => {
   const urls = useWorkEditorStore((state) => state.current.urls);
   const setTitle = useWorkEditorStore((state) => state.setTitle);
   const setUrls = useWorkEditorStore((state) => state.setUrls);
-  const { tags, allTagOptions, handleAddTag, handleRemoveTag } = useWorkTags();
+  const {
+    tags,
+    allTagOptions,
+    failedTags,
+    retryingTags,
+    tagError,
+    handleAddTag,
+    handleRemoveTag,
+    handleRetryTag,
+    handleRemoveFailedTag,
+  } = useWorkTags();
 
   return (
     <Paper>
@@ -23,8 +33,13 @@ const WorkDetailForm = () => {
         <TagInput
           heading="タグ"
           tags={tags}
+          failedTags={failedTags}
+          retryingTags={retryingTags}
+          errorMessage={tagError}
           onAddTag={handleAddTag}
           onRemoveTag={handleRemoveTag}
+          onRetryTag={handleRetryTag}
+          onRemoveFailedTag={handleRemoveFailedTag}
           allTagOptions={allTagOptions}
         />
         <ImageUpload />

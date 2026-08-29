@@ -15,12 +15,22 @@
     background-color: var(--border-color);
   }
 
+  &[data-variant="error"] {
+    color: var(--font-color);
+    background-color: color-mix(in srgb, var(--error-color) 45%, transparent);
+  }
+
   &[data-clickable="true"] {
     padding: 0 6px 0 11px;
   }
 
   &[data-clickable="false"] {
     padding: 0px 11px;
+  }
+
+  &[data-retrying="true"] {
+    cursor: not-allowed;
+    opacity: 0.4;
   }
 }
 
@@ -32,4 +42,24 @@
   border: none;
   cursor: pointer;
   border-radius: 9999px;
+}
+
+.batch-button:disabled {
+  cursor: not-allowed;
+}
+
+.batch-retry-icon[data-spinning="true"] {
+  animation: batch-retry-spin 0.8s linear infinite;
+}
+
+@keyframes batch-retry-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .batch-retry-icon[data-spinning="true"] {
+    animation: none;
+  }
 }
