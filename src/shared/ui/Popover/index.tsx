@@ -135,7 +135,13 @@ type PopoverButtonProps = {
   role?: "menuitem" | "option";
 } & Pick<
   ButtonHTMLAttributes<HTMLButtonElement>,
-  "aria-label" | "disabled" | "onClick"
+  | "aria-label"
+  | "disabled"
+  | "id"
+  | "onClick"
+  | "onFocus"
+  | "onKeyDown"
+  | "tabIndex"
 >;
 
 export const PopoverButton = ({
