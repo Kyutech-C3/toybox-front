@@ -16,10 +16,34 @@ import {
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
-import Button from "@/shared/ui/Button";
 import Dropdown from "@/shared/ui/Dropdown";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { ApiError } from "@/util/fetchData";
+
+import type { WorkVisibility } from "@/shared/types/work";
+
+const VISIBILITY_LABELS: Record<WorkVisibility, string> = {
+  public: "全体公開",
+  private: "限定公開",
+  draft: "下書き",
+};
+
+const VISIBILITY_OPTIONS = [
+  VISIBILITY_LABELS.public,
+  VISIBILITY_LABELS.private,
+  VISIBILITY_LABELS.draft,
+];
+const VISIBILITY_CONFIRM_MESSAGES: Partial<Record<WorkVisibility, string>> = {
+  public:
+    "インターネット上の全ユーザがこのToyを閲覧できます。本当に全体公開しますか？",
+  private: "C3の全ユーザがこのToyを閲覧できます。本当に限定公開しますか？",
+};
+
+const toVisibility = (label: string): WorkVisibility => {
+  if (label === VISIBILITY_LABELS.public) return "public";
+  if (label === VISIBILITY_LABELS.private) return "private";
+  return "draft";
+};
 
 const getSubmitErrorMessage = (error: unknown, isEditMode: boolean) => {
   if (error instanceof ApiError) {
@@ -75,6 +99,9 @@ const PublishButton = () => {
       return;
     }
 
+    const confirmMessage = VISIBILITY_CONFIRM_MESSAGES[visibility];
+    if (confirmMessage && !window.confirm(confirmMessage)) return;
+
     setIsSubmitting(true);
     setSubmitError("");
     try {
@@ -110,57 +137,49 @@ const PublishButton = () => {
     }
   };
 
-  const draftLabel = isEditMode ? "下書きとして保存" : "下書き保存";
-  const publishLabel = visibility === "private" ? "限定公開" : "全体公開";
+  const visibilityLabel = VISIBILITY_LABELS[visibility];
+  const submitLabel = isEditMode
+    ? `${visibilityLabel}`
+    : visibility === "draft"
+      ? "下書き保存"
+      : visibilityLabel;
 
   return (
     <div
       className={styles["publish-button-wrapper"]}
       data-disabled={isSubmitDisabled ? "true" : "false"}
+      data-visibility={visibility}
     >
-      {visibility === "draft" ? (
-        <Button
-          variant="primary"
-          onClick={() => void handleSubmit()}
-          isDisabled={isSubmitDisabled}
-        >
-          {draftLabel}
-        </Button>
-      ) : (
-        <>
-          <button
-            type="button"
-            className={styles["publish-button"]}
-            onClick={() => void handleSubmit()}
-            disabled={isSubmitDisabled}
-          >
-            {isEditMode ? `${publishLabel}で保存` : publishLabel}
-          </button>
-          <span className={styles["button-span"]} />
-          <button
-            type="button"
-            className={styles["menu-button"]}
-            onClick={() => setIsMenuOpen((prev) => !prev)}
-            disabled={isSubmitDisabled}
-          >
-            <ArrowDropUpRoundedIcon />
-          </button>
-          <span className={styles["menu-button-span"]}>
-            <Dropdown
-              isOpen={isMenuOpen}
-              options={["全体公開", "限定公開"]}
-              onSelect={(value) => {
-                setIsMenuOpen(false);
-                setVisibility(value === "限定公開" ? "private" : "public");
-              }}
-              selectedValues={
-                visibility === "private" ? ["限定公開"] : ["全体公開"]
-              }
-              position="top"
-            />
-          </span>
-        </>
-      )}
+      <button
+        type="button"
+        className={styles["publish-button"]}
+        onClick={() => void handleSubmit()}
+        disabled={isSubmitDisabled}
+      >
+        {submitLabel}
+      </button>
+      <span className={styles["button-span"]} />
+      <button
+        type="button"
+        className={styles["menu-button"]}
+        onClick={() => setIsMenuOpen((prev) => !prev)}
+        disabled={isSubmitDisabled}
+        aria-label="保存形式を選択"
+      >
+        <ArrowDropUpRoundedIcon />
+      </button>
+      <span className={styles["menu-button-span"]}>
+        <Dropdown
+          isOpen={isMenuOpen}
+          options={VISIBILITY_OPTIONS}
+          onSelect={(value) => {
+            setIsMenuOpen(false);
+            setVisibility(toVisibility(value));
+          }}
+          selectedValues={[visibilityLabel]}
+          position="top"
+        />
+      </span>
       {isUploading && (
         <output className={styles["upload-notice"]}>
           アップロード完了後に保存できます
