@@ -55,7 +55,10 @@ const ImageUpload = () => {
   return (
     <div className={styles["upload-container"]}>
       <span className={styles["upload-label"]}>サムネイル</span>
-      <div className={styles["upload-frame"]}>
+      <div
+        className={styles["upload-frame"]}
+        data-status={thumbnail?.status ?? "empty"}
+      >
         <button
           type="button"
           className={styles["upload-area"]}
@@ -87,12 +90,22 @@ const ImageUpload = () => {
           tabIndex={-1}
         />
         {thumbnail && (
-          <UploadRemoveButton
-            className={styles["remove-button"]}
-            onClick={handleRemove}
-            isDisabled={isUploading}
-            ariaLabel={`${thumbnail.fileName}を削除`}
-          />
+          <div className={styles["overlay-actions"]}>
+            {thumbnail.status === "error" && (
+              <UploadRetryButton
+                className={styles["overlay-button"]}
+                onClick={handleRetry}
+                isDisabled={false}
+                ariaLabel={`${thumbnail.fileName}を再アップロード`}
+              />
+            )}
+            <UploadRemoveButton
+              className={styles["overlay-button"]}
+              onClick={handleRemove}
+              isDisabled={isUploading}
+              ariaLabel={`${thumbnail.fileName}を削除`}
+            />
+          </div>
         )}
       </div>
       <div className={styles["upload-meta"]} aria-live="polite">
@@ -102,9 +115,6 @@ const ImageUpload = () => {
         {thumbnail?.status === "uploading" && <span>アップロード中</span>}
         {thumbnail?.status === "success" && thumbnail.file && (
           <span>アップロード完了</span>
-        )}
-        {thumbnail?.status === "error" && (
-          <UploadRetryButton onClick={handleRetry} />
         )}
       </div>
       {(validationError || thumbnail?.errorMessage) && (

@@ -32,7 +32,11 @@ const AssetUpload = () => {
       <h2 className={styles["heading"]}>アセット</h2>
       <div className={styles["asset-grid"]}>
         {assets.map((asset) => (
-          <article className={styles["asset-card"]} key={asset.key}>
+          <article
+            className={styles["asset-card"]}
+            key={asset.key}
+            data-status={asset.status}
+          >
             <div className={styles["preview"]}>
               {asset.kind === "画像" && asset.previewURL && (
                 <img src={asset.previewURL} alt="" />
@@ -46,26 +50,37 @@ const AssetUpload = () => {
               )}
               {asset.kind === "音声" && <AudiotrackRoundedIcon />}
               {asset.kind === "ZIP" && <FolderZipRoundedIcon />}
-              <UploadRemoveButton
-                className={styles["remove-button"]}
-                onClick={() => handleRemove(asset.key)}
-                isDisabled={asset.status === "uploading"}
-                ariaLabel={`${asset.fileName}を削除`}
-              />
+              <div className={styles["overlay-actions"]}>
+                {asset.status === "error" && (
+                  <UploadRetryButton
+                    className={styles["overlay-button"]}
+                    onClick={() => handleRetry(asset.key)}
+                    isDisabled={false}
+                    ariaLabel={`${asset.fileName}を再アップロード`}
+                  />
+                )}
+                <UploadRemoveButton
+                  className={styles["overlay-button"]}
+                  onClick={() => handleRemove(asset.key)}
+                  isDisabled={asset.status === "uploading"}
+                  ariaLabel={`${asset.fileName}を削除`}
+                />
+              </div>
             </div>
             <div className={styles["asset-details"]}>
               <span className={styles["file-name"]} title={asset.fileName}>
                 {asset.fileName}
               </span>
               <span>{asset.kind}</span>
-              <span data-status={asset.status} aria-live="polite">
+              <span
+                className={styles["status"]}
+                data-status={asset.status}
+                aria-live="polite"
+              >
                 {asset.status === "uploading" && "アップロード中"}
                 {asset.status === "success" && asset.file && "アップロード完了"}
                 {asset.status === "error" && asset.errorMessage}
               </span>
-              {asset.status === "error" && (
-                <UploadRetryButton onClick={() => handleRetry(asset.key)} />
-              )}
             </div>
           </article>
         ))}
