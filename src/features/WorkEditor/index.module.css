@@ -6,3 +6,14 @@
   gap: 67px;
   padding: 95px 0;
 }
+
+.editor-status {
+  min-height: calc(100vh - 140px);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--font-color);
+}

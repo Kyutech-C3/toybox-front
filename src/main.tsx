@@ -1,8 +1,8 @@
 import { StrictMode } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import { BrowserRouter } from "react-router-dom";
 import { SWRConfig } from "swr";
+import "./index.css";
 
 import App from "./App.tsx";
 
@@ -12,9 +12,10 @@ import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 const ROOT = document.getElementById("root");
 if (!ROOT) throw new Error("Failed to find the root element");
 
-createRoot(ROOT).render(
-  <StrictMode>
-    <BrowserRouter>
+const ROUTER = createBrowserRouter([
+  {
+    path: "*",
+    element: (
       <ToastProvider>
         <AuthSessionProvider>
           <SWRConfig value={{ suspense: true }}>
@@ -22,6 +23,12 @@ createRoot(ROOT).render(
           </SWRConfig>
         </AuthSessionProvider>
       </ToastProvider>
-    </BrowserRouter>
+    ),
+  },
+]);
+
+createRoot(ROOT).render(
+  <StrictMode>
+    <RouterProvider router={ROUTER} />
   </StrictMode>,
 );

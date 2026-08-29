@@ -8,16 +8,22 @@ export type UserProfile = {
 
 type UserStore = {
   user: UserProfile | null;
-  setUser: (user: UserProfile | null) => void;
+  hasLoadFailed: boolean;
+  setUser: (user: UserProfile) => void;
+  setUserLoadFailed: () => void;
   clearUser: () => void;
 };
 
 export const useUserStore = create<UserStore>()((set) => ({
   user: null,
-  setUser: (user: UserProfile | null) => {
-    set({ user });
+  hasLoadFailed: false,
+  setUser: (user: UserProfile) => {
+    set({ user, hasLoadFailed: false });
+  },
+  setUserLoadFailed: () => {
+    set({ user: null, hasLoadFailed: true });
   },
   clearUser: () => {
-    set({ user: null });
+    set({ user: null, hasLoadFailed: false });
   },
 }));

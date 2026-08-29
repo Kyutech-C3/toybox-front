@@ -84,9 +84,42 @@ export const postData = async (path: string, data: BodyInit) => {
     body: data,
   });
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throwResponseError(response);
   }
   return response.json();
+};
+
+export const patchDataWithAuth = async (
+  path: string,
+  data: BodyInit,
+  accessToken: string,
+) => {
+  const response = await fetchWithAuth(path, accessToken, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: data,
+  });
+  if (!response.ok) {
+    throwResponseError(response);
+  }
+  return response.json();
+};
+
+export const deleteDataWithAuth = async (
+  path: string,
+  accessToken: string,
+): Promise<void> => {
+  const response = await fetchWithAuth(path, accessToken, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  if (!response.ok) {
+    throwResponseError(response);
+  }
 };
 
 export const postDataWithAuth = async (
@@ -108,7 +141,7 @@ export const postDataWithAuth = async (
     body: data,
   });
   if (!response.ok) {
-    throw new Error("Network response was not ok");
+    throwResponseError(response);
   }
   return response.json();
 };

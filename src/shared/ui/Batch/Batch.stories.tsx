@@ -34,3 +34,29 @@ export const LongTag: Story = {
     children: "JavaScript Development",
   },
 };
+
+export const Removable: Story = {
+  args: {
+    children: "React",
+    onClick: () => {},
+  },
+};
+
+export const CreationFailed: Story = {
+  args: {
+    children: "React",
+    variant: "error",
+    onRetry: () => {},
+    onClick: () => {},
+  },
+};
+
+export const Retrying: Story = {
+  args: {
+    children: "React",
+    variant: "error",
+    isRetrying: true,
+    onRetry: () => {},
+    onClick: () => {},
+  },
+};

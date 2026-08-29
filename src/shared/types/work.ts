@@ -8,6 +8,8 @@ type Work = {
   user: User;
   thumbnail_url: string;
   visibility: WorkVisibility;
+  thumbnail_asset_id: string;
+  urls: string[];
   created_at: string;
   updated_at: string;
 };
@@ -49,6 +51,7 @@ type TagListResponse = {
 };
 
 type Asset = {
+  id: string;
   asset_type: string;
   created_at: Date;
   extension: string;
@@ -66,12 +69,12 @@ type WorkListResponse = {
 };
 
 export type {
+  Asset,
+  Tag,
+  TagListResponse,
+  TagResponse,
   Work,
   WorkListResponse,
   WorkRequestData,
-  Tag,
-  TagResponse,
-  TagListResponse,
-  Asset,
   WorkVisibility,
 };

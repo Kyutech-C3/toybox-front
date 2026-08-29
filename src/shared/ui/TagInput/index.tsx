@@ -14,8 +14,13 @@ export type TagInputTag = {
 type TagInputProps = {
   tags: TagInputTag[];
   allTagOptions?: string[];
+  failedTags?: string[];
+  retryingTags?: string[];
+  errorMessage?: string;
   onAddTag: (tag: string) => void;
   onRemoveTag: (tagID: string) => void;
+  onRetryTag?: (tag: string) => void;
+  onRemoveFailedTag?: (tag: string) => void;
   heading?: string;
 } & Omit<
   InputHTMLAttributes<HTMLInputElement>,
@@ -25,8 +30,13 @@ type TagInputProps = {
 const TagInput = ({
   tags,
   allTagOptions,
+  failedTags = [],
+  retryingTags = [],
+  errorMessage,
   onAddTag,
   onRemoveTag,
+  onRetryTag,
+  onRemoveFailedTag,
   heading,
   ...props
 }: TagInputProps) => {
@@ -90,6 +100,24 @@ const TagInput = ({
               {tag.name}
             </Batch>
           ))}
+          {failedTags.map((name) => {
+            const isRetrying = retryingTags.some(
+              (retrying) => retrying.toLowerCase() === name.toLowerCase(),
+            );
+            return (
+              <Batch
+                key={`failed-${name}`}
+                variant="error"
+                isRetrying={isRetrying}
+                onRetry={onRetryTag ? () => onRetryTag(name) : null}
+                onClick={
+                  onRemoveFailedTag ? () => onRemoveFailedTag(name) : null
+                }
+              >
+                {name}
+              </Batch>
+            );
+          })}
           <span className={styles["input-dropdown-container"]}>
             <Dropdown
               isOpen={options.length > 0 && isFocused}
@@ -122,6 +150,11 @@ const TagInput = ({
           />
         </div>
       </div>
+      {errorMessage && (
+        <p className={styles["tag-error"]} role="alert">
+          {errorMessage}
+        </p>
+      )}
     </form>
   );
 };
