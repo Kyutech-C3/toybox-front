@@ -68,16 +68,56 @@ const Popover = ({
     };
 
     const handleFocusIn = (event: FocusEvent) => {
-      if (!isInsidePopover(event.target)) {
+      const isReturningToMenuTrigger =
+        role === "menu" &&
+        event.target instanceof Node &&
+        triggerRef?.current?.contains(event.target) &&
+        event.relatedTarget instanceof Node &&
+        popoverRef.current?.contains(event.relatedTarget);
+
+      if (!isInsidePopover(event.target) || isReturningToMenuTrigger) {
         onCloseRef.current();
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
+      if (event.key === "Escape") {
+        onCloseRef.current();
+        triggerRef?.current?.focus();
+        return;
+      }
 
-      onCloseRef.current();
-      triggerRef?.current?.focus();
+      if (
+        role !== "menu" ||
+        !(event.target instanceof HTMLElement) ||
+        !popoverRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+
+      const menuItems = Array.from(
+        popoverRef.current.querySelectorAll<HTMLElement>(
+          '[role="menuitem"]:not([disabled])',
+        ),
+      );
+      const currentIndex = menuItems.indexOf(event.target);
+      if (currentIndex < 0) return;
+
+      let nextIndex: number | null = null;
+      if (event.key === "ArrowDown") {
+        nextIndex = currentIndex < menuItems.length - 1 ? currentIndex + 1 : 0;
+      } else if (event.key === "ArrowUp") {
+        nextIndex = currentIndex > 0 ? currentIndex - 1 : menuItems.length - 1;
+      } else if (event.key === "Home") {
+        nextIndex = 0;
+      } else if (event.key === "End") {
+        nextIndex = menuItems.length - 1;
+      }
+
+      if (nextIndex === null) return;
+
+      event.preventDefault();
+      menuItems[nextIndex]?.focus();
     };
 
     document.addEventListener("pointerdown", handlePointerDown);
@@ -89,7 +129,7 @@ const Popover = ({
       document.removeEventListener("focusin", handleFocusIn);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isAutoFocusEnabled, isOpen, triggerRef]);
+  }, [isAutoFocusEnabled, isOpen, role, triggerRef]);
 
   if (!isOpen) return null;
 
@@ -148,6 +188,7 @@ export const PopoverButton = ({
   children,
   isSelected = false,
   role = "menuitem",
+  tabIndex,
   ...props
 }: PopoverButtonProps) => {
   const accessibilityProps =
@@ -160,6 +201,7 @@ export const PopoverButton = ({
       type="button"
       className={styles["popover-item"]}
       data-selected={isSelected || undefined}
+      tabIndex={tabIndex ?? (role === "menuitem" ? -1 : undefined)}
       {...accessibilityProps}
       {...props}
     >
@@ -179,6 +221,7 @@ export const PopoverLink = ({ to, children, onClick }: PopoverLinkProps) => (
     to={to}
     className={styles["popover-item"]}
     role="menuitem"
+    tabIndex={-1}
     onClick={onClick}
   >
     {children}
