@@ -37,6 +37,10 @@
   position: relative;
 }
 
+.input-listbox-container > [role="listbox"] {
+  max-height: min(300px, calc(100vh - 32px));
+}
+
 .tag-error {
   margin: 6px 5px 0;
   font-size: 14px;

@@ -25,6 +25,10 @@
   height: 60px;
 }
 
+.input-listbox-container > [role="listbox"] {
+  max-height: min(300px, calc(100vh - 32px));
+}
+
 .search-bar-wrapper {
   width: 80%;
   max-width: 1095px;
