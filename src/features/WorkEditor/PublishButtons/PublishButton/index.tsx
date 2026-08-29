@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import ArrowDropUpRoundedIcon from "@mui/icons-material/ArrowDropUpRounded";
 import { mutate } from "swr";
 
+import { deletePendingResources } from "../../api/deletePendingResources";
 import { postWork } from "../../api/postWork";
 import { buildWorkUpdatePayload, toWorkPayload } from "../../api/toWorkPayload";
 import { updateWork } from "../../api/updateWork";
 import {
   selectIsUploading,
+  selectOrphanedBackendResources,
   useWorkEditorStore,
+  useWorkEditorStoreApi,
 } from "../../store/useWorkEditorStore";
 import styles from "./index.module.css";
 
@@ -44,6 +47,7 @@ const PublishButton = () => {
   const markSaved = useWorkEditorStore((state) => state.markSaved);
   const isUploading = useWorkEditorStore(selectIsUploading);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const storeApi = useWorkEditorStoreApi();
   const { showToast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,6 +57,12 @@ const PublishButton = () => {
   const { visibility } = current;
   const isEditMode = mode === "edit";
   const isSubmitDisabled = isUploading || isSubmitting;
+  const deleteOrphanedResources = () => {
+    const orphaned = selectOrphanedBackendResources(storeApi.getState());
+    if (orphaned.assetIDs.length === 0 && orphaned.tagIDs.length === 0) return;
+    if (!accessToken) return;
+    void deletePendingResources(orphaned, accessToken);
+  };
 
   const handleSubmit = async () => {
     if (isSubmitDisabled) return;
@@ -82,12 +92,14 @@ const PublishButton = () => {
         );
         await mutate(`/works/${workID}`, updatedWork, { revalidate: false });
 
+        deleteOrphanedResources();
         markSaved();
         showToast({ message: "作品を保存しました", severity: "success" });
         navigate(`/work/${workID}`);
         return;
       }
       await postWork(toWorkPayload(current), accessToken);
+      deleteOrphanedResources();
       markSaved();
       showToast({ message: "作品を投稿しました", severity: "success" });
       navigate("/");

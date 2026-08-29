@@ -47,6 +47,7 @@ const useWorkTags = (): UseWorkTagsReturn => {
   const removeFailedTagName = useWorkEditorStore(
     (state) => state.removeFailedTagName,
   );
+  const addCreatedTagID = useWorkEditorStore((state) => state.addCreatedTagID);
   const allTagOptions = useTagOptions();
 
   const [retryingTags, setRetryingTags] = useState<string[]>([]);
@@ -61,6 +62,7 @@ const useWorkTags = (): UseWorkTagsReturn => {
       throw new Error("No access token available");
     }
     const newTag = await createTag(tagName, accessToken);
+    addCreatedTagID(newTag.id);
     return newTag.id;
   };
 

@@ -29,6 +29,9 @@ const useAssetUpload = (): UseAssetUploadReturn => {
   const addAssets = useWorkEditorStore((state) => state.addAssets);
   const updateAsset = useWorkEditorStore((state) => state.updateAsset);
   const removeAsset = useWorkEditorStore((state) => state.removeAsset);
+  const addUploadedAssetID = useWorkEditorStore(
+    (state) => state.addUploadedAssetID,
+  );
   const [validationError, setValidationError] = useState("");
 
   const upload = async (key: string, file: File) => {
@@ -39,6 +42,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
       const response = await uploadAsset(file, accessToken);
       if (!response.id) throw new Error("Failed to upload asset");
       updateAsset(key, { status: "success", assetID: response.id });
+      addUploadedAssetID(response.id);
     } catch {
       updateAsset(key, {
         status: "error",

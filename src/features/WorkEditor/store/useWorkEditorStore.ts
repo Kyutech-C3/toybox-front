@@ -28,4 +28,9 @@ export function useWorkEditorStore<T>(
   return useStore(useWorkEditorStoreApi(), selector);
 }
 
-export { selectIsDirty, selectIsUploading } from "./createWorkEditorStore";
+export {
+  selectIsDirty,
+  selectIsUploading,
+  selectOrphanedBackendResources,
+  selectPendingBackendResources,
+} from "./createWorkEditorStore";

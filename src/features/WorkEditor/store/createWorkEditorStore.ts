@@ -27,6 +27,8 @@ export type WorkEditorStore = {
   baseline: WorkEditorValues;
   creatingTagNames: string[];
   failedTagNames: string[];
+  uploadedAssetIDs: string[];
+  createdTagIDs: string[];
 
   initializeForNew: () => void;
   initializeForEdit: (work: Work) => void;
@@ -42,6 +44,9 @@ export type WorkEditorStore = {
   removeCreatingTagName: (tagName: string) => void;
   addFailedTagName: (tagName: string) => void;
   removeFailedTagName: (tagName: string) => void;
+  addUploadedAssetID: (assetID: string) => void;
+  addCreatedTagID: (tagID: string) => void;
+  clearPendingBackendResources: () => void;
   setUrls: (urls: string[]) => void;
   addAssets: (assets: EditorAsset[]) => void;
   updateAsset: (key: string, update: Partial<EditorAsset>) => void;
@@ -68,6 +73,8 @@ export const createWorkEditorStore = () =>
     baseline: EMPTY_WORK_EDITOR_VALUES,
     creatingTagNames: [],
     failedTagNames: [],
+    uploadedAssetIDs: [],
+    createdTagIDs: [],
 
     initializeForNew: () => {
       set((state) => {
@@ -82,6 +89,8 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           creatingTagNames: [],
           failedTagNames: [],
+          uploadedAssetIDs: [],
+          createdTagIDs: [],
         };
       });
     },
@@ -100,6 +109,8 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(values),
           creatingTagNames: [],
           failedTagNames: [],
+          uploadedAssetIDs: [],
+          createdTagIDs: [],
         };
       });
     },
@@ -120,6 +131,8 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(current),
           creatingTagNames: [],
           failedTagNames: [],
+          uploadedAssetIDs: [],
+          createdTagIDs: [],
         };
       });
     },
@@ -136,6 +149,8 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           creatingTagNames: [],
           failedTagNames: [],
+          uploadedAssetIDs: [],
+          createdTagIDs: [],
         };
       });
     },
@@ -219,6 +234,26 @@ export const createWorkEditorStore = () =>
       });
     },
 
+    addUploadedAssetID: (assetID: string) => {
+      set((state) =>
+        state.uploadedAssetIDs.includes(assetID)
+          ? state
+          : { uploadedAssetIDs: [...state.uploadedAssetIDs, assetID] },
+      );
+    },
+
+    addCreatedTagID: (tagID: string) => {
+      set((state) =>
+        state.createdTagIDs.includes(tagID)
+          ? state
+          : { createdTagIDs: [...state.createdTagIDs, tagID] },
+      );
+    },
+
+    clearPendingBackendResources: () => {
+      set({ uploadedAssetIDs: [], createdTagIDs: [] });
+    },
+
     setUrls: (urls: string[]) => {
       set((state) =>
         updateCurrent(state, { urls: urls.slice(0, MAX_WORK_URL_COUNT) }),
@@ -291,6 +326,38 @@ export const selectHasUnsettledBackendWork = (
     isUnsettledAsset(state.current.thumbnail)) ||
   state.creatingTagNames.length > 0 ||
   state.failedTagNames.length > 0;
+
+export type PendingBackendResources = {
+  assetIDs: string[];
+  tagIDs: string[];
+};
+export const selectPendingBackendResources = (
+  state: WorkEditorStore,
+): PendingBackendResources => ({
+  assetIDs: state.uploadedAssetIDs,
+  tagIDs: state.createdTagIDs,
+});
+
+export const selectOrphanedBackendResources = (
+  state: WorkEditorStore,
+): PendingBackendResources => {
+  const usedAssetIDs = new Set(
+    state.current.assets
+      .map((asset) => asset.assetID)
+      .filter((assetID): assetID is string => assetID !== null),
+  );
+  if (state.current.thumbnail?.assetID) {
+    usedAssetIDs.add(state.current.thumbnail.assetID);
+  }
+  const usedTagIDs = new Set(state.current.tags.map((tag) => tag.id));
+
+  return {
+    assetIDs: state.uploadedAssetIDs.filter(
+      (assetID) => !usedAssetIDs.has(assetID),
+    ),
+    tagIDs: state.createdTagIDs.filter((tagID) => !usedTagIDs.has(tagID)),
+  };
+};
 
 export const selectIsDirty = (state: WorkEditorStore): boolean =>
   Object.keys(buildWorkUpdatePayload(state.current, state.baseline)).length >

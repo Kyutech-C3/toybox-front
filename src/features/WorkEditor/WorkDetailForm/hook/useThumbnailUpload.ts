@@ -24,6 +24,9 @@ const useThumbnailUpload = (): UseThumbnailUploadReturn => {
   const setThumbnail = useWorkEditorStore((state) => state.setThumbnail);
   const updateThumbnail = useWorkEditorStore((state) => state.updateThumbnail);
   const removeThumbnail = useWorkEditorStore((state) => state.removeThumbnail);
+  const addUploadedAssetID = useWorkEditorStore(
+    (state) => state.addUploadedAssetID,
+  );
   const [validationError, setValidationError] = useState("");
 
   const upload = async (file: File) => {
@@ -34,6 +37,7 @@ const useThumbnailUpload = (): UseThumbnailUploadReturn => {
       const response = await uploadAsset(file, accessToken);
       if (!response.id) throw new Error("Failed to upload asset");
       updateThumbnail({ status: "success", assetID: response.id });
+      addUploadedAssetID(response.id);
     } catch {
       updateThumbnail({
         status: "error",

@@ -1,10 +1,14 @@
 import { useCallback, useEffect } from "react";
 import { useBlocker } from "react-router-dom";
 
+import { deletePendingResources } from "../api/deletePendingResources";
 import {
   selectIsDirty,
+  selectPendingBackendResources,
   useWorkEditorStoreApi,
 } from "../store/useWorkEditorStore";
+
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
 
 import type { BlockerFunction } from "react-router-dom";
 
@@ -19,15 +23,30 @@ function useUnsavedChangesGuard(): void {
 
     return selectIsDirty(state);
   }, [storeApi]);
+  const discardPendingResources = useCallback(() => {
+    const state = storeApi.getState();
+    const resources = selectPendingBackendResources(state);
+    if (resources.assetIDs.length === 0 && resources.tagIDs.length === 0) {
+      return;
+    }
+    state.clearPendingBackendResources();
+
+    const accessToken = useAuthStore.getState().accessToken;
+    if (!accessToken) return;
+    void deletePendingResources(resources, accessToken);
+  }, [storeApi]);
 
   const shouldBlock = useCallback<BlockerFunction>(
     ({ currentLocation, nextLocation }) => {
       if (currentLocation.pathname === nextLocation.pathname) return false;
       if (!getHasUnsavedChanges()) return false;
 
-      return !window.confirm(LEAVE_CONFIRM_MESSAGE);
+      if (!window.confirm(LEAVE_CONFIRM_MESSAGE)) return true;
+
+      discardPendingResources();
+      return false;
     },
-    [getHasUnsavedChanges],
+    [getHasUnsavedChanges, discardPendingResources],
   );
   const blocker = useBlocker(shouldBlock);
 
