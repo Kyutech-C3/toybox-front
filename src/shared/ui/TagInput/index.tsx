@@ -112,6 +112,7 @@ const TagInput = ({
               placement="bottom"
               align="start"
               ariaLabel="タグ候補"
+              className={styles["tag-listbox"]}
               onClose={() => setFocused(false)}
               triggerRef={inputRef}
               onSelect={(tag) => {

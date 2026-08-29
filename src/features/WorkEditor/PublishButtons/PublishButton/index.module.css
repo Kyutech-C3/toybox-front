@@ -106,7 +106,7 @@
   pointer-events: none;
 }
 
-.listbox-container > [role="listbox"] {
+.visibility-listbox {
   width: 100%;
   pointer-events: auto;
 }

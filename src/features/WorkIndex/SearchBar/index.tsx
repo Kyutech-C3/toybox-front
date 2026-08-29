@@ -64,6 +64,7 @@ export const SearchBar = () => {
               placement="bottom"
               align="start"
               ariaLabel="タグ候補"
+              className={styles["tag-listbox"]}
             />
           </span>
           <input

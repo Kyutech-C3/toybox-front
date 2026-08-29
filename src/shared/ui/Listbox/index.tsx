@@ -29,6 +29,7 @@ type ListboxProps<T> = {
   align?: PopoverAlign;
   textAlign?: PopoverTextAlign;
   ariaLabel: string;
+  className?: string;
 };
 
 const Listbox = <T,>({
@@ -43,6 +44,7 @@ const Listbox = <T,>({
   align = "center",
   textAlign,
   ariaLabel,
+  className,
 }: ListboxProps<T>) => {
   const [activeIndex, setActiveIndex] = useState(-1);
   const selectedIndex =
@@ -132,7 +134,7 @@ const Listbox = <T,>({
       textAlign={textAlign}
       role="listbox"
       ariaLabel={ariaLabel}
-      className={styles["listbox"]}
+      className={[styles["listbox"], className].filter(Boolean).join(" ")}
     >
       {options.map((option, index) => (
         <PopoverButton

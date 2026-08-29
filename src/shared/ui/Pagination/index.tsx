@@ -154,6 +154,7 @@ export const Pagination = ({
                   selectedValue={currentPage}
                   textAlign="center"
                   ariaLabel="ページ番号"
+                  className={styles["page-listbox"]}
                 />
               </div>
             );

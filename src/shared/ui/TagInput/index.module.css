@@ -37,7 +37,7 @@
   position: relative;
 }
 
-.input-listbox-container > [role="listbox"] {
+.tag-listbox {
   max-height: min(300px, calc(100vh - 32px));
 }
 

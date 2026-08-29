@@ -46,6 +46,6 @@
   color: var(--font-color);
 }
 
-.listbox-container > [role="listbox"] {
+.page-listbox {
   max-height: min(300px, calc(100vh - 32px));
 }

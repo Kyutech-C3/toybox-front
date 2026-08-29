@@ -197,6 +197,7 @@ const PublishButton = () => {
           align="end"
           textAlign="center"
           ariaLabel="保存形式"
+          className={styles["visibility-listbox"]}
         />
       </span>
       {isUploading && (
