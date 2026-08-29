@@ -17,47 +17,6 @@
 }
 
 .account-menu {
-  position: absolute;
-  z-index: 10;
-  top: calc(100% + 8px);
-  right: 0;
   width: 200px;
-  padding: 8px;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: var(--paper-color);
-  box-shadow: 0 6px 14px var(--shadow-soft-color);
-}
-
-.display-name {
-  padding: 8px 12px;
-  overflow-wrap: anywhere;
-  font-weight: 600;
-}
-
-.menu-item {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 8px 12px;
-  border: 0;
-  border-radius: 6px;
-  display: block;
-  background: transparent;
-  color: var(--font-color);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 500;
-  text-align: left;
-}
-
-.menu-item:hover,
-.menu-item:focus-visible {
-  background: var(--primary-soft-color);
-  color: var(--font-color);
-  outline: none;
-}
-
-.menu-item:disabled {
-  color: var(--font-muted-color);
-  cursor: wait;
+  max-width: calc(100vw - 32px);
 }

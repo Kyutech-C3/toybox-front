@@ -39,13 +39,6 @@ type Tag = {
   updated_at: string;
 };
 
-type TagResponse = {
-  id: string;
-  name: string;
-  created_at: string;
-  updated_at: string;
-};
-
 type TagListResponse = {
   tags: Tag[];
 };
@@ -72,7 +65,6 @@ export type {
   Asset,
   Tag,
   TagListResponse,
-  TagResponse,
   Work,
   WorkListResponse,
   WorkRequestData,

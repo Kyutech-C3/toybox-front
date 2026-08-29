@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState } from "react";
 
 import Batch from "../Batch";
-import Dropdown from "../Dropdown";
+import Listbox from "../Listbox";
 import styles from "./index.module.css";
 
 import type { FormEvent, InputHTMLAttributes } from "react";
+import type { ListboxOption } from "../Listbox";
 
 export type TagInputTag = {
   id: string;
@@ -42,7 +43,8 @@ const TagInput = ({
 }: TagInputProps) => {
   const [isFocused, setFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const tagListboxID = useId();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,38 +58,22 @@ const TagInput = ({
     }
   };
 
-  useEffect(() => {
-    if (!isFocused) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setFocused(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isFocused]);
-
-  const options = useMemo(() => {
+  const tagOptions = useMemo<ListboxOption<string>[]>(() => {
     if (!allTagOptions) return [];
     const lowerInput = inputValue.toLowerCase();
-    return allTagOptions.filter(
-      (option) =>
-        option.toLowerCase().includes(lowerInput) &&
-        !tags.some(({ name }) => name.toLowerCase() === option.toLowerCase()),
-    );
+    return allTagOptions
+      .filter(
+        (option) =>
+          option.toLowerCase().includes(lowerInput) &&
+          !tags.some(({ name }) => name.toLowerCase() === option.toLowerCase()),
+      )
+      .map((option) => ({ id: option, value: option, label: option }));
   }, [inputValue, allTagOptions, tags]);
 
   return (
     <form className={styles["tag-input-wrapper"]} onSubmit={handleSubmit}>
       {heading && <h3>{heading}</h3>}
-      <div ref={containerRef} className={styles["input-wrapper"]}>
+      <div className={styles["input-wrapper"]}>
         <div className={styles["tags-wrapper"]}>
           {tags.map((tag) => (
             <Batch
@@ -118,11 +104,16 @@ const TagInput = ({
               </Batch>
             );
           })}
-          <span className={styles["input-dropdown-container"]}>
-            <Dropdown
-              isOpen={options.length > 0 && isFocused}
-              options={options}
-              position="bottom"
+          <span className={styles["input-listbox-container"]}>
+            <Listbox
+              id={tagListboxID}
+              isOpen={tagOptions.length > 0 && isFocused}
+              options={tagOptions}
+              placement="bottom"
+              align="start"
+              ariaLabel="タグ候補"
+              onClose={() => setFocused(false)}
+              triggerRef={inputRef}
               onSelect={(tag) => {
                 if (
                   tags.some(
@@ -139,6 +130,7 @@ const TagInput = ({
           </span>
           <input
             type="text"
+            role="combobox"
             name="tag"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
@@ -147,6 +139,11 @@ const TagInput = ({
             }}
             className={styles["input-field"]}
             {...props}
+            aria-haspopup="listbox"
+            aria-expanded={tagOptions.length > 0 && isFocused}
+            aria-controls={tagListboxID}
+            aria-autocomplete="list"
+            ref={inputRef}
           />
         </div>
       </div>

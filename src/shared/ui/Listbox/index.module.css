@@ -1,0 +1,26 @@
+.listbox {
+  width: max-content;
+  min-width: 100px;
+  max-width: calc(100vw - 32px);
+  max-height: 150px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.listbox::-webkit-scrollbar {
+  width: 8px;
+}
+
+.listbox::-webkit-scrollbar-track {
+  border-radius: 4px;
+  background: var(--background-color);
+}
+
+.listbox::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background: var(--border-color);
+}
+
+.listbox::-webkit-scrollbar-thumb:hover {
+  background: var(--font-muted-color);
+}
