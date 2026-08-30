@@ -12,6 +12,13 @@ type PageErrorButtonAction = {
   type: "button";
 };
 
+type PageErrorAnchorAction = {
+  href: string;
+  id: string;
+  label: string;
+  type: "anchor";
+};
+
 type PageErrorLinkAction = {
   id: string;
   label: string;
@@ -19,7 +26,10 @@ type PageErrorLinkAction = {
   type: "link";
 };
 
-export type PageErrorAction = PageErrorButtonAction | PageErrorLinkAction;
+export type PageErrorAction =
+  | PageErrorAnchorAction
+  | PageErrorButtonAction
+  | PageErrorLinkAction;
 export type PageErrorStateLayout = "page" | "section";
 
 type PageErrorStateProps = {
@@ -43,6 +53,18 @@ const PageErrorState = ({
       </div>
       <div className={styles["actions"]}>
         {actions.map((action) => {
+          if (action.type === "anchor") {
+            return (
+              <a
+                key={action.id}
+                className={styles["link-action"]}
+                href={action.href}
+              >
+                {action.label}
+              </a>
+            );
+          }
+
           if (action.type === "link") {
             return (
               <Link

@@ -7,6 +7,7 @@ import "./index.css";
 import App from "./App.tsx";
 
 import AuthSessionProvider from "@/features/auth/AuthSessionProvider";
+import AppErrorBoundary from "@/shared/ui/AppErrorBoundary";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 
 const ROOT = document.getElementById("root");
@@ -29,6 +30,8 @@ const ROUTER = createBrowserRouter([
 
 createRoot(ROOT).render(
   <StrictMode>
-    <RouterProvider router={ROUTER} />
+    <AppErrorBoundary>
+      <RouterProvider router={ROUTER} />
+    </AppErrorBoundary>
   </StrictMode>,
 );
