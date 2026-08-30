@@ -5,7 +5,7 @@ import type { Tag } from "@/shared/types/work";
 type TagsStore = {
   tags: Tag[];
   addTag: (tag: Tag) => void;
-  removeTag: (index: number) => void;
+  removeTag: (tagID: string) => void;
 };
 
 export const useTagsStore = create<TagsStore>((set) => ({
@@ -13,8 +13,8 @@ export const useTagsStore = create<TagsStore>((set) => ({
   addTag: (tag: Tag) => {
     set((state) => ({ tags: [...state.tags, tag] }));
   },
-  removeTag: (index: number) =>
+  removeTag: (tagID: string) =>
     set((state) => ({
-      tags: state.tags.filter((_, i) => i !== index),
+      tags: state.tags.filter((tag) => tag.id !== tagID),
     })),
 }));

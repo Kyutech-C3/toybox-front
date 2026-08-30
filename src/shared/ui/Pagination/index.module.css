@@ -14,12 +14,12 @@
   gap: 12px;
 }
 
-.dropdown-container {
+.listbox-container {
   position: relative;
   display: inline-block;
 }
 
-.dropdown-trigger {
+.listbox-trigger {
   height: 48px;
   min-width: 48px;
   padding: 0 12px;
@@ -38,10 +38,14 @@
   white-space: nowrap;
 }
 
-.dropdown-trigger:hover {
+.listbox-trigger:hover {
   color: var(--font-muted-color);
 }
 
-.dropdown-trigger[aria-expanded="true"] {
+.listbox-trigger[aria-expanded="true"] {
   color: var(--font-color);
+}
+
+.page-listbox {
+  max-height: min(300px, calc(100vh - 32px));
 }

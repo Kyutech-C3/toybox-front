@@ -1,9 +1,13 @@
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { useRef, useState } from "react";
 
 import styles from "./index.module.css";
 
 import Avatar from "@/shared/ui/Avatar";
+import Popover, {
+  PopoverButton,
+  PopoverLabel,
+  PopoverLink,
+} from "@/shared/ui/Popover";
 
 import type { UserProfile } from "@/features/auth/store/useUserStore";
 
@@ -17,44 +21,7 @@ const ACCOUNT_MENU_ID = "header-account-menu";
 const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const userPageLinkRef = useRef<HTMLAnchorElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    userPageLinkRef.current?.focus();
-
-    const handlePointerDown = (event: PointerEvent) => {
-      if (!wrapperRef.current?.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    const handleFocusIn = (event: FocusEvent) => {
-      if (!wrapperRef.current?.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-        triggerRef.current?.focus();
-      }
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("focusin", handleFocusIn);
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("focusin", handleFocusIn);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
 
   const handleLogout = async () => {
     if (isLoggingOut) {
@@ -70,7 +37,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
   };
 
   return (
-    <div className={styles["account-menu-wrapper"]} ref={wrapperRef}>
+    <div className={styles["account-menu-wrapper"]}>
       <button
         type="button"
         className={styles["account-menu-trigger"]}
@@ -86,34 +53,28 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
           alt={`${user.display_name}のアバター`}
         />
       </button>
-      {isOpen && (
-        <div
-          id={ACCOUNT_MENU_ID}
-          className={styles["account-menu"]}
-          role="menu"
-          aria-label="アカウントメニュー"
+      <Popover
+        id={ACCOUNT_MENU_ID}
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        triggerRef={triggerRef}
+        role="menu"
+        ariaLabel="アカウントメニュー"
+        isAutoFocusEnabled
+        className={styles["account-menu"]}
+        textAlign="center"
+      >
+        <PopoverLabel>{user.display_name}</PopoverLabel>
+        <PopoverLink to={`/user/${user.id}`} onClick={() => setIsOpen(false)}>
+          マイページ
+        </PopoverLink>
+        <PopoverButton
+          disabled={isLoggingOut}
+          onClick={() => void handleLogout()}
         >
-          <p className={styles["display-name"]}>{user.display_name}</p>
-          <Link
-            to={`/user/${user.id}`}
-            className={styles["menu-item"]}
-            role="menuitem"
-            onClick={() => setIsOpen(false)}
-            ref={userPageLinkRef}
-          >
-            マイページ
-          </Link>
-          <button
-            type="button"
-            className={styles["menu-item"]}
-            role="menuitem"
-            disabled={isLoggingOut}
-            onClick={() => void handleLogout()}
-          >
-            {isLoggingOut ? "ログアウト中..." : "ログアウト"}
-          </button>
-        </div>
-      )}
+          {isLoggingOut ? "ログアウト中..." : "ログアウト"}
+        </PopoverButton>
+      </Popover>
     </div>
   );
 };

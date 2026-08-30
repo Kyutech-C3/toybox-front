@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ArrowDropUpRoundedIcon from "@mui/icons-material/ArrowDropUpRounded";
 import { mutate } from "swr";
@@ -16,11 +16,12 @@ import {
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
-import Dropdown from "@/shared/ui/Dropdown";
+import Listbox from "@/shared/ui/Listbox";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { ApiError } from "@/util/fetchData";
 
 import type { WorkVisibility } from "@/shared/types/work";
+import type { ListboxOption } from "@/shared/ui/Listbox";
 
 const VISIBILITY_LABELS: Record<WorkVisibility, string> = {
   public: "全体公開",
@@ -29,20 +30,27 @@ const VISIBILITY_LABELS: Record<WorkVisibility, string> = {
 };
 
 const VISIBILITY_OPTIONS = [
-  VISIBILITY_LABELS.public,
-  VISIBILITY_LABELS.private,
-  VISIBILITY_LABELS.draft,
-];
+  {
+    id: "public",
+    value: "public",
+    label: VISIBILITY_LABELS.public,
+  },
+  {
+    id: "private",
+    value: "private",
+    label: VISIBILITY_LABELS.private,
+  },
+  {
+    id: "draft",
+    value: "draft",
+    label: VISIBILITY_LABELS.draft,
+  },
+] satisfies ListboxOption<WorkVisibility>[];
+const VISIBILITY_LISTBOX_ID = "work-editor-visibility-listbox";
 const VISIBILITY_CONFIRM_MESSAGES: Partial<Record<WorkVisibility, string>> = {
   public:
     "インターネット上の全ユーザがこのToyを閲覧できます。本当に全体公開しますか？",
   private: "C3の全ユーザがこのToyを閲覧できます。本当に限定公開しますか？",
-};
-
-const toVisibility = (label: string): WorkVisibility => {
-  if (label === VISIBILITY_LABELS.public) return "public";
-  if (label === VISIBILITY_LABELS.private) return "private";
-  return "draft";
 };
 
 const getSubmitErrorMessage = (error: unknown, isEditMode: boolean) => {
@@ -73,9 +81,10 @@ const PublishButton = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const storeApi = useWorkEditorStoreApi();
   const { showToast } = useToast();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isListboxOpen, setIsListboxOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const listboxTriggerRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
 
   const { visibility } = current;
@@ -161,23 +170,34 @@ const PublishButton = () => {
       <span className={styles["button-span"]} />
       <button
         type="button"
-        className={styles["menu-button"]}
-        onClick={() => setIsMenuOpen((prev) => !prev)}
+        className={styles["listbox-trigger"]}
+        onClick={() => setIsListboxOpen((prev) => !prev)}
         disabled={isSubmitDisabled}
         aria-label="保存形式を選択"
+        aria-haspopup="listbox"
+        aria-expanded={isListboxOpen}
+        aria-controls={VISIBILITY_LISTBOX_ID}
+        ref={listboxTriggerRef}
       >
         <ArrowDropUpRoundedIcon />
       </button>
-      <span className={styles["menu-button-span"]}>
-        <Dropdown
-          isOpen={isMenuOpen}
+      <span className={styles["listbox-container"]}>
+        <Listbox
+          id={VISIBILITY_LISTBOX_ID}
+          isOpen={isListboxOpen}
           options={VISIBILITY_OPTIONS}
+          onClose={() => setIsListboxOpen(false)}
+          triggerRef={listboxTriggerRef}
           onSelect={(value) => {
-            setIsMenuOpen(false);
-            setVisibility(toVisibility(value));
+            setIsListboxOpen(false);
+            setVisibility(value);
           }}
-          selectedValues={[visibilityLabel]}
-          position="top"
+          selectedValue={visibility}
+          placement="top"
+          align="end"
+          textAlign="center"
+          ariaLabel="保存形式"
+          className={styles["visibility-listbox"]}
         />
       </span>
       {isUploading && (

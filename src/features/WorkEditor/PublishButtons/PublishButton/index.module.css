@@ -31,7 +31,7 @@
     outline-offset: -2px;
 
     .publish-button,
-    .menu-button {
+    .listbox-trigger {
       background: var(--paper-color);
       color: var(--font-color);
     }
@@ -45,7 +45,7 @@
 }
 
 .publish-button:disabled,
-.menu-button:disabled {
+.listbox-trigger:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
@@ -87,7 +87,7 @@
   box-sizing: border-box;
 }
 
-.menu-button {
+.listbox-trigger {
   height: 100%;
   border: none;
   background: none;
@@ -100,8 +100,13 @@
   color: var(--paper-color);
 }
 
-.menu-button-span {
-  position: relative;
-  right: 20px;
-  bottom: calc(100%);
+.listbox-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.publish-button-wrapper .visibility-listbox {
+  width: 100%;
+  pointer-events: auto;
 }

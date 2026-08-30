@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
-import Dropdown from "@/shared/ui/Dropdown";
+import Listbox from "@/shared/ui/Listbox";
 
 interface PaginationProps {
   currentPage: number;
@@ -24,10 +24,11 @@ export const Pagination = ({
   onPageChange,
   maxVisiblePages = 3,
 }: PaginationProps) => {
-  const [isLeftDropdownOpen, setIsLeftDropdownOpen] = useState(false);
-  const [isRightDropdownOpen, setIsRightDropdownOpen] = useState(false);
-  const leftDropdownRef = useRef<HTMLDivElement>(null);
-  const rightDropdownRef = useRef<HTMLDivElement>(null);
+  const [isLeftListboxOpen, setIsLeftListboxOpen] = useState(false);
+  const [isRightListboxOpen, setIsRightListboxOpen] = useState(false);
+  const leftListboxRef = useRef<HTMLButtonElement>(null);
+  const rightListboxRef = useRef<HTMLButtonElement>(null);
+  const paginationID = useId();
 
   // ページ番号の配列を生成
   const getPageNumbers = (): PageItem[] => {
@@ -79,31 +80,6 @@ export const Pagination = ({
     return pages;
   };
 
-  // 外側クリックで閉じる（左ドロップダウン）
-  useEffect(() => {
-    if (!isLeftDropdownOpen && !isRightDropdownOpen) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        leftDropdownRef.current &&
-        !leftDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsLeftDropdownOpen(false);
-      }
-      if (
-        rightDropdownRef.current &&
-        !rightDropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsRightDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isLeftDropdownOpen, isRightDropdownOpen]);
-
   const handlePrevious = () => {
     if (currentPage > 1) {
       onPageChange(currentPage - 1);
@@ -116,12 +92,12 @@ export const Pagination = ({
     }
   };
 
-  const handlePageSelect = (page: number, dropdownId: "left" | "right") => {
+  const handlePageSelect = (page: number, side: "left" | "right") => {
     onPageChange(page);
-    if (dropdownId === "left") {
-      setIsLeftDropdownOpen(false);
+    if (side === "left") {
+      setIsLeftListboxOpen(false);
     } else {
-      setIsRightDropdownOpen(false);
+      setIsRightListboxOpen(false);
     }
   };
 
@@ -142,36 +118,43 @@ export const Pagination = ({
         {pageNumbers.map((item) => {
           if (item.type === "dots") {
             const isOpen =
-              item.id === "left" ? isLeftDropdownOpen : isRightDropdownOpen;
+              item.id === "left" ? isLeftListboxOpen : isRightListboxOpen;
             const setIsOpen =
-              item.id === "left"
-                ? setIsLeftDropdownOpen
-                : setIsRightDropdownOpen;
-            const dropdownRef =
-              item.id === "left" ? leftDropdownRef : rightDropdownRef;
+              item.id === "left" ? setIsLeftListboxOpen : setIsRightListboxOpen;
+            const listboxRef =
+              item.id === "left" ? leftListboxRef : rightListboxRef;
+            const listboxID = `${paginationID}-${item.id}`;
 
             return (
-              <div
-                key={item.id}
-                ref={dropdownRef}
-                className={styles["dropdown-container"]}
-              >
+              <div key={item.id} className={styles["listbox-container"]}>
                 <button
                   type="button"
-                  className={styles["dropdown-trigger"]}
+                  className={styles["listbox-trigger"]}
                   onClick={() => setIsOpen(!isOpen)}
                   aria-label="隠れたページを表示"
+                  aria-haspopup="listbox"
                   aria-expanded={isOpen}
+                  aria-controls={listboxID}
+                  ref={listboxRef}
                 >
                   • • •
                 </button>
 
-                <Dropdown
+                <Listbox
+                  id={listboxID}
                   isOpen={isOpen}
-                  options={item.hiddenPages}
+                  options={item.hiddenPages.map((page) => ({
+                    id: page,
+                    value: page,
+                    label: String(page),
+                  }))}
+                  onClose={() => setIsOpen(false)}
+                  triggerRef={listboxRef}
                   onSelect={(page) => handlePageSelect(page, item.id)}
-                  selectedValues={[currentPage]}
-                  position="top"
+                  selectedValue={currentPage}
+                  textAlign="center"
+                  ariaLabel="ページ番号"
+                  className={styles["page-listbox"]}
                 />
               </div>
             );

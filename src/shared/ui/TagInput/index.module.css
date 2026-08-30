@@ -33,8 +33,12 @@
   padding: 16px 0 16px 24px;
 }
 
-.input-dropdown-container {
+.input-listbox-container {
   position: relative;
+}
+
+.tag-listbox {
+  max-height: min(300px, calc(100vh - 32px));
 }
 
 .tag-error {

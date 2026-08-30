@@ -19,10 +19,14 @@
   }
 }
 
-.input-dropdown-container {
+.input-listbox-container {
   position: relative;
   width: 22px;
   height: 60px;
+}
+
+.tag-listbox {
+  max-height: min(300px, calc(100vh - 32px));
 }
 
 .search-bar-wrapper {
