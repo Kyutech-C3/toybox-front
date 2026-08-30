@@ -95,11 +95,6 @@
   cursor: pointer;
   z-index: 1;
   border-radius: 50%;
-
-  &[data-disabled="true"] {
-    background-color: var(--paper-overlay-color);
-    color: var(--font-sub-color);
-  }
 }
 
 .scroll-left-button {

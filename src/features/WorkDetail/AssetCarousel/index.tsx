@@ -18,8 +18,6 @@ type AssetCarouselProps = {
 const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const containerRef = useRef<HTMLUListElement>(null);
   const [activeAssetIndex, setActiveAssetIndex] = useState(0);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
   const [failedAssetIDs, setFailedAssetIDs] = useState<Set<string>>(
     () => new Set(),
   );
@@ -30,13 +28,11 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
 
     const updateScrollButtons = () => {
       if (assets.length <= 1) {
-        setCanScrollLeft(false);
-        setCanScrollRight(false);
+        setActiveAssetIndex(0);
         return;
       }
 
       const scrollLeft = container.scrollLeft;
-      const scrollWidth = container.scrollWidth;
       const clientWidth = container.clientWidth;
       const nextActiveAssetIndex =
         clientWidth > 0 ? Math.round(scrollLeft / clientWidth) : 0;
@@ -44,8 +40,6 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
       setActiveAssetIndex(
         Math.min(Math.max(nextActiveAssetIndex, 0), assets.length - 1),
       );
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
     };
 
     updateScrollButtons();
@@ -60,6 +54,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     const container = containerRef.current;
     if (!container) return;
 
+    setActiveAssetIndex(assetIndex);
     container.scrollTo({
       left: assetIndex * container.clientWidth,
       behavior: "smooth",
@@ -67,9 +62,12 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   };
 
   const scroll = (direction: "left" | "right") => {
+    if (assets.length === 0) return;
+
+    const offset = direction === "left" ? -1 : 1;
     const nextAssetIndex =
-      direction === "left" ? activeAssetIndex - 1 : activeAssetIndex + 1;
-    scrollToAsset(Math.min(Math.max(nextAssetIndex, 0), assets.length - 1));
+      (activeAssetIndex + offset + assets.length) % assets.length;
+    scrollToAsset(nextAssetIndex);
   };
 
   const handleLoadError = (assetID: string) => {
@@ -88,8 +86,6 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
             <button
               className={styles["scroll-left-button"]}
               onClick={() => scroll("left")}
-              disabled={!canScrollLeft}
-              data-disabled={!canScrollLeft}
               aria-label="前のアセットを表示"
               type="button"
             >
@@ -98,8 +94,6 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
             <button
               className={styles["scroll-right-button"]}
               onClick={() => scroll("right")}
-              disabled={!canScrollRight}
-              data-disabled={!canScrollRight}
               aria-label="次のアセットを表示"
               type="button"
             >

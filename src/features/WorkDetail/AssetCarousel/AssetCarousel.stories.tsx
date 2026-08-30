@@ -58,11 +58,21 @@ export const DownloadableAssets: Story = {
     const secondIndicator = canvas.getByRole("button", {
       name: "2番目のアセットを表示",
     });
+    const previousButton = canvas.getByRole("button", {
+      name: "前のアセットを表示",
+    });
+    const nextButton = canvas.getByRole("button", {
+      name: "次のアセットを表示",
+    });
 
     await expect(firstIndicator).toHaveAttribute("aria-current", "true");
-    await userEvent.click(secondIndicator);
+    await userEvent.click(previousButton);
     await waitFor(() =>
       expect(secondIndicator).toHaveAttribute("aria-current", "true"),
+    );
+    await userEvent.click(nextButton);
+    await waitFor(() =>
+      expect(firstIndicator).toHaveAttribute("aria-current", "true"),
     );
   },
 };
