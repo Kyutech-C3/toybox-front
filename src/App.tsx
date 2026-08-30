@@ -1,8 +1,9 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import EditPage from "@/pages/EditPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 import TopPage from "@/pages/TopPage";
 import UserPage from "@/pages/UserPage";
 import WorkPage from "@/pages/WorkPage";
@@ -29,7 +30,7 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

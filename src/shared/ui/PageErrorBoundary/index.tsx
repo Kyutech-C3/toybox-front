@@ -1,8 +1,6 @@
 import { Component } from "react";
 
-import styles from "./index.module.css";
-
-import Button from "@/shared/ui/Button";
+import PageErrorState from "@/shared/ui/PageErrorState";
 
 import type { ReactNode } from "react";
 
@@ -58,12 +56,24 @@ class PageErrorBoundary extends Component<
         getErrorMessage?.(error) ?? "データを取得できませんでした";
 
       return (
-        <section className={styles["page-error"]} role="alert">
-          <h1>{message}</h1>
-          <Button onClick={this.handleRetry} isDisabled={isRetrying}>
-            {isRetrying ? "再試行中..." : "再試行"}
-          </Button>
-        </section>
+        <PageErrorState
+          title={message}
+          actions={[
+            {
+              id: "retry",
+              label: isRetrying ? "再試行中..." : "再試行",
+              onClick: this.handleRetry,
+              isDisabled: isRetrying,
+              type: "button",
+            },
+            {
+              id: "home",
+              label: "トップへ戻る",
+              to: "/",
+              type: "link",
+            },
+          ]}
+        />
       );
     }
 
