@@ -3,9 +3,10 @@ import styles from "./index.module.css";
 type AudioCardProps = {
   src: string;
   extension: string;
+  onLoadError?: () => void;
 };
 
-const AudioCard = ({ src, extension }: AudioCardProps) => {
+const AudioCard = ({ src, extension, onLoadError }: AudioCardProps) => {
   const getAudioMimeType = (extension: string): string => {
     switch (extension) {
       case "mp3":
@@ -24,7 +25,7 @@ const AudioCard = ({ src, extension }: AudioCardProps) => {
   };
   return (
     <div className={styles["card-audio"]}>
-      <audio controls>
+      <audio controls onError={onLoadError}>
         <source src={src} type={getAudioMimeType(extension)} />
         <track kind="captions" srcLang="jp" label="Japanese" />
       </audio>

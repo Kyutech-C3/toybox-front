@@ -3,6 +3,8 @@ import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 
 import AudioCard from "./AudioCard";
+import { getSafeAssetURL } from "./assetUrl";
+import DownloadCard from "./DownloadCard";
 import ImgCard from "./ImgCard";
 import styles from "./index.module.css";
 import MovieCard from "./MovieCard";
@@ -17,6 +19,9 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const containerRef = useRef<HTMLUListElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [failedAssetIDs, setFailedAssetIDs] = useState<Set<string>>(
+    () => new Set(),
+  );
 
   useEffect(() => {
     const container = containerRef.current;
@@ -56,6 +61,14 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     });
   };
 
+  const handleLoadError = (assetID: string) => {
+    setFailedAssetIDs((currentAssetIDs) => {
+      const nextAssetIDs = new Set(currentAssetIDs);
+      nextAssetIDs.add(assetID);
+      return nextAssetIDs;
+    });
+  };
+
   return (
     <div className={styles["asset-wrapper"]}>
       {assets.length > 1 && (
@@ -83,37 +96,74 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
         </>
       )}
       <ul className={styles["asset-container"]} ref={containerRef}>
-        {assets.map((asset, index) => {
+        {assets.map((asset) => {
+          const isLoadError = failedAssetIDs.has(asset.id);
+          const safeURL = getSafeAssetURL(asset.url);
+
+          if (isLoadError || !safeURL) {
+            return (
+              <li key={asset.id} className={styles["asset-carousel"]}>
+                <DownloadCard
+                  assetType={asset.asset_type}
+                  extension={asset.extension}
+                  isLoadError={isLoadError}
+                  url={asset.url}
+                />
+              </li>
+            );
+          }
+
           switch (asset.asset_type) {
             case "image":
               return (
-                <li
-                  key={`${asset.work_id}-asset-${index}`}
-                  className={styles["asset-carousel"]}
-                >
-                  <ImgCard alt="asset-image" src={asset.url} />
+                <li key={asset.id} className={styles["asset-carousel"]}>
+                  <ImgCard
+                    alt="作品のアセット画像"
+                    src={safeURL}
+                    onLoadError={() => handleLoadError(asset.id)}
+                  />
                 </li>
               );
             case "video":
               return (
-                <li
-                  key={`${asset.work_id}-asset-${index}`}
-                  className={styles["asset-carousel"]}
-                >
-                  <MovieCard src={asset.url} extension={asset.extension} />
+                <li key={asset.id} className={styles["asset-carousel"]}>
+                  <MovieCard
+                    src={safeURL}
+                    extension={asset.extension}
+                    onLoadError={() => handleLoadError(asset.id)}
+                  />
                 </li>
               );
             case "music":
               return (
-                <li
-                  key={`${asset.work_id}-asset-${index}`}
-                  className={styles["asset-carousel"]}
-                >
-                  <AudioCard src={asset.url} extension={asset.extension} />
+                <li key={asset.id} className={styles["asset-carousel"]}>
+                  <AudioCard
+                    src={safeURL}
+                    extension={asset.extension}
+                    onLoadError={() => handleLoadError(asset.id)}
+                  />
+                </li>
+              );
+            case "zip":
+              return (
+                <li key={asset.id} className={styles["asset-carousel"]}>
+                  <DownloadCard
+                    assetType={asset.asset_type}
+                    extension={asset.extension}
+                    url={safeURL}
+                  />
                 </li>
               );
             default:
-              return null;
+              return (
+                <li key={asset.id} className={styles["asset-carousel"]}>
+                  <DownloadCard
+                    assetType={asset.asset_type}
+                    extension={asset.extension}
+                    url={safeURL}
+                  />
+                </li>
+              );
           }
         })}
       </ul>
