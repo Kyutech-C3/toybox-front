@@ -27,7 +27,9 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
       return "この作品を編集する権限がありません";
     }
 
-    return "データを取得できませんでした";
+    return error instanceof ApiError
+      ? error.displayMessage
+      : "画面の表示中に問題が発生しました";
   };
 
   const handleRetry = async () => {

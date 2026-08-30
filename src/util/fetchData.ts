@@ -3,14 +3,53 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { API_BASE_URL } from "@/util/apiConfig";
 
 export class ApiError extends Error {
-  status: number;
+  status: number | null;
+  displayMessage: string;
 
-  constructor(status: number) {
-    super(`Network response was not ok (${status})`);
+  constructor(
+    status: number | null,
+    displayMessage = getApiErrorMessage(status),
+  ) {
+    super(displayMessage);
     this.name = "ApiError";
     this.status = status;
+    this.displayMessage = displayMessage;
   }
 }
+
+const getApiErrorMessage = (status: number | null): string => {
+  if (status === null) {
+    return "サーバーに接続できませんでした";
+  }
+  if (status === 400) {
+    return "リクエストの内容を確認してください";
+  }
+  if (status === 401) {
+    return "ログインが必要です";
+  }
+  if (status === 403) {
+    return "この操作を行う権限がありません";
+  }
+  if (status === 404) {
+    return "データが見つかりません";
+  }
+  if (status >= 500) {
+    return "サーバーで問題が発生しました";
+  }
+
+  return "データを取得できませんでした";
+};
+
+const requestWithNetworkError = async (
+  path: string,
+  init: RequestInit,
+): Promise<Response> => {
+  try {
+    return await fetch(`${API_BASE_URL}${path}`, init);
+  } catch {
+    throw new ApiError(null);
+  }
+};
 
 const throwResponseError = (response: Response): never => {
   throw new ApiError(response.status);
@@ -22,7 +61,7 @@ const fetchWithAuth = async (
   init: RequestInit,
 ) => {
   const request = (token: string) =>
-    fetch(`${API_BASE_URL}${path}`, {
+    requestWithNetworkError(path, {
       ...init,
       headers: {
         ...init.headers,
@@ -36,10 +75,15 @@ const fetchWithAuth = async (
   }
 
   const currentToken = useAuthStore.getState().accessToken;
-  const retryToken =
-    currentToken && currentToken !== accessToken
-      ? currentToken
-      : await refreshAccessToken();
+  let retryToken: string;
+  try {
+    retryToken =
+      currentToken && currentToken !== accessToken
+        ? currentToken
+        : await refreshAccessToken();
+  } catch {
+    throw new ApiError(401);
+  }
 
   response = await request(retryToken);
   if (response.status === 401) {
@@ -50,7 +94,7 @@ const fetchWithAuth = async (
 };
 
 export const fetchData = async (path: string) => {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await requestWithNetworkError(path, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -76,7 +120,7 @@ export const fetchDataWithAuth = async (path: string, accessToken: string) => {
 };
 
 export const postData = async (path: string, data: BodyInit) => {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await requestWithNetworkError(path, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -1,6 +1,7 @@
 import { Component } from "react";
 
 import PageErrorState from "@/shared/ui/PageErrorState";
+import { ApiError } from "@/util/fetchData";
 
 import type { ReactNode } from "react";
 
@@ -53,7 +54,10 @@ class PageErrorBoundary extends Component<
 
     if (error) {
       const message =
-        getErrorMessage?.(error) ?? "データを取得できませんでした";
+        getErrorMessage?.(error) ??
+        (error instanceof ApiError
+          ? error.displayMessage
+          : "画面の表示中に問題が発生しました");
 
       return (
         <PageErrorState

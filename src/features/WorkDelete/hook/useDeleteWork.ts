@@ -28,9 +28,7 @@ const getDeleteErrorMessage = (error: unknown) => {
     if (error.status === 401) return "ログインの有効期限が切れました";
     if (error.status === 403) return "この作品を削除する権限がありません";
     if (error.status === 404) return "作品が見つかりません";
-    if (error.status >= 500) {
-      return "サーバーエラーが発生しました。時間をおいて再試行してください";
-    }
+    return error.displayMessage;
   }
 
   return "作品の削除に失敗しました";
