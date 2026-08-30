@@ -1,7 +1,6 @@
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
-import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 
 import { getSafeAssetURL } from "../assetUrl";
 import CardWrapper from "../CardWrapper";
@@ -35,7 +34,7 @@ const DownloadCard = ({
   const FileIcon = isZip ? FolderZipRoundedIcon : InsertDriveFileRoundedIcon;
 
   const description = isLoadError
-    ? "プレビューを読み込めませんでした。ファイルを開いて確認できます。"
+    ? "プレビューを読み込めませんでした。ファイルをダウンロードして確認できます。"
     : isZip
       ? "ZIPファイルをダウンロードできます。"
       : "このファイル形式はプレビューに対応していません。";
@@ -48,16 +47,6 @@ const DownloadCard = ({
         <p className={styles["description"]}>{description}</p>
         {safeURL ? (
           <div className={styles["download-actions"]}>
-            <a
-              className={styles["open-link"]}
-              href={safeURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${extensionLabel}ファイルを新しいタブで開く`}
-            >
-              <OpenInNewRoundedIcon aria-hidden="true" />
-              ファイルを開く
-            </a>
             <a
               className={styles["download-link"]}
               href={safeURL}

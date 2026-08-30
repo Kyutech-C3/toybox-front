@@ -38,7 +38,6 @@
   gap: 12px;
 }
 
-.open-link,
 .download-link {
   min-height: 44px;
   padding: 10px 20px;
@@ -61,11 +60,6 @@
     outline: 3px solid var(--link-color);
     outline-offset: 3px;
   }
-}
-
-.open-link {
-  border: 1px solid var(--border-color);
-  background-color: var(--paper-color);
 }
 
 .download-link {

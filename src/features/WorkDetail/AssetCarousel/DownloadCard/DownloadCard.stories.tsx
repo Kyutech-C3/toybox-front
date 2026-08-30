@@ -24,18 +24,10 @@ export const Zip: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const openLink = canvas.getByRole("link", {
-      name: ".zipファイルを新しいタブで開く",
-    });
     const downloadLink = canvas.getByRole("link", {
       name: ".zipファイルをダウンロード",
     });
 
-    await expect(openLink).toHaveAttribute(
-      "href",
-      "https://example.com/assets/source.zip",
-    );
-    await expect(openLink).not.toHaveAttribute("download");
     await expect(downloadLink).toHaveAttribute(
       "href",
       "https://example.com/assets/source.zip",
