@@ -63,7 +63,7 @@ const WorkPage = () => {
                   layout="section"
                   onRetry={handleCommentRetry}
                 >
-                  <Suspense fallback={<PageLoading />}>
+                  <Suspense fallback={<PageLoading layout="section" />}>
                     <CommentSection postId={id} />
                   </Suspense>
                 </PageErrorBoundary>

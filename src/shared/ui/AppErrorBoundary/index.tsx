@@ -12,6 +12,33 @@ type AppErrorBoundaryState = {
   hasError: boolean;
 };
 
+const AppErrorFallback = () => {
+  const handleReload = () => {
+    window.location.reload();
+  };
+
+  return (
+    <PageErrorState
+      title="画面の表示中に問題が発生しました"
+      description="ページを再読み込みしても直らない場合は、トップページからやり直してください。"
+      actions={[
+        {
+          id: "reload",
+          label: "再読み込み",
+          onClick: handleReload,
+          type: "button",
+        },
+        {
+          href: "/",
+          id: "home",
+          label: "トップへ戻る",
+          type: "anchor",
+        },
+      ]}
+    />
+  );
+};
+
 class AppErrorBoundary extends Component<
   AppErrorBoundaryProps,
   AppErrorBoundaryState
@@ -24,35 +51,12 @@ class AppErrorBoundary extends Component<
     return { hasError: true };
   }
 
-  handleReload = () => {
-    window.location.reload();
-  };
-
   render() {
     const { children } = this.props;
     const { hasError } = this.state;
 
     if (hasError) {
-      return (
-        <PageErrorState
-          title="画面の表示中に問題が発生しました"
-          description="ページを再読み込みしても直らない場合は、トップページからやり直してください。"
-          actions={[
-            {
-              id: "reload",
-              label: "再読み込み",
-              onClick: this.handleReload,
-              type: "button",
-            },
-            {
-              href: "/",
-              id: "home",
-              label: "トップへ戻る",
-              type: "anchor",
-            },
-          ]}
-        />
-      );
+      return <AppErrorFallback />;
     }
 
     return children;
@@ -60,3 +64,5 @@ class AppErrorBoundary extends Component<
 }
 
 export default AppErrorBoundary;
+
+export { AppErrorFallback };
