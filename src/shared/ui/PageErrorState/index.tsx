@@ -20,20 +20,23 @@ type PageErrorLinkAction = {
 };
 
 export type PageErrorAction = PageErrorButtonAction | PageErrorLinkAction;
+export type PageErrorStateLayout = "page" | "section";
 
 type PageErrorStateProps = {
   title: string;
   description?: string;
   actions: PageErrorAction[];
+  layout?: PageErrorStateLayout;
 };
 
 const PageErrorState = ({
   title,
   description,
   actions,
+  layout = "page",
 }: PageErrorStateProps) => {
   return (
-    <section className={styles["page-error"]} role="alert">
+    <section className={styles["page-error"]} data-layout={layout} role="alert">
       <div className={styles["message"]}>
         <h1>{title}</h1>
         {description && <p>{description}</p>}

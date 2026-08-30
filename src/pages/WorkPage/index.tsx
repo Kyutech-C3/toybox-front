@@ -25,13 +25,22 @@ const WorkPage = () => {
       : "画面の表示中に問題が発生しました";
   };
 
-  const handleRetry = async () => {
+  const getCommentErrorMessage = (error: Error) => {
+    return error instanceof ApiError
+      ? error.displayMessage
+      : "コメントの表示中に問題が発生しました";
+  };
+
+  const handleWorkRetry = async () => {
     if (!id) return;
 
-    await Promise.all([
-      mutate(`/works/${id}`, undefined, { revalidate: false }),
-      mutate(`/works/${id}/comments`, undefined, { revalidate: false }),
-    ]);
+    await mutate(`/works/${id}`, undefined, { revalidate: false });
+  };
+
+  const handleCommentRetry = async () => {
+    if (!id) return;
+
+    await mutate(`/works/${id}/comments`, undefined, { revalidate: false });
   };
 
   return (
@@ -41,13 +50,23 @@ const WorkPage = () => {
         <PageErrorBoundary
           resetKey={locationKey}
           getErrorMessage={getErrorMessage}
-          onRetry={handleRetry}
+          onRetry={handleWorkRetry}
         >
           <Suspense fallback={<PageLoading />}>
             {id ? (
               <>
                 <WorkDetail workID={id} />
-                <CommentSection postId={id} />
+                <PageErrorBoundary
+                  resetKey={locationKey}
+                  getErrorMessage={getCommentErrorMessage}
+                  isHomeActionVisible={false}
+                  layout="section"
+                  onRetry={handleCommentRetry}
+                >
+                  <Suspense fallback={<PageLoading />}>
+                    <CommentSection postId={id} />
+                  </Suspense>
+                </PageErrorBoundary>
               </>
             ) : (
               <h1>作品がありません</h1>

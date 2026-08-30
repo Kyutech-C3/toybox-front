@@ -9,6 +9,11 @@
   text-align: center;
 }
 
+.page-error[data-layout="section"] {
+  min-height: 240px;
+  padding: 32px 24px;
+}
+
 .message {
   display: grid;
   gap: 8px;
