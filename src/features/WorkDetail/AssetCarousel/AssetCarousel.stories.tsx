@@ -1,3 +1,5 @@
+import { expect, userEvent, waitFor, within } from "storybook/test";
+
 import AssetCarousel from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -47,5 +49,20 @@ export const DownloadableAssets: Story = {
         "https://example.com/assets/model.blend",
       ),
     ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const firstIndicator = canvas.getByRole("button", {
+      name: "1番目のアセットを表示",
+    });
+    const secondIndicator = canvas.getByRole("button", {
+      name: "2番目のアセットを表示",
+    });
+
+    await expect(firstIndicator).toHaveAttribute("aria-current", "true");
+    await userEvent.click(secondIndicator);
+    await waitFor(() =>
+      expect(secondIndicator).toHaveAttribute("aria-current", "true"),
+    );
   },
 };

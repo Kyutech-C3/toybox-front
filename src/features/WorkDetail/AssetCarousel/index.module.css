@@ -1,6 +1,13 @@
 .asset-wrapper {
-  position: relative;
   display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.carousel-viewport {
+  position: relative;
+  width: 100%;
+  min-width: 0;
 }
 
 .asset-container {
@@ -9,25 +16,66 @@
   border-radius: 25px;
   height: 540px;
   width: 100%;
-  overflow-x: scroll;
+  display: flex;
+  overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  columns: 1;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
   background-color: var(--asset-background);
   text-align: center;
-  gap: 4vw;
 
-  &::column {
-    scroll-snap-align: center;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
 .asset-carousel {
   text-align: left;
   list-style-type: none;
-  display: inline-block;
   height: 100%;
+  min-width: 100%;
   flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+.asset-indicators {
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.asset-indicator {
+  width: 30px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  display: grid;
+  place-items: center;
+  background-color: transparent;
+  cursor: pointer;
+
+  &::before {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--font-sub-color);
+    content: "";
+  }
+
+  &[data-active="true"]::before {
+    background-color: var(--font-color);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
+  }
 }
 
 .scroll-left-button,
