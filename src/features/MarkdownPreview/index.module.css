@@ -246,7 +246,6 @@
       padding-left: 1.2rem;
     }
 
-    /* 列が多い表は画面幅に収まらないため、表だけを横スクロールさせる */
     table {
       display: block;
       width: 100%;

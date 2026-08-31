@@ -107,7 +107,6 @@
     padding: 32px 16px;
   }
 
-  /* 円弧の始点をアバターの縮小に合わせて引き上げる */
   .profile-section::before {
     top: 160px;
     height: 640px;

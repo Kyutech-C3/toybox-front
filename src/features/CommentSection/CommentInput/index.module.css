@@ -150,7 +150,6 @@
     min-height: 60px;
   }
 
-  /* 取り消しは小さな×ではなく指で押せる大きさにする */
   .cancel-reply-button {
     min-width: var(--touch-target-min);
     min-height: var(--touch-target-min);
@@ -158,7 +157,6 @@
 }
 
 @media (max-width: 767px) {
-  /* 画面幅が狭いので送信ボタンを全幅にし、親指で押しやすくする */
   .send-wrap {
     width: 100%;
   }

@@ -65,7 +65,6 @@
 }
 
 @media (max-width: 1279px) {
-  /* 追加ボタンは指で押す前提の大きさにする */
   .add-button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);

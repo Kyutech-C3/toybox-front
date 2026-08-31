@@ -96,7 +96,6 @@
   box-shadow: 0 4px 16px var(--shadow-soft-color);
 }
 
-/* 縦並びになる幅では 2 画面分割の利点が薄いため、1 画面ぶんずつの高さを確保する */
 @media (max-width: 1279px) {
   .live-dialog-inner {
     padding: 12px 12px 16px;

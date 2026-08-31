@@ -142,7 +142,6 @@
     gap: 16px;
   }
 
-  /* 削除・再試行はプレビューに重なる小さなボタンなので、タップ幅を確保する */
   .overlay-button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);

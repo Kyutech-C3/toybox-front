@@ -1,4 +1,3 @@
-/* 1095px = カード 333px × 3 + gap 48px × 2 */
 .work-card-grid {
   width: min(100%, 1095px);
   display: grid;
@@ -8,11 +7,6 @@
   gap: var(--grid-gap);
 }
 
-/* タブレットは列数を変えず、幅の縮小をカード側で吸収する。
-   デスクトップと同じ 3 列のため専用の指定は不要 */
-
-/* 682px = カード 333px × 2 + gap 16px。
-   これを超えるとカードが上限幅で止まり、列の間だけが空いてしまう */
 @media (max-width: 767px) {
   .work-card-grid {
     width: min(100%, 682px);

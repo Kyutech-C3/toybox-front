@@ -137,8 +137,6 @@
 }
 
 @media (max-width: 1279px) {
-  /* 列数は 3 のままカード幅だけが縮むため、高さは内容に合わせる。
-     grid の既定の stretch で同じ行のカードは揃う */
   .card-wrapper {
     height: auto;
   }
@@ -147,7 +145,6 @@
     font-size: 1.25rem;
   }
 
-  /* タップ操作で押しやすい大きさを確保する */
   .visibility-label,
   .edit-link {
     min-height: var(--touch-target-min);
@@ -157,8 +154,6 @@
   }
 }
 
-/* 2 列表示ではカード幅が 156〜215px まで縮むため、
-   文字とバッジを一段小さくして収める */
 @media (max-width: 767px) {
   .card-wrapper {
     border-radius: 16px;
@@ -188,8 +183,6 @@
     left: 8px;
   }
 
-  /* カード幅が狭く 44px 角のピルは 2 つ並ばないため、
-     この 2 つだけは縮める。主要な導線はカード全面のリンクが担う */
   .visibility-label,
   .edit-link {
     min-height: 32px;
@@ -211,7 +204,6 @@
   }
 }
 
-/* タップでは hover が残り続けるため、拡大演出を無効化する */
 @media (hover: none) {
   .card-wrapper:hover {
     transform: none;

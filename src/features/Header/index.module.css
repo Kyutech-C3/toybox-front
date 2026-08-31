@@ -36,15 +36,10 @@
   gap: 4px;
 }
 
-/* 新規投稿ボタンの見た目は 2 通り。
-   ヘッダー内では「新規投稿」の文字のみ、FAB では ＋ アイコンのみ。
-   ＋ アイコンは既定で隠し、FAB になる幅でだけ出す */
 .fab-icon {
   display: none;
 }
 
-/* タブレット以下は新規投稿を FAB にする。
-   ヘッダー上部は端末を持つ手の親指が届きにくいため */
 @media (max-width: 1279px) {
   .logo-wrapper {
     margin-left: 24px;
@@ -63,13 +58,10 @@
     gap: 12px;
   }
 
-  /* FAB では文字を出さない。読み上げ用の名前は Button の ariaLabel が担う */
   .login-label {
     display: none;
   }
 
-  /* 画面端からの距離はページ余白に合わせる。
-     隠れる分の余白は --fab-clearance で各ページが確保する */
   .new-work-button {
     position: fixed;
     right: var(--page-margin);

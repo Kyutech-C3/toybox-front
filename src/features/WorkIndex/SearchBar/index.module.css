@@ -56,7 +56,6 @@
 
 @media (max-width: 767px) {
   .search-input {
-    /* 16px を下回ると iOS Safari が入力時に自動ズームする */
     font-size: 16px;
     padding: 14px 16px 14px 0;
   }

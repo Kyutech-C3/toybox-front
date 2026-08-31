@@ -22,8 +22,6 @@
   object-fit: cover;
 }
 
-/* カード内では 2 列表示でカード幅が縮むため、既定サイズを一段下げる。
-   data-size="profile" は指定が優先されるので影響しない */
 @media (max-width: 767px) {
   .avatar-wrapper {
     height: 36px;

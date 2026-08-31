@@ -19,7 +19,6 @@
 }
 
 @media (max-width: 1279px) {
-  /* 画面端に入力欄が貼り付かないよう左右余白を持たせる */
   .work-editor-wrapper {
     gap: 40px;
     padding: 48px var(--page-margin);

@@ -8,7 +8,6 @@
   background: var(--paper-color);
   box-shadow: 0 6px 14px var(--shadow-soft-color);
   animation: fade-in 0.15s ease;
-  /* 画面端ではみ出さないようにする */
   max-width: calc(100vw - 32px);
 }
 

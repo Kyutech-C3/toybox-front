@@ -12,7 +12,6 @@
 }
 
 @media (max-width: 767px) {
-  /* 縦積みにし、主操作の公開ボタンを上、破壊的な削除を下に置く */
   .publish-buttons-wrapper {
     flex-direction: column-reverse;
     align-items: stretch;

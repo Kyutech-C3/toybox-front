@@ -22,7 +22,6 @@
 }
 
 @media (max-width: 1279px) {
-  /* アバターが縮んでもタップ領域は確保する */
   .account-menu-trigger {
     min-width: var(--touch-target-min);
     min-height: var(--touch-target-min);

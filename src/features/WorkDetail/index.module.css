@@ -31,7 +31,6 @@
     margin: 16px 0;
   }
 
-  /* タグが多いと 1 行に収まらないため折り返す */
   .batches-wrapper {
     flex-wrap: wrap;
   }

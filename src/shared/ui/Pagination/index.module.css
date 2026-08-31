@@ -1,4 +1,3 @@
-/* Pagination wrapper */
 .pagination-wrapper {
   display: flex;
   align-items: center;
@@ -7,7 +6,6 @@
   padding: 30px;
 }
 
-/* ページ番号の nav */
 .pagination {
   display: flex;
   align-items: center;
@@ -62,7 +60,6 @@
 }
 
 @media (max-width: 767px) {
-  /* 最大 9 個のボタンが 1 行に収まらないため、折り返して中央に寄せる */
   .pagination-wrapper {
     padding: 12px 0;
     gap: 6px;

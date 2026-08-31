@@ -123,7 +123,6 @@
     padding: 0 12px 0 16px;
   }
 
-  /* 画面幅を超えないよう、吹き出しの位置と幅を親に合わせる */
   .upload-notice,
   .submit-error {
     right: auto;
