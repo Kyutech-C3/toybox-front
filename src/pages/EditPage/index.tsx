@@ -4,6 +4,7 @@ import { mutate } from "swr";
 
 import styles from "./index.module.css";
 
+import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import Header from "@/features/Header";
 import WorkEditor, { isWorkEditorSWRKey } from "@/features/WorkEditor";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
@@ -44,15 +45,17 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
     <>
       <Header />
       <main className={styles["main-wrapper"]}>
-        <PageErrorBoundary
-          resetKey={locationKey}
-          getErrorMessage={getErrorMessage}
-          onRetry={handleRetry}
-        >
-          <Suspense fallback={<PageLoading />}>
-            <WorkEditor workID={workID} />
-          </Suspense>
-        </PageErrorBoundary>
+        <ProtectedRoute>
+          <PageErrorBoundary
+            resetKey={locationKey}
+            getErrorMessage={getErrorMessage}
+            onRetry={handleRetry}
+          >
+            <Suspense fallback={<PageLoading />}>
+              <WorkEditor workID={workID} />
+            </Suspense>
+          </PageErrorBoundary>
+        </ProtectedRoute>
       </main>
     </>
   );
