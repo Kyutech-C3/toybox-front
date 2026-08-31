@@ -25,8 +25,12 @@ const MovieCard = ({ src, extension, onLoadError }: MovieCardProps) => {
   };
 
   return (
-    <video controls className={styles["card-movie"]} onError={onLoadError}>
-      <source src={src} type={getVideoMimeType(extension)} />
+    <video controls className={styles["card-movie"]}>
+      <source
+        src={src}
+        type={getVideoMimeType(extension)}
+        onError={onLoadError}
+      />
       <track kind="captions" srcLang="jp" label="Japanese" />
     </video>
   );

@@ -26,7 +26,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     const container = containerRef.current;
     if (!container) return;
 
-    const updateScrollButtons = () => {
+    const updateActiveAssetIndex = () => {
       if (assets.length <= 1) {
         setActiveAssetIndex(0);
         return;
@@ -42,11 +42,11 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
       );
     };
 
-    updateScrollButtons();
-    container.addEventListener("scroll", updateScrollButtons);
+    updateActiveAssetIndex();
+    container.addEventListener("scroll", updateActiveAssetIndex);
 
     return () => {
-      container.removeEventListener("scroll", updateScrollButtons);
+      container.removeEventListener("scroll", updateActiveAssetIndex);
     };
   }, [assets.length]);
 

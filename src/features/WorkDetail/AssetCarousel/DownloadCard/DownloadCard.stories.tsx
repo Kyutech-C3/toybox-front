@@ -62,9 +62,9 @@ export const UnsafeURL: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole("alert")).toHaveTextContent(
-      "このアセットのURLは安全に開けません。",
-    );
+    await expect(
+      canvas.getByText("このアセットのURLは安全に開けません。"),
+    ).toBeInTheDocument();
     await expect(canvas.queryByRole("link")).not.toBeInTheDocument();
   },
 };

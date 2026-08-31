@@ -60,7 +60,7 @@ const DownloadCard = ({
             </a>
           </div>
         ) : (
-          <p className={styles["url-error"]} role="alert">
+          <p className={styles["url-error"]}>
             このアセットのURLは安全に開けません。
           </p>
         )}

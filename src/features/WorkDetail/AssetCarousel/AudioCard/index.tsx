@@ -25,8 +25,12 @@ const AudioCard = ({ src, extension, onLoadError }: AudioCardProps) => {
   };
   return (
     <div className={styles["card-audio"]}>
-      <audio controls onError={onLoadError}>
-        <source src={src} type={getAudioMimeType(extension)} />
+      <audio controls>
+        <source
+          src={src}
+          type={getAudioMimeType(extension)}
+          onError={onLoadError}
+        />
         <track kind="captions" srcLang="jp" label="Japanese" />
       </audio>
     </div>
