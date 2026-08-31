@@ -58,3 +58,19 @@
   outline: 2px solid var(--font-color);
   outline-offset: 2px;
 }
+
+@media (max-width: 767px) {
+  /* data-layout="section" は指定が優先されるため、全画面表示のときだけ縮める */
+  .page-error {
+    min-height: calc(100vh - var(--header-height) - 96px);
+    padding: 32px 16px;
+  }
+
+  .actions {
+    gap: 8px;
+  }
+
+  .link-action {
+    min-height: var(--touch-target-min);
+  }
+}

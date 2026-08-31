@@ -25,3 +25,24 @@
 .work-postdate {
   font-size: 0.875rem;
 }
+
+@media (max-width: 1279px) {
+  .work-detail-info {
+    margin: 16px 0;
+  }
+
+  .batches-wrapper {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 767px) {
+  .work-detail-metadata {
+    margin-bottom: 12px;
+  }
+
+  .work-detail-info {
+    margin: 12px 0;
+    gap: 12px;
+  }
+}

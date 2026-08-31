@@ -4,3 +4,17 @@
   display: flex;
   justify-content: flex-end;
 }
+
+@media (max-width: 1279px) {
+  .publish-buttons-wrapper {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .publish-buttons-wrapper {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+}

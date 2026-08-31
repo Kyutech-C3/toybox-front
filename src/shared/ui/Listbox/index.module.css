@@ -24,3 +24,9 @@
 .listbox::-webkit-scrollbar-thumb:hover {
   background: var(--font-muted-color);
 }
+
+@media (max-width: 1279px) {
+  .listbox {
+    max-height: min(240px, calc(100vh - 32px));
+  }
+}

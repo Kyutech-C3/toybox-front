@@ -20,3 +20,13 @@
   width: 200px;
   max-width: calc(100vw - 32px);
 }
+
+@media (max-width: 1279px) {
+  .account-menu-trigger {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

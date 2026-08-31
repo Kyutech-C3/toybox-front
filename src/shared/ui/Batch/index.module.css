@@ -63,3 +63,18 @@
     animation: none;
   }
 }
+
+@media (max-width: 1279px) {
+  .batch {
+    min-height: 36px;
+  }
+
+  .batch-button {
+    height: 28px;
+    width: 28px;
+  }
+
+  .batch[data-clickable="true"] {
+    padding: 0 4px 0 12px;
+  }
+}

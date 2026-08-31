@@ -1,7 +1,14 @@
 .card-audio {
-  height: 540px;
+  height: var(--asset-carousel-height, 540px);
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .card-audio {
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
 }

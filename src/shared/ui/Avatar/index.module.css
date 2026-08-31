@@ -21,3 +21,10 @@
   height: 100%;
   object-fit: cover;
 }
+
+@media (max-width: 767px) {
+  .avatar-wrapper {
+    height: 36px;
+    width: 36px;
+  }
+}

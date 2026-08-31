@@ -1,6 +1,4 @@
 .markdown-editor {
-  /* Edit Mode の初期表示行数と 1 行の高さ。エディタ本体の高さは固定せず、
-     この行数を下限として入力量に合わせて伸びる */
   --editor-line-height: 24px;
   --editor-initial-lines: 7;
   --editor-text-padding: 12px;
@@ -27,13 +25,9 @@
   width: 100%;
 }
 
-/* ---------------- Edit Mode ---------------- */
-
 .edit-pane {
   width: 100%;
 }
-
-/* ---------------- Preview Mode ---------------- */
 
 .preview-pane {
   min-height: var(--editor-min-height);
@@ -48,9 +42,6 @@
   text-align: center;
 }
 
-/* ---------------- Live Mode ---------------- */
-
-/* 全画面ダイアログを開いている間、背後のページの高さを保つためのプレースホルダ */
 .live-placeholder {
   display: flex;
   align-items: center;
@@ -60,4 +51,16 @@
   border-radius: var(--editor-radius);
   color: var(--font-muted-color);
   font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .markdown-editor {
+    --editor-initial-lines: 5;
+
+    gap: 12px;
+  }
+
+  .preview-empty {
+    padding: 16px 12px;
+  }
 }

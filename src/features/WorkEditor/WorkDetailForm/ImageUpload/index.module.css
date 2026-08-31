@@ -111,3 +111,26 @@
   color: var(--font-muted-color);
   font-size: 12px;
 }
+
+@media (max-width: 1279px) {
+  .overlay-button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+}
+
+@media (max-width: 767px) {
+  .upload-area {
+    border-width: 3px;
+  }
+
+  .overlay-actions {
+    top: 8px;
+    right: 8px;
+  }
+
+  .upload-meta {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}

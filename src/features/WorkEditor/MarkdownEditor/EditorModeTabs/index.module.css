@@ -12,7 +12,6 @@
   isolation: isolate;
 }
 
-/* 選択中のタブを示すスライダー */
 .mode-tabs-thumb {
   position: absolute;
   z-index: 0;
@@ -84,7 +83,7 @@
   }
 }
 
-@media (width <= 600px) {
+@media (max-width: 767px) {
   .mode-tabs {
     display: grid;
     width: 100%;

@@ -1,4 +1,8 @@
 .asset-wrapper {
+  /* カルーセルの表示高さ。ImgCard / MovieCard / AudioCard / CardWrapper が
+     この値を継承するので、高さの変更はここだけで済む */
+  --asset-carousel-height: 540px;
+
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -14,7 +18,7 @@
   margin: 0;
   padding: 0;
   border-radius: 25px;
-  height: 540px;
+  height: var(--asset-carousel-height);
   width: 100%;
   display: flex;
   overflow-x: auto;
@@ -103,4 +107,49 @@
 
 .scroll-right-button {
   right: 25px;
+}
+
+@media (max-width: 1279px) {
+  .asset-wrapper {
+    --asset-carousel-height: 360px;
+  }
+
+  .scroll-left-button,
+  .scroll-right-button {
+    width: 48px;
+    height: 48px;
+    padding: 6px;
+  }
+
+  .scroll-left-button {
+    left: 12px;
+  }
+
+  .scroll-right-button {
+    right: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .asset-wrapper {
+    --asset-carousel-height: 240px;
+  }
+
+  .asset-container {
+    border-radius: 16px;
+  }
+
+  .scroll-left-button,
+  .scroll-right-button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+
+  .scroll-left-button {
+    left: 8px;
+  }
+
+  .scroll-right-button {
+    right: 8px;
+  }
 }

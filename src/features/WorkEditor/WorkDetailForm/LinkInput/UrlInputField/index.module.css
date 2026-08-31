@@ -75,3 +75,24 @@
   color: var(--error-color);
   font-size: 14px;
 }
+
+@media (max-width: 1279px) {
+  .input-control button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+}
+
+@media (max-width: 767px) {
+  .input-row {
+    gap: 6px;
+  }
+
+  .favicon-slot {
+    margin-left: 0;
+  }
+
+  .input-error {
+    margin: 6px 4px 0;
+  }
+}

@@ -8,6 +8,7 @@
   background: var(--paper-color);
   box-shadow: 0 6px 14px var(--shadow-soft-color);
   animation: fade-in 0.15s ease;
+  max-width: calc(100vw - 32px);
 }
 
 .popover-top {
@@ -109,5 +110,11 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (max-width: 1279px) {
+  .popover-item {
+    min-height: var(--touch-target-min);
   }
 }

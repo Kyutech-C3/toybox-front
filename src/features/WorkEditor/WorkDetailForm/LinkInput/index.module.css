@@ -63,3 +63,25 @@
   flex-direction: column;
   gap: 10px;
 }
+
+@media (max-width: 1279px) {
+  .add-button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+}
+
+@media (max-width: 767px) {
+  .heading-row {
+    margin: 0 2px 8px;
+    gap: 8px;
+
+    h3 {
+      font-size: 16px;
+    }
+  }
+
+  .url-count {
+    font-size: 14px;
+  }
+}

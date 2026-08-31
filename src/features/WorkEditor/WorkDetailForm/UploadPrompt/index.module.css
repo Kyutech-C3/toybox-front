@@ -11,3 +11,9 @@
   color: var(--font-muted-color);
   font-size: 50px;
 }
+
+@media (max-width: 767px) {
+  .upload-prompt > svg {
+    font-size: 40px;
+  }
+}

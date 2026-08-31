@@ -135,3 +135,81 @@
   overflow: scroll;
   scrollbar-width: none;
 }
+
+@media (max-width: 1279px) {
+  .card-wrapper {
+    height: auto;
+  }
+
+  .card-image-wrapper .card-title {
+    font-size: 1.25rem;
+  }
+
+  .visibility-label,
+  .edit-link {
+    min-height: var(--touch-target-min);
+    padding: 8px 14px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 767px) {
+  .card-wrapper {
+    border-radius: 16px;
+  }
+
+  .card-image-wrapper {
+    border-radius: 16px 16px 0 0;
+
+    .card-image {
+      border-radius: 16px 16px 0 0;
+    }
+
+    .card-title {
+      bottom: 0.6rem;
+      left: 0.6em;
+      font-size: 0.9375rem;
+    }
+  }
+
+  .work-link:focus-visible::after {
+    border-radius: 16px;
+  }
+
+  .card-actions {
+    top: 8px;
+    right: 8px;
+    left: 8px;
+  }
+
+  .visibility-label,
+  .edit-link {
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 0.6875rem;
+  }
+
+  .card-discription-wrapper {
+    padding: 10px;
+  }
+
+  .card-postdate {
+    font-size: 0.75rem;
+  }
+
+  .batches-wrapper {
+    margin-top: 8px;
+    gap: 6px;
+  }
+}
+
+@media (hover: none) {
+  .card-wrapper:hover {
+    transform: none;
+  }
+
+  .edit-link:hover {
+    background: var(--paper-overlay-color);
+  }
+}

@@ -11,3 +11,10 @@
   min-height: 240px;
   padding: 32px 24px;
 }
+
+@media (max-width: 767px) {
+  .page-loading {
+    min-height: calc(100vh - var(--header-height) - 96px);
+    padding: 32px 16px;
+  }
+}

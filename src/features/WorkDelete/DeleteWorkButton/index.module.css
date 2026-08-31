@@ -21,3 +21,9 @@
     box-shadow: none;
   }
 }
+
+@media (max-width: 767px) {
+  .delete-work-button {
+    width: 100%;
+  }
+}
