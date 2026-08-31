@@ -3,9 +3,10 @@ import styles from "./index.module.css";
 type MovieCardProps = {
   src: string;
   extension: string;
+  onLoadError?: () => void;
 };
 
-const MovieCard = ({ src, extension }: MovieCardProps) => {
+const MovieCard = ({ src, extension, onLoadError }: MovieCardProps) => {
   const getVideoMimeType = (extension: string): string => {
     switch (extension) {
       case "mp4":
@@ -25,7 +26,11 @@ const MovieCard = ({ src, extension }: MovieCardProps) => {
 
   return (
     <video controls className={styles["card-movie"]}>
-      <source src={src} type={getVideoMimeType(extension)} />
+      <source
+        src={src}
+        type={getVideoMimeType(extension)}
+        onError={onLoadError}
+      />
       <track kind="captions" srcLang="jp" label="Japanese" />
     </video>
   );
