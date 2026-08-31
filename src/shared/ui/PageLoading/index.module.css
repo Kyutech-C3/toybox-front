@@ -6,3 +6,8 @@
   place-items: center;
   text-align: center;
 }
+
+.page-loading[data-layout="section"] {
+  min-height: 240px;
+  padding: 32px 24px;
+}

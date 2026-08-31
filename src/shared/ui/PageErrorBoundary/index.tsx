@@ -1,14 +1,19 @@
 import { Component } from "react";
 
-import styles from "./index.module.css";
-
-import Button from "@/shared/ui/Button";
+import PageErrorState from "@/shared/ui/PageErrorState";
+import { ApiError } from "@/util/fetchData";
 
 import type { ReactNode } from "react";
+import type {
+  PageErrorAction,
+  PageErrorStateLayout,
+} from "@/shared/ui/PageErrorState";
 
 type PageErrorBoundaryProps = {
   children: ReactNode;
   getErrorMessage?: (error: Error) => string;
+  isHomeActionVisible?: boolean;
+  layout?: PageErrorStateLayout;
   onRetry: () => Promise<unknown>;
   resetKey?: string;
 };
@@ -50,20 +55,42 @@ class PageErrorBoundary extends Component<
   };
 
   render() {
-    const { children, getErrorMessage } = this.props;
+    const {
+      children,
+      getErrorMessage,
+      isHomeActionVisible = true,
+      layout,
+    } = this.props;
     const { error, isRetrying } = this.state;
 
     if (error) {
       const message =
-        getErrorMessage?.(error) ?? "データを取得できませんでした";
+        getErrorMessage?.(error) ??
+        (error instanceof ApiError
+          ? error.displayMessage
+          : "画面の表示中に問題が発生しました");
+
+      const actions: PageErrorAction[] = [
+        {
+          id: "retry",
+          label: isRetrying ? "再試行中..." : "再試行",
+          onClick: this.handleRetry,
+          isDisabled: isRetrying,
+          type: "button",
+        },
+      ];
+
+      if (isHomeActionVisible) {
+        actions.push({
+          id: "home",
+          label: "トップへ戻る",
+          to: "/",
+          type: "link",
+        });
+      }
 
       return (
-        <section className={styles["page-error"]} role="alert">
-          <h1>{message}</h1>
-          <Button onClick={this.handleRetry} isDisabled={isRetrying}>
-            {isRetrying ? "再試行中..." : "再試行"}
-          </Button>
-        </section>
+        <PageErrorState title={message} actions={actions} layout={layout} />
       );
     }
 

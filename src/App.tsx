@@ -1,8 +1,8 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 
-import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import EditPage from "@/pages/EditPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 import TopPage from "@/pages/TopPage";
 import UserPage from "@/pages/UserPage";
 import WorkPage from "@/pages/WorkPage";
@@ -13,23 +13,9 @@ function App() {
       <Route path="/" element={<TopPage />} />
       <Route path="/work/:id" element={<WorkPage />} />
       <Route path="/user/:id" element={<UserPage />} />
-      <Route
-        path="/edit/new"
-        element={
-          <ProtectedRoute>
-            <EditPage isNewWork />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/edit/:id"
-        element={
-          <ProtectedRoute>
-            <EditPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/edit/new" element={<EditPage isNewWork />} />
+      <Route path="/edit/:id" element={<EditPage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

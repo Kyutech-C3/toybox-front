@@ -4,6 +4,7 @@ import { mutate } from "swr";
 
 import styles from "./index.module.css";
 
+import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import Header from "@/features/Header";
 import WorkEditor, { isWorkEditorSWRKey } from "@/features/WorkEditor";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
@@ -27,7 +28,9 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
       return "この作品を編集する権限がありません";
     }
 
-    return "データを取得できませんでした";
+    return error instanceof ApiError
+      ? error.displayMessage
+      : "画面の表示中に問題が発生しました";
   };
 
   const handleRetry = async () => {
@@ -42,15 +45,17 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
     <>
       <Header />
       <main className={styles["main-wrapper"]}>
-        <PageErrorBoundary
-          resetKey={locationKey}
-          getErrorMessage={getErrorMessage}
-          onRetry={handleRetry}
-        >
-          <Suspense fallback={<PageLoading />}>
-            <WorkEditor workID={workID} />
-          </Suspense>
-        </PageErrorBoundary>
+        <ProtectedRoute>
+          <PageErrorBoundary
+            resetKey={locationKey}
+            getErrorMessage={getErrorMessage}
+            onRetry={handleRetry}
+          >
+            <Suspense fallback={<PageLoading />}>
+              <WorkEditor workID={workID} />
+            </Suspense>
+          </PageErrorBoundary>
+        </ProtectedRoute>
       </main>
     </>
   );

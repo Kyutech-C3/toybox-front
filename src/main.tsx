@@ -7,6 +7,9 @@ import "./index.css";
 import App from "./App.tsx";
 
 import AuthSessionProvider from "@/features/auth/AuthSessionProvider";
+import AppErrorBoundary, {
+  AppErrorFallback,
+} from "@/shared/ui/AppErrorBoundary";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 
 const ROOT = document.getElementById("root");
@@ -15,6 +18,7 @@ if (!ROOT) throw new Error("Failed to find the root element");
 const ROUTER = createBrowserRouter([
   {
     path: "*",
+    errorElement: <AppErrorFallback />,
     element: (
       <ToastProvider>
         <AuthSessionProvider>
@@ -29,6 +33,8 @@ const ROUTER = createBrowserRouter([
 
 createRoot(ROOT).render(
   <StrictMode>
-    <RouterProvider router={ROUTER} />
+    <AppErrorBoundary>
+      <RouterProvider router={ROUTER} />
+    </AppErrorBoundary>
   </StrictMode>,
 );

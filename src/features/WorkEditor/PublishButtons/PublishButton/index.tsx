@@ -62,9 +62,7 @@ const getSubmitErrorMessage = (error: unknown, isEditMode: boolean) => {
     if (error.status === 409) {
       return "他の場所で作品が更新されています。再読み込みしてください";
     }
-    if (error.status >= 500) {
-      return "サーバーエラーが発生しました。時間をおいて再試行してください";
-    }
+    return error.displayMessage;
   }
 
   return isEditMode ? "作品の保存に失敗しました" : "作品の投稿に失敗しました";
