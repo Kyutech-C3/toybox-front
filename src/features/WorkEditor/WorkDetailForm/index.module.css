@@ -4,3 +4,15 @@
   flex-direction: column;
   gap: 50px;
 }
+
+@media (max-width: 1279px) {
+  .work-detail-form-wrapper {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  .work-detail-form-wrapper {
+    gap: 24px;
+  }
+}

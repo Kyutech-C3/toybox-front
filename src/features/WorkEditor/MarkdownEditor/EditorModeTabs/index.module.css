@@ -84,7 +84,7 @@
   }
 }
 
-@media (width <= 600px) {
+@media (max-width: 767px) {
   .mode-tabs {
     display: grid;
     width: 100%;

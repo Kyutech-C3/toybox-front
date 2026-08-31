@@ -110,3 +110,27 @@
   width: 100%;
   pointer-events: auto;
 }
+
+@media (max-width: 767px) {
+  .publish-button-wrapper {
+    display: flex;
+    width: 100%;
+  }
+
+  .publish-button {
+    flex: 1;
+    min-width: 0;
+    padding: 0 12px 0 16px;
+  }
+
+  /* 画面幅を超えないよう、吹き出しの位置と幅を親に合わせる */
+  .upload-notice,
+  .submit-error {
+    right: auto;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+}

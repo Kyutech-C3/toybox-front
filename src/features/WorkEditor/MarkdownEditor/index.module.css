@@ -61,3 +61,16 @@
   color: var(--font-muted-color);
   font-size: 14px;
 }
+
+@media (max-width: 767px) {
+  .markdown-editor {
+    /* 画面が短いので初期表示行数を減らし、下の操作ボタンを見えるところに残す */
+    --editor-initial-lines: 5;
+
+    gap: 12px;
+  }
+
+  .preview-empty {
+    padding: 16px 12px;
+  }
+}

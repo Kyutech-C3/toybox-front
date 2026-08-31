@@ -8,7 +8,7 @@
 }
 
 .editor-status {
-  min-height: calc(100vh - 140px);
+  min-height: calc(100vh - var(--header-height));
   margin: 0;
   display: flex;
   flex-direction: column;
@@ -16,4 +16,24 @@
   justify-content: center;
   gap: 12px;
   color: var(--font-color);
+}
+
+@media (max-width: 1279px) {
+  /* 画面端に入力欄が貼り付かないよう左右余白を持たせる */
+  .work-editor-wrapper {
+    gap: 40px;
+    padding: 48px var(--page-margin);
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 767px) {
+  .work-editor-wrapper {
+    gap: 32px;
+    padding: 24px var(--page-margin);
+  }
+
+  .editor-status {
+    padding: 0 var(--page-margin);
+  }
 }
