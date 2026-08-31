@@ -4,3 +4,9 @@
   gap: 28px;
   width: 100%;
 }
+
+@media (max-width: 1279px) {
+  .list {
+    gap: 20px;
+  }
+}

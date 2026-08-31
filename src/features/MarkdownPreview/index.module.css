@@ -209,3 +209,54 @@
     }
   }
 }
+
+@media (max-width: 767px) {
+  .markdown-preview {
+    padding: 0.5rem 0;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+    }
+
+    h4,
+    h5 {
+      font-size: 1.05rem;
+    }
+
+    img {
+      max-height: 260px;
+      margin: 1rem auto;
+    }
+
+    pre {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    ul,
+    ol {
+      padding-left: 1.2rem;
+    }
+
+    /* 列が多い表は画面幅に収まらないため、表だけを横スクロールさせる */
+    table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    th,
+    td {
+      padding: 0.5rem 0.75rem;
+    }
+  }
+}

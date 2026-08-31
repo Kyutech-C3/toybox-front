@@ -1,8 +1,21 @@
 .paper-wrapper {
   border-radius: 16px;
   background-color: var(--paper-color);
-  padding: 40px;
+  padding: var(--paper-padding);
   width: 80%;
   text-align: left;
   box-shadow: 4px 4px 8px var(--shadow-soft-color);
+}
+
+@media (max-width: 1279px) {
+  .paper-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 767px) {
+  .paper-wrapper {
+    border-radius: 12px;
+  }
 }

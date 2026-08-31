@@ -30,3 +30,21 @@
   font-size: 14px;
   text-align: center;
 }
+
+@media (max-width: 1279px) {
+  .content {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  .title {
+    font-size: 20px;
+    line-height: 24px;
+    margin: 0 0 16px;
+  }
+
+  .loading {
+    padding: 24px;
+  }
+}

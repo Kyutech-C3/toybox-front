@@ -5,5 +5,5 @@
   background-color: var(--paper-color);
   overflow: hidden;
   background-color: var(--asset-background);
-  max-height: 540px;
+  max-height: var(--asset-carousel-height, 540px);
 }

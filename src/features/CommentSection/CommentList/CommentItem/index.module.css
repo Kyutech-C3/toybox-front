@@ -147,3 +147,44 @@
   white-space: pre-line;
   text-align: left;
 }
+
+@media (max-width: 1279px) {
+  .comment-row {
+    gap: 12px;
+  }
+
+  .avatar,
+  .avatar-link {
+    width: 40px;
+    height: 40px;
+  }
+
+  .bubble {
+    padding: 14px 16px;
+    border-radius: 16px;
+  }
+
+  /* 返信・削除はタップ対象なので押せる高さを確保する */
+  .reply-button {
+    min-height: var(--touch-target-min);
+    font-size: 14px;
+  }
+
+  .delete-button {
+    min-height: var(--touch-target-min);
+    padding: 4px 14px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* 返信が入れ子になるほど本文幅が減るため、字下げを詰める */
+  .replies-container {
+    margin-left: 8px;
+    padding-left: 12px;
+  }
+
+  .header {
+    gap: 8px;
+  }
+}
