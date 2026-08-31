@@ -46,3 +46,26 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+@media (max-width: 1279px) {
+  .search-bar-wrapper,
+  .tags-wrapper {
+    width: 100%;
+  }
+}
+
+@media (max-width: 767px) {
+  .search-input {
+    /* 16px を下回ると iOS Safari が入力時に自動ズームする */
+    font-size: 16px;
+    padding: 14px 16px 14px 0;
+  }
+
+  .input-listbox-container {
+    height: 52px;
+  }
+
+  .tag-listbox {
+    max-height: min(240px, calc(100vh - 32px));
+  }
+}

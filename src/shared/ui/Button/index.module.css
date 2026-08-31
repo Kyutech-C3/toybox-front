@@ -32,3 +32,11 @@
     box-shadow: none;
   }
 }
+
+@media (max-width: 767px) {
+  .primary-button {
+    height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    padding: 0 10px;
+  }
+}

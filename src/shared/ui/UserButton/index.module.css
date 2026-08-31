@@ -31,3 +31,19 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+@media (max-width: 1279px) {
+  .user-button {
+    min-height: var(--touch-target-min);
+  }
+}
+
+@media (max-width: 767px) {
+  .user-button {
+    gap: 8px;
+  }
+
+  .display-name {
+    font-size: 1rem;
+  }
+}

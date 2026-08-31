@@ -1,13 +1,22 @@
 .header-wrapper {
   background-color: var(--primary-color);
-  height: 140px;
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .logo-wrapper {
   margin-left: 50px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  width: auto;
+  height: 75px;
 }
 
 .switch-wrapper {
@@ -17,6 +26,7 @@
 .login-wrapper {
   margin-right: 58px;
   display: flex;
+  align-items: center;
   gap: 24px;
 }
 
@@ -24,4 +34,85 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+/* 新規投稿ボタンの見た目は 2 通り。
+   ヘッダー内では「新規投稿」の文字のみ、FAB では ＋ アイコンのみ。
+   ＋ アイコンは既定で隠し、FAB になる幅でだけ出す */
+.fab-icon {
+  display: none;
+}
+
+/* タブレット以下は新規投稿を FAB にする。
+   ヘッダー上部は端末を持つ手の親指が届きにくいため */
+@media (max-width: 1279px) {
+  .logo-wrapper {
+    margin-left: 24px;
+  }
+
+  .logo-image {
+    height: 52px;
+  }
+
+  .switch-wrapper,
+  .login-wrapper {
+    margin-right: 24px;
+  }
+
+  .login-wrapper {
+    gap: 12px;
+  }
+
+  /* FAB では文字を出さない。読み上げ用の名前は Button の ariaLabel が担う */
+  .login-label {
+    display: none;
+  }
+
+  /* 画面端からの距離はページ余白に合わせる。
+     隠れる分の余白は --fab-clearance で各ページが確保する */
+  .new-work-button {
+    position: fixed;
+    right: var(--page-margin);
+    bottom: var(--page-margin);
+    z-index: 50;
+  }
+
+  .new-work-button button {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    padding: 0;
+    border-radius: 9999px;
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: var(--font-color);
+    box-shadow: 0 4px 12px var(--shadow-soft-color);
+  }
+
+  .new-work-button svg {
+    font-size: 30px;
+  }
+
+  .fab-icon {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .logo-wrapper {
+    margin-left: 16px;
+  }
+
+  .logo-image {
+    height: 36px;
+  }
+
+  .switch-wrapper,
+  .login-wrapper {
+    margin-right: 16px;
+  }
+
+  .login-wrapper {
+    gap: 8px;
+  }
 }

@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
 import { getLoginUrl, logout } from "../auth/auth";
@@ -72,22 +72,33 @@ const Header = () => {
     <header className={styles["header-wrapper"]}>
       <div className={styles["logo-wrapper"]}>
         <Link to="/">
-          <img src="/ToyboxLogo.svg" alt="logo-image" height={75} />
+          <img
+            src="/ToyboxLogo.svg"
+            alt="logo-image"
+            className={styles["logo-image"]}
+            height={75}
+          />
         </Link>
       </div>
       <div className={styles["login-wrapper"]}>
         {accessToken && (
-          <Button variant="primary" onClick={() => navigate("/edit/new")}>
-            <div className={styles["login-container"]}>
-              <p>新規投稿する</p>
-              <AutoAwesomeRoundedIcon />
-            </div>
-          </Button>
+          <div className={styles["new-work-button"]}>
+            <Button
+              variant="primary"
+              onClick={() => navigate("/edit/new")}
+              ariaLabel="新規投稿"
+            >
+              <div className={styles["login-container"]}>
+                <p className={styles["login-label"]}>新規投稿</p>
+                <AddRoundedIcon className={styles["fab-icon"]} />
+              </div>
+            </Button>
+          </div>
         )}
         {user ? (
           <AccountMenu user={user} onLogout={handleLogout} />
         ) : (
-          <Button variant="primary" onClick={handleLogin}>
+          <Button variant="primary" onClick={handleLogin} ariaLabel="ログイン">
             <div className={styles["login-container"]}>
               <LoginRoundedIcon />
             </div>

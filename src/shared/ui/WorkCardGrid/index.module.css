@@ -1,22 +1,21 @@
+/* 1095px = カード 333px × 3 + gap 48px × 2 */
 .work-card-grid {
   width: min(100%, 1095px);
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   justify-content: center;
   justify-items: center;
-  gap: 48px;
+  gap: var(--grid-gap);
 }
 
-@media (max-width: 1120px) {
+/* タブレットは列数を変えず、幅の縮小をカード側で吸収する。
+   デスクトップと同じ 3 列のため専用の指定は不要 */
+
+/* 682px = カード 333px × 2 + gap 16px。
+   これを超えるとカードが上限幅で止まり、列の間だけが空いてしまう */
+@media (max-width: 767px) {
   .work-card-grid {
-    width: min(100%, 714px);
+    width: min(100%, 682px);
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 740px) {
-  .work-card-grid {
-    width: min(100%, 333px);
-    grid-template-columns: minmax(0, 1fr);
   }
 }

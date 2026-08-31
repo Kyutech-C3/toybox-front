@@ -49,3 +49,41 @@
 .page-listbox {
   max-height: min(300px, calc(100vh - 32px));
 }
+
+@media (max-width: 1279px) {
+  .pagination-wrapper {
+    padding: 16px 0;
+    gap: 8px;
+  }
+
+  .pagination {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  /* 最大 9 個のボタンが 1 行に収まらないため、折り返して中央に寄せる */
+  .pagination-wrapper {
+    padding: 12px 0;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination {
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .listbox-trigger {
+    height: var(--touch-target-min);
+    min-width: var(--touch-target-min);
+    padding: 0 8px;
+    font-size: 16px;
+  }
+
+  .page-listbox {
+    max-height: min(240px, calc(100vh - 32px));
+  }
+}

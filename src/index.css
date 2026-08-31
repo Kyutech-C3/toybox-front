@@ -1,3 +1,12 @@
+/*
+ * ブレークポイント（正本は FRONTEND_GUIDE.md「レスポンシブ」）
+ *   スマートフォン : ~ 767px      @media (max-width: 767px)
+ *   タブレット     : 768 ~ 1279px  @media (max-width: 1279px)
+ *   デスクトップ   : 1280px ~     （メディアクエリなしの既定値）
+ * CSS Modules に Sass は入れていないため @media 内で var() は使えない。
+ * 数値はリテラルで書き、上記以外の値を新設しない。
+ */
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -20,6 +29,16 @@
   --primary-soft-color: rgba(250, 190, 0, 0.1);
   --shadow-soft-color: rgba(0, 0, 0, 0.1);
 
+  /* レイアウト寸法。ブレークポイントごとにこの 1 か所で再定義する */
+  --header-height: 140px;
+  --page-margin: 60px;
+  --paper-padding: 40px;
+  --grid-gap: 48px;
+  --section-gap: 48px;
+  --touch-target-min: 44px;
+  /* 右下に浮かせた新規投稿 FAB の占有分。FAB を出さない幅では 0 */
+  --fab-clearance: 0px;
+
   color: var(--font-color);
   background-color: var(--background-color);
 
@@ -27,6 +46,32 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 1279px) {
+  :root {
+    --header-height: 96px;
+    --page-margin: 24px;
+    --paper-padding: 24px;
+    --grid-gap: 24px;
+    --section-gap: 32px;
+    /* FAB 56px + 画面端からの距離 24px + 内容との間隔 24px */
+    --fab-clearance: 104px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --header-height: 64px;
+    --page-margin: 16px;
+    --paper-padding: 16px;
+    --grid-gap: 16px;
+    --section-gap: 24px;
+    /* FAB 56px + 画面端からの距離 16px + 内容との間隔 16px */
+    --fab-clearance: 88px;
+  }
 }
 
 p {
@@ -47,4 +92,12 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* タッチ端末では hover を前提にした演出を無効化し、タップ後に残る状態を防ぐ */
+@media (hover: none) {
+  a:hover {
+    color: var(--font-color);
+  }
 }

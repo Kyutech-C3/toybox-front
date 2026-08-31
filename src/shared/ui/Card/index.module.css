@@ -135,3 +135,89 @@
   overflow: scroll;
   scrollbar-width: none;
 }
+
+@media (max-width: 1279px) {
+  /* 列数は 3 のままカード幅だけが縮むため、高さは内容に合わせる。
+     grid の既定の stretch で同じ行のカードは揃う */
+  .card-wrapper {
+    height: auto;
+  }
+
+  .card-image-wrapper .card-title {
+    font-size: 1.25rem;
+  }
+
+  /* タップ操作で押しやすい大きさを確保する */
+  .visibility-label,
+  .edit-link {
+    min-height: var(--touch-target-min);
+    padding: 8px 14px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* 2 列表示ではカード幅が 156〜215px まで縮むため、
+   文字とバッジを一段小さくして収める */
+@media (max-width: 767px) {
+  .card-wrapper {
+    border-radius: 16px;
+  }
+
+  .card-image-wrapper {
+    border-radius: 16px 16px 0 0;
+
+    .card-image {
+      border-radius: 16px 16px 0 0;
+    }
+
+    .card-title {
+      bottom: 0.6rem;
+      left: 0.6em;
+      font-size: 0.9375rem;
+    }
+  }
+
+  .work-link:focus-visible::after {
+    border-radius: 16px;
+  }
+
+  .card-actions {
+    top: 8px;
+    right: 8px;
+    left: 8px;
+  }
+
+  /* カード幅が狭く 44px 角のピルは 2 つ並ばないため、
+     この 2 つだけは縮める。主要な導線はカード全面のリンクが担う */
+  .visibility-label,
+  .edit-link {
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 0.6875rem;
+  }
+
+  .card-discription-wrapper {
+    padding: 10px;
+  }
+
+  .card-postdate {
+    font-size: 0.75rem;
+  }
+
+  .batches-wrapper {
+    margin-top: 8px;
+    gap: 6px;
+  }
+}
+
+/* タップでは hover が残り続けるため、拡大演出を無効化する */
+@media (hover: none) {
+  .card-wrapper:hover {
+    transform: none;
+  }
+
+  .edit-link:hover {
+    background: var(--paper-overlay-color);
+  }
+}
