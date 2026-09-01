@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
+import FullscreenExitRoundedIcon from "@mui/icons-material/FullscreenExitRounded";
+import FullscreenRoundedIcon from "@mui/icons-material/FullscreenRounded";
 
+import AssetNavigator from "./AssetNavigator";
 import AudioCard from "./AudioCard";
 import { getSafeAssetURL } from "./assetUrl";
 import DownloadCard from "./DownloadCard";
@@ -17,10 +20,23 @@ type AssetCarouselProps = {
 
 const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const containerRef = useRef<HTMLUListElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [activeAssetIndex, setActiveAssetIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [failedAssetIDs, setFailedAssetIDs] = useState<Set<string>>(
     () => new Set(),
   );
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === viewportRef.current);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -70,6 +86,21 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     scrollToAsset(nextAssetIndex);
   };
 
+  // 全画面表示は viewport 単位で行う。アセットごとに持たせると
+  // 横スクロールでボタンが一緒に流れてしまう
+  const handleFullscreen = async () => {
+    try {
+      if (isFullscreen) {
+        await document.exitFullscreen();
+        return;
+      }
+
+      await viewportRef.current?.requestFullscreen();
+    } catch {
+      // Fullscreen API が使えない環境では表示を維持する
+    }
+  };
+
   const handleLoadError = (assetID: string) => {
     setFailedAssetIDs((currentAssetIDs) => {
       const nextAssetIDs = new Set(currentAssetIDs);
@@ -78,9 +109,18 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     });
   };
 
+  const activeAsset = assets[activeAssetIndex];
+  const isFullscreenAvailable =
+    !!activeAsset &&
+    activeAsset.asset_type === "image" &&
+    !failedAssetIDs.has(activeAsset.id);
+  const FullscreenIcon = isFullscreen
+    ? FullscreenExitRoundedIcon
+    : FullscreenRoundedIcon;
+
   return (
     <div className={styles["asset-wrapper"]}>
-      <div className={styles["carousel-viewport"]}>
+      <div className={styles["carousel-viewport"]} ref={viewportRef}>
         {assets.length > 1 && (
           <>
             <button
@@ -100,6 +140,16 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
               <ChevronRightRoundedIcon fontSize="large" />
             </button>
           </>
+        )}
+        {isFullscreenAvailable && (
+          <button
+            className={styles["fullscreen-button"]}
+            type="button"
+            aria-label={isFullscreen ? "全画面表示を終了" : "画像を全画面表示"}
+            onClick={handleFullscreen}
+          >
+            <FullscreenIcon aria-hidden="true" fontSize="large" />
+          </button>
         )}
         <ul className={styles["asset-container"]} ref={containerRef}>
           {assets.map((asset) => {
@@ -175,24 +225,12 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
         </ul>
       </div>
       {assets.length > 1 && (
-        <fieldset
-          className={styles["asset-indicators"]}
-          aria-label="アセットの表示位置"
-        >
-          {assets.map((asset, assetIndex) => (
-            <button
-              key={asset.id}
-              className={styles["asset-indicator"]}
-              type="button"
-              data-active={assetIndex === activeAssetIndex}
-              aria-current={
-                assetIndex === activeAssetIndex ? "true" : undefined
-              }
-              aria-label={`${assetIndex + 1}番目のアセットを表示`}
-              onClick={() => scrollToAsset(assetIndex)}
-            />
-          ))}
-        </fieldset>
+        <AssetNavigator
+          assets={assets}
+          activeAssetIndex={activeAssetIndex}
+          failedAssetIDs={failedAssetIDs}
+          onSelect={scrollToAsset}
+        />
       )}
     </div>
   );

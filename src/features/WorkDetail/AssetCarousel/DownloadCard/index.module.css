@@ -1,7 +1,7 @@
 .download-card {
   box-sizing: border-box;
   width: min(480px, 90vw);
-  height: 540px;
+  height: 100%;
   padding: 48px 32px;
   display: flex;
   flex-direction: column;
