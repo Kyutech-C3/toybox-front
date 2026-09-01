@@ -44,13 +44,13 @@ const Card = ({ work, viewerUserID }: CardProps) => {
       </Link>
       <div className={styles["card-body"]}>
         <div className={styles["card-title-row"]}>
+          <h3 className={styles["card-title"]} title={work.title}>
+            {work.title}
+          </h3>
           <VisibilityIcon
             visibility={work.visibility}
             className={styles["visibility-icon"]}
           />
-          <h3 className={styles["card-title"]} title={work.title}>
-            {work.title}
-          </h3>
         </div>
         <div className={styles["card-tags"]}>
           {work.tags.map((tag) => (

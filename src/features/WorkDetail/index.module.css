@@ -17,16 +17,11 @@
   gap: var(--space-12);
 }
 
-.work-detail-title-row {
-  width: 100%;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-}
-
 .visibility-icon {
+  margin-left: var(--space-8);
+  color: var(--font-muted-color);
   font-size: 28px;
+  vertical-align: middle;
 }
 
 .work-detail-title {

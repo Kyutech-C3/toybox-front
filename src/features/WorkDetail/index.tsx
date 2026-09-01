@@ -26,7 +26,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
   }
 
   return (
-    <Paper width="read">
+    <Paper>
       <article className={styles["work-detail"]}>
         {data.assets.length > 0 && (
           <div className={styles["work-detail-assets"]}>
@@ -34,13 +34,13 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
           </div>
         )}
         <header className={styles["work-detail-header"]}>
-          <div className={styles["work-detail-title-row"]}>
+          <h1 className={styles["work-detail-title"]}>
+            {data.title}
             <VisibilityIcon
               visibility={data.visibility}
               className={styles["visibility-icon"]}
             />
-            <h1 className={styles["work-detail-title"]}>{data.title}</h1>
-          </div>
+          </h1>
           {data.tags.length > 0 && (
             <div className={styles["work-detail-tags"]}>
               {data.tags.map((tag) => (

@@ -66,11 +66,14 @@
 }
 
 .visibility-icon {
+  color: var(--font-muted-color);
   font-size: 16px;
 }
 
+/* タイトルは内容ぶんだけ広がる。省略されたときに三点リーダーのすぐ右へ
+   公開範囲アイコンが来るよう flex-grow は付けない */
 .card-title {
-  flex-grow: 1;
+  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
   overflow: hidden;
