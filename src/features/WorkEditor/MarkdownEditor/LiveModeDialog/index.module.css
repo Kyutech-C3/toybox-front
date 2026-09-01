@@ -77,11 +77,16 @@
 .live-dialog-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 20px;
+  gap: var(--space-24);
   flex: 1;
   min-height: 0;
   width: 100%;
-  max-width: 1600px;
+  /* プレビュー側が本番の読み幅まで広がれるところまで許す */
+  max-width: calc(
+    (var(--content-read-width) + var(--paper-padding) * 2) *
+    2 +
+    var(--space-24)
+  );
   margin: 0 auto;
 }
 
@@ -96,6 +101,18 @@
   box-shadow: 0 4px 16px var(--shadow-soft-color);
 }
 
+/* 本文の幅を本番（Paper 1024px の内側）に合わせる。
+   ペインが狭いときは収まる幅まで縮む */
+.live-preview {
+  padding: var(--paper-padding);
+}
+
+.live-preview > * {
+  width: 100%;
+  max-width: calc(var(--content-read-width) - var(--paper-padding) * 2);
+  margin: 0 auto;
+}
+
 @media (max-width: 1279px) {
   .live-dialog-inner {
     padding: 12px 12px 16px;
@@ -104,6 +121,10 @@
   .live-dialog-header {
     grid-template-columns: 1fr auto;
     row-gap: 12px;
+  }
+
+  .live-preview {
+    padding: var(--space-16);
   }
 
   .live-dialog-title {

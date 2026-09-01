@@ -78,14 +78,14 @@ const LiveModeDialog = ({
     <dialog
       ref={dialogRef}
       className={styles["live-dialog"]}
-      aria-label="Live Mode の全画面表示"
+      aria-label="ライブモードの全画面表示"
       onClose={handleDialogClose}
     >
       <div className={styles["live-dialog-inner"]}>
         <header className={styles["live-dialog-header"]}>
           <p className={styles["live-dialog-title"]}>
             <VerticalSplitRoundedIcon fontSize="small" />
-            Live Mode
+            ライブモード
           </p>
           <EditorModeTabs
             mode={mode}
