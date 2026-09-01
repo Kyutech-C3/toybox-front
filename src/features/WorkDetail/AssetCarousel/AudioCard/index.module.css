@@ -1,14 +1,86 @@
 .card-audio {
-  height: 100%;
+  position: relative;
   width: 100%;
+  height: 100%;
+}
+
+.waveform {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: var(--space-32) 80px 104px;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.waveform-line,
+.waveform-line-played {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.waveform-line {
+  stroke: var(--font-sub-color);
+}
+
+.waveform-line-played {
+  stroke: var(--primary-color);
+}
+
+.waveform-fallback {
+  position: absolute;
+  top: 0;
+  right: 80px;
+  bottom: 104px;
+  left: 80px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.waveform-fallback-played {
+  height: 8px;
+  display: block;
+  border-radius: 9999px;
+  background: var(--primary-color);
+}
+
+.audio-controls {
+  position: absolute;
+  right: var(--space-16);
+  bottom: var(--space-16);
+  left: var(--space-16);
+}
+
+@media (max-width: 1279px) {
+  .waveform {
+    padding: var(--space-24) 64px 96px;
+  }
+
+  .waveform-fallback {
+    right: 64px;
+    bottom: 96px;
+    left: 64px;
+  }
 }
 
 @media (max-width: 767px) {
-  .card-audio {
-    padding: 0 var(--space-16);
-    box-sizing: border-box;
+  .waveform {
+    padding: var(--space-16) 56px 76px;
+  }
+
+  .waveform-fallback {
+    right: 56px;
+    bottom: 76px;
+    left: 56px;
+  }
+
+  .audio-controls {
+    right: var(--space-8);
+    bottom: var(--space-8);
+    left: var(--space-8);
   }
 }

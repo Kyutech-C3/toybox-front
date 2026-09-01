@@ -13,7 +13,8 @@
 }
 
 .file-icon {
-  color: var(--font-muted-color);
+  display: inline-flex;
+  color: var(--font-sub-color);
   font-size: 96px;
 }
 

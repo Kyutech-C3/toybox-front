@@ -42,7 +42,9 @@ const DownloadCard = ({
   return (
     <CardWrapper>
       <div className={styles["download-card"]}>
-        <FileIcon className={styles["file-icon"]} aria-hidden="true" />
+        <span className={styles["file-icon"]} aria-hidden="true">
+          <FileIcon fontSize="inherit" />
+        </span>
         <p className={styles["extension"]}>{extensionLabel}</p>
         <p className={styles["description"]}>{description}</p>
         {safeURL ? (
