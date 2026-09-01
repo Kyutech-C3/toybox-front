@@ -4,6 +4,9 @@ import { Link } from "react-router-dom";
 import CommentInput from "../../CommentInput";
 import styles from "./index.module.css";
 
+import Avatar from "@/shared/ui/Avatar";
+import { formatDateTime } from "@/util/formatDateTime";
+
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentItemProps {
@@ -14,26 +17,13 @@ interface CommentItemProps {
   allComments?: Comment[];
   depth?: number;
   replyingTo?: Comment;
+  isReplyEnabled?: boolean;
+  isSubmitting?: boolean;
   onSubmitReply?: (message: string, parentId?: string) => void;
   onCancelReply?: () => void;
 }
 
-type AvatarProps = {
-  src: string;
-  alt: string;
-};
-
-const Avatar = ({ src, alt }: AvatarProps) => {
-  return (
-    <div className={styles["avatar"]} role="img" aria-label={alt || "avatar"}>
-      {src ? (
-        <img src={src} alt={alt} className={styles["avatar-img"]} />
-      ) : (
-        <div className={styles["avatar-placeholder"]} />
-      )}
-    </div>
-  );
-};
+const ANONYMOUS_USER_NAME = "Anonymous";
 
 const CommentItem = ({
   comment,
@@ -43,6 +33,8 @@ const CommentItem = ({
   allComments = [],
   depth = 0,
   replyingTo,
+  isReplyEnabled = true,
+  isSubmitting = false,
   onSubmitReply,
   onCancelReply,
 }: CommentItemProps) => {
@@ -52,7 +44,6 @@ const CommentItem = ({
     }
   }, [comment.id, onDelete]);
 
-  // 子コメント（返信）を取得し、新しい順にソート
   const getReplies = (parentId: string) => {
     return allComments
       .filter((c) => c.reply_at === parentId)
@@ -62,6 +53,11 @@ const CommentItem = ({
       );
   };
 
+  const displayName = comment.user
+    ? comment.user.display_name
+    : ANONYMOUS_USER_NAME;
+  const isReplying = replyingTo?.id === comment.id;
+
   return (
     <div className={styles["wrapper"]}>
       <div className={styles["comment-row"]}>
@@ -69,58 +65,72 @@ const CommentItem = ({
           <Link
             to={`/user/${comment.user.id}`}
             className={styles["avatar-link"]}
-            aria-label={`${comment.user.display_name}のユーザーページを開く`}
+            aria-label={`${displayName}のユーザーページを開く`}
           >
             <Avatar
-              src={comment.user.avatar_url}
-              alt={`${comment.user.display_name}のアバター`}
+              avatarURL={comment.user.avatar_url || undefined}
+              alt={`${displayName}のアバター`}
             />
           </Link>
         ) : (
-          <Avatar src="" alt="名無しのユーザーのアバター" />
+          <Avatar alt={`${ANONYMOUS_USER_NAME}のアバター`} />
         )}
         <div className={styles["comment-body"]}>
           <div className={styles["header"]}>
-            <div className={styles["username"]}>
-              {comment.user ? comment.user.display_name : "名無しのユーザー"}
-            </div>
+            {comment.user ? (
+              <Link
+                to={`/user/${comment.user.id}`}
+                className={styles["username"]}
+              >
+                {displayName}
+              </Link>
+            ) : (
+              <span className={styles["username"]}>{displayName}</span>
+            )}
+            <time className={styles["posted-at"]} dateTime={comment.created_at}>
+              {formatDateTime(comment.created_at)}
+            </time>
+          </div>
+          <div className={styles["bubble"]}>
+            <p className={styles["bubble-text"]}>{comment.content}</p>
+          </div>
+          <div className={styles["actions"]}>
+            {isReplyEnabled && (
+              <button
+                type="button"
+                className={styles["action-button"]}
+                onClick={() => onReply(comment)}
+                aria-expanded={isReplying}
+              >
+                {isReplying ? "返信中" : "返信"}
+              </button>
+            )}
             {onDelete && (
               <button
                 type="button"
-                className={styles["delete-button"]}
+                className={styles["action-button"]}
                 onClick={handleDelete}
-                aria-label="コメントを削除"
               >
                 削除
               </button>
             )}
           </div>
-          <div className={styles["bubble"]}>
-            <p className={styles["bubble-text"]}>{comment.content}</p>
-          </div>
-          <button
-            type="button"
-            className={styles["reply-button"]}
-            onClick={() => onReply(comment)}
-          >
-            返信
-          </button>
         </div>
       </div>
-      {/* 返信対象のコメントの場合、入力欄を表示 */}
-      {replyingTo?.id === comment.id && (
+      {}
+      {isReplying && (
         <div className={styles["reply-input-wrapper"]}>
           <CommentInput
             onSubmit={(msg) => onSubmitReply?.(msg, comment.id)}
             onCancelReply={onCancelReply}
             replyingTo={comment}
+            isSubmitting={isSubmitting}
             isAutoFocus
           />
         </div>
       )}
-      {/* 子コメントがある場合、再帰的に表示 */}
+      {}
       {replies.length > 0 && (
-        // 深さ2未満の場合はインデントし、それ以降はフラットに表示（YouTube風）
         <div
           className={
             depth < 2
@@ -138,6 +148,8 @@ const CommentItem = ({
               allComments={allComments}
               depth={depth + 1}
               replyingTo={replyingTo}
+              isReplyEnabled={isReplyEnabled}
+              isSubmitting={isSubmitting}
               onSubmitReply={onSubmitReply}
               onCancelReply={onCancelReply}
             />

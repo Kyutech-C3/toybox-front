@@ -8,6 +8,8 @@ interface CommentListProps {
   onDelete?: (commentId: string) => void;
   onReply: (comment: Comment) => void;
   replyingTo?: Comment;
+  isReplyEnabled?: boolean;
+  isSubmitting?: boolean;
   onSubmitReply?: (message: string, parentId?: string) => void;
   onCancelReply?: () => void;
 }
@@ -17,10 +19,11 @@ const CommentList = ({
   onDelete,
   onReply,
   replyingTo,
+  isReplyEnabled = true,
+  isSubmitting = false,
   onSubmitReply,
   onCancelReply,
 }: CommentListProps) => {
-  // ルートコメント（返信でないコメント）のみを抽出し、新しい順にソート
   const rootComments = comments
     .filter((c) => !c.reply_at)
     .sort(
@@ -28,7 +31,6 @@ const CommentList = ({
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     );
 
-  // 指定された親コメントに対する返信を取得し、新しい順にソート
   const getReplies = (parentId: string) => {
     return comments
       .filter((c) => c.reply_at === parentId)
@@ -49,6 +51,8 @@ const CommentList = ({
           replies={getReplies(comment.id)}
           allComments={comments}
           replyingTo={replyingTo}
+          isReplyEnabled={isReplyEnabled}
+          isSubmitting={isSubmitting}
           onSubmitReply={onSubmitReply}
           onCancelReply={onCancelReply}
         />

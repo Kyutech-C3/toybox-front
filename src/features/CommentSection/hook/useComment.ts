@@ -12,8 +12,10 @@ interface UseCommentReturn {
   data: Comment[];
 }
 
+export const getCommentSWRKey = (workId: string) => `/works/${workId}/comments`;
+
 const useComment = ({ workId }: UseCommentParams): UseCommentReturn => {
-  const url = `/works/${workId}/comments`;
+  const url = getCommentSWRKey(workId);
 
   const fetcher = async (url: string): Promise<Comment[]> => {
     const response = await fetchData(url);
