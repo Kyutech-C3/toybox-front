@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import ChevronLeftRoundedIcon from "@mui/icons-material/ChevronLeftRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import FullscreenExitRoundedIcon from "@mui/icons-material/FullscreenExitRounded";
@@ -18,6 +18,8 @@ type AssetCarouselProps = {
   assets: Asset[];
 };
 
+const SEEK_STEP_SECONDS = 5;
+
 const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const containerRef = useRef<HTMLUListElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -26,10 +28,34 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const [failedAssetIDs, setFailedAssetIDs] = useState<Set<string>>(
     () => new Set(),
   );
+  const isPointerInsideRef = useRef(false);
+  const handleFullscreenRef = useRef<() => Promise<void>>(async () => {});
+  const activeAssetIndexRef = useRef(0);
+  const isRestoringRef = useRef(false);
+
+  const applyActiveAssetIndex = useCallback((assetIndex: number) => {
+    activeAssetIndexRef.current = assetIndex;
+    setActiveAssetIndex(assetIndex);
+  }, []);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(document.fullscreenElement === viewportRef.current);
+
+      const targetIndex = activeAssetIndexRef.current;
+      isRestoringRef.current = true;
+      window.requestAnimationFrame(() => {
+        const container = containerRef.current;
+        if (container) {
+          container.scrollTo({
+            left: targetIndex * container.clientWidth,
+            behavior: "instant",
+          });
+        }
+        window.requestAnimationFrame(() => {
+          isRestoringRef.current = false;
+        });
+      });
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -43,8 +69,10 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     if (!container) return;
 
     const updateActiveAssetIndex = () => {
+      if (isRestoringRef.current) return;
+
       if (assets.length <= 1) {
-        setActiveAssetIndex(0);
+        applyActiveAssetIndex(0);
         return;
       }
 
@@ -53,7 +81,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
       const nextActiveAssetIndex =
         clientWidth > 0 ? Math.round(scrollLeft / clientWidth) : 0;
 
-      setActiveAssetIndex(
+      applyActiveAssetIndex(
         Math.min(Math.max(nextActiveAssetIndex, 0), assets.length - 1),
       );
     };
@@ -64,13 +92,13 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     return () => {
       container.removeEventListener("scroll", updateActiveAssetIndex);
     };
-  }, [assets.length]);
+  }, [assets.length, applyActiveAssetIndex]);
 
   const scrollToAsset = (assetIndex: number) => {
     const container = containerRef.current;
     if (!container) return;
 
-    setActiveAssetIndex(assetIndex);
+    applyActiveAssetIndex(assetIndex);
     container.scrollTo({
       left: assetIndex * container.clientWidth,
       behavior: "smooth",
@@ -86,8 +114,6 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     scrollToAsset(nextAssetIndex);
   };
 
-  // 全画面表示は viewport 単位で行う。アセットごとに持たせると
-  // 横スクロールでボタンが一緒に流れてしまう
   const handleFullscreen = async () => {
     try {
       if (isFullscreen) {
@@ -96,10 +122,101 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
       }
 
       await viewportRef.current?.requestFullscreen();
-    } catch {
-      // Fullscreen API が使えない環境では表示を維持する
-    }
+    } catch {}
   };
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const items = [...container.children];
+    for (let index = 0; index < items.length; index += 1) {
+      if (index === activeAssetIndex) continue;
+
+      const media =
+        items[index].querySelector<HTMLMediaElement>("audio, video");
+      if (media && !media.paused) media.pause();
+    }
+  }, [activeAssetIndex]);
+
+  useEffect(() => {
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+
+      const isPointerInside = isPointerInsideRef.current;
+      const isFocusInside = viewport.contains(document.activeElement);
+      if (!isFullscreen && !isPointerInside && !isFocusInside) return;
+
+      const active = document.activeElement as HTMLElement | null;
+      if (
+        active?.tagName === "INPUT" ||
+        active?.tagName === "TEXTAREA" ||
+        active?.isContentEditable
+      ) {
+        return;
+      }
+
+      if (event.key === "f" || event.key === "F") {
+        event.preventDefault();
+        void handleFullscreenRef.current();
+        return;
+      }
+
+      const isOnControl =
+        !isPointerInside &&
+        !!(event.target as HTMLElement | null)?.closest(
+          "button, a, input, textarea",
+        );
+
+      const media = viewport.querySelector<HTMLMediaElement>(
+        "li[data-active='true'] audio, li[data-active='true'] video",
+      );
+      if (!media) return;
+
+      if (event.key === " ") {
+        if (isOnControl) return;
+        event.preventDefault();
+        if (media.paused) void media.play().catch(() => undefined);
+        else media.pause();
+        return;
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        if (isOnControl) return;
+        event.preventDefault();
+        const offset =
+          event.key === "ArrowRight" ? SEEK_STEP_SECONDS : -SEEK_STEP_SECONDS;
+        const limit = Number.isFinite(media.duration)
+          ? media.duration
+          : media.currentTime;
+        media.currentTime = Math.min(
+          Math.max(media.currentTime + offset, 0),
+          limit,
+        );
+      }
+    };
+
+    const handlePointerEnter = () => {
+      isPointerInsideRef.current = true;
+    };
+    const handlePointerLeave = () => {
+      isPointerInsideRef.current = false;
+    };
+
+    const viewport = viewportRef.current;
+    viewport?.addEventListener("pointerenter", handlePointerEnter);
+    viewport?.addEventListener("pointerleave", handlePointerLeave);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      viewport?.removeEventListener("pointerenter", handlePointerEnter);
+      viewport?.removeEventListener("pointerleave", handlePointerLeave);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isFullscreen]);
+
+  handleFullscreenRef.current = handleFullscreen;
 
   const handleLoadError = (assetID: string) => {
     setFailedAssetIDs((currentAssetIDs) => {
@@ -158,7 +275,11 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
 
             if (isLoadError || !safeURL) {
               return (
-                <li key={asset.id} className={styles["asset-carousel"]}>
+                <li
+                  key={asset.id}
+                  className={styles["asset-carousel"]}
+                  data-active={assets[activeAssetIndex]?.id === asset.id}
+                >
                   <DownloadCard
                     assetType={asset.asset_type}
                     extension={asset.extension}
@@ -172,7 +293,11 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
             switch (asset.asset_type) {
               case "image":
                 return (
-                  <li key={asset.id} className={styles["asset-carousel"]}>
+                  <li
+                    key={asset.id}
+                    className={styles["asset-carousel"]}
+                    data-active={assets[activeAssetIndex]?.id === asset.id}
+                  >
                     <ImgCard
                       alt="作品のアセット画像"
                       src={safeURL}
@@ -182,27 +307,43 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                 );
               case "video":
                 return (
-                  <li key={asset.id} className={styles["asset-carousel"]}>
+                  <li
+                    key={asset.id}
+                    className={styles["asset-carousel"]}
+                    data-active={assets[activeAssetIndex]?.id === asset.id}
+                  >
                     <MovieCard
                       src={safeURL}
                       extension={asset.extension}
+                      isFullscreen={isFullscreen}
                       onLoadError={() => handleLoadError(asset.id)}
+                      onToggleFullscreen={() => void handleFullscreen()}
                     />
                   </li>
                 );
               case "music":
                 return (
-                  <li key={asset.id} className={styles["asset-carousel"]}>
+                  <li
+                    key={asset.id}
+                    className={styles["asset-carousel"]}
+                    data-active={assets[activeAssetIndex]?.id === asset.id}
+                  >
                     <AudioCard
                       src={safeURL}
                       extension={asset.extension}
+                      isFullscreen={isFullscreen}
                       onLoadError={() => handleLoadError(asset.id)}
+                      onToggleFullscreen={() => void handleFullscreen()}
                     />
                   </li>
                 );
               case "zip":
                 return (
-                  <li key={asset.id} className={styles["asset-carousel"]}>
+                  <li
+                    key={asset.id}
+                    className={styles["asset-carousel"]}
+                    data-active={assets[activeAssetIndex]?.id === asset.id}
+                  >
                     <DownloadCard
                       assetType={asset.asset_type}
                       extension={asset.extension}
@@ -212,7 +353,11 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                 );
               default:
                 return (
-                  <li key={asset.id} className={styles["asset-carousel"]}>
+                  <li
+                    key={asset.id}
+                    className={styles["asset-carousel"]}
+                    data-active={assets[activeAssetIndex]?.id === asset.id}
+                  >
                     <DownloadCard
                       assetType={asset.asset_type}
                       extension={asset.extension}
