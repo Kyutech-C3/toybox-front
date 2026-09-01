@@ -1,20 +1,38 @@
 .upload-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-8);
   width: 100%;
+  align-items: flex-start;
 }
 
-.upload-label {
-  font-size: 14px;
-  font-weight: 600;
+/* タイトル・タグ入力の見出しに合わせる */
+.upload-heading {
+  margin: var(--space-8) 5px;
   color: var(--font-color);
+  font-size: 18px;
+  font-weight: bold;
 }
 
+/* アセットの升目と同じ大きさ・同じ構成（プレビュー 4:3 + 説明欄 4:1 = 正方形） */
 .upload-frame {
   position: relative;
+  box-sizing: border-box;
+  width: var(--upload-cell-width);
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 2px dashed var(--primary-color);
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper-color);
 }
-.upload-frame[data-status="error"] .upload-area {
+
+.upload-frame[data-has-image="true"] {
+  border-style: solid;
+}
+
+.upload-frame[data-status="error"] {
   border-color: var(--error-color);
   background: color-mix(in srgb, var(--error-color) 12%, var(--paper-color));
 }
@@ -24,34 +42,27 @@
 }
 
 .upload-area {
+  flex: 1;
+  min-height: 0;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 5px dashed var(--primary-color);
-  border-radius: 12px;
+  padding: 0;
+  border: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  background: var(--paper-color);
-  position: relative;
   overflow: hidden;
-  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color var(--hover-transition);
 
   &:hover {
-    border-color: var(--primary-color);
     background: var(--primary-soft-color);
-    color: var(--font-color);
   }
+}
 
-  &[data-has-image="true"] {
-    border-style: solid;
-    border-color: var(--border-color);
-
-    &:hover {
-      border-color: var(--primary-color);
-    }
-  }
+.upload-frame[data-has-image="true"] .upload-area {
+  flex: 0 0 75%;
+  background: var(--asset-background);
 }
 
 .upload-area:disabled {
@@ -66,19 +77,19 @@
   display: none;
 }
 
+/* Card と同じように拡大表示（切り抜き）にする */
 .preview-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 8px;
 }
 
 .overlay-actions {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: var(--space-8);
+  right: var(--space-8);
   display: flex;
-  gap: 8px;
+  gap: var(--space-8);
 }
 
 .overlay-button {
@@ -87,30 +98,40 @@
 }
 
 .upload-meta {
-  min-height: 24px;
+  flex: 0 0 25%;
+  min-width: 0;
+  padding: 0 var(--space-12);
   display: flex;
-  gap: 12px;
-  align-items: center;
-  font-size: 14px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  color: var(--font-muted-color);
+  font-size: 0.6875rem;
 }
 
-.file-name {
-  max-width: 70%;
+.file-name,
+.status {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.file-name {
+  color: var(--font-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 .error-message {
   margin: 0;
   color: var(--error-color);
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .format-help {
   margin: 0;
   color: var(--font-muted-color);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 1279px) {
@@ -121,17 +142,18 @@
 }
 
 @media (max-width: 767px) {
-  .upload-area {
-    border-width: 3px;
+  .upload-heading {
+    margin: var(--space-8) 2px;
+    font-size: 16px;
   }
 
-  .overlay-actions {
-    top: 8px;
-    right: 8px;
+  .upload-frame {
+    border-radius: 16px;
   }
+}
 
-  .upload-meta {
-    gap: 8px;
-    flex-wrap: wrap;
+@media (hover: none) {
+  .upload-area:hover {
+    background: transparent;
   }
 }

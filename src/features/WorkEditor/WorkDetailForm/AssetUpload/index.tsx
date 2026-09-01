@@ -10,6 +10,26 @@ import styles from "./index.module.css";
 
 import type { ChangeEvent, DragEvent } from "react";
 
+type AssetStatusSource = {
+  kind: string;
+  status: string;
+  file?: unknown;
+  errorMessage?: string;
+};
+
+/** 説明欄は 4:1 に収まる 2 行なので、種類と状態を 1 行にまとめる */
+const getStatusText = ({
+  kind,
+  status,
+  file,
+  errorMessage,
+}: AssetStatusSource) => {
+  if (status === "uploading") return `${kind}・アップロード中`;
+  if (status === "success" && file) return `${kind}・アップロード完了`;
+  if (status === "error") return errorMessage ?? `${kind}・アップロードに失敗`;
+  return kind;
+};
+
 const AssetUpload = () => {
   const { assets, validationError, handleAddFiles, handleRetry, handleRemove } =
     useAssetUpload();
@@ -29,7 +49,7 @@ const AssetUpload = () => {
 
   return (
     <section className={styles["asset-upload"]}>
-      <h2 className={styles["heading"]}>アセット</h2>
+      <h3 className={styles["heading"]}>アセット</h3>
       <div className={styles["asset-grid"]}>
         {assets.map((asset) => (
           <article
@@ -71,15 +91,14 @@ const AssetUpload = () => {
               <span className={styles["file-name"]} title={asset.fileName}>
                 {asset.fileName}
               </span>
-              <span>{asset.kind}</span>
               <span
                 className={styles["status"]}
                 data-status={asset.status}
+                title={getStatusText(asset)}
+                role={asset.status === "error" ? "alert" : undefined}
                 aria-live="polite"
               >
-                {asset.status === "uploading" && "アップロード中"}
-                {asset.status === "success" && asset.file && "アップロード完了"}
-                {asset.status === "error" && asset.errorMessage}
+                {getStatusText(asset)}
               </span>
             </div>
           </article>
