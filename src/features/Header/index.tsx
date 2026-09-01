@@ -84,9 +84,14 @@ const Header = () => {
         {user ? (
           <AccountMenu user={user} onLogout={handleLogout} />
         ) : (
-          <Button variant="primary" onClick={handleLogin} ariaLabel="ログイン">
+          <Button
+            variant="primary"
+            onClick={handleLogin}
+            ariaLabel="サインイン"
+          >
             <span className={styles["login-container"]}>
-              <LoginRoundedIcon />
+              <LoginRoundedIcon fontSize="small" />
+              サインイン
             </span>
           </Button>
         )}
