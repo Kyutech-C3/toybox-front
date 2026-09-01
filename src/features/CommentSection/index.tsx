@@ -53,7 +53,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
   };
 
   return (
-    <Paper width="read">
+    <Paper>
       <h2 className={styles["title"]}>
         コメント
         <span className={styles["comment-count"]}>{data.length}</span>
