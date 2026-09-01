@@ -17,7 +17,7 @@
 }
 
 .work-link {
-  display: block;
+  color: var(--font-color);
 }
 
 .work-link::after {
@@ -57,7 +57,6 @@
   padding: var(--space-12) var(--space-16) var(--space-16);
 }
 
-/* 1 段目: 公開状態アイコン + タイトル */
 .card-title-row {
   min-width: 0;
   display: flex;
@@ -70,8 +69,6 @@
   font-size: 16px;
 }
 
-/* タイトルは内容ぶんだけ広がる。省略されたときに三点リーダーのすぐ右へ
-   公開範囲アイコンが来るよう flex-grow は付けない */
 .card-title {
   flex: 0 1 auto;
   min-width: 0;
@@ -85,7 +82,6 @@
   white-space: nowrap;
 }
 
-/* 2 段目: タグ。1 行に収まらない分は三点リーダーで省略する */
 .card-tags {
   min-height: 22px;
   overflow: hidden;
@@ -95,11 +91,58 @@
   white-space: nowrap;
 }
 
-.card-tags > * {
+.card-tags .marquee-item > * {
   margin-right: var(--space-4);
 }
 
-/* 3 段目: 投稿者と編集導線 */
+.marquee-content {
+  display: inline-flex;
+  gap: var(--marquee-gap, 0);
+  white-space: nowrap;
+}
+
+.marquee-item {
+  flex-shrink: 0;
+}
+
+.card-wrapper:hover .marquee-content[data-marquee="true"] {
+  animation: marquee var(--marquee-duration, 0s) linear 0.4s infinite;
+}
+
+.card-wrapper:hover .card-title,
+.card-wrapper:hover .card-tags {
+  text-overflow: clip;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(var(--marquee-shift, 0));
+  }
+}
+
+.card-date {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  overflow: hidden;
+  color: var(--font-muted-color);
+  font-size: 0.6875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-date-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+}
+
 .card-footer {
   min-width: 0;
   margin-top: auto;
@@ -109,9 +152,16 @@
   gap: var(--space-8);
 }
 
-.edit-link {
+.card-actions {
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.edit-link {
   flex-shrink: 0;
   width: 32px;
   height: 32px;
@@ -170,8 +220,18 @@
     box-shadow: 0 2px 8px var(--shadow-soft-color);
   }
 
+  .card-wrapper:hover .marquee-content[data-marquee="true"] {
+    animation: none;
+  }
+
   .edit-link:hover {
     background: transparent;
     color: var(--font-muted-color);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-wrapper:hover .marquee-content[data-marquee="true"] {
+    animation: none;
   }
 }
