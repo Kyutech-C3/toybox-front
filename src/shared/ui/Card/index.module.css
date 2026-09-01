@@ -66,10 +66,6 @@
 }
 
 .visibility-icon {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  color: var(--font-muted-color);
   font-size: 16px;
 }
 

@@ -40,6 +40,7 @@
 
   --content-width-ratio: 0.9;
   --content-max-width: calc(var(--content-width-ratio) * 100vw);
+  --content-read-width: 1024px;
 
   --card-columns: 0;
   --card-min-width: 280px;

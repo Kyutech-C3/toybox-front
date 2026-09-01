@@ -1,15 +1,13 @@
 import { Link } from "react-router-dom";
-import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
-import LockRoundedIcon from "@mui/icons-material/LockRounded";
-import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 
 import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
 import UserButton from "../UserButton";
+import VisibilityIcon from "../VisibilityIcon";
 import styles from "./index.module.css";
 
 import type { SyntheticEvent } from "react";
-import type { Work, WorkVisibility } from "@/shared/types/work";
+import type { Work } from "@/shared/types/work";
 
 type CardProps = {
   work: Work;
@@ -18,25 +16,8 @@ type CardProps = {
 
 const DEFAULT_CARD_IMAGE_URL = "/comingSoonLugia.webp";
 
-const VISIBILITY_LABELS: Record<WorkVisibility, string> = {
-  public: "全体公開",
-  private: "限定公開",
-  draft: "下書き",
-};
-
-type VisibilityIconProps = {
-  visibility: WorkVisibility;
-};
-
-const VisibilityIcon = ({ visibility }: VisibilityIconProps) => {
-  if (visibility === "private") return <LockRoundedIcon fontSize="inherit" />;
-  if (visibility === "draft") return <EditNoteRoundedIcon fontSize="inherit" />;
-  return <PublicRoundedIcon fontSize="inherit" />;
-};
-
 const Card = ({ work, viewerUserID }: CardProps) => {
   const isEditable = viewerUserID === work.user.id;
-  const visibilityLabel = VISIBILITY_LABELS[work.visibility];
 
   const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
     const image = event.currentTarget;
@@ -63,14 +44,10 @@ const Card = ({ work, viewerUserID }: CardProps) => {
       </Link>
       <div className={styles["card-body"]}>
         <div className={styles["card-title-row"]}>
-          <span
+          <VisibilityIcon
+            visibility={work.visibility}
             className={styles["visibility-icon"]}
-            role="img"
-            aria-label={visibilityLabel}
-            title={visibilityLabel}
-          >
-            <VisibilityIcon visibility={work.visibility} />
-          </span>
+          />
           <h3 className={styles["card-title"]} title={work.title}>
             {work.title}
           </h3>
