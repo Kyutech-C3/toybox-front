@@ -30,9 +30,12 @@
 }
 
 .preview-pane {
+  box-sizing: border-box;
   min-height: var(--editor-min-height);
+  padding: var(--space-16);
   border: 1px solid var(--border-color);
   border-radius: var(--editor-radius);
+  background-color: var(--paper-color);
 }
 
 .preview-empty {
