@@ -7,13 +7,11 @@ import styles from "./index.module.css";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
 import { Pagination } from "@/shared/ui/Pagination";
-import WorkCardGrid from "@/shared/ui/WorkCardGrid";
+import WorkCardGrid, { useWorkGridPageSize } from "@/shared/ui/WorkCardGrid";
 
 type UserPortfolioProps = {
   userID: string;
 };
-
-const ITEMS_PER_PAGE = 21;
 
 const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const worksHeadingID = useId();
@@ -21,14 +19,15 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const viewerUserID = useUserStore((state) => state.user?.id);
   const requestedPage = Number(searchParams.get("page")) || 1;
   const { userProfile, works, isOwner } = useUserPortfolio({ userID });
+  const { itemsPerPage } = useWorkGridPageSize();
 
   const workList = works ?? [];
-  const totalPages = Math.max(1, Math.ceil(workList.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(workList.length / itemsPerPage));
   const currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
-  const firstWorkIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const firstWorkIndex = (currentPage - 1) * itemsPerPage;
   const displayedWorks = workList.slice(
     firstWorkIndex,
-    firstWorkIndex + ITEMS_PER_PAGE,
+    firstWorkIndex + itemsPerPage,
   );
 
   const handlePageChange = (page: number) => {

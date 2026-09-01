@@ -115,6 +115,7 @@
 .add-button:hover,
 .add-button[data-dragging="true"] {
   background: var(--primary-soft-color);
+  color: var(--font-color);
 }
 
 .file-input {

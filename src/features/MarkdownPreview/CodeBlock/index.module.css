@@ -19,8 +19,8 @@
   font-weight: 500;
 
   &:hover {
-    background-color: var(--paper-color);
+    background-color: var(--primary-soft-color);
     border-color: var(--primary-color);
-    color: var(--primary-color);
+    color: var(--font-color);
   }
 }

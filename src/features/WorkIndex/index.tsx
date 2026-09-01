@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import useWorks from "./hook/useWorks";
@@ -6,23 +7,28 @@ import { useTagsStore } from "./SearchBar/store/useTagsStore";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import { Pagination } from "@/shared/ui/Pagination";
-import WorkCardGrid from "@/shared/ui/WorkCardGrid";
-
-const ITEMS_PER_PAGE = 21;
+import WorkCardGrid, { useWorkGridPageSize } from "@/shared/ui/WorkCardGrid";
 
 const WorkIndex = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { tags } = useTagsStore();
   const viewerUserID = useUserStore((state) => state.user?.id);
   const currentPage = Number(searchParams.get("page")) || 1;
+  const { itemsPerPage } = useWorkGridPageSize();
 
   const { data, totalCount } = useWorks({
     page: currentPage,
-    limit: ITEMS_PER_PAGE,
+    limit: itemsPerPage,
     tags: tags,
   });
 
-  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setSearchParams({ page: String(totalPages) }, { replace: true });
+    }
+  }, [currentPage, totalPages, setSearchParams]);
 
   const handlePageChange = (page: number) => {
     setSearchParams({ page: String(page) });

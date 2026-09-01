@@ -58,6 +58,7 @@
   button:hover,
   button:focus-visible {
     background: var(--primary-soft-color);
+    color: var(--font-color);
   }
 
   svg {

@@ -65,7 +65,7 @@
   &:hover {
     background-color: var(--primary-soft-color);
     color: var(--font-color);
-    box-shadow: 0 4px 12px var(--shadow-soft-color);
+    box-shadow: var(--hover-shadow);
   }
 
   &:focus-visible {

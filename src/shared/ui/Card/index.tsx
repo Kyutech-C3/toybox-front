@@ -4,13 +4,12 @@ import LockRoundedIcon from "@mui/icons-material/LockRounded";
 import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 
 import Batch from "../Batch";
+import EditSquareIcon from "../EditSquareIcon";
 import UserButton from "../UserButton";
 import styles from "./index.module.css";
 
-import { formatDateTime } from "@/util/formatDateTime";
-
 import type { SyntheticEvent } from "react";
-import type { Work } from "@/shared/types/work";
+import type { Work, WorkVisibility } from "@/shared/types/work";
 
 type CardProps = {
   work: Work;
@@ -19,10 +18,25 @@ type CardProps = {
 
 const DEFAULT_CARD_IMAGE_URL = "/comingSoonLugia.webp";
 
+const VISIBILITY_LABELS: Record<WorkVisibility, string> = {
+  public: "全体公開",
+  private: "限定公開",
+  draft: "下書き",
+};
+
+type VisibilityIconProps = {
+  visibility: WorkVisibility;
+};
+
+const VisibilityIcon = ({ visibility }: VisibilityIconProps) => {
+  if (visibility === "private") return <LockRoundedIcon fontSize="inherit" />;
+  if (visibility === "draft") return <EditNoteRoundedIcon fontSize="inherit" />;
+  return <PublicRoundedIcon fontSize="inherit" />;
+};
+
 const Card = ({ work, viewerUserID }: CardProps) => {
   const isEditable = viewerUserID === work.user.id;
-  const displayTitle =
-    work.title.length > 12 ? `${work.title.slice(0, 12)}...` : work.title;
+  const visibilityLabel = VISIBILITY_LABELS[work.visibility];
 
   const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
     const image = event.currentTarget;
@@ -45,41 +59,46 @@ const Card = ({ work, viewerUserID }: CardProps) => {
             className={styles["card-image"]}
             onError={handleImageError}
           />
-          <p className={styles["card-title"]}>{displayTitle}</p>
         </div>
       </Link>
-      <div className={styles["card-actions"]}>
-        <span className={styles["visibility-label"]}>
-          {work.visibility === "public" && (
-            <PublicRoundedIcon fontSize="small" aria-hidden="true" />
-          )}
-          {work.visibility === "private" && (
-            <LockRoundedIcon fontSize="small" aria-hidden="true" />
-          )}
-          {work.visibility === "draft" && (
-            <EditNoteRoundedIcon fontSize="small" aria-hidden="true" />
-          )}
-          {work.visibility}
-        </span>
-        {isEditable && (
-          <Link to={`/edit/${work.id}`} className={styles["edit-link"]}>
-            編集
-          </Link>
-        )}
-      </div>
-      <div className={styles["card-discription-wrapper"]}>
-        <UserButton
-          userID={work.user.id}
-          displayName={work.user.display_name}
-          avatarURL={work.user.avatar_url || undefined}
-        />
-        <p className={styles["card-postdate"]}>
-          {formatDateTime(new Date(work.created_at))}
-        </p>
-        <div className={styles["batches-wrapper"]}>
+      <div className={styles["card-body"]}>
+        <div className={styles["card-title-row"]}>
+          <span
+            className={styles["visibility-icon"]}
+            role="img"
+            aria-label={visibilityLabel}
+            title={visibilityLabel}
+          >
+            <VisibilityIcon visibility={work.visibility} />
+          </span>
+          <h3 className={styles["card-title"]} title={work.title}>
+            {work.title}
+          </h3>
+        </div>
+        <div className={styles["card-tags"]}>
           {work.tags.map((tag) => (
-            <Batch key={`${work.id}-${tag.id}`}>{tag.name}</Batch>
+            <Batch key={`${work.id}-${tag.id}`} color="pale">
+              {tag.name}
+            </Batch>
           ))}
+        </div>
+        <div className={styles["card-footer"]}>
+          <UserButton
+            userID={work.user.id}
+            displayName={work.user.display_name}
+            avatarURL={work.user.avatar_url || undefined}
+            size="compact"
+          />
+          {isEditable && (
+            <Link
+              to={`/edit/${work.id}`}
+              className={styles["edit-link"]}
+              aria-label={`${work.title}を編集する`}
+              title="編集する"
+            >
+              <EditSquareIcon />
+            </Link>
+          )}
         </div>
       </div>
     </article>

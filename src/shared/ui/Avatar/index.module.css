@@ -8,6 +8,11 @@
   justify-content: center;
 }
 
+.avatar-wrapper[data-size="small"] {
+  height: 24px;
+  width: 24px;
+}
+
 .avatar-wrapper[data-size="profile"] {
   width: min(300px, 55vw);
   height: min(300px, 55vw);
@@ -26,5 +31,10 @@
   .avatar-wrapper {
     height: 36px;
     width: 36px;
+  }
+
+  .avatar-wrapper[data-size="small"] {
+    height: 22px;
+    width: 22px;
   }
 }

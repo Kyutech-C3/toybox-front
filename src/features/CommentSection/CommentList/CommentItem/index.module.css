@@ -24,7 +24,8 @@
 }
 
 .reply-button:hover {
-  text-decoration: underline;
+  border-radius: 9999px;
+  background: var(--primary-soft-color);
   color: var(--font-color);
 }
 
@@ -122,9 +123,9 @@
 }
 
 .delete-button:hover {
-  background: var(--background-color);
+  background: var(--primary-soft-color);
   color: var(--font-color);
-  border-color: var(--font-muted-color);
+  border-color: var(--primary-color);
 }
 
 .delete-button:active {

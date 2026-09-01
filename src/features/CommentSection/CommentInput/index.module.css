@@ -89,8 +89,8 @@
   color: var(--font-color);
 }
 
-.send-button:hover {
-  opacity: 0.9;
+.send-button:not(:disabled):hover {
+  box-shadow: var(--hover-shadow);
 }
 
 .send-button:disabled {
@@ -117,6 +117,8 @@
 }
 
 .cancel-reply-button:hover {
+  border-radius: 9999px;
+  background: var(--primary-soft-color);
   color: var(--font-color);
 }
 
