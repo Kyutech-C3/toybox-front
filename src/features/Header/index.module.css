@@ -36,9 +36,16 @@
   gap: var(--space-4);
 }
 
-/* ヘッダー内は文字のみ。＋アイコンはタブレット以下の FAB でだけ使う */
 .new-work-icon {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+}
+
+.login-wrapper button:not([data-disabled="true"]):hover {
+  background: var(--button-color);
+  border-color: var(--font-color);
+  box-shadow: var(--hover-shadow);
 }
 
 @media (max-width: 1279px) {
@@ -51,8 +58,6 @@
   }
 
   .new-work-icon {
-    display: inline-flex;
-    align-items: center;
     font-size: 30px;
   }
 
@@ -74,10 +79,28 @@
     color: var(--font-color);
     box-shadow: 0 4px 12px var(--shadow-soft-color);
   }
+
+  .new-work-button button:not([data-disabled="true"]):hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: var(--hover-shadow);
+  }
 }
 
 @media (max-width: 767px) {
   .login-wrapper {
     gap: var(--space-8);
+  }
+}
+
+@media (hover: none) {
+  .login-wrapper button:not([data-disabled="true"]):hover {
+    border-color: var(--border-color);
+    box-shadow: none;
+  }
+
+  .new-work-button button:not([data-disabled="true"]):hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px var(--shadow-soft-color);
   }
 }
