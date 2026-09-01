@@ -17,6 +17,27 @@
   gap: var(--space-12);
 }
 
+.work-detail-meta-row {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.work-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.date-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 16px;
+}
+
 .visibility-icon {
   margin-left: var(--space-8);
   color: var(--font-muted-color);
@@ -83,10 +104,12 @@
 
 .work-detail-date {
   display: flex;
-  gap: var(--space-8);
+  align-items: center;
+  gap: var(--space-4);
 
   dt {
-    font-weight: 500;
+    display: flex;
+    align-items: center;
   }
 
   dd {
