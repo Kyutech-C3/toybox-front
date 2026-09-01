@@ -7,10 +7,10 @@
 
 .heading-row {
   min-height: 36px;
-  margin: 0 5px 8px;
+  margin: var(--space-8) 5px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-8);
 
   h3 {
     margin: 0;
@@ -20,12 +20,12 @@
 }
 
 .optional-label {
-  padding: 2px 10px;
-  border-radius: 25px;
-  background: var(--font-sub-color);
-  color: var(--paper-color);
-  font-size: 14px;
-  line-height: 19px;
+  padding: 2px var(--space-12);
+  border-radius: 9999px;
+  background: var(--primary-pale-color);
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .add-button {
@@ -40,6 +40,8 @@
   background: transparent;
   color: var(--font-color);
   cursor: pointer;
+
+  transition: background-color var(--hover-transition);
 
   &:hover,
   &:focus-visible {
@@ -59,10 +61,20 @@
   font-weight: bold;
 }
 
+/* 行が増えても 1 つの枠の中に積まれるようにする */
 .url-fields {
+  box-sizing: border-box;
+  border: solid 2px var(--primary-color);
+  border-radius: 25px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  background: transparent;
+}
+
+@media (max-width: 767px) {
+  .url-fields {
+    border-radius: 16px;
+  }
 }
 
 @media (max-width: 1279px) {

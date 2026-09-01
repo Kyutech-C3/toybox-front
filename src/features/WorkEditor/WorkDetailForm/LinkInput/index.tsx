@@ -39,20 +39,22 @@ const LinkInput = ({ urls, onChangeUrls }: LinkInputProps) => {
           {fields.length}/{MAX_WORK_URL_COUNT}
         </span>
       </div>
-      <div className={styles["url-fields"]}>
-        {fields.map((field, index) => (
-          <UrlInputField
-            key={field.id}
-            index={index}
-            value={field.value}
-            committedUrl={field.committedUrl}
-            error={field.error}
-            onChange={(value) => handleChangeField(field.id, value)}
-            onCommit={(value) => handleCommitField(field.id, value)}
-            onRemove={() => handleRemoveField(field.id)}
-          />
-        ))}
-      </div>
+      {fields.length > 0 && (
+        <div className={styles["url-fields"]}>
+          {fields.map((field, index) => (
+            <UrlInputField
+              key={field.id}
+              index={index}
+              value={field.value}
+              committedUrl={field.committedUrl}
+              error={field.error}
+              onChange={(value) => handleChangeField(field.id, value)}
+              onCommit={(value) => handleCommitField(field.id, value)}
+              onRemove={() => handleRemoveField(field.id)}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
