@@ -18,6 +18,7 @@ import styles from "./index.module.css";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import Listbox from "@/shared/ui/Listbox";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import VisibilityIcon from "@/shared/ui/VisibilityIcon";
 import { ApiError } from "@/util/fetchData";
 
 import type { WorkVisibility } from "@/shared/types/work";
@@ -34,16 +35,19 @@ const VISIBILITY_OPTIONS = [
     id: "public",
     value: "public",
     label: VISIBILITY_LABELS.public,
+    icon: <VisibilityIcon visibility="public" />,
   },
   {
     id: "private",
     value: "private",
     label: VISIBILITY_LABELS.private,
+    icon: <VisibilityIcon visibility="private" />,
   },
   {
     id: "draft",
     value: "draft",
     label: VISIBILITY_LABELS.draft,
+    icon: <VisibilityIcon visibility="draft" />,
   },
 ] satisfies ListboxOption<WorkVisibility>[];
 const VISIBILITY_LISTBOX_ID = "work-editor-visibility-listbox";
@@ -163,6 +167,10 @@ const PublishButton = () => {
         onClick={() => void handleSubmit()}
         disabled={isSubmitDisabled}
       >
+        <VisibilityIcon
+          visibility={visibility}
+          className={styles["visibility-icon"]}
+        />
         {submitLabel}
       </button>
       <span className={styles["button-span"]} />
