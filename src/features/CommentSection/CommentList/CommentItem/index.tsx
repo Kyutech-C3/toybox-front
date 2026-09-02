@@ -117,7 +117,7 @@ const CommentItem = ({
           </div>
         </div>
       </div>
-      {}
+      {/* 返信対象のコメントの場合、入力欄を表示 */}
       {isReplying && (
         <div className={styles["reply-input-wrapper"]}>
           <CommentInput
@@ -129,7 +129,7 @@ const CommentItem = ({
           />
         </div>
       )}
-      {}
+      {/* 子コメントがある場合、再帰的に表示 */}
       {replies.length > 0 && (
         <div
           className={
