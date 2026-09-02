@@ -4,9 +4,12 @@ import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
 
+import type { ReactNode } from "react";
+
 type PageErrorButtonAction = {
   id: string;
   label: string;
+  icon?: ReactNode;
   onClick: () => void;
   isDisabled?: boolean;
   type: "button";
@@ -83,7 +86,10 @@ const PageErrorState = ({
               onClick={action.onClick}
               isDisabled={action.isDisabled}
             >
-              {action.label}
+              <span className={styles["action-label"]}>
+                {action.icon}
+                {action.label}
+              </span>
             </Button>
           );
         })}

@@ -36,9 +36,9 @@
 
 .link-action {
   min-height: 48px;
-  padding: 0 12px;
+  padding: 0 var(--space-16);
   border: 1px solid var(--border-color);
-  border-radius: 10px;
+  border-radius: 9999px;
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
@@ -76,4 +76,10 @@
   .link-action {
     min-height: var(--touch-target-min);
   }
+}
+
+.action-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
 }
