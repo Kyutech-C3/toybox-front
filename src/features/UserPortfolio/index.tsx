@@ -1,11 +1,13 @@
-import { useId } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import useUserPortfolio from "./hook/useUserPortfolio";
 import styles from "./index.module.css";
+import ProfileEditor from "./ProfileEditor";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
+import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid, { useWorkGridPageSize } from "@/shared/ui/WorkCardGrid";
 
@@ -14,11 +16,11 @@ type UserPortfolioProps = {
 };
 
 const UserPortfolio = ({ userID }: UserPortfolioProps) => {
-  const worksHeadingID = useId();
   const [searchParams, setSearchParams] = useSearchParams();
   const viewerUserID = useUserStore((state) => state.user?.id);
   const requestedPage = Number(searchParams.get("page")) || 1;
   const { userProfile, works, isOwner } = useUserPortfolio({ userID });
+  const [isEditing, setIsEditing] = useState(false);
   const { itemsPerPage } = useWorkGridPageSize();
 
   const workList = works ?? [];
@@ -38,27 +40,48 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   return (
     <>
       <section className={styles["profile-section"]}>
-        <div className={styles["profile-content"]}>
-          <Avatar
-            avatarURL={userProfile.avatar_url || undefined}
-            alt={`${userProfile.display_name}のプロフィール画像`}
-            size="profile"
-          />
-          <h1 className={styles["display-name"]}>{userProfile.display_name}</h1>
-          <p className={styles["profile-text"]}>
-            {userProfile.profile || "プロフィールはまだありません"}
-          </p>
+        <div className={styles["profile-card"]}>
+          <div className={styles["profile-head"]}>
+            <Avatar
+              avatarURL={userProfile.avatar_url || undefined}
+              alt={`${userProfile.display_name}のプロフィール画像`}
+              size="profile"
+            />
+            <div className={styles["profile-identity"]}>
+              <h1 className={styles["display-name"]}>
+                {userProfile.display_name}
+              </h1>
+              {isOwner && !isEditing && (
+                <button
+                  type="button"
+                  className={styles["edit-profile-button"]}
+                  onClick={() => setIsEditing(true)}
+                >
+                  <EditSquareIcon />
+                  プロフィールを編集
+                </button>
+              )}
+            </div>
+          </div>
+          {isEditing ? (
+            <ProfileEditor
+              userProfile={userProfile}
+              onClose={() => setIsEditing(false)}
+            />
+          ) : (
+            <p className={styles["profile-text"]}>
+              {userProfile.profile || "プロフィールはまだありません"}
+            </p>
+          )}
         </div>
       </section>
 
       <section
         className={styles["works-section"]}
-        aria-labelledby={worksHeadingID}
+        aria-label={
+          isOwner ? "あなたの作品" : `${userProfile.display_name}の作品`
+        }
       >
-        <h2 id={worksHeadingID} className={styles["works-heading"]}>
-          {isOwner ? "あなたの作品" : `${userProfile.display_name}の作品`}
-        </h2>
-
         {displayedWorks.length === 0 && (
           <p className={styles["works-status"]}>作品はありません。</p>
         )}
