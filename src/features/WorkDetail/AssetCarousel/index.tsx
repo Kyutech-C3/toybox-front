@@ -32,6 +32,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const handleFullscreenRef = useRef<() => Promise<void>>(async () => {});
   const activeAssetIndexRef = useRef(0);
   const isRestoringRef = useRef(false);
+  const lastWidthRef = useRef(0);
 
   const applyActiveAssetIndex = useCallback((assetIndex: number) => {
     activeAssetIndexRef.current = assetIndex;
@@ -41,21 +42,6 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   useEffect(() => {
     const handleFullscreenChange = () => {
       setIsFullscreen(document.fullscreenElement === viewportRef.current);
-
-      const targetIndex = activeAssetIndexRef.current;
-      isRestoringRef.current = true;
-      window.requestAnimationFrame(() => {
-        const container = containerRef.current;
-        if (container) {
-          container.scrollTo({
-            left: targetIndex * container.clientWidth,
-            behavior: "instant",
-          });
-        }
-        window.requestAnimationFrame(() => {
-          isRestoringRef.current = false;
-        });
-      });
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -68,8 +54,33 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
     const container = containerRef.current;
     if (!container) return;
 
+    lastWidthRef.current = container.clientWidth;
+    const observer = new ResizeObserver(() => {
+      const width = container.clientWidth;
+      if (width === 0 || width === lastWidthRef.current) return;
+
+      lastWidthRef.current = width;
+      isRestoringRef.current = true;
+      container.scrollTo({
+        left: activeAssetIndexRef.current * width,
+        behavior: "instant",
+      });
+      window.requestAnimationFrame(() => {
+        isRestoringRef.current = false;
+      });
+    });
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
     const updateActiveAssetIndex = () => {
       if (isRestoringRef.current) return;
+      if (container.clientWidth !== lastWidthRef.current) return;
 
       if (assets.length <= 1) {
         applyActiveAssetIndex(0);

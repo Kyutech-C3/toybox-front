@@ -18,7 +18,7 @@ type AudioCardProps = {
 
 const WAVEFORM_BAR_COUNT = 160;
 const WAVEFORM_VIEW_HEIGHT = 100;
-const WAVEFORM_MAX_HEIGHT = 50;
+const WAVEFORM_MAX_HEIGHT = WAVEFORM_VIEW_HEIGHT;
 const WAVEFORM_MIN_HEIGHT = 2;
 
 const getAudioMimeType = (extension: string): string => {
