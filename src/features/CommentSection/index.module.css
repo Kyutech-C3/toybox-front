@@ -35,13 +35,6 @@
   gap: 32px;
 }
 
-.loading {
-  padding: 40px;
-  text-align: center;
-  font-size: 16px;
-  color: var(--font-muted-color);
-}
-
 .error {
   padding: 20px;
   background: var(--paper-color);
@@ -62,9 +55,5 @@
   .title {
     margin: 0 0 var(--space-16);
     font-size: 1.25rem;
-  }
-
-  .loading {
-    padding: 24px;
   }
 }
