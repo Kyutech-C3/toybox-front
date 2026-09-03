@@ -6,6 +6,8 @@ type UpdateUserProfileParams = {
   userProfile: UserProfileData;
   displayName: string;
   profile: string;
+  twitterID: string;
+  githubID: string;
   accessToken: string;
 };
 
@@ -13,6 +15,8 @@ export const updateUserProfile = async ({
   userProfile,
   displayName,
   profile,
+  twitterID,
+  githubID,
   accessToken,
 }: UpdateUserProfileParams): Promise<UserProfileData> =>
   putDataWithAuth(
@@ -21,8 +25,8 @@ export const updateUserProfile = async ({
       display_name: displayName,
       profile,
       email: userProfile.email,
-      twitter_id: userProfile.twitter_id,
-      github_id: userProfile.github_id,
+      twitter_id: twitterID,
+      github_id: githubID,
     }),
     accessToken,
   );
