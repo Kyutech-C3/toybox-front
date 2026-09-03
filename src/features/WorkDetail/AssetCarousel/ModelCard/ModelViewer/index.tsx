@@ -22,6 +22,8 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import styles from "./index.module.css";
 
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
 import type {
   AnimationClip,
   BufferGeometry,
@@ -345,9 +347,8 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
         tabIndex={0}
       />
       {isLoading && (
-        <div className={styles["loading-state"]} aria-live="polite">
-          <span className={styles["loading-spinner"]} aria-hidden="true" />
-          <span>3Dモデルを読み込んでいます</span>
+        <div className={styles["loading-state"]}>
+          <LoadingSpinner />
         </div>
       )}
     </>

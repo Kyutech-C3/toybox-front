@@ -4,7 +4,6 @@
   box-sizing: border-box;
   display: grid;
   place-items: center;
-  text-align: center;
 }
 
 .page-loading[data-layout="section"] {

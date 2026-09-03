@@ -4,6 +4,8 @@ import CardWrapper from "../CardWrapper";
 import styles from "./index.module.css";
 import ModelControlsHelp from "./ModelControlsHelp";
 
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
 const LAZY_MODEL_VIEWER = lazy(() => import("./ModelViewer"));
 
 type ModelCardProps = {
@@ -14,9 +16,8 @@ type ModelCardProps = {
 };
 
 const LoadingState = () => (
-  <div className={styles["loading-state"]} aria-live="polite">
-    <span className={styles["loading-spinner"]} aria-hidden="true" />
-    <span>3Dモデルを読み込んでいます</span>
+  <div className={styles["loading-state"]}>
+    <LoadingSpinner />
   </div>
 );
 
