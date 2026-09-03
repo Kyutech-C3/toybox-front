@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 
 import CardWrapper from "../CardWrapper";
 import styles from "./index.module.css";
+import ModelControlsHelp from "./ModelControlsHelp";
 
 const LAZY_MODEL_VIEWER = lazy(() => import("./ModelViewer"));
 
@@ -29,13 +30,16 @@ const ModelCard = ({
     <CardWrapper>
       <div className={styles["model-card"]}>
         {isActive ? (
-          <Suspense fallback={<LoadingState />}>
-            <LAZY_MODEL_VIEWER
-              extension={extension}
-              onLoadError={onLoadError}
-              src={src}
-            />
-          </Suspense>
+          <>
+            <Suspense fallback={<LoadingState />}>
+              <LAZY_MODEL_VIEWER
+                extension={extension}
+                onLoadError={onLoadError}
+                src={src}
+              />
+            </Suspense>
+            <ModelControlsHelp />
+          </>
         ) : null}
       </div>
     </CardWrapper>
