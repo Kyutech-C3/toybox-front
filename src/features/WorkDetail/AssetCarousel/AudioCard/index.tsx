@@ -10,7 +10,6 @@ import styles from "./index.module.css";
 
 type AudioCardProps = {
   src: string;
-  extension: string;
   isFullscreen?: boolean;
   onLoadError?: () => void;
   onToggleFullscreen?: () => void;
@@ -20,23 +19,6 @@ const WAVEFORM_BAR_COUNT = 160;
 const WAVEFORM_VIEW_HEIGHT = 100;
 const WAVEFORM_MAX_HEIGHT = WAVEFORM_VIEW_HEIGHT;
 const WAVEFORM_MIN_HEIGHT = 2;
-
-const getAudioMimeType = (extension: string): string => {
-  switch (extension.trim().replace(/^\./, "").toLowerCase()) {
-    case "mp3":
-      return "audio/mpeg";
-    case "wav":
-      return "audio/wav";
-    case "m4a":
-      return "audio/mp4";
-    case "ogg":
-      return "audio/ogg";
-    case "aac":
-      return "audio/aac";
-    default:
-      return "audio/mpeg";
-  }
-};
 
 const buildWaveformPath = (peaks: number[]) =>
   peaks
@@ -49,7 +31,6 @@ const buildWaveformPath = (peaks: number[]) =>
 
 const AudioCard = ({
   src,
-  extension,
   isFullscreen,
   onLoadError,
   onToggleFullscreen,
@@ -81,12 +62,7 @@ const AudioCard = ({
         onPointerMove={showControls}
         onPointerEnter={showControls}
       >
-        <audio ref={audioRef} preload="metadata" onError={onLoadError}>
-          <source
-            src={src}
-            type={getAudioMimeType(extension)}
-            onError={onLoadError}
-          />
+        <audio ref={audioRef} src={src} preload="auto" onError={onLoadError}>
           <track kind="captions" />
         </audio>
         {peaks.length > 0 ? (
