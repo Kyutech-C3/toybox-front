@@ -6,6 +6,33 @@
   height: 100%;
 }
 
+.waveform {
+  position: absolute;
+  top: 50%;
+  left: var(--waveform-inset);
+  width: calc(100% - var(--waveform-inset) * 2);
+  height: 40%;
+  translate: 0 -50%;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.waveform-line,
+.waveform-line-played {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.waveform-line {
+  stroke: var(--font-sub-color);
+}
+
+.waveform-line-played {
+  stroke: var(--primary-color);
+}
+
 .waveform-fallback {
   position: absolute;
   top: 50%;
@@ -15,9 +42,8 @@
   translate: 0 -50%;
   display: flex;
   align-items: center;
-  border-radius: 9999px;
-  overflow: hidden;
-  background: var(--border-color);
+  touch-action: none;
+  cursor: pointer;
 }
 
 .waveform-fallback-played {

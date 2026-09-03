@@ -1,9 +1,11 @@
-import { useRef } from "react";
+import { useId, useMemo, useRef } from "react";
 
 import CardWrapper from "../CardWrapper";
 import MediaPlayer from "../MediaPlayer";
 import useAutoHideControls from "../MediaPlayer/hook/useAutoHideControls";
 import useMediaPlayer from "../MediaPlayer/hook/useMediaPlayer";
+import useSeekDrag from "../MediaPlayer/hook/useSeekDrag";
+import useAudioWaveform from "./hook/useAudioWaveform";
 import styles from "./index.module.css";
 
 type AudioCardProps = {
@@ -13,6 +15,11 @@ type AudioCardProps = {
   onLoadError?: () => void;
   onToggleFullscreen?: () => void;
 };
+
+const WAVEFORM_BAR_COUNT = 160;
+const WAVEFORM_VIEW_HEIGHT = 100;
+const WAVEFORM_MAX_HEIGHT = WAVEFORM_VIEW_HEIGHT;
+const WAVEFORM_MIN_HEIGHT = 2;
 
 const getAudioMimeType = (extension: string): string => {
   switch (extension) {
@@ -31,6 +38,15 @@ const getAudioMimeType = (extension: string): string => {
   }
 };
 
+const buildWaveformPath = (peaks: number[]) =>
+  peaks
+    .map((peak, index) => {
+      const height = Math.max(peak * WAVEFORM_MAX_HEIGHT, WAVEFORM_MIN_HEIGHT);
+      const center = WAVEFORM_VIEW_HEIGHT / 2;
+      return `M${index + 0.5} ${center - height / 2}V${center + height / 2}`;
+    })
+    .join("");
+
 const AudioCard = ({
   src,
   extension,
@@ -39,6 +55,8 @@ const AudioCard = ({
   onToggleFullscreen,
 }: AudioCardProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const clipID = useId();
+  const { peaks } = useAudioWaveform({ src, barCount: WAVEFORM_BAR_COUNT });
   const {
     isPlaying,
     currentTime,
@@ -53,6 +71,8 @@ const AudioCard = ({
 
   const playedRatio = duration > 0 ? currentTime / duration : 0;
   const handleSeekRatio = (ratio: number) => seekTo(ratio * duration);
+  const waveformSeekHandlers = useSeekDrag({ onSeekRatio: handleSeekRatio });
+  const waveformPath = useMemo(() => buildWaveformPath(peaks), [peaks]);
 
   return (
     <CardWrapper>
@@ -69,12 +89,44 @@ const AudioCard = ({
           />
           <track kind="captions" />
         </audio>
-        <div className={styles["waveform-fallback"]} aria-hidden="true">
-          <span
-            className={styles["waveform-fallback-played"]}
-            style={{ width: `${playedRatio * 100}%` }}
-          />
-        </div>
+        {peaks.length > 0 ? (
+          <svg
+            className={styles["waveform"]}
+            viewBox={`0 0 ${peaks.length} ${WAVEFORM_VIEW_HEIGHT}`}
+            preserveAspectRatio="none"
+            role="presentation"
+            {...waveformSeekHandlers}
+          >
+            <title>音声の波形</title>
+            <defs>
+              <clipPath id={clipID}>
+                <rect
+                  x="0"
+                  y="0"
+                  width={peaks.length * playedRatio}
+                  height={WAVEFORM_VIEW_HEIGHT}
+                />
+              </clipPath>
+            </defs>
+            <path className={styles["waveform-line"]} d={waveformPath} />
+            <path
+              className={styles["waveform-line-played"]}
+              d={waveformPath}
+              clipPath={`url(#${clipID})`}
+            />
+          </svg>
+        ) : (
+          <div
+            className={styles["waveform-fallback"]}
+            role="presentation"
+            {...waveformSeekHandlers}
+          >
+            <span
+              className={styles["waveform-fallback-played"]}
+              style={{ width: `${playedRatio * 100}%` }}
+            />
+          </div>
+        )}
         <div
           className={styles["audio-controls"]}
           onPointerEnter={pinControls}
