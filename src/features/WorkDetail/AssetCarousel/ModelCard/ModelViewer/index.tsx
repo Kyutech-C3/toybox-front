@@ -159,9 +159,9 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       controls = orbitControls;
       orbitControls.enableDamping = false;
       orbitControls.screenSpacePanning = true;
-      orbitControls.mouseButtons.LEFT = null;
+      orbitControls.mouseButtons.LEFT = MOUSE.ROTATE;
       orbitControls.mouseButtons.MIDDLE = MOUSE.ROTATE;
-      orbitControls.mouseButtons.RIGHT = null;
+      orbitControls.mouseButtons.RIGHT = MOUSE.PAN;
 
       const setViewDirection = (direction: Vector3) => {
         const distance = orbitControls.getDistance();
@@ -350,7 +350,7 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       <canvas
         ref={canvasRef}
         className={styles["model-canvas"]}
-        aria-label="3Dモデル。中ボタンドラッグで回転、Shiftと中ボタンで移動、ホイールで拡大縮小できます。テンキー操作はBlenderと同じです"
+        aria-label="3Dモデル。左または中ボタンドラッグで回転、右ボタンドラッグで移動、ホイールで拡大縮小できます。テンキー操作はBlenderと同じです"
         tabIndex={0}
       />
       {isLoading && (
