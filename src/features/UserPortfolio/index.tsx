@@ -91,7 +91,11 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
           <WorkCardGrid
             works={displayedWorks}
             viewerUserID={viewerUserID}
-            renderFavoriteButton={(work) => <FavoriteButton workID={work.id} />}
+            renderFavoriteButton={
+              viewerUserID
+                ? (work) => <FavoriteButton workID={work.id} />
+                : undefined
+            }
           />
         )}
 

@@ -46,7 +46,11 @@ const WorkIndex = () => {
       <WorkCardGrid
         works={data}
         viewerUserID={viewerUserID}
-        renderFavoriteButton={(work) => <FavoriteButton workID={work.id} />}
+        renderFavoriteButton={
+          viewerUserID
+            ? (work) => <FavoriteButton workID={work.id} />
+            : undefined
+        }
       />
       {totalPages > 1 && (
         <Pagination
