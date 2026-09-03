@@ -142,6 +142,13 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       onLoadErrorRef.current();
     };
 
+    const handleMiddleButtonDefault = (event: MouseEvent) => {
+      if (event.button === 1) event.preventDefault();
+    };
+    canvas.addEventListener("pointerdown", handleMiddleButtonDefault);
+    canvas.addEventListener("mousedown", handleMiddleButtonDefault);
+    canvas.addEventListener("auxclick", handleMiddleButtonDefault);
+
     try {
       renderer = new WebGLRenderer({
         alpha: true,
@@ -338,6 +345,9 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       }
       resizeObserver?.disconnect();
       if (handleKeyDown) canvas.removeEventListener("keydown", handleKeyDown);
+      canvas.removeEventListener("pointerdown", handleMiddleButtonDefault);
+      canvas.removeEventListener("mousedown", handleMiddleButtonDefault);
+      canvas.removeEventListener("auxclick", handleMiddleButtonDefault);
       controls?.dispose();
       mixer?.stopAllAction();
       if (model) disposeModel(model);
