@@ -13,20 +13,20 @@ type MovieCardProps = {
   onToggleFullscreen?: () => void;
 };
 
-const getVideoMimeType = (extension: string): string => {
+const getVideoMimeTypes = (extension: string): string[] => {
   switch (extension.trim().replace(/^\./, "").toLowerCase()) {
     case "mp4":
-      return "video/mp4";
+      return ["video/mp4"];
     case "mov":
-      return "video/quicktime";
+      return ["video/mp4", "video/quicktime"];
     case "avi":
-      return "video/x-msvideo";
+      return ["video/x-msvideo"];
     case "flv":
-      return "video/x-flv";
+      return ["video/x-flv"];
     case "webm":
-      return "video/webm";
+      return ["video/webm"];
     default:
-      return "video/mp4";
+      return ["video/mp4"];
   }
 };
 
@@ -49,6 +49,7 @@ const MovieCard = ({
   } = useMediaPlayer({ mediaRef: videoRef });
   const { isVisible, showControls, pinControls, unpinControls } =
     useAutoHideControls({ mediaRef: videoRef });
+  const mimeTypes = getVideoMimeTypes(extension);
 
   return (
     <div
@@ -64,11 +65,14 @@ const MovieCard = ({
         onClick={togglePlay}
         onError={onLoadError}
       >
-        <source
-          src={src}
-          type={getVideoMimeType(extension)}
-          onError={onLoadError}
-        />
+        {mimeTypes.map((mimeType, index) => (
+          <source
+            key={mimeType}
+            src={src}
+            type={mimeType}
+            onError={index === mimeTypes.length - 1 ? onLoadError : undefined}
+          />
+        ))}
         <track kind="captions" />
       </video>
       <div
