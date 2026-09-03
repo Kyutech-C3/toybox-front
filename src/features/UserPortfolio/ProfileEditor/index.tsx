@@ -23,6 +23,8 @@ const PROFILE_MAX_LENGTH = 500;
 const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
   const displayNameID = useId();
   const profileID = useId();
+  const githubID = useId();
+  const twitterID = useId();
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
@@ -30,6 +32,8 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
 
   const [displayName, setDisplayName] = useState(userProfile.display_name);
   const [profile, setProfile] = useState(userProfile.profile);
+  const [github, setGithub] = useState(userProfile.github_id);
+  const [twitter, setTwitter] = useState(userProfile.twitter_id);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmedDisplayName = displayName.trim();
@@ -48,6 +52,8 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
         userProfile,
         displayName: trimmedDisplayName,
         profile,
+        githubID: github.trim(),
+        twitterID: twitter.trim(),
         accessToken,
       });
       await mutate(
@@ -102,6 +108,42 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
         <p className={styles["counter"]}>
           {profile.length}/{PROFILE_MAX_LENGTH}
         </p>
+      </div>
+      <div className={styles["field"]}>
+        <label className={styles["label"]} htmlFor={githubID}>
+          GitHub
+        </label>
+        <div className={styles["social-input"]}>
+          <span className={styles["url-prefix"]}>https://github.com/</span>
+          <input
+            id={githubID}
+            className={styles["social-id-input"]}
+            value={github}
+            placeholder="GitHub の ID"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            onChange={(event) => setGithub(event.target.value)}
+          />
+        </div>
+      </div>
+      <div className={styles["field"]}>
+        <label className={styles["label"]} htmlFor={twitterID}>
+          Twitter
+        </label>
+        <div className={styles["social-input"]}>
+          <span className={styles["url-prefix"]}>https://twitter.com/</span>
+          <input
+            id={twitterID}
+            className={styles["social-id-input"]}
+            value={twitter}
+            placeholder="Twitter の ID"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            onChange={(event) => setTwitter(event.target.value)}
+          />
+        </div>
       </div>
       <div className={styles["actions"]}>
         <Button onClick={onClose} isDisabled={isSubmitting}>

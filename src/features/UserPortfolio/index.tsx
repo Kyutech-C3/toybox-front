@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import GitHubIcon from "@mui/icons-material/GitHub";
+import TwitterIcon from "@mui/icons-material/Twitter";
 
 import useUserPortfolio from "./hook/useUserPortfolio";
 import styles from "./index.module.css";
@@ -71,9 +73,40 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
               onClose={() => setIsEditing(false)}
             />
           ) : (
-            <p className={styles["profile-text"]}>
-              {userProfile.profile || "プロフィールはまだありません"}
-            </p>
+            <div className={styles["profile-body"]}>
+              <p className={styles["profile-text"]}>
+                {userProfile.profile || "プロフィールはまだありません"}
+              </p>
+              {(userProfile.github_id || userProfile.twitter_id) && (
+                <nav
+                  className={styles["social-links"]}
+                  aria-label="ソーシャルアカウント"
+                >
+                  {userProfile.github_id && (
+                    <a
+                      className={styles["social-link"]}
+                      href={`https://github.com/${encodeURIComponent(userProfile.github_id)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <GitHubIcon fontSize="small" />
+                      <span>{userProfile.github_id}</span>
+                    </a>
+                  )}
+                  {userProfile.twitter_id && (
+                    <a
+                      className={styles["social-link"]}
+                      href={`https://twitter.com/${encodeURIComponent(userProfile.twitter_id)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <TwitterIcon fontSize="small" />
+                      <span>{userProfile.twitter_id}</span>
+                    </a>
+                  )}
+                </nav>
+              )}
+            </div>
           )}
         </div>
       </section>
