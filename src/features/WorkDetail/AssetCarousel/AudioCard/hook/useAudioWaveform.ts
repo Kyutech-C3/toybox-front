@@ -17,10 +17,11 @@ const useAudioWaveform = ({
 
   useEffect(() => {
     let isActive = true;
+    const controller = new AbortController();
     setPeaks([]);
 
     const buildWaveform = async () => {
-      const response = await fetch(src);
+      const response = await fetch(src, { signal: controller.signal });
       if (!response.ok) return;
 
       const buffer = await response.arrayBuffer();
@@ -53,6 +54,7 @@ const useAudioWaveform = ({
 
     return () => {
       isActive = false;
+      controller.abort();
     };
   }, [src, barCount]);
 

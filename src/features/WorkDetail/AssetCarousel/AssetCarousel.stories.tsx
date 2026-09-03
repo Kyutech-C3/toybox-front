@@ -33,6 +33,14 @@ const createAsset = (
   work_id: "work-1",
 });
 
+export const WebPImage: Story = {
+  args: {
+    assets: [
+      createAsset("asset-webp", "image", "webp", "/comingSoonHo-Oh.webp"),
+    ],
+  },
+};
+
 export const DownloadableAssets: Story = {
   args: {
     assets: [

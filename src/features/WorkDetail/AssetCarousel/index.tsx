@@ -231,6 +231,8 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
 
   const handleLoadError = (assetID: string) => {
     setFailedAssetIDs((currentAssetIDs) => {
+      if (currentAssetIDs.has(assetID)) return currentAssetIDs;
+
       const nextAssetIDs = new Set(currentAssetIDs);
       nextAssetIDs.add(assetID);
       return nextAssetIDs;
@@ -341,7 +343,6 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                   >
                     <AudioCard
                       src={safeURL}
-                      extension={asset.extension}
                       isFullscreen={isFullscreen}
                       onLoadError={() => handleLoadError(asset.id)}
                       onToggleFullscreen={() => void handleFullscreen()}
