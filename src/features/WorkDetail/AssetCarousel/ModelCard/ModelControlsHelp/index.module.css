@@ -36,7 +36,7 @@
   position: absolute;
   left: var(--space-12);
   bottom: calc(var(--space-12) + var(--touch-target-min) + var(--space-8));
-  width: min(320px, calc(100vw - 48px));
+  width: min(340px, calc(100vw - 48px));
   max-height: calc(100% - var(--touch-target-min) - var(--space-32));
   box-sizing: border-box;
   padding: var(--space-12);

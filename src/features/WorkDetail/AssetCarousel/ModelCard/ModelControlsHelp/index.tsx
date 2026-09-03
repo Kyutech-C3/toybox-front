@@ -66,11 +66,11 @@ const ModelControlsHelp = () => {
           <dl className={styles["controls-help-list"]}>
             <div>
               <dt>回転</dt>
-              <dd>左・中ボタンドラッグ／1本指ドラッグ</dd>
+              <dd>左・中ボタンドラッグ／1本指ドラッグ／矢印キー</dd>
             </div>
             <div>
               <dt>移動</dt>
-              <dd>右ボタンドラッグ／2本指ドラッグ</dd>
+              <dd>右ボタンドラッグ／2本指ドラッグ／W・A・S・D</dd>
             </div>
             <div>
               <dt>拡大・縮小</dt>
