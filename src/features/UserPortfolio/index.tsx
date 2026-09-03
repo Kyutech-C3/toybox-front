@@ -63,8 +63,9 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
               )}
             </div>
           </div>
-          {isEditing ? (
+          {isOwner && isEditing ? (
             <ProfileEditor
+              key={userProfile.id}
               userProfile={userProfile}
               onClose={() => setIsEditing(false)}
             />
