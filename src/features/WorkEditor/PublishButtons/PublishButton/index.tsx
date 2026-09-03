@@ -120,7 +120,7 @@ const PublishButton = () => {
         const updatePayload = buildWorkUpdatePayload(current, baseline);
         if (Object.keys(updatePayload).length === 0) {
           showToast({ message: "変更はありません", severity: "info" });
-          navigate(`/work/${workID}`);
+          navigate(`/works/${workID}`);
           return;
         }
         const updatedWork = await updateWork(
@@ -133,7 +133,7 @@ const PublishButton = () => {
         deleteOrphanedResources();
         markSaved();
         showToast({ message: "作品を保存しました", severity: "success" });
-        navigate(`/work/${workID}`);
+        navigate(`/works/${workID}`);
         return;
       }
       await postWork(toWorkPayload(current), accessToken);

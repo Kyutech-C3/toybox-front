@@ -63,7 +63,7 @@ const CommentItem = ({
       <div className={styles["comment-row"]}>
         {comment.user ? (
           <Link
-            to={`/user/${comment.user.id}`}
+            to={`/users/${comment.user.id}`}
             className={styles["avatar-link"]}
             aria-label={`${displayName}のユーザーページを開く`}
           >
@@ -79,7 +79,7 @@ const CommentItem = ({
           <div className={styles["header"]}>
             {comment.user ? (
               <Link
-                to={`/user/${comment.user.id}`}
+                to={`/users/${comment.user.id}`}
                 className={styles["username"]}
               >
                 {displayName}
