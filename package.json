@@ -12,7 +12,7 @@
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "ci": "npm install && npx biome check ./src ./biome.json ./package.json ./tsconfig.json ./tsconfig.app.json ./tsconfig.node.json",
+    "ci": "npm run check:naming && npx biome check ./src ./biome.json ./package.json ./tsconfig.json ./tsconfig.app.json ./tsconfig.node.json && npm run build",
     "format": "npx biome check --write ./src ./biome.json ./package.json ./tsconfig.json ./tsconfig.app.json ./tsconfig.node.json",
     "prepare": "husky",
     "new:ui": "hygen generator ui",
@@ -41,6 +41,7 @@
     "zustand": "^5.0.8"
   },
   "engines": {
+    "node": "24.x",
     "yarn": "このプロジェクトではnpmを使用してください",
     "bun": "このプロジェクトではnpmを使用してください",
     "pnpm": "このプロジェクトではnpmを使用してください"
@@ -76,6 +77,6 @@
     "vitest": "^3.2.4"
   },
   "allowScripts": {
-    "esbuild@0.28.1": true
+    "esbuild@0.25.12 || 0.28.1": true
   }
 }
