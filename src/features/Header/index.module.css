@@ -44,7 +44,8 @@
   font-size: 20px;
 }
 
-.login-wrapper button:not([data-disabled="true"]):hover {
+.login-wrapper > button:not([data-disabled="true"]):hover,
+.new-work-button > button:not([data-disabled="true"]):hover {
   background: var(--button-color);
   border-color: var(--font-color);
   box-shadow: var(--hover-shadow);
@@ -96,7 +97,7 @@
 }
 
 @media (hover: none) {
-  .login-wrapper button:not([data-disabled="true"]):hover {
+  .login-wrapper > button:not([data-disabled="true"]):hover {
     border-color: var(--border-color);
     box-shadow: none;
   }

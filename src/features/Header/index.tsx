@@ -96,13 +96,13 @@ const Header = () => {
             <Button
               variant="primary"
               onClick={() => navigate("/edit/new")}
-              ariaLabel="Toyを作成"
+              ariaLabel="投稿"
             >
               <span className={styles["login-container"]}>
                 <span className={styles["new-work-icon"]} aria-hidden="true">
                   <AddRoundedIcon fontSize="inherit" />
                 </span>
-                <span className={styles["new-work-label"]}>Toyを作成</span>
+                <span className={styles["new-work-label"]}>投稿</span>
               </span>
             </Button>
           </div>

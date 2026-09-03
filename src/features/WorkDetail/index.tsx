@@ -105,7 +105,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
             {viewerUserID === data.user.id && (
               <Link to={`/edit/${data.id}`} className={styles["edit-link"]}>
                 <EditSquareIcon />
-                Toyを編集
+                編集
               </Link>
             )}
           </div>

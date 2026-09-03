@@ -97,6 +97,17 @@
   outline-offset: -3px;
 }
 
+.popover-item[data-destructive="true"] {
+  color: var(--error-color);
+  font-weight: 700;
+}
+
+.popover-item[data-destructive="true"]:hover,
+.popover-item[data-destructive="true"]:focus-visible {
+  background: var(--error-soft-color);
+  color: var(--error-color);
+}
+
 .popover-item:disabled {
   color: var(--font-muted-color);
   cursor: not-allowed;

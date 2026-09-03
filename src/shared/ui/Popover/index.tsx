@@ -172,6 +172,7 @@ export const PopoverLabel = ({ children }: PopoverLabelProps) => (
 type PopoverButtonProps = {
   children: ReactNode;
   isSelected?: boolean;
+  isDestructive?: boolean;
   role?: "menuitem" | "option";
 } & Pick<
   ButtonHTMLAttributes<HTMLButtonElement>,
@@ -187,6 +188,7 @@ type PopoverButtonProps = {
 export const PopoverButton = ({
   children,
   isSelected = false,
+  isDestructive = false,
   role = "menuitem",
   tabIndex,
   ...props
@@ -201,6 +203,7 @@ export const PopoverButton = ({
       type="button"
       className={styles["popover-item"]}
       data-selected={isSelected || undefined}
+      data-destructive={isDestructive || undefined}
       tabIndex={tabIndex ?? (role === "menuitem" ? -1 : undefined)}
       {...accessibilityProps}
       {...props}

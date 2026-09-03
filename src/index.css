@@ -18,6 +18,7 @@
   --link-color: #4a90e2;
   --paper-overlay-color: rgba(255, 255, 255, 0.9);
   --primary-soft-color: rgba(250, 190, 0, 0.1);
+  --error-soft-color: rgba(198, 40, 40, 0.12);
   --shadow-soft-color: rgba(0, 0, 0, 0.1);
 
   --space-4: 4px;
