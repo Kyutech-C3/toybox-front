@@ -85,7 +85,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
             title={work.title}
             ref={titleRef}
           >
-            <Link to={`/work/${work.id}`} className={styles["work-link"]}>
+            <Link to={`/works/${work.id}`} className={styles["work-link"]}>
               <span
                 className={styles["marquee-content"]}
                 data-marquee={titleShift > 0 ? "true" : "false"}

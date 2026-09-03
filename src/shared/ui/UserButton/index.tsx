@@ -18,7 +18,7 @@ const UserButton = ({
 }: UserButtonProps) => {
   return (
     <Link
-      to={`/user/${userID}`}
+      to={`/users/${userID}`}
       className={styles["user-button"]}
       data-size={size}
       aria-label={`${displayName}のユーザーページを開く`}

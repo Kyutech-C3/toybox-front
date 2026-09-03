@@ -65,7 +65,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
         textAlign="center"
       >
         <PopoverLabel>{user.display_name}</PopoverLabel>
-        <PopoverLink to={`/user/${user.id}`} onClick={() => setIsOpen(false)}>
+        <PopoverLink to={`/users/${user.id}`} onClick={() => setIsOpen(false)}>
           マイページ
         </PopoverLink>
         <PopoverButton
