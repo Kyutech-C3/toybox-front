@@ -43,9 +43,7 @@ type DisposableObject = Object3D & {
   skeleton?: Skeleton;
 };
 
-const VIEW_PAN_STEP = 24;
 const VIEW_ROTATION_STEP = MathUtils.degToRad(15);
-const VIEW_ZOOM_SCALE = 0.8;
 
 const disposeModel = (model: Object3D) => {
   const geometries = new Set<BufferGeometry>();
@@ -170,14 +168,6 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       orbitControls.mouseButtons.MIDDLE = MOUSE.ROTATE;
       orbitControls.mouseButtons.RIGHT = MOUSE.PAN;
 
-      const setViewDirection = (direction: Vector3) => {
-        const distance = orbitControls.getDistance();
-        camera.position
-          .copy(orbitControls.target)
-          .add(direction.normalize().multiplyScalar(distance));
-        orbitControls.update();
-      };
-
       const frameAll = () => {
         if (frameDistance === undefined) return;
 
@@ -191,42 +181,24 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       };
 
       handleKeyDown = (event: KeyboardEvent) => {
-        const isOppositeView = event.ctrlKey || event.metaKey;
         let isHandled = true;
 
         switch (event.code) {
-          case "Numpad1":
-            setViewDirection(new Vector3(0, 0, isOppositeView ? -1 : 1));
+          case "ArrowDown":
+          case "KeyS":
+            orbitControls.rotateUp(-VIEW_ROTATION_STEP);
             break;
-          case "Numpad3":
-            setViewDirection(new Vector3(isOppositeView ? -1 : 1, 0, 0));
+          case "ArrowLeft":
+          case "KeyA":
+            orbitControls.rotateLeft(VIEW_ROTATION_STEP);
             break;
-          case "Numpad7":
-            setViewDirection(new Vector3(0, isOppositeView ? -1 : 1, 0.000001));
+          case "ArrowRight":
+          case "KeyD":
+            orbitControls.rotateLeft(-VIEW_ROTATION_STEP);
             break;
-          case "Numpad2":
-            if (event.shiftKey) orbitControls.pan(0, -VIEW_PAN_STEP);
-            else orbitControls.rotateUp(-VIEW_ROTATION_STEP);
-            break;
-          case "Numpad4":
-            if (event.shiftKey) orbitControls.pan(VIEW_PAN_STEP, 0);
-            else orbitControls.rotateLeft(VIEW_ROTATION_STEP);
-            break;
-          case "Numpad6":
-            if (event.shiftKey) orbitControls.pan(-VIEW_PAN_STEP, 0);
-            else orbitControls.rotateLeft(-VIEW_ROTATION_STEP);
-            break;
-          case "Numpad8":
-            if (event.shiftKey) orbitControls.pan(0, VIEW_PAN_STEP);
-            else orbitControls.rotateUp(VIEW_ROTATION_STEP);
-            break;
-          case "NumpadAdd":
-            orbitControls.dollyIn(VIEW_ZOOM_SCALE);
-            orbitControls.update();
-            break;
-          case "NumpadSubtract":
-            orbitControls.dollyOut(VIEW_ZOOM_SCALE);
-            orbitControls.update();
+          case "ArrowUp":
+          case "KeyW":
+            orbitControls.rotateUp(VIEW_ROTATION_STEP);
             break;
           case "Home":
             frameAll();
@@ -360,7 +332,7 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       <canvas
         ref={canvasRef}
         className={styles["model-canvas"]}
-        aria-label="3Dモデル。左または中ボタンドラッグで回転、右ボタンドラッグで移動、ホイールで拡大縮小できます。テンキー操作はBlenderと同じです"
+        aria-label="3Dモデル。左または中ボタンドラッグで回転、右ボタンドラッグで移動、ホイールで拡大縮小、WASDまたは矢印キーで視点を回転できます"
         tabIndex={0}
       />
       {isLoading && (

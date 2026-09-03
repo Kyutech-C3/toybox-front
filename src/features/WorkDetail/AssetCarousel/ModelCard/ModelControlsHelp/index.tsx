@@ -77,14 +77,6 @@ const ModelControlsHelp = () => {
               <dd>ホイール・ピンチ</dd>
             </div>
             <div>
-              <dt>視点</dt>
-              <dd>テンキー 1・3・7</dd>
-            </div>
-            <div>
-              <dt>回転・移動</dt>
-              <dd>テンキー 2・4・6・8（Shiftで移動）</dd>
-            </div>
-            <div>
               <dt>全体表示</dt>
               <dd>Home</dd>
             </div>
