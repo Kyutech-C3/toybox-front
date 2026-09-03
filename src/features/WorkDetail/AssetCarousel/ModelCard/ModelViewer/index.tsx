@@ -43,6 +43,7 @@ type DisposableObject = Object3D & {
   skeleton?: Skeleton;
 };
 
+const VIEW_PAN_STEP = 24;
 const VIEW_ROTATION_STEP = MathUtils.degToRad(15);
 
 const disposeModel = (model: Object3D) => {
@@ -185,20 +186,28 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
 
         switch (event.code) {
           case "ArrowDown":
-          case "KeyS":
             orbitControls.rotateUp(-VIEW_ROTATION_STEP);
             break;
           case "ArrowLeft":
-          case "KeyA":
             orbitControls.rotateLeft(VIEW_ROTATION_STEP);
             break;
           case "ArrowRight":
-          case "KeyD":
             orbitControls.rotateLeft(-VIEW_ROTATION_STEP);
             break;
           case "ArrowUp":
-          case "KeyW":
             orbitControls.rotateUp(VIEW_ROTATION_STEP);
+            break;
+          case "KeyA":
+            orbitControls.pan(VIEW_PAN_STEP, 0);
+            break;
+          case "KeyD":
+            orbitControls.pan(-VIEW_PAN_STEP, 0);
+            break;
+          case "KeyS":
+            orbitControls.pan(0, -VIEW_PAN_STEP);
+            break;
+          case "KeyW":
+            orbitControls.pan(0, VIEW_PAN_STEP);
             break;
           case "Home":
             frameAll();
@@ -332,7 +341,7 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       <canvas
         ref={canvasRef}
         className={styles["model-canvas"]}
-        aria-label="3Dモデル。左または中ボタンドラッグで回転、右ボタンドラッグで移動、ホイールで拡大縮小、WASDまたは矢印キーで視点を回転できます"
+        aria-label="3Dモデル。左または中ボタンドラッグで回転、右ボタンドラッグで移動、ホイールで拡大縮小、WASDで移動、矢印キーで視点を回転できます"
         tabIndex={0}
       />
       {isLoading && (
