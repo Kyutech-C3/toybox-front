@@ -49,45 +49,15 @@
 }
 
 .progress {
-  position: relative;
   width: 100%;
   height: 24px;
-  display: flex;
-  align-items: center;
-  touch-action: none;
+  margin: 0;
+  accent-color: var(--primary-color);
   cursor: pointer;
 }
 
-.progress-track {
-  width: 100%;
-  height: 10px;
-  display: block;
-  border-radius: 9999px;
-  overflow: hidden;
-  background: var(--border-color);
-  transition: height var(--hover-transition);
-}
-
-.progress:hover .progress-track {
-  height: 14px;
-}
-
-.progress-played {
-  height: 100%;
-  display: block;
-  background: var(--primary-color);
-}
-
-.progress-thumb {
-  position: absolute;
-  top: 50%;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  box-shadow: 0 1px 4px var(--shadow-soft-color);
-  transform: translate(-50%, -50%);
-  pointer-events: none;
+.progress:disabled {
+  cursor: not-allowed;
 }
 
 .time {

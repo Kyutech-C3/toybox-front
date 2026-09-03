@@ -6,7 +6,6 @@ import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import VolumeOffRoundedIcon from "@mui/icons-material/VolumeOffRounded";
 import VolumeUpRoundedIcon from "@mui/icons-material/VolumeUpRounded";
 
-import useSeekDrag from "./hook/useSeekDrag";
 import styles from "./index.module.css";
 
 type MediaPlayerProps = {
@@ -46,8 +45,8 @@ const MediaPlayer = ({
   onSeekRatio,
   onToggleFullscreen,
 }: MediaPlayerProps) => {
-  const seekHandlers = useSeekDrag({ onSeekRatio });
-  const playedRatio = duration > 0 ? currentTime / duration : 0;
+  const progressMax = duration > 0 ? duration : 1;
+  const progressValue = Math.min(currentTime, progressMax);
 
   return (
     <div
@@ -68,22 +67,20 @@ const MediaPlayer = ({
         )}
       </button>
       <div className={styles["progress-area"]}>
-        <div
+        <input
+          type="range"
           className={styles["progress"]}
-          role="presentation"
-          {...seekHandlers}
-        >
-          <span className={styles["progress-track"]}>
-            <span
-              className={styles["progress-played"]}
-              style={{ width: `${playedRatio * 100}%` }}
-            />
-          </span>
-          <span
-            className={styles["progress-thumb"]}
-            style={{ left: `${playedRatio * 100}%` }}
-          />
-        </div>
+          min={0}
+          max={progressMax}
+          step={0.1}
+          value={progressValue}
+          disabled={duration <= 0}
+          aria-label="再生位置"
+          aria-valuetext={`${formatTime(currentTime)} / ${formatTime(duration)}`}
+          onChange={(event) =>
+            onSeekRatio(Number(event.target.value) / progressMax)
+          }
+        />
         <p className={styles["time"]}>
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
