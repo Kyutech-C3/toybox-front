@@ -14,7 +14,7 @@ type MovieCardProps = {
 };
 
 const getVideoMimeType = (extension: string): string => {
-  switch (extension) {
+  switch (extension.trim().replace(/^\./, "").toLowerCase()) {
     case "mp4":
       return "video/mp4";
     case "mov":
@@ -62,6 +62,7 @@ const MovieCard = ({
         playsInline
         preload="metadata"
         onClick={togglePlay}
+        onError={onLoadError}
       >
         <source
           src={src}

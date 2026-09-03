@@ -231,6 +231,8 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
 
   const handleLoadError = (assetID: string) => {
     setFailedAssetIDs((currentAssetIDs) => {
+      if (currentAssetIDs.has(assetID)) return currentAssetIDs;
+
       const nextAssetIDs = new Set(currentAssetIDs);
       nextAssetIDs.add(assetID);
       return nextAssetIDs;

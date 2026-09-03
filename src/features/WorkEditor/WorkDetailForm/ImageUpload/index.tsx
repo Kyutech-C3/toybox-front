@@ -128,7 +128,7 @@ const ImageUpload = () => {
         </p>
       )}
       <p className={styles["format-help"]}>
-        PNG・JPG・JPEG・BMP・GIF / 5MB以下
+        PNG・JPG・JPEG・BMP・GIF・WEBP / 5MB以下
       </p>
     </div>
   );

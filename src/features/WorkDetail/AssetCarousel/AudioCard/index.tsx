@@ -22,7 +22,7 @@ const WAVEFORM_MAX_HEIGHT = WAVEFORM_VIEW_HEIGHT;
 const WAVEFORM_MIN_HEIGHT = 2;
 
 const getAudioMimeType = (extension: string): string => {
-  switch (extension) {
+  switch (extension.trim().replace(/^\./, "").toLowerCase()) {
     case "mp3":
       return "audio/mpeg";
     case "wav":
@@ -81,7 +81,7 @@ const AudioCard = ({
         onPointerMove={showControls}
         onPointerEnter={showControls}
       >
-        <audio ref={audioRef} preload="metadata">
+        <audio ref={audioRef} preload="metadata" onError={onLoadError}>
           <source
             src={src}
             type={getAudioMimeType(extension)}
