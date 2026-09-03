@@ -9,9 +9,9 @@ import styles from "./index.module.css";
 import ShareButton from "./ShareButton";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
+import FavoriteButton from "@/features/FavoriteButton";
 import Batch from "@/shared/ui/Batch";
 import EditSquareIcon from "@/shared/ui/EditSquareIcon";
-import LikeButton from "@/shared/ui/LikeButton";
 import Paper from "@/shared/ui/Paper";
 import UserButton from "@/shared/ui/UserButton";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
@@ -93,7 +93,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
             </dl>
             <div className={styles["work-detail-actions"]}>
               <ShareButton title={data.title} />
-              <LikeButton isCountVisible />
+              <FavoriteButton workID={data.id} isCountVisible />
             </div>
           </div>
           <div className={styles["work-detail-author-row"]}>

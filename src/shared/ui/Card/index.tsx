@@ -4,19 +4,19 @@ import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 
 import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
-import LikeButton from "../LikeButton";
 import UserButton from "../UserButton";
 import VisibilityIcon from "../VisibilityIcon";
 import styles from "./index.module.css";
 
 import { formatDateTime } from "@/util/formatDateTime";
 
-import type { CSSProperties, SyntheticEvent } from "react";
+import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
 import type { Work } from "@/shared/types/work";
 
 type CardProps = {
   work: Work;
   viewerUserID?: string;
+  favoriteButton?: ReactNode;
 };
 
 const DEFAULT_CARD_IMAGE_URL = "/comingSoonLugia.webp";
@@ -47,7 +47,7 @@ const toMarqueeStyle = (shift: number): MarqueeStyle =>
       }
     : {};
 
-const Card = ({ work, viewerUserID }: CardProps) => {
+const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
   const isEditable = viewerUserID === work.user.id;
   const titleRef = useRef<HTMLHeadingElement>(null);
   const titleContentRef = useRef<HTMLSpanElement>(null);
@@ -157,7 +157,7 @@ const Card = ({ work, viewerUserID }: CardProps) => {
                 <EditSquareIcon />
               </Link>
             )}
-            <LikeButton className={styles["like-button"]} />
+            {favoriteButton}
           </div>
         </div>
       </div>

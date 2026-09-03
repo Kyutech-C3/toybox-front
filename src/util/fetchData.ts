@@ -207,3 +207,15 @@ export const postDataWithAuth = async (
   }
   return response.json();
 };
+
+export const postDataWithAuthNoContent = async (
+  path: string,
+  accessToken: string,
+): Promise<void> => {
+  const response = await fetchWithAuth(path, accessToken, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throwResponseError(response);
+  }
+};

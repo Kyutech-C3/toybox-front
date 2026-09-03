@@ -27,6 +27,16 @@
   color: var(--error-color);
 }
 
+.like-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.like-button:disabled:hover {
+  background: var(--paper-overlay-color);
+  color: var(--font-muted-color);
+}
+
 .like-count {
   color: var(--font-color);
   font-size: 0.875rem;

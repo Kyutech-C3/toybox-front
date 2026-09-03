@@ -6,6 +6,7 @@ import styles from "./index.module.css";
 import ProfileEditor from "./ProfileEditor";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
+import FavoriteButton from "@/features/FavoriteButton";
 import Avatar from "@/shared/ui/Avatar";
 import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import { Pagination } from "@/shared/ui/Pagination";
@@ -87,7 +88,11 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
           <p className={styles["works-status"]}>作品はありません。</p>
         )}
         {displayedWorks.length > 0 && (
-          <WorkCardGrid works={displayedWorks} viewerUserID={viewerUserID} />
+          <WorkCardGrid
+            works={displayedWorks}
+            viewerUserID={viewerUserID}
+            renderFavoriteButton={(work) => <FavoriteButton workID={work.id} />}
+          />
         )}
 
         {totalPages > 1 && (

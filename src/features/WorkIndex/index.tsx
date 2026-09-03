@@ -6,6 +6,7 @@ import { SearchBar } from "./SearchBar";
 import { useTagsStore } from "./SearchBar/store/useTagsStore";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
+import FavoriteButton from "@/features/FavoriteButton";
 import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid, { useWorkGridPageSize } from "@/shared/ui/WorkCardGrid";
 
@@ -42,7 +43,11 @@ const WorkIndex = () => {
   return (
     <>
       <SearchBar />
-      <WorkCardGrid works={data} viewerUserID={viewerUserID} />
+      <WorkCardGrid
+        works={data}
+        viewerUserID={viewerUserID}
+        renderFavoriteButton={(work) => <FavoriteButton workID={work.id} />}
+      />
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
