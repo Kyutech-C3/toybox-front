@@ -1,8 +1,6 @@
 .markdown-preview {
+  box-sizing: border-box;
   width: 100%;
-  padding: 1rem;
-  background-color: var(--paper-color);
-  border-radius: 8px;
   line-height: 1.7;
 
   /* Headings */
@@ -79,7 +77,8 @@
   }
 
   pre {
-    width: 90%;
+    width: 100%;
+    box-sizing: border-box;
     background-color: var(--background-color);
     border: 1px solid var(--border-color);
     border-radius: 6px;

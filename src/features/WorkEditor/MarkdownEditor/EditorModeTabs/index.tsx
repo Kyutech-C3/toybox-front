@@ -1,8 +1,9 @@
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import VerticalSplitRoundedIcon from "@mui/icons-material/VerticalSplitRounded";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 
 import styles from "./index.module.css";
+
+import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 
 import type { ReactNode } from "react";
 import type { EditorMode } from "../types";
@@ -20,15 +21,23 @@ type EditorModeItem = {
 };
 
 const EDITOR_MODE_ITEMS: EditorModeItem[] = [
-  { mode: "edit", label: "Edit", icon: <EditRoundedIcon fontSize="small" /> },
+  {
+    mode: "edit",
+    label: "エディタ",
+    icon: (
+      <span className={styles["mode-tab-icon"]}>
+        <EditSquareIcon />
+      </span>
+    ),
+  },
   {
     mode: "preview",
-    label: "Preview",
+    label: "プレビュー",
     icon: <VisibilityRoundedIcon fontSize="small" />,
   },
   {
     mode: "live",
-    label: "Live",
+    label: "ライブ",
     icon: <VerticalSplitRoundedIcon fontSize="small" />,
   },
 ];

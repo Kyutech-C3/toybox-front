@@ -1,15 +1,15 @@
 .pagination-wrapper {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-12);
   background: transparent;
-  padding: 30px;
+  padding: var(--space-8) 0;
 }
 
 .pagination {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-12);
 }
 
 .listbox-container {
@@ -20,15 +20,17 @@
 .listbox-trigger {
   height: 48px;
   min-width: 48px;
-  padding: 0 12px;
-  border-radius: 10px;
+  padding: 0 var(--space-12);
+  border-radius: 9999px;
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 18px;
   font-weight: bold;
   user-select: none;
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--hover-transition),
+    color var(--hover-transition);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -36,8 +38,10 @@
   white-space: nowrap;
 }
 
-.listbox-trigger:hover {
-  color: var(--font-muted-color);
+.listbox-trigger:hover,
+.listbox-trigger:focus-visible {
+  background: var(--primary-soft-color);
+  color: var(--font-color);
 }
 
 .listbox-trigger[aria-expanded="true"] {
@@ -50,25 +54,23 @@
 
 @media (max-width: 1279px) {
   .pagination-wrapper {
-    padding: 16px 0;
-    gap: 8px;
+    gap: var(--space-8);
   }
 
   .pagination {
-    gap: 8px;
+    gap: var(--space-8);
   }
 }
 
 @media (max-width: 767px) {
   .pagination-wrapper {
-    padding: 12px 0;
-    gap: 6px;
+    gap: var(--space-4);
     flex-wrap: wrap;
     justify-content: center;
   }
 
   .pagination {
-    gap: 6px;
+    gap: var(--space-4);
     flex-wrap: wrap;
     justify-content: center;
   }
@@ -76,11 +78,18 @@
   .listbox-trigger {
     height: var(--touch-target-min);
     min-width: var(--touch-target-min);
-    padding: 0 8px;
+    padding: 0 var(--space-8);
     font-size: 16px;
   }
 
   .page-listbox {
     max-height: min(240px, calc(100vh - 32px));
+  }
+}
+
+@media (hover: none) {
+  .listbox-trigger:hover {
+    background: transparent;
+    color: var(--font-color);
   }
 }

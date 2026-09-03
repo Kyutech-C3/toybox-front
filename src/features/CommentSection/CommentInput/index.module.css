@@ -1,60 +1,40 @@
 .input-row {
   display: flex;
-  gap: 20px;
+  gap: var(--space-12);
   align-items: flex-start;
-}
-
-.avatar {
-  width: 50px;
-  height: 50px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid var(--border-color);
-}
-
-.avatar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
 }
 
 .right-col {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.username {
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 19px;
-  color: var(--font-color);
-  text-align: left;
+  gap: var(--space-8);
 }
 
 .input-box {
-  background: var(--background-color);
-  border-radius: 20px;
-  padding: 18px 20px;
+  box-sizing: border-box;
+  padding: var(--space-12) var(--space-16);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
   display: flex;
   align-items: flex-start;
-  border: 1px solid transparent;
-  position: relative;
+  background: var(--background-color);
+  transition: border-color var(--hover-transition);
+}
+
+.input-box:focus-within {
+  border-color: var(--primary-color);
 }
 
 .textarea {
   width: 100%;
-  min-height: 75px;
+  min-height: 56px;
   border: none;
   background: transparent;
-  font-style: normal;
-  font-weight: 500;
+  font-family: inherit;
   font-size: 16px;
-  line-height: 24px;
+  line-height: 1.6;
   resize: none;
   outline: none;
   color: var(--font-color);
@@ -63,34 +43,44 @@
 }
 
 .textarea::placeholder {
-  color: var(--phrase-holder);
-  font-weight: 700;
+  color: var(--font-muted-color);
+}
+
+.textarea:disabled {
+  cursor: not-allowed;
 }
 
 .send-wrap {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-12);
+}
+
+.send-hint {
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
 }
 
 .send-button {
-  width: 106px;
-  height: 54px;
-  background: var(--primary-color);
-  border-radius: 20px;
+  min-width: 96px;
+  height: var(--touch-target-min);
+  padding: 0 var(--space-16);
   border: none;
+  border-radius: 9999px;
+  background: var(--primary-color);
+  color: var(--font-color);
+  font-size: 0.875rem;
+  font-weight: 700;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  font-style: normal;
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 19px;
-  color: var(--font-color);
+  transition: box-shadow var(--hover-transition);
 }
 
-.send-button:hover {
-  opacity: 0.9;
+.send-button:not(:disabled):hover {
+  box-shadow: var(--hover-shadow);
 }
 
 .send-button:disabled {
@@ -101,22 +91,29 @@
 .reply-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
+  gap: var(--space-8);
   color: var(--font-muted-color);
-  margin-bottom: 4px;
+  font-size: 0.875rem;
 }
 
 .cancel-reply-button {
-  background: none;
+  min-width: var(--touch-target-min);
+  min-height: var(--touch-target-min);
+  padding: 0;
   border: none;
-  cursor: pointer;
-  font-size: 16px;
+  border-radius: 9999px;
+  background: none;
   color: var(--font-muted-color);
-  padding: 0 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition:
+    background-color var(--hover-transition),
+    color var(--hover-transition);
 }
 
-.cancel-reply-button:hover {
+.cancel-reply-button:hover,
+.cancel-reply-button:focus-visible {
+  background: var(--primary-soft-color);
   color: var(--font-color);
 }
 
@@ -131,39 +128,27 @@
   border: 0;
 }
 
-@media (max-width: 1279px) {
-  .input-row {
-    gap: 12px;
-  }
-
-  .avatar {
-    width: 40px;
-    height: 40px;
-  }
-
-  .input-box {
-    padding: 14px 16px;
-    border-radius: 16px;
-  }
-
-  .textarea {
-    min-height: 60px;
-  }
-
-  .cancel-reply-button {
-    min-width: var(--touch-target-min);
-    min-height: var(--touch-target-min);
-  }
-}
-
 @media (max-width: 767px) {
+  .input-row {
+    gap: var(--space-8);
+  }
+
   .send-wrap {
-    width: 100%;
+    flex-wrap: wrap;
   }
 
   .send-button {
-    width: 100%;
-    height: 48px;
-    border-radius: 16px;
+    flex: 1;
+  }
+}
+
+@media (hover: none) {
+  .cancel-reply-button:hover {
+    background: transparent;
+    color: var(--font-muted-color);
+  }
+
+  .send-button:not(:disabled):hover {
+    box-shadow: none;
   }
 }

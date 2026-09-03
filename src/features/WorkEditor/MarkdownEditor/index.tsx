@@ -75,7 +75,7 @@ const MarkdownEditor = () => {
           )}
           {mode === "live" && (
             <p className={styles["live-placeholder"]}>
-              Live Mode を全画面で表示しています
+              ライブモードを全画面で表示しています
             </p>
           )}
         </div>

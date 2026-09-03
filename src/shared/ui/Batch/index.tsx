@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 type BatchProps = {
   children: ReactNode;
-  color?: "primary" | "secondary";
+  color?: "primary" | "secondary" | "pale";
   variant?: "default" | "error";
   onClick?: (() => void) | null;
   onRetry?: (() => void) | null;

@@ -1,65 +1,67 @@
 .header-wrapper {
-  background-color: var(--primary-color);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  box-sizing: border-box;
   height: var(--header-height);
+  padding: 0 var(--page-margin);
+  background-color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-12);
 }
 
 .logo-wrapper {
-  margin-left: 50px;
   min-width: 0;
   display: flex;
   align-items: center;
 }
 
 .logo-image {
+  display: block;
   width: auto;
-  height: 75px;
-}
-
-.switch-wrapper {
-  margin-right: 58px;
+  height: var(--header-logo-height);
 }
 
 .login-wrapper {
-  margin-right: 58px;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: var(--space-16);
 }
 
 .login-container {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-4);
+  font-weight: bold;
+  white-space: nowrap;
 }
 
-.fab-icon {
-  display: none;
+.new-work-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+}
+
+.login-wrapper > button:not([data-disabled="true"]):hover,
+.new-work-button > button:not([data-disabled="true"]):hover {
+  background: var(--button-color);
+  border-color: var(--font-color);
+  box-shadow: var(--hover-shadow);
 }
 
 @media (max-width: 1279px) {
-  .logo-wrapper {
-    margin-left: 24px;
-  }
-
-  .logo-image {
-    height: 52px;
-  }
-
-  .switch-wrapper,
   .login-wrapper {
-    margin-right: 24px;
+    gap: var(--space-12);
   }
 
-  .login-wrapper {
-    gap: 12px;
-  }
-
-  .login-label {
+  .new-work-label {
     display: none;
+  }
+
+  .new-work-icon {
+    font-size: 30px;
   }
 
   .new-work-button {
@@ -81,30 +83,27 @@
     box-shadow: 0 4px 12px var(--shadow-soft-color);
   }
 
-  .new-work-button svg {
-    font-size: 30px;
-  }
-
-  .fab-icon {
-    display: block;
+  .new-work-button button:not([data-disabled="true"]):hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: var(--hover-shadow);
   }
 }
 
 @media (max-width: 767px) {
-  .logo-wrapper {
-    margin-left: 16px;
-  }
-
-  .logo-image {
-    height: 36px;
-  }
-
-  .switch-wrapper,
   .login-wrapper {
-    margin-right: 16px;
+    gap: var(--space-8);
+  }
+}
+
+@media (hover: none) {
+  .login-wrapper > button:not([data-disabled="true"]):hover {
+    border-color: var(--border-color);
+    box-shadow: none;
   }
 
-  .login-wrapper {
-    gap: 8px;
+  .new-work-button button:not([data-disabled="true"]):hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px var(--shadow-soft-color);
   }
 }

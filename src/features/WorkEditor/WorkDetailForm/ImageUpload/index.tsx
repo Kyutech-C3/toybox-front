@@ -54,10 +54,11 @@ const ImageUpload = () => {
 
   return (
     <div className={styles["upload-container"]}>
-      <span className={styles["upload-label"]}>サムネイル</span>
+      <h3 className={styles["upload-heading"]}>サムネイル</h3>
       <div
         className={styles["upload-frame"]}
         data-status={thumbnail?.status ?? "empty"}
+        data-has-image={thumbnail?.previewURL ? "true" : "false"}
       >
         <button
           type="button"
@@ -67,7 +68,6 @@ const ImageUpload = () => {
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           data-dragging={isDragging ? "true" : "false"}
-          data-has-image={thumbnail?.previewURL ? "true" : "false"}
           disabled={isUploading}
           aria-label="サムネイル画像をアップロード"
         >
@@ -90,31 +90,36 @@ const ImageUpload = () => {
           tabIndex={-1}
         />
         {thumbnail && (
-          <div className={styles["overlay-actions"]}>
-            {thumbnail.status === "error" && (
-              <UploadRetryButton
+          <>
+            <div className={styles["overlay-actions"]}>
+              {thumbnail.status === "error" && (
+                <UploadRetryButton
+                  className={styles["overlay-button"]}
+                  onClick={handleRetry}
+                  isDisabled={false}
+                  ariaLabel={`${thumbnail.fileName}を再アップロード`}
+                />
+              )}
+              <UploadRemoveButton
                 className={styles["overlay-button"]}
-                onClick={handleRetry}
-                isDisabled={false}
-                ariaLabel={`${thumbnail.fileName}を再アップロード`}
+                onClick={handleRemove}
+                isDisabled={isUploading}
+                ariaLabel={`${thumbnail.fileName}を削除`}
               />
-            )}
-            <UploadRemoveButton
-              className={styles["overlay-button"]}
-              onClick={handleRemove}
-              isDisabled={isUploading}
-              ariaLabel={`${thumbnail.fileName}を削除`}
-            />
-          </div>
-        )}
-      </div>
-      <div className={styles["upload-meta"]} aria-live="polite">
-        {thumbnail && (
-          <span className={styles["file-name"]}>{thumbnail.fileName}</span>
-        )}
-        {thumbnail?.status === "uploading" && <span>アップロード中</span>}
-        {thumbnail?.status === "success" && thumbnail.file && (
-          <span>アップロード完了</span>
+            </div>
+            <div className={styles["upload-meta"]}>
+              <span className={styles["file-name"]} title={thumbnail.fileName}>
+                {thumbnail.fileName}
+              </span>
+              <span className={styles["status"]} aria-live="polite">
+                {thumbnail.status === "uploading" && "アップロード中"}
+                {thumbnail.status === "success" &&
+                  thumbnail.file &&
+                  "アップロード完了"}
+                {thumbnail.status === "error" && "アップロードに失敗"}
+              </span>
+            </div>
+          </>
         )}
       </div>
       {(validationError || thumbnail?.errorMessage) && (

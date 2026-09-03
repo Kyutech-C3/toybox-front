@@ -24,7 +24,7 @@
   background-color: var(--paper-color);
 }
 
-/* Live Mode はペイン側が枠とスクロールを持つので、エディタ本体の枠は外す */
+/* ライブモードはペイン側が枠とスクロールを持つので、エディタ本体の枠は外す */
 [data-markdown-editor][data-mode="live"] .w-md-editor {
   border: none;
 }

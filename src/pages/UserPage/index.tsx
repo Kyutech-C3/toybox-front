@@ -49,7 +49,7 @@ const UserPage = () => {
         >
           <Suspense fallback={<PageLoading />}>
             {id ? (
-              <UserPortfolio userID={id} />
+              <UserPortfolio key={id} userID={id} />
             ) : (
               <section className={styles["page-status"]}>
                 <h1>ユーザーが見つかりません</h1>

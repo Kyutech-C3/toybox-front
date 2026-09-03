@@ -9,12 +9,13 @@ import Popover, {
   type PopoverTextAlign,
 } from "@/shared/ui/Popover";
 
-import type { KeyboardEvent, RefObject } from "react";
+import type { KeyboardEvent, ReactNode, RefObject } from "react";
 
 export type ListboxOption<T> = {
   id: string | number;
   value: T;
   label: string;
+  icon?: ReactNode;
 };
 
 type ListboxProps<T> = {
@@ -150,6 +151,7 @@ const Listbox = <T,>({
             Object.is(option.value, selectedValue)
           }
         >
+          {option.icon}
           {option.label}
         </PopoverButton>
       ))}

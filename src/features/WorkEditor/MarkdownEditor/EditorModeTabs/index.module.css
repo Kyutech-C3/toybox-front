@@ -1,9 +1,15 @@
+.mode-tab-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+}
+
 .mode-tabs {
   --tab-count: 3;
 
   position: relative;
   display: inline-grid;
-  grid-template-columns: repeat(var(--tab-count), minmax(96px, 1fr));
+  grid-template-columns: repeat(var(--tab-count), minmax(112px, 1fr));
   gap: 4px;
   padding: 5px;
   border: 1px solid var(--border-color);

@@ -1,10 +1,7 @@
 .asset-wrapper {
-  /* カルーセルの表示高さ。ImgCard / MovieCard / AudioCard / CardWrapper が
-     この値を継承するので、高さの変更はここだけで済む */
-  --asset-carousel-height: 540px;
-
   display: flex;
   flex-direction: column;
+  gap: var(--space-8);
   width: 100%;
 }
 
@@ -17,9 +14,9 @@
 .asset-container {
   margin: 0;
   padding: 0;
-  border-radius: 25px;
-  height: var(--asset-carousel-height);
+  border-radius: var(--asset-carousel-radius, 25px);
   width: 100%;
+  aspect-ratio: 4 / 3;
   display: flex;
   overflow-x: auto;
   overflow-y: hidden;
@@ -44,44 +41,6 @@
   scroll-snap-stop: always;
 }
 
-.asset-indicators {
-  min-height: 44px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.asset-indicator {
-  width: 30px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  display: grid;
-  place-items: center;
-  background-color: transparent;
-  cursor: pointer;
-
-  &::before {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background-color: var(--font-sub-color);
-    content: "";
-  }
-
-  &[data-active="true"]::before {
-    background-color: var(--font-color);
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--link-color);
-    outline-offset: 3px;
-  }
-}
-
 .scroll-left-button,
 .scroll-right-button {
   width: 64px;
@@ -89,67 +48,97 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: var(--paper-overlay-color);
+  background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
   border: none;
-  color: var(--font-color);
-  padding: 10px;
+  color: var(--font-sub-color);
+  padding: 0;
   cursor: pointer;
   z-index: 1;
-  border-radius: 50%;
+  transition: color var(--hover-transition);
+}
+
+.scroll-left-button:hover,
+.scroll-right-button:hover {
+  color: var(--primary-color);
+}
+
+.scroll-left-button:focus-visible,
+.scroll-right-button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -4px;
 }
 
 .scroll-left-button {
-  left: 25px;
+  left: var(--space-8);
 }
 
 .scroll-right-button {
-  right: 25px;
+  right: var(--space-8);
+}
+
+/* 全画面ボタンは viewport に置く。アセット側に置くと横スクロールで一緒に流れる */
+.fullscreen-button {
+  position: absolute;
+  right: var(--space-12);
+  bottom: var(--space-12);
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  padding: 0;
+  border: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+  color: var(--font-sub-color);
+  background-color: transparent;
+  cursor: pointer;
+  transition: color var(--hover-transition);
+}
+
+.fullscreen-button:hover {
+  color: var(--primary-color);
+}
+
+.fullscreen-button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.carousel-viewport:fullscreen {
+  --asset-carousel-radius: 0;
+
+  display: flex;
+  align-items: center;
+  background-color: var(--asset-background);
+}
+
+.carousel-viewport:fullscreen .asset-container {
+  height: 100vh;
+  aspect-ratio: auto;
 }
 
 @media (max-width: 1279px) {
-  .asset-wrapper {
-    --asset-carousel-height: 360px;
-  }
-
   .scroll-left-button,
   .scroll-right-button {
     width: 48px;
     height: 48px;
-    padding: 6px;
-  }
-
-  .scroll-left-button {
-    left: 12px;
-  }
-
-  .scroll-right-button {
-    right: 12px;
   }
 }
 
 @media (max-width: 767px) {
-  .asset-wrapper {
-    --asset-carousel-height: 240px;
-  }
-
-  .asset-container {
-    border-radius: 16px;
-  }
-
   .scroll-left-button,
   .scroll-right-button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);
   }
+}
 
-  .scroll-left-button {
-    left: 8px;
-  }
-
-  .scroll-right-button {
-    right: 8px;
+@media (hover: none) {
+  .scroll-left-button:hover,
+  .scroll-right-button:hover,
+  .fullscreen-button:hover {
+    color: var(--font-sub-color);
   }
 }

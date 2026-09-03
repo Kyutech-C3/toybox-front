@@ -4,23 +4,30 @@
   align-self: flex-start;
   width: fit-content;
   max-width: 100%;
-  padding: 4px 12px 4px 4px;
+  padding: var(--space-4) var(--space-12) var(--space-4) var(--space-4);
   box-sizing: border-box;
   border: 1px solid transparent;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-12);
   background: transparent;
   color: var(--font-color);
   text-decoration: none;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color var(--hover-transition);
 }
 
 .user-button:hover,
 .user-button:focus-visible {
   background: var(--primary-soft-color);
   color: var(--font-color);
+}
+
+.user-button[data-size="compact"] {
+  align-self: auto;
+  min-width: 0;
+  padding: 2px var(--space-8) 2px 2px;
+  gap: var(--space-4);
 }
 
 .display-name {
@@ -32,15 +39,30 @@
   white-space: nowrap;
 }
 
+.user-button[data-size="compact"] .display-name {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+@media (hover: none) {
+  .user-button:hover {
+    background: transparent;
+  }
+}
+
 @media (max-width: 1279px) {
   .user-button {
     min-height: var(--touch-target-min);
+  }
+
+  .user-button[data-size="compact"] {
+    min-height: 0;
   }
 }
 
 @media (max-width: 767px) {
   .user-button {
-    gap: 8px;
+    gap: var(--space-8);
   }
 
   .display-name {

@@ -1,31 +1,39 @@
 .asset-upload {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-8);
   width: 100%;
 }
 
+/* タイトル・タグ入力の見出しに合わせる */
 .heading {
-  margin: 0;
+  margin: var(--space-8) 5px;
   color: var(--font-color);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .asset-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, var(--upload-cell-width));
   align-items: start;
-  gap: 30px;
+  gap: var(--upload-grid-gap);
 }
 
+/* プレビュー 4:3 と説明欄 4:1 を積んで正方形にする */
 .asset-card {
+  box-sizing: border-box;
+  width: var(--upload-cell-width);
+  aspect-ratio: 1;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--border-color);
-  border-radius: 20px;
+  border: 2px solid var(--primary-color);
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
   background: var(--paper-color);
 }
+
 .asset-card[data-status="error"] {
   border-color: var(--error-color);
   background: color-mix(in srgb, var(--error-color) 12%, var(--paper-color));
@@ -35,15 +43,16 @@
   opacity: 0.4;
 }
 
+/* 作品ページのカルーセルと同じく、暗い面に全景を収める */
 .preview {
   position: relative;
+  flex: 0 0 75%;
   display: grid;
   place-items: center;
   width: 100%;
-  aspect-ratio: 1;
   overflow: hidden;
-  background: var(--background-color);
-  color: var(--font-muted-color);
+  background: var(--asset-background);
+  color: var(--font-sub-color);
 }
 
 .preview > img,
@@ -52,44 +61,49 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .preview > svg {
-  font-size: 64px;
+  font-size: 48px;
 }
 
 .overlay-actions {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: var(--space-8);
+  right: var(--space-8);
   display: flex;
-  gap: 6px;
+  gap: var(--space-8);
 }
 
 .overlay-button {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
 }
 
 .asset-details {
+  flex: 0 0 25%;
+  min-width: 0;
+  padding: 0 var(--space-12);
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  padding: 12px;
-  font-size: 12px;
+  justify-content: center;
+  gap: 2px;
+  color: var(--font-muted-color);
+  font-size: 0.6875rem;
 }
 
-.file-name {
+.file-name,
+.status {
   overflow: hidden;
-  font-size: 13px;
-  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.status[data-status="success"] {
+.file-name {
   color: var(--font-color);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .status[data-status="error"],
@@ -98,23 +112,27 @@
 }
 
 .add-button {
+  box-sizing: border-box;
+  width: var(--upload-cell-width);
+  aspect-ratio: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-8);
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1;
-  padding: 16px;
-  border: 4px dashed var(--primary-color);
-  border-radius: 20px;
+  padding: var(--space-16);
+  border: 2px dashed var(--primary-color);
+  border-radius: 25px;
   color: var(--font-color);
   background: var(--paper-color);
   cursor: pointer;
+  transition: background-color var(--hover-transition);
 }
 
 .add-button:hover,
 .add-button[data-dragging="true"] {
   background: var(--primary-soft-color);
+  color: var(--font-color);
 }
 
 .file-input {
@@ -128,37 +146,35 @@
 }
 
 .validation-error {
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .format-help {
   color: var(--font-muted-color);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 1279px) {
-  .asset-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 16px;
-  }
-
   .overlay-button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);
   }
-
-  .add-button {
-    border-width: 3px;
-  }
 }
 
 @media (max-width: 767px) {
-  .asset-grid {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  .heading {
+    margin: var(--space-8) 2px;
+    font-size: 16px;
   }
 
-  .preview > svg {
-    font-size: 48px;
+  .asset-card,
+  .add-button {
+    border-radius: 16px;
+  }
+}
+
+@media (hover: none) {
+  .add-button:hover {
+    background: var(--paper-color);
   }
 }

@@ -2,8 +2,8 @@
 .primary-button {
   height: 48px;
   min-width: 48px;
-  padding: 0 12px;
-  border-radius: 10px;
+  padding: 0 var(--space-16);
+  border-radius: 9999px;
   border: 1px solid var(--border-color);
   display: inline-flex;
   align-items: center;
@@ -13,17 +13,23 @@
   font-size: 14px;
   font-weight: bold;
   user-select: none;
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--hover-transition),
+    box-shadow var(--hover-transition),
+    color var(--hover-transition);
 
-  &:hover {
-    box-shadow: 0 6px 12px var(--shadow-soft-color);
+  &:not([data-disabled="true"]):hover {
+    background: var(--primary-soft-color);
+    color: var(--font-color);
+    box-shadow: var(--hover-shadow);
   }
 
-  &[data-active="true"] {
+  &[data-active="true"],
+  &[data-active="true"]:hover {
     background: var(--primary-color);
     color: var(--font-color);
     font-weight: 600;
-    box-shadow: 0 6px 14px var(--shadow-soft-color);
+    box-shadow: var(--hover-shadow);
   }
 
   &[data-disabled="true"] {
@@ -37,6 +43,13 @@
   .primary-button {
     height: var(--touch-target-min);
     min-width: var(--touch-target-min);
-    padding: 0 10px;
+    padding: 0 var(--space-12);
+  }
+}
+
+@media (hover: none) {
+  .primary-button:not([data-disabled="true"]):not([data-active="true"]):hover {
+    background: var(--button-color);
+    box-shadow: none;
   }
 }

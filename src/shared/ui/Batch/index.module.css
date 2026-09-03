@@ -1,11 +1,12 @@
 .batch {
-  font-size: 16px;
-  border-radius: 25px;
+  font-size: inherit;
+  border-radius: 9999px;
   text-align: center;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   text-wrap-mode: nowrap;
-  gap: 6px;
+  gap: var(--space-4);
+  vertical-align: middle;
 
   &[data-color="primary"] {
     background-color: var(--primary-color);
@@ -15,17 +16,22 @@
     background-color: var(--border-color);
   }
 
+  &[data-color="pale"] {
+    background-color: var(--primary-pale-color);
+    color: var(--font-muted-color);
+  }
+
   &[data-variant="error"] {
     color: var(--font-color);
     background-color: color-mix(in srgb, var(--error-color) 45%, transparent);
   }
 
   &[data-clickable="true"] {
-    padding: 0 6px 0 11px;
+    padding: 0 var(--space-8) 0 var(--space-12);
   }
 
   &[data-clickable="false"] {
-    padding: 0px 11px;
+    padding: 2px var(--space-12);
   }
 
   &[data-retrying="true"] {
@@ -42,6 +48,12 @@
   border: none;
   cursor: pointer;
   border-radius: 9999px;
+  transition: background-color var(--hover-transition);
+}
+
+.batch-button:not(:disabled):hover,
+.batch-button:focus-visible {
+  background: var(--paper-overlay-color);
 }
 
 .batch-button:disabled {

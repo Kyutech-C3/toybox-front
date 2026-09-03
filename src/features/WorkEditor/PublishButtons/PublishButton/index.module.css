@@ -7,11 +7,16 @@
   justify-content: center;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
-  border-radius: 20px;
+  transition:
+    background-color var(--hover-transition),
+    box-shadow var(--hover-transition),
+    color var(--hover-transition);
+  border-radius: 9999px;
 
-  &:hover {
-    box-shadow: 0 6px 12px var(--shadow-soft-color);
+  &:not([data-disabled="true"]):hover {
+    background: var(--primary-soft-color);
+    color: var(--font-color);
+    box-shadow: var(--hover-shadow);
   }
 
   &[data-active="true"] {
@@ -67,15 +72,23 @@
 .publish-button {
   height: 100%;
   min-width: 10em;
-  padding: 0 16px 0 24px;
+  padding: 0 var(--space-16) 0 var(--space-24);
   border: none;
-  background: none;
-  border-radius: 20px 0 0 20px;
+  border-radius: 9999px 0 0 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
   background: var(--primary-color);
-
   font-size: 16px;
   font-weight: bold;
-  color: var(--paper-color);
+  /* 黄色の面に白文字は 1.69:1 で読めないため黒にする */
+  color: var(--font-color);
+  cursor: pointer;
+}
+
+.visibility-icon {
+  font-size: 20px;
 }
 
 .button-span {
@@ -93,11 +106,12 @@
   background: none;
   display: flex;
   align-items: center;
-  border-radius: 0 20px 20px 0;
+  border-radius: 0 9999px 9999px 0;
   background: var(--primary-color);
   font-size: 16px;
   font-weight: bold;
-  color: var(--paper-color);
+  color: var(--font-color);
+  cursor: pointer;
 }
 
 .listbox-container {
@@ -120,7 +134,7 @@
   .publish-button {
     flex: 1;
     min-width: 0;
-    padding: 0 12px 0 16px;
+    padding: 0 var(--space-12) 0 var(--space-16);
   }
 
   .upload-notice,

@@ -1,17 +1,12 @@
+/* 本文を読む列。幅の正本は --content-read-width */
 .paper-wrapper {
+  box-sizing: border-box;
+  width: min(100%, var(--content-read-width));
+  padding: var(--paper-padding);
   border-radius: 16px;
   background-color: var(--paper-color);
-  padding: var(--paper-padding);
-  width: 80%;
   text-align: left;
-  box-shadow: 4px 4px 8px var(--shadow-soft-color);
-}
-
-@media (max-width: 1279px) {
-  .paper-wrapper {
-    width: 100%;
-    box-sizing: border-box;
-  }
+  box-shadow: 0 2px 8px var(--shadow-soft-color);
 }
 
 @media (max-width: 767px) {

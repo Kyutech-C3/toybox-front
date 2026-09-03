@@ -1,7 +1,7 @@
 .download-card {
   box-sizing: border-box;
   width: min(480px, 90vw);
-  height: 540px;
+  height: 100%;
   padding: 48px 32px;
   display: flex;
   flex-direction: column;
@@ -13,7 +13,8 @@
 }
 
 .file-icon {
-  color: var(--font-muted-color);
+  display: inline-flex;
+  color: var(--font-sub-color);
   font-size: 96px;
 }
 

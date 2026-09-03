@@ -1,14 +1,8 @@
 .publish-buttons-wrapper {
-  gap: 12px;
-  width: 80%;
+  gap: var(--space-12);
+  width: min(100%, var(--content-read-width));
   display: flex;
   justify-content: flex-end;
-}
-
-@media (max-width: 1279px) {
-  .publish-buttons-wrapper {
-    width: 100%;
-  }
 }
 
 @media (max-width: 767px) {

@@ -11,21 +11,45 @@
   --asset-background: #222222;
   --font-color: #000000;
   --font-sub-color: #d9d9d9;
-  --font-muted-color: #777777;
+  --font-muted-color: #5c5c5c;
   --phrase-holder: #d9d9d9;
   --border-color: #d9d9d9;
   --error-color: #c62828;
   --link-color: #4a90e2;
   --paper-overlay-color: rgba(255, 255, 255, 0.9);
   --primary-soft-color: rgba(250, 190, 0, 0.1);
+  --error-soft-color: rgba(198, 40, 40, 0.12);
   --shadow-soft-color: rgba(0, 0, 0, 0.1);
-  --header-height: 140px;
-  --page-margin: 60px;
+
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+
+  --header-height: 72px;
+  --header-logo-height: 44px;
+  --page-margin: 32px;
   --paper-padding: 40px;
-  --grid-gap: 48px;
-  --section-gap: 48px;
+  --grid-gap: 32px;
+  --section-gap: 32px;
   --touch-target-min: 44px;
   --fab-clearance: 0px;
+
+  --content-width-ratio: 0.9;
+  --content-max-width: calc(var(--content-width-ratio) * 100vw);
+  --content-read-width: 1024px;
+
+  --card-columns: 0;
+  --card-min-width: 280px;
+  --card-max-columns: 7;
+
+  --hover-transition: 0.2s ease;
+  --hover-shadow: 0 6px 12px var(--shadow-soft-color);
+  --hover-shadow-around: 0 0 16px 4px var(--shadow-soft-color);
 
   color: var(--font-color);
   background-color: var(--background-color);
@@ -40,23 +64,27 @@
 
 @media (max-width: 1279px) {
   :root {
-    --header-height: 96px;
+    --header-height: 64px;
+    --header-logo-height: 40px;
     --page-margin: 24px;
     --paper-padding: 24px;
     --grid-gap: 24px;
     --section-gap: 32px;
     --fab-clearance: 104px;
+    --card-columns: 3;
   }
 }
 
 @media (max-width: 767px) {
   :root {
-    --header-height: 64px;
+    --header-height: 56px;
+    --header-logo-height: 32px;
     --page-margin: 16px;
     --paper-padding: 16px;
     --grid-gap: 16px;
     --section-gap: 24px;
     --fab-clearance: 88px;
+    --card-columns: 2;
   }
 }
 

@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { mutate } from "swr";
 
 import { useAuthStore } from "../auth/store/useAuthStore";
 import postComment from "./api/postComment";
 import CommentInput from "./CommentInput";
 import CommentList from "./CommentList";
-import useComment from "./hook/useComment";
+import useComment, { getCommentSWRKey } from "./hook/useComment";
 import styles from "./index.module.css";
 
 import Paper from "@/shared/ui/Paper";
+import useToast from "@/shared/ui/Toast/hook/useToast";
 
 import type { Comment } from "@/shared/types/comment";
 
@@ -17,9 +19,12 @@ interface CommentSectionProps {
 
 const CommentSection = ({ postId }: CommentSectionProps) => {
   const { data } = useComment({ workId: postId });
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { showToast } = useToast();
 
-  // 返信対象のコメントを管理するState
   const [replyingTo, setReplyingTo] = useState<Comment | undefined>(undefined);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const handleReply = (comment: Comment) => {
     setReplyingTo(comment);
@@ -29,35 +34,68 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
     setReplyingTo(undefined);
   };
 
-  // コメント送信（モック）
-  // parentIdがある場合は返信として扱う
-  const handleSubmit = (message: string) => {
+  const handleSubmit = async (message: string) => {
     const trimmed = message.trim();
-    if (!trimmed) return;
+    if (!trimmed || !accessToken || isSubmittingRef.current) return false;
 
-    const { accessToken } = useAuthStore.getState();
-    if (!accessToken) {
-      postComment(postId, trimmed, "", replyingTo?.id);
-      return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    try {
+      await postComment(postId, trimmed, accessToken, replyingTo?.id);
+      setReplyingTo(undefined);
+      try {
+        await mutate(getCommentSWRKey(postId));
+      } catch {
+        showToast({
+          message: "コメント一覧を更新できませんでした",
+          severity: "error",
+        });
+      }
+      return true;
+    } catch {
+      showToast({
+        message: "コメントを送信できませんでした",
+        severity: "error",
+      });
+      return false;
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
-
-    postComment(postId, trimmed, accessToken, replyingTo?.id);
-    // 送信後は返信モードを解除
-    setReplyingTo(undefined);
   };
 
   return (
     <Paper>
-      <h2 className={styles["title"]}>コメント</h2>
+      <h2 className={styles["title"]}>
+        コメント
+        <span className={styles["comment-count"]}>{data.length}</span>
+      </h2>
       <div className={styles["content"]}>
-        <CommentList
-          comments={data}
-          onReply={handleReply}
-          replyingTo={replyingTo}
-          onSubmitReply={handleSubmit}
-          onCancelReply={handleCancelReply}
-        />
-        <CommentInput onSubmit={handleSubmit} replyingTo={replyingTo} />
+        {data.length === 0 ? (
+          <p className={styles["empty"]}>まだコメントはありません。</p>
+        ) : (
+          <CommentList
+            comments={data}
+            onReply={handleReply}
+            replyingTo={replyingTo}
+            isReplyEnabled={!!accessToken}
+            isSubmitting={isSubmitting}
+            onSubmitReply={handleSubmit}
+            onCancelReply={handleCancelReply}
+          />
+        )}
+        {accessToken ? (
+          <CommentInput
+            onSubmit={handleSubmit}
+            replyingTo={replyingTo}
+            onCancelReply={handleCancelReply}
+            isSubmitting={isSubmitting}
+          />
+        ) : (
+          <p className={styles["login-notice"]}>
+            コメントするにはログインしてください。
+          </p>
+        )}
       </div>
     </Paper>
   );

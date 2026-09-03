@@ -5,6 +5,7 @@ import { mutate } from "swr";
 import styles from "./index.module.css";
 
 import CommentSection from "@/features/CommentSection";
+import { getCommentSWRKey } from "@/features/CommentSection/hook/useComment";
 import Header from "@/features/Header";
 import WorkDetail from "@/features/WorkDetail";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
@@ -40,7 +41,7 @@ const WorkPage = () => {
   const handleCommentRetry = async () => {
     if (!id) return;
 
-    await mutate(`/works/${id}/comments`, undefined, { revalidate: false });
+    await mutate(getCommentSWRKey(id), undefined, { revalidate: false });
   };
 
   return (

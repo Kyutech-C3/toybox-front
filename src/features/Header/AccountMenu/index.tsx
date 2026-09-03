@@ -69,6 +69,7 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
           マイページ
         </PopoverLink>
         <PopoverButton
+          isDestructive
           disabled={isLoggingOut}
           onClick={() => void handleLogout()}
         >

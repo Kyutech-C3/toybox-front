@@ -76,33 +76,36 @@ const Header = () => {
             src="/ToyboxLogo.svg"
             alt="logo-image"
             className={styles["logo-image"]}
-            height={75}
+            height={44}
           />
         </Link>
       </div>
       <div className={styles["login-wrapper"]}>
+        {user ? (
+          <AccountMenu user={user} onLogout={handleLogout} />
+        ) : (
+          <Button variant="primary" onClick={handleLogin} ariaLabel="ログイン">
+            <span className={styles["login-container"]}>
+              <LoginRoundedIcon fontSize="small" />
+              ログイン
+            </span>
+          </Button>
+        )}
         {accessToken && (
           <div className={styles["new-work-button"]}>
             <Button
               variant="primary"
               onClick={() => navigate("/edit/new")}
-              ariaLabel="新規投稿"
+              ariaLabel="投稿"
             >
-              <div className={styles["login-container"]}>
-                <p className={styles["login-label"]}>新規投稿</p>
-                <AddRoundedIcon className={styles["fab-icon"]} />
-              </div>
+              <span className={styles["login-container"]}>
+                <span className={styles["new-work-icon"]} aria-hidden="true">
+                  <AddRoundedIcon fontSize="inherit" />
+                </span>
+                <span className={styles["new-work-label"]}>投稿</span>
+              </span>
             </Button>
           </div>
-        )}
-        {user ? (
-          <AccountMenu user={user} onLogout={handleLogout} />
-        ) : (
-          <Button variant="primary" onClick={handleLogin} ariaLabel="ログイン">
-            <div className={styles["login-container"]}>
-              <LoginRoundedIcon />
-            </div>
-          </Button>
         )}
       </div>
     </header>

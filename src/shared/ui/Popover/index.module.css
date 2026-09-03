@@ -60,6 +60,7 @@
 .popover-item {
   display: flex;
   align-items: center;
+  gap: var(--space-8);
   box-sizing: border-box;
   width: 100%;
   min-height: 40px;
@@ -88,12 +89,23 @@
 .popover-item[data-selected="true"]:hover,
 .popover-item[data-selected="true"]:focus-visible {
   background: var(--primary-color);
-  color: var(--paper-color);
+  color: var(--font-color);
 }
 
 .popover-item[data-selected="true"]:focus-visible {
   outline: 2px solid var(--font-color);
   outline-offset: -3px;
+}
+
+.popover-item[data-destructive="true"] {
+  color: var(--error-color);
+  font-weight: 700;
+}
+
+.popover-item[data-destructive="true"]:hover,
+.popover-item[data-destructive="true"]:focus-visible {
+  background: var(--error-soft-color);
+  color: var(--error-color);
 }
 
 .popover-item:disabled {

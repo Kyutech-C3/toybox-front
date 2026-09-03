@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
 import { getLoginUrl } from "../auth";
 import { useAuthStore } from "../store/useAuthStore";
@@ -53,6 +54,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
             label: isLoggingIn
               ? "ログイン画面を開いています..."
               : "ログインする",
+            icon: <LoginRoundedIcon fontSize="small" />,
             onClick: () => void handleLogin(),
             isDisabled: isLoggingIn,
             type: "button",

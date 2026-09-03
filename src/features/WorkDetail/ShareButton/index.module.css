@@ -1,0 +1,37 @@
+.share-button {
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--space-8);
+  border: 0;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--font-muted-color);
+  font-size: 20px;
+  cursor: pointer;
+  transition:
+    background-color var(--hover-transition),
+    color var(--hover-transition);
+}
+
+.share-button:hover,
+.share-button:focus-visible {
+  background: var(--primary-soft-color);
+  color: var(--font-color);
+}
+
+@media (max-width: 1279px) {
+  .share-button {
+    min-width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+}
+
+@media (hover: none) {
+  .share-button:hover {
+    background: transparent;
+    color: var(--font-muted-color);
+  }
+}

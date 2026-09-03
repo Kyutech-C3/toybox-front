@@ -5,7 +5,7 @@ import type { SyntheticEvent } from "react";
 type AvatarProps = {
   avatarURL?: string;
   alt?: string;
-  size?: "default" | "profile";
+  size?: "small" | "default" | "profile";
 };
 
 const DEFAULT_AVATAR_URL = "/comingSoonLugia.webp";

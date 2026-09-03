@@ -9,10 +9,15 @@
   font-weight: bold;
   cursor: pointer;
   user-select: none;
-  transition: all 0.2s ease;
+  transition:
+    background-color var(--hover-transition),
+    box-shadow var(--hover-transition),
+    color var(--hover-transition);
 
-  &:hover {
-    box-shadow: 0 6px 12px var(--shadow-soft-color);
+  &:not([data-disabled="true"]):hover {
+    background: var(--primary-soft-color);
+    color: var(--error-color);
+    box-shadow: var(--hover-shadow);
   }
 
   &[data-disabled="true"] {

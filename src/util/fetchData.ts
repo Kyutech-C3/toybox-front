@@ -151,6 +151,24 @@ export const patchDataWithAuth = async (
   return response.json();
 };
 
+export const putDataWithAuth = async (
+  path: string,
+  data: BodyInit,
+  accessToken: string,
+) => {
+  const response = await fetchWithAuth(path, accessToken, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: data,
+  });
+  if (!response.ok) {
+    throwResponseError(response);
+  }
+  return response.json();
+};
+
 export const deleteDataWithAuth = async (
   path: string,
   accessToken: string,
@@ -188,4 +206,16 @@ export const postDataWithAuth = async (
     throwResponseError(response);
   }
   return response.json();
+};
+
+export const postDataWithAuthNoContent = async (
+  path: string,
+  accessToken: string,
+): Promise<void> => {
+  const response = await fetchWithAuth(path, accessToken, {
+    method: "POST",
+  });
+  if (!response.ok) {
+    throwResponseError(response);
+  }
 };
