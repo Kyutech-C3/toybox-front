@@ -10,7 +10,7 @@ interface CommentListProps {
   replyingTo?: Comment;
   isReplyEnabled?: boolean;
   isSubmitting?: boolean;
-  onSubmitReply?: (message: string, parentId?: string) => void;
+  onSubmitReply?: (message: string, parentId?: string) => Promise<boolean>;
   onCancelReply?: () => void;
 }
 

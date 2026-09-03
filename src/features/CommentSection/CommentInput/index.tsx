@@ -9,7 +9,7 @@ import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentInputProps {
-  onSubmit: (message: string) => void;
+  onSubmit: (message: string) => Promise<boolean>;
   replyingTo?: Comment;
   onCancelReply?: () => void;
   isAutoFocus?: boolean;
@@ -41,9 +41,11 @@ const CommentInput = ({
     }
   }, []);
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     if (!value.trim() || isSubmitting) return;
-    onSubmit(value);
+    const isSubmitted = await onSubmit(value);
+    if (!isSubmitted) return;
+
     setValue("");
     setTimeout(() => adjustHeight(), 0);
   }, [onSubmit, value, isSubmitting, adjustHeight]);
@@ -52,7 +54,7 @@ const CommentInput = ({
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
         event.preventDefault();
-        handleSend();
+        void handleSend();
       }
     },
     [handleSend],
@@ -101,7 +103,7 @@ const CommentInput = ({
           <p className={styles["send-hint"]}>Ctrl + Enter で送信</p>
           <button
             type="button"
-            onClick={handleSend}
+            onClick={() => void handleSend()}
             disabled={!value.trim() || isSubmitting}
             className={styles["send-button"]}
           >

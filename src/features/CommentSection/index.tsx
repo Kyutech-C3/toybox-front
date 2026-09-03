@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { mutate } from "swr";
 
 import { useAuthStore } from "../auth/store/useAuthStore";
@@ -24,6 +24,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
 
   const [replyingTo, setReplyingTo] = useState<Comment | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   const handleReply = (comment: Comment) => {
     setReplyingTo(comment);
@@ -35,19 +36,30 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
 
   const handleSubmit = async (message: string) => {
     const trimmed = message.trim();
-    if (!trimmed || !accessToken || isSubmitting) return;
+    if (!trimmed || !accessToken || isSubmittingRef.current) return false;
 
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
       await postComment(postId, trimmed, accessToken, replyingTo?.id);
-      await mutate(getCommentSWRKey(postId));
       setReplyingTo(undefined);
+      try {
+        await mutate(getCommentSWRKey(postId));
+      } catch {
+        showToast({
+          message: "コメント一覧を更新できませんでした",
+          severity: "error",
+        });
+      }
+      return true;
     } catch {
       showToast({
         message: "コメントを送信できませんでした",
         severity: "error",
       });
+      return false;
     } finally {
+      isSubmittingRef.current = false;
       setIsSubmitting(false);
     }
   };
@@ -68,13 +80,13 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
             replyingTo={replyingTo}
             isReplyEnabled={!!accessToken}
             isSubmitting={isSubmitting}
-            onSubmitReply={(message) => void handleSubmit(message)}
+            onSubmitReply={handleSubmit}
             onCancelReply={handleCancelReply}
           />
         )}
         {accessToken ? (
           <CommentInput
-            onSubmit={(message) => void handleSubmit(message)}
+            onSubmit={handleSubmit}
             replyingTo={replyingTo}
             onCancelReply={handleCancelReply}
             isSubmitting={isSubmitting}

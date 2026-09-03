@@ -19,7 +19,7 @@ interface CommentItemProps {
   replyingTo?: Comment;
   isReplyEnabled?: boolean;
   isSubmitting?: boolean;
-  onSubmitReply?: (message: string, parentId?: string) => void;
+  onSubmitReply?: (message: string, parentId?: string) => Promise<boolean>;
   onCancelReply?: () => void;
 }
 
@@ -121,7 +121,9 @@ const CommentItem = ({
       {isReplying && (
         <div className={styles["reply-input-wrapper"]}>
           <CommentInput
-            onSubmit={(msg) => onSubmitReply?.(msg, comment.id)}
+            onSubmit={(message) =>
+              onSubmitReply?.(message, comment.id) ?? Promise.resolve(false)
+            }
             onCancelReply={onCancelReply}
             replyingTo={comment}
             isSubmitting={isSubmitting}
