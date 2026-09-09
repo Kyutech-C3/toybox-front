@@ -1,0 +1,17 @@
+.page-size-select {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+}
+
+.label {
+  color: var(--font-muted-color);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.options {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
