@@ -41,6 +41,25 @@ export const WebPImage: Story = {
   },
 };
 
+export const Models: Story = {
+  args: {
+    assets: [
+      createAsset(
+        "asset-gltf",
+        "model",
+        "gltf",
+        "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
+      ),
+      createAsset(
+        "asset-fbx",
+        "model",
+        "fbx",
+        "https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
+      ),
+    ],
+  },
+};
+
 export const DownloadableAssets: Story = {
   args: {
     assets: [

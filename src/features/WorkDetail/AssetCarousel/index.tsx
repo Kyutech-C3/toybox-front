@@ -10,6 +10,7 @@ import { getSafeAssetURL } from "./assetUrl";
 import DownloadCard from "./DownloadCard";
 import ImgCard from "./ImgCard";
 import styles from "./index.module.css";
+import ModelCard from "./ModelCard";
 import MovieCard from "./MovieCard";
 
 import type { Asset } from "@/shared/types/work";
@@ -242,7 +243,8 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const activeAsset = assets[activeAssetIndex];
   const isFullscreenAvailable =
     !!activeAsset &&
-    activeAsset.asset_type === "image" &&
+    (activeAsset.asset_type === "image" ||
+      activeAsset.asset_type === "model") &&
     !failedAssetIDs.has(activeAsset.id);
   const FullscreenIcon = isFullscreen
     ? FullscreenExitRoundedIcon
@@ -275,7 +277,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
           <button
             className={styles["fullscreen-button"]}
             type="button"
-            aria-label={isFullscreen ? "全画面表示を終了" : "画像を全画面表示"}
+            aria-label={isFullscreen ? "全画面表示を終了" : "全画面表示"}
             onClick={handleFullscreen}
           >
             <FullscreenIcon aria-hidden="true" fontSize="large" />
@@ -346,6 +348,21 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                       isFullscreen={isFullscreen}
                       onLoadError={() => handleLoadError(asset.id)}
                       onToggleFullscreen={() => void handleFullscreen()}
+                    />
+                  </li>
+                );
+              case "model":
+                return (
+                  <li
+                    key={asset.id}
+                    className={styles["asset-carousel"]}
+                    data-active={assets[activeAssetIndex]?.id === asset.id}
+                  >
+                    <ModelCard
+                      extension={asset.extension}
+                      isActive={assets[activeAssetIndex]?.id === asset.id}
+                      onLoadError={() => handleLoadError(asset.id)}
+                      src={safeURL}
                     />
                   </li>
                 );
