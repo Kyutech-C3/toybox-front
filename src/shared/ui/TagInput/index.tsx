@@ -33,13 +33,13 @@ const renderTagOptionLabel = (name: string, keyword: string): ReactNode => {
   if (keyword === "" || matchIndex < 0) return name;
 
   return (
-    <>
+    <span className={styles["tag-option-label"]}>
       {name.slice(0, matchIndex)}
       <span className={styles["tag-option-match"]}>
         {name.slice(matchIndex, matchIndex + keyword.length)}
       </span>
       {name.slice(matchIndex + keyword.length)}
-    </>
+    </span>
   );
 };
 
