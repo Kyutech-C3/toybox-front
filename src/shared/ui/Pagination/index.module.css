@@ -1,15 +1,9 @@
-.pagination-wrapper {
+.pagination {
   display: flex;
   align-items: center;
   gap: var(--space-12);
   background: transparent;
   padding: var(--space-8) 0;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  gap: var(--space-12);
 }
 
 .listbox-container {
@@ -53,22 +47,12 @@
 }
 
 @media (max-width: 1279px) {
-  .pagination-wrapper {
-    gap: var(--space-8);
-  }
-
   .pagination {
     gap: var(--space-8);
   }
 }
 
 @media (max-width: 767px) {
-  .pagination-wrapper {
-    gap: var(--space-4);
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
   .pagination {
     gap: var(--space-4);
     flex-wrap: wrap;
