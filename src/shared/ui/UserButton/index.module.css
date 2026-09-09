@@ -26,7 +26,7 @@
 .user-button[data-size="compact"] {
   align-self: auto;
   min-width: 0;
-  padding: 2px var(--space-8) 2px 2px;
+  padding: 0 var(--space-8) 0 0;
   gap: var(--space-4);
 }
 
