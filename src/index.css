@@ -34,18 +34,20 @@
   --header-logo-height: 44px;
   --page-margin: 32px;
   --paper-padding: 40px;
-  --grid-gap: 32px;
+  --grid-gap: 24px;
   --section-gap: 32px;
   --touch-target-min: 44px;
   --fab-clearance: 0px;
 
-  --content-width-ratio: 0.9;
+  --content-width-ratio: 0.95;
   --content-max-width: calc(var(--content-width-ratio) * 100vw);
   --content-read-width: 1024px;
+  --content-panel-width: 60vw;
 
   --card-columns: 0;
-  --card-min-width: 280px;
-  --card-max-columns: 7;
+  --card-min-width: 264px;
+  --card-max-width: 320px;
+  --card-max-columns: 8;
 
   --hover-transition: 0.2s ease;
   --hover-shadow: 0 6px 12px var(--shadow-soft-color);
@@ -71,6 +73,7 @@
     --grid-gap: 24px;
     --section-gap: 32px;
     --fab-clearance: 104px;
+    --content-panel-width: var(--content-max-width);
     --card-columns: 3;
   }
 }
