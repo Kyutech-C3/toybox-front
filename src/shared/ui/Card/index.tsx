@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 
@@ -6,11 +6,12 @@ import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
 import UserButton from "../UserButton";
 import VisibilityIcon from "../VisibilityIcon";
+import useMarquee from "./hook/useMarquee";
 import styles from "./index.module.css";
 
 import { formatDateTime } from "@/util/formatDateTime";
 
-import type { CSSProperties, ReactNode, SyntheticEvent } from "react";
+import type { ReactNode, SyntheticEvent } from "react";
 import type { Work } from "@/shared/types/work";
 
 type CardProps = {
@@ -20,45 +21,38 @@ type CardProps = {
 };
 
 const DEFAULT_CARD_IMAGE_URL = "/comingSoonLugia.webp";
-const MARQUEE_SPEED = 50;
-const MARQUEE_GAP = 40;
+const WHEEL_LINE_HEIGHT = 16;
+const WHEEL_PAGE_HEIGHT = 100;
 
-type MarqueeStyle = CSSProperties & {
-  "--marquee-gap"?: string;
-  "--marquee-shift"?: string;
-  "--marquee-duration"?: string;
+const getWheelDelta = (event: WheelEvent) => {
+  if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return event.deltaX;
+  if (event.shiftKey) return event.deltaY;
+  return 0;
 };
 
-const getMarqueeShift = (
-  item: HTMLElement | null,
-  container: HTMLElement | null,
-) => {
-  if (!item || !container) return 0;
-  if (item.scrollWidth <= container.clientWidth) return 0;
-  return item.scrollWidth + MARQUEE_GAP;
+const toPixelDelta = (delta: number, deltaMode: number) => {
+  if (deltaMode === WheelEvent.DOM_DELTA_LINE) return delta * WHEEL_LINE_HEIGHT;
+  if (deltaMode === WheelEvent.DOM_DELTA_PAGE) return delta * WHEEL_PAGE_HEIGHT;
+  return delta;
 };
 
-const toMarqueeStyle = (shift: number): MarqueeStyle =>
-  shift > 0
-    ? {
-        "--marquee-gap": `${MARQUEE_GAP}px`,
-        "--marquee-shift": `${-shift}px`,
-        "--marquee-duration": `${shift / MARQUEE_SPEED}s`,
-      }
-    : {};
+const getHorizontalWheelDelta = (event: WheelEvent) =>
+  toPixelDelta(getWheelDelta(event), event.deltaMode);
 
 const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
   const isEditable = viewerUserID === work.user.id;
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const titleContentRef = useRef<HTMLSpanElement>(null);
-  const tagsRef = useRef<HTMLDivElement>(null);
-  const tagsContentRef = useRef<HTMLSpanElement>(null);
-  const [titleShift, setTitleShift] = useState(0);
-  const [tagsShift, setTagsShift] = useState(0);
+  const wrapperRef = useRef<HTMLElement>(null);
+  const titleMarquee = useMarquee();
+  const tagsMarquee = useMarquee();
 
   const handleMouseEnter = () => {
-    setTitleShift(getMarqueeShift(titleContentRef.current, titleRef.current));
-    setTagsShift(getMarqueeShift(tagsContentRef.current, tagsRef.current));
+    titleMarquee.measure();
+    tagsMarquee.measure();
+  };
+
+  const handleMouseLeave = () => {
+    titleMarquee.reset();
+    tagsMarquee.reset();
   };
 
   const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
@@ -68,8 +62,33 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
     }
   };
 
+  const scrollTitleBy = titleMarquee.scrollBy;
+  const scrollTagsBy = tagsMarquee.scrollBy;
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      const delta = getHorizontalWheelDelta(event);
+      if (delta === 0) return;
+
+      const isTitleScrolled = scrollTitleBy(delta);
+      const isTagsScrolled = scrollTagsBy(delta);
+      if (isTitleScrolled || isTagsScrolled) event.preventDefault();
+    };
+
+    wrapper.addEventListener("wheel", handleWheel, { passive: false });
+    return () => wrapper.removeEventListener("wheel", handleWheel);
+  }, [scrollTitleBy, scrollTagsBy]);
+
   return (
-    <article className={styles["card-wrapper"]} onMouseEnter={handleMouseEnter}>
+    <article
+      className={styles["card-wrapper"]}
+      ref={wrapperRef}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       <div className={styles["card-image-wrapper"]}>
         <img
           src={work.thumbnail_url || DEFAULT_CARD_IMAGE_URL}
@@ -83,18 +102,22 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
           <h3
             className={styles["card-title"]}
             title={work.title}
-            ref={titleRef}
+            ref={titleMarquee.setContainer}
           >
             <Link to={`/works/${work.id}`} className={styles["work-link"]}>
               <span
                 className={styles["marquee-content"]}
-                data-marquee={titleShift > 0 ? "true" : "false"}
-                style={toMarqueeStyle(titleShift)}
+                data-marquee={titleMarquee.marqueeState}
+                style={titleMarquee.marqueeStyle}
+                ref={titleMarquee.setContent}
               >
-                <span className={styles["marquee-item"]} ref={titleContentRef}>
+                <span
+                  className={styles["marquee-item"]}
+                  ref={titleMarquee.setItem}
+                >
                   {work.title}
                 </span>
-                {titleShift > 0 && (
+                {titleMarquee.isOverflowing && (
                   <span className={styles["marquee-item"]} aria-hidden="true">
                     {work.title}
                   </span>
@@ -107,20 +130,21 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
             className={styles["visibility-icon"]}
           />
         </div>
-        <div className={styles["card-tags"]} ref={tagsRef}>
+        <div className={styles["card-tags"]} ref={tagsMarquee.setContainer}>
           <span
             className={styles["marquee-content"]}
-            data-marquee={tagsShift > 0 ? "true" : "false"}
-            style={toMarqueeStyle(tagsShift)}
+            data-marquee={tagsMarquee.marqueeState}
+            style={tagsMarquee.marqueeStyle}
+            ref={tagsMarquee.setContent}
           >
-            <span className={styles["marquee-item"]} ref={tagsContentRef}>
+            <span className={styles["marquee-item"]} ref={tagsMarquee.setItem}>
               {work.tags.map((tag) => (
                 <Batch key={`${work.id}-${tag.id}`} color="pale">
                   {tag.name}
                 </Batch>
               ))}
             </span>
-            {tagsShift > 0 && (
+            {tagsMarquee.isOverflowing && (
               <span className={styles["marquee-item"]} aria-hidden="true">
                 {work.tags.map((tag) => (
                   <Batch key={`${work.id}-${tag.id}-loop`} color="pale">
