@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { mutate } from "swr";
 
 import { updateUserProfile } from "../api/updateUserProfile";
@@ -232,6 +233,9 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
           onClick={() => void handleSubmit()}
           isDisabled={isSubmitDisabled}
         >
+          <span className={styles["save-icon"]} aria-hidden="true">
+            <SaveRoundedIcon fontSize="inherit" />
+          </span>
           {isSubmitting ? "保存中..." : "保存"}
         </Button>
       </div>

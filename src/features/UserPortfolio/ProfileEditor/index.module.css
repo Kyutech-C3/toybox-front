@@ -81,6 +81,12 @@
   font-size: 0.75rem;
 }
 
+.save-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 18px;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
