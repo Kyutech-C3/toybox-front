@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import CardWrapper from "../CardWrapper";
 import MediaPlayer from "../MediaPlayer";
@@ -10,6 +10,7 @@ import styles from "./index.module.css";
 
 type AudioCardProps = {
   src: string;
+  isActive: boolean;
   isFullscreen?: boolean;
   onLoadError?: () => void;
   onToggleFullscreen?: () => void;
@@ -31,13 +32,19 @@ const buildWaveformPath = (peaks: number[]) =>
 
 const AudioCard = ({
   src,
+  isActive,
   isFullscreen,
   onLoadError,
   onToggleFullscreen,
 }: AudioCardProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const clipID = useId();
-  const { peaks } = useAudioWaveform({ src, barCount: WAVEFORM_BAR_COUNT });
+  const [shouldLoad, setShouldLoad] = useState(isActive);
+  const { peaks, playbackURL, isLoadError } = useAudioWaveform({
+    src,
+    barCount: WAVEFORM_BAR_COUNT,
+    isEnabled: shouldLoad,
+  });
   const {
     isPlaying,
     currentTime,
@@ -55,6 +62,14 @@ const AudioCard = ({
   const waveformSeekHandlers = useSeekDrag({ onSeekRatio: handleSeekRatio });
   const waveformPath = useMemo(() => buildWaveformPath(peaks), [peaks]);
 
+  useEffect(() => {
+    if (isActive) setShouldLoad(true);
+  }, [isActive]);
+
+  useEffect(() => {
+    if (isLoadError) onLoadError?.();
+  }, [isLoadError, onLoadError]);
+
   return (
     <CardWrapper>
       <div
@@ -62,7 +77,12 @@ const AudioCard = ({
         onPointerMove={showControls}
         onPointerEnter={showControls}
       >
-        <audio ref={audioRef} src={src} preload="auto" onError={onLoadError}>
+        <audio
+          ref={audioRef}
+          src={playbackURL}
+          preload="auto"
+          onError={onLoadError}
+        >
           <track kind="captions" />
         </audio>
         {peaks.length > 0 ? (

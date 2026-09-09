@@ -345,6 +345,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                   >
                     <AudioCard
                       src={safeURL}
+                      isActive={assets[activeAssetIndex]?.id === asset.id}
                       isFullscreen={isFullscreen}
                       onLoadError={() => handleLoadError(asset.id)}
                       onToggleFullscreen={() => void handleFullscreen()}
