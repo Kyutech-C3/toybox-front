@@ -61,20 +61,10 @@
   font-weight: bold;
 }
 
-/* 行が増えても 1 つの枠の中に積まれるようにする */
 .url-fields {
-  box-sizing: border-box;
-  border: solid 2px var(--primary-color);
-  border-radius: 25px;
   display: flex;
   flex-direction: column;
-  background: transparent;
-}
-
-@media (max-width: 767px) {
-  .url-fields {
-    border-radius: 16px;
-  }
+  gap: var(--space-8);
 }
 
 @media (max-width: 1279px) {

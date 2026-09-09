@@ -4,23 +4,25 @@
   min-width: 0;
 }
 
-/* 枠は LinkInput 側の 1 つだけ。ここは枠の中の 1 行 */
-.url-field + .url-field {
-  border-top: 1px solid var(--border-color);
-}
-
 .input-row {
   box-sizing: border-box;
   min-height: 56px;
   padding: 0 var(--space-8) 0 var(--space-16);
+  border: solid 2px var(--border-color);
+  border-radius: 25px;
   display: flex;
   align-items: center;
   gap: var(--space-8);
   background: transparent;
+  transition: border-color var(--hover-transition);
+}
+
+.input-row:focus-within {
+  border-color: var(--primary-color);
 }
 
 .input-row[data-invalid="true"] {
-  background: color-mix(in srgb, var(--error-color) 8%, transparent);
+  border-color: var(--error-color);
 }
 
 .favicon-slot {
@@ -78,7 +80,7 @@
 }
 
 .input-error {
-  margin: 0 var(--space-16) var(--space-8);
+  margin: 6px 5px 0;
   color: var(--error-color);
   font-size: 0.875rem;
 }
@@ -93,10 +95,11 @@
 @media (max-width: 767px) {
   .input-row {
     padding: 0 var(--space-4) 0 var(--space-12);
+    border-radius: 16px;
   }
 
   .input-error {
-    margin: 0 var(--space-8) var(--space-8);
+    margin: 6px 2px 0;
   }
 }
 

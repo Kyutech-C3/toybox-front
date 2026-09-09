@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
 import { MAX_WORK_URL_COUNT } from "@/features/WorkEditor/constants";
+import { normalizeInputText } from "@/util/normalizeInputText";
 
 type UrlField = {
   id: string;
@@ -14,13 +15,22 @@ type UseUrlFieldsParams = {
   onChangeUrls: (urls: string[]) => void;
 };
 
+type UrlFieldFocusDirection = "backward" | "forward";
+
 type UseUrlFieldsReturn = {
   fields: UrlField[];
+  focusFieldID: string | null;
   hasReachedUrlLimit: boolean;
   handleAddField: () => void;
+  handleAddFieldAfter: (fieldID: string, value: string) => void;
   handleChangeField: (fieldID: string, value: string) => void;
   handleCommitField: (fieldID: string, value: string) => void;
   handleRemoveField: (fieldID: string) => void;
+  handleRemoveEmptyField: (
+    fieldID: string,
+    direction: UrlFieldFocusDirection,
+  ) => void;
+  handleFocusApplied: () => void;
 };
 
 const createUrlField = (value = ""): UrlField => ({
@@ -81,6 +91,7 @@ const useUrlFields = ({
   const [fields, setFields] = useState<UrlField[]>(() =>
     createInitialFields(urls),
   );
+  const [focusFieldID, setFocusFieldID] = useState<string | null>(null);
   const emittedUrlsRef = useRef<string[] | null>(null);
   const hasReachedUrlLimit = fields.length >= MAX_WORK_URL_COUNT;
 
@@ -104,7 +115,10 @@ const useUrlFields = ({
 
   const handleAddField = () => {
     if (hasReachedUrlLimit) return;
-    setFields((current) => [...current, createUrlField()]);
+
+    const newField = createUrlField();
+    setFields((current) => [...current, newField]);
+    setFocusFieldID(newField.id);
   };
 
   const handleChangeField = (fieldID: string, value: string) => {
@@ -118,7 +132,7 @@ const useUrlFields = ({
   };
 
   const handleCommitField = (fieldID: string, inputValue: string) => {
-    const value = inputValue.trim();
+    const value = normalizeInputText(inputValue);
     const error = getUrlError(value, fields, fieldID);
     const nextFields = fields.map((field) =>
       field.id === fieldID
@@ -134,6 +148,50 @@ const useUrlFields = ({
     commitUrls(nextFields);
   };
 
+  const handleAddFieldAfter = (fieldID: string, inputValue: string) => {
+    const targetField = fields.find((field) => field.id === fieldID);
+    if (!targetField) return;
+
+    const value = normalizeInputText(inputValue);
+    const error = getUrlError(value, fields, fieldID);
+    const committedField = {
+      ...targetField,
+      value,
+      committedUrl: error === "" ? value : null,
+      error,
+    };
+    const canAddField = error === "" && !hasReachedUrlLimit;
+    const newField = createUrlField();
+    const nextFields = fields.flatMap((field) => {
+      if (field.id !== fieldID) return [field];
+      return canAddField ? [committedField, newField] : [committedField];
+    });
+
+    setFields(nextFields);
+    commitUrls(nextFields);
+    if (canAddField) setFocusFieldID(newField.id);
+  };
+
+  const handleRemoveEmptyField = (
+    fieldID: string,
+    direction: UrlFieldFocusDirection,
+  ) => {
+    const index = fields.findIndex((field) => field.id === fieldID);
+    if (index === -1 || fields.length <= 1) return;
+
+    const nextFields = fields.filter((field) => field.id !== fieldID);
+    const focusIndex =
+      direction === "backward"
+        ? Math.max(index - 1, 0)
+        : Math.min(index, nextFields.length - 1);
+
+    setFields(nextFields);
+    commitUrls(nextFields);
+    setFocusFieldID(nextFields[focusIndex].id);
+  };
+
+  const handleFocusApplied = () => setFocusFieldID(null);
+
   const handleRemoveField = (fieldID: string) => {
     const remainingFields = fields.filter((field) => field.id !== fieldID);
     const nextFields =
@@ -144,11 +202,15 @@ const useUrlFields = ({
 
   return {
     fields,
+    focusFieldID,
     hasReachedUrlLimit,
     handleAddField,
+    handleAddFieldAfter,
     handleChangeField,
     handleCommitField,
     handleRemoveField,
+    handleRemoveEmptyField,
+    handleFocusApplied,
   };
 };
 
