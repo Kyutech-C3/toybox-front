@@ -38,11 +38,18 @@
   font-size: 16px;
 }
 
+.work-detail-meta {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-16);
+}
+
 .visibility-icon {
-  margin-left: var(--space-8);
   color: var(--font-muted-color);
-  font-size: 28px;
-  vertical-align: middle;
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
 .work-detail-title {

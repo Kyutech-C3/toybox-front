@@ -1,6 +1,5 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import AccessTimeRoundedIcon from "@mui/icons-material/AccessTimeRounded";
 
 import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
@@ -98,38 +97,32 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
         />
       </div>
       <div className={styles["card-body"]}>
-        <div className={styles["card-title-row"]}>
-          <h3
-            className={styles["card-title"]}
-            title={work.title}
-            ref={titleMarquee.setContainer}
-          >
-            <Link to={`/works/${work.id}`} className={styles["work-link"]}>
+        <h3
+          className={styles["card-title"]}
+          title={work.title}
+          ref={titleMarquee.setContainer}
+        >
+          <Link to={`/works/${work.id}`} className={styles["work-link"]}>
+            <span
+              className={styles["marquee-content"]}
+              data-marquee={titleMarquee.marqueeState}
+              style={titleMarquee.marqueeStyle}
+              ref={titleMarquee.setContent}
+            >
               <span
-                className={styles["marquee-content"]}
-                data-marquee={titleMarquee.marqueeState}
-                style={titleMarquee.marqueeStyle}
-                ref={titleMarquee.setContent}
+                className={styles["marquee-item"]}
+                ref={titleMarquee.setItem}
               >
-                <span
-                  className={styles["marquee-item"]}
-                  ref={titleMarquee.setItem}
-                >
+                {work.title}
+              </span>
+              {titleMarquee.isOverflowing && (
+                <span className={styles["marquee-item"]} aria-hidden="true">
                   {work.title}
                 </span>
-                {titleMarquee.isOverflowing && (
-                  <span className={styles["marquee-item"]} aria-hidden="true">
-                    {work.title}
-                  </span>
-                )}
-              </span>
-            </Link>
-          </h3>
-          <VisibilityIcon
-            visibility={work.visibility}
-            className={styles["visibility-icon"]}
-          />
-        </div>
+              )}
+            </span>
+          </Link>
+        </h3>
         <div className={styles["card-tags"]} ref={tagsMarquee.setContainer}>
           <span
             className={styles["marquee-content"]}
@@ -156,9 +149,10 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
           </span>
         </div>
         <p className={styles["card-date"]}>
-          <span className={styles["card-date-icon"]} aria-hidden="true">
-            <AccessTimeRoundedIcon fontSize="inherit" />
-          </span>
+          <VisibilityIcon
+            visibility={work.visibility}
+            className={styles["card-visibility-icon"]}
+          />
           <time dateTime={work.created_at}>
             {formatDateTime(work.created_at)}
           </time>
