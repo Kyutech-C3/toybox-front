@@ -5,6 +5,7 @@ import styles from "./index.module.css";
 import PublishButton from "./PublishButton";
 
 import DeleteWorkButton from "@/features/WorkDelete/DeleteWorkButton";
+import Button from "@/shared/ui/Button";
 
 const PublishButtons = () => {
   const mode = useWorkEditorStore((state) => state.mode);
@@ -18,16 +19,23 @@ const PublishButtons = () => {
     navigate("/");
   };
 
+  const handleCancel = () => {
+    navigate(mode === "edit" && workID ? `/works/${workID}` : "/");
+  };
+
   return (
-    <div className={styles["publish-buttons-wrapper"]}>
-      {mode === "edit" && workID && ownerID && (
-        <DeleteWorkButton
-          workID={workID}
-          ownerID={ownerID}
-          onDeleted={handleDeleted}
-        />
-      )}
-      <PublishButton />
+    <div className={styles["publish-buttons-bar"]}>
+      <div className={styles["publish-buttons-wrapper"]}>
+        <Button onClick={handleCancel}>キャンセル</Button>
+        {mode === "edit" && workID && ownerID && (
+          <DeleteWorkButton
+            workID={workID}
+            ownerID={ownerID}
+            onDeleted={handleDeleted}
+          />
+        )}
+        <PublishButton />
+      </div>
     </div>
   );
 };
