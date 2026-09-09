@@ -44,6 +44,10 @@
   overflow: hidden;
 }
 
+.social-input[data-invalid="true"] {
+  border-color: var(--error-color);
+}
+
 .url-prefix {
   padding: var(--space-12) 0 var(--space-12) var(--space-16);
   display: flex;
@@ -70,6 +74,11 @@
   color: var(--font-muted-color);
   font-size: 0.75rem;
   text-align: right;
+}
+
+.input-error {
+  color: var(--error-color);
+  font-size: 0.75rem;
 }
 
 .actions {
