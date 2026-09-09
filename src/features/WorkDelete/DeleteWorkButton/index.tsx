@@ -1,5 +1,6 @@
 import useDeleteWork from "../hook/useDeleteWork";
-import styles from "./index.module.css";
+
+import Button from "@/shared/ui/Button";
 
 type DeleteWorkButtonProps = {
   workID: string;
@@ -21,15 +22,13 @@ const DeleteWorkButton = ({
   if (!canDelete) return null;
 
   return (
-    <button
-      type="button"
-      className={styles["delete-work-button"]}
+    <Button
+      variant="destructive"
       onClick={() => void handleDelete()}
-      disabled={isDeleting}
-      data-disabled={isDeleting ? "true" : "false"}
+      isDisabled={isDeleting}
     >
       {isDeleting ? "削除中..." : "削除"}
-    </button>
+    </Button>
   );
 };
 

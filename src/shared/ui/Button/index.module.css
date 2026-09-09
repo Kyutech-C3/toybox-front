@@ -1,6 +1,7 @@
 /* 共通のボタン */
 .primary-button,
-.accent-button {
+.accent-button,
+.destructive-button {
   height: 48px;
   min-width: 48px;
   padding: 0 var(--space-16);
@@ -54,9 +55,21 @@
   }
 }
 
+/* 取り消しの効かない操作は文字を赤にし、hover も赤い面で区別する */
+.destructive-button {
+  color: var(--error-color);
+
+  &:not([data-disabled="true"]):hover {
+    background: var(--error-soft-color);
+    color: var(--error-color);
+    box-shadow: var(--hover-shadow);
+  }
+}
+
 @media (max-width: 767px) {
   .primary-button,
-  .accent-button {
+  .accent-button,
+  .destructive-button {
     height: var(--touch-target-min);
     min-width: var(--touch-target-min);
     padding: 0 var(--space-12);
@@ -70,6 +83,11 @@
   }
 
   .accent-button:not([data-disabled="true"]):hover {
+    box-shadow: none;
+  }
+
+  .destructive-button:not([data-disabled="true"]):hover {
+    background: var(--button-color);
     box-shadow: none;
   }
 }

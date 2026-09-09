@@ -46,3 +46,18 @@ export const AccentDisabled: Story = {
     isDisabled: true,
   },
 };
+
+export const Destructive: Story = {
+  args: {
+    variant: "destructive",
+    children: "削除",
+  },
+};
+
+export const DestructiveDisabled: Story = {
+  args: {
+    variant: "destructive",
+    children: "削除中...",
+    isDisabled: true,
+  },
+};

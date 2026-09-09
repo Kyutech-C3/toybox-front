@@ -1,7 +1,7 @@
 /* 共通のボタン */
 .publish-button-wrapper {
   position: relative;
-  height: 50px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

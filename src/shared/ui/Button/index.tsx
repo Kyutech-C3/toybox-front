@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 type ButtonProps = {
   children: ReactNode;
   onClick: () => void;
-  variant?: "primary" | "secondary" | "accent";
+  variant?: "primary" | "secondary" | "accent" | "destructive";
   isDisabled?: boolean;
   isActive?: boolean;
   ariaLabel?: string;
