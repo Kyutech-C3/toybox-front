@@ -13,7 +13,7 @@ import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
 import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import { Pagination } from "@/shared/ui/Pagination";
-import WorkCardGrid, { useWorkGridPageSize } from "@/shared/ui/WorkCardGrid";
+import WorkCardGrid, { useWorkPageSize } from "@/shared/ui/WorkCardGrid";
 
 type UserPortfolioProps = {
   userID: string;
@@ -25,7 +25,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const requestedPage = Number(searchParams.get("page")) || 1;
   const { userProfile, works, isOwner } = useUserPortfolio({ userID });
   const [isEditing, setIsEditing] = useState(false);
-  const { itemsPerPage } = useWorkGridPageSize();
+  const { itemsPerPage } = useWorkPageSize();
 
   const workList = works ?? [];
   const totalPages = Math.max(1, Math.ceil(workList.length / itemsPerPage));
@@ -118,20 +118,15 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
           isOwner ? "あなたの作品" : `${userProfile.display_name}の作品`
         }
       >
-        {displayedWorks.length === 0 && (
-          <p className={styles["works-status"]}>作品はありません。</p>
-        )}
-        {displayedWorks.length > 0 && (
-          <WorkCardGrid
-            works={displayedWorks}
-            viewerUserID={viewerUserID}
-            renderFavoriteButton={
-              viewerUserID
-                ? (work) => <FavoriteButton workID={work.id} />
-                : undefined
-            }
-          />
-        )}
+        <WorkCardGrid
+          works={displayedWorks}
+          viewerUserID={viewerUserID}
+          renderFavoriteButton={
+            viewerUserID
+              ? (work) => <FavoriteButton workID={work.id} />
+              : undefined
+          }
+        />
 
         {totalPages > 1 && (
           <Pagination

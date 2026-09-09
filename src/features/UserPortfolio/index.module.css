@@ -9,7 +9,7 @@
 .profile-card {
   position: relative;
   box-sizing: border-box;
-  width: min(100%, 60vw);
+  width: min(100%, var(--content-panel-width));
   margin-top: var(--space-64);
   padding: var(--paper-padding);
   border-radius: 24px;
@@ -92,26 +92,7 @@
   padding: 0 var(--page-margin) var(--space-64);
 }
 
-.works-status {
-  color: var(--font-color);
-}
-
-.works-status {
-  min-height: 160px;
-  padding: 40px;
-  border-radius: 20px;
-  display: grid;
-  place-items: center;
-  background: var(--paper-overlay-color);
-  font-size: 1.125rem;
-  font-weight: 700;
-}
-
 @media (max-width: 1279px) {
-  .profile-card {
-    width: min(100%, var(--content-max-width));
-  }
-
   .display-name {
     font-size: 1.75rem;
   }
@@ -145,11 +126,5 @@
 
   .works-section {
     padding: 0 var(--page-margin) var(--space-48);
-  }
-
-  .works-status {
-    min-height: 120px;
-    padding: 24px;
-    font-size: 1rem;
   }
 }
