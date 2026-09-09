@@ -1,7 +1,7 @@
 import type { Asset, Work, WorkVisibility } from "@/shared/types/work";
 import type { AssetKind, EditorAsset, WorkEditorValues } from "./types";
 
-const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".gif"];
+const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp"];
 const VIDEO_EXTENSIONS = [".mp4", ".mov"];
 const AUDIO_EXTENSIONS = [".mp3", ".wav", ".m4a"];
 

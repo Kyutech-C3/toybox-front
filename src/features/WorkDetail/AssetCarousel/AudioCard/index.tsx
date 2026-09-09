@@ -1,4 +1,4 @@
-import { useId, useMemo, useRef } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import CardWrapper from "../CardWrapper";
 import MediaPlayer from "../MediaPlayer";
@@ -10,7 +10,7 @@ import styles from "./index.module.css";
 
 type AudioCardProps = {
   src: string;
-  extension: string;
+  isActive: boolean;
   isFullscreen?: boolean;
   onLoadError?: () => void;
   onToggleFullscreen?: () => void;
@@ -20,23 +20,6 @@ const WAVEFORM_BAR_COUNT = 160;
 const WAVEFORM_VIEW_HEIGHT = 100;
 const WAVEFORM_MAX_HEIGHT = WAVEFORM_VIEW_HEIGHT;
 const WAVEFORM_MIN_HEIGHT = 2;
-
-const getAudioMimeType = (extension: string): string => {
-  switch (extension) {
-    case "mp3":
-      return "audio/mpeg";
-    case "wav":
-      return "audio/wav";
-    case "m4a":
-      return "audio/mp4";
-    case "ogg":
-      return "audio/ogg";
-    case "aac":
-      return "audio/aac";
-    default:
-      return "audio/mpeg";
-  }
-};
 
 const buildWaveformPath = (peaks: number[]) =>
   peaks
@@ -49,14 +32,19 @@ const buildWaveformPath = (peaks: number[]) =>
 
 const AudioCard = ({
   src,
-  extension,
+  isActive,
   isFullscreen,
   onLoadError,
   onToggleFullscreen,
 }: AudioCardProps) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const clipID = useId();
-  const { peaks } = useAudioWaveform({ src, barCount: WAVEFORM_BAR_COUNT });
+  const [shouldLoad, setShouldLoad] = useState(isActive);
+  const { peaks, playbackURL } = useAudioWaveform({
+    src,
+    barCount: WAVEFORM_BAR_COUNT,
+    isEnabled: shouldLoad,
+  });
   const {
     isPlaying,
     currentTime,
@@ -74,6 +62,10 @@ const AudioCard = ({
   const waveformSeekHandlers = useSeekDrag({ onSeekRatio: handleSeekRatio });
   const waveformPath = useMemo(() => buildWaveformPath(peaks), [peaks]);
 
+  useEffect(() => {
+    if (isActive) setShouldLoad(true);
+  }, [isActive]);
+
   return (
     <CardWrapper>
       <div
@@ -81,12 +73,12 @@ const AudioCard = ({
         onPointerMove={showControls}
         onPointerEnter={showControls}
       >
-        <audio ref={audioRef} preload="metadata">
-          <source
-            src={src}
-            type={getAudioMimeType(extension)}
-            onError={onLoadError}
-          />
+        <audio
+          ref={audioRef}
+          src={playbackURL}
+          preload="auto"
+          onError={onLoadError}
+        >
           <track kind="captions" />
         </audio>
         {peaks.length > 0 ? (

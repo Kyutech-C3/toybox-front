@@ -2,6 +2,7 @@ import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import MovieRoundedIcon from "@mui/icons-material/MovieRounded";
 import MusicNoteRoundedIcon from "@mui/icons-material/MusicNoteRounded";
+import ViewInArRoundedIcon from "@mui/icons-material/ViewInArRounded";
 
 import { getSafeAssetURL } from "../assetUrl";
 import styles from "./index.module.css";
@@ -18,6 +19,7 @@ type AssetNavigatorProps = {
 const getFileIcon = (assetType: string) => {
   if (assetType === "video") return MovieRoundedIcon;
   if (assetType === "music") return MusicNoteRoundedIcon;
+  if (assetType === "model") return ViewInArRoundedIcon;
   if (assetType === "zip") return FolderZipRoundedIcon;
   return InsertDriveFileRoundedIcon;
 };

@@ -13,7 +13,7 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import type { EditorAsset } from "../../types";
 
 export const ASSET_ACCEPT =
-  ".png,.jpg,.jpeg,.bmp,.gif,.mp4,.mov,.mp3,.wav,.m4a,.zip";
+  ".png,.jpg,.jpeg,.bmp,.gif,.webp,.mp4,.mov,.mp3,.wav,.m4a,.zip";
 const MAX_ASSET_SIZE = 2000 * 1024 * 1024;
 
 type UseAssetUploadReturn = {

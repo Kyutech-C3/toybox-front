@@ -8,7 +8,7 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 
 import type { EditorAsset } from "../../types";
 
-export const THUMBNAIL_ACCEPT = ".png,.jpg,.jpeg,.bmp,.gif";
+export const THUMBNAIL_ACCEPT = ".png,.jpg,.jpeg,.bmp,.gif,.webp";
 const MAX_THUMBNAIL_SIZE = 5 * 1024 * 1024;
 
 type UseThumbnailUploadReturn = {
