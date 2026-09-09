@@ -5,7 +5,10 @@ import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
 import { useTagsStore } from "./SearchBar/store/useTagsStore";
+import SortOrderSwitch from "./SortOrderSwitch";
+import VisibilityFilter from "./VisibilityFilter";
 
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import FavoriteButton from "@/features/FavoriteButton";
 import { Pagination } from "@/shared/ui/Pagination";
@@ -18,6 +21,7 @@ const WorkIndex = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { tags } = useTagsStore();
   const viewerUserID = useUserStore((state) => state.user?.id);
+  const accessToken = useAuthStore((state) => state.accessToken);
   const currentPage = Number(searchParams.get("page")) || 1;
   const { itemsPerPage } = useWorkPageSize();
 
@@ -43,8 +47,14 @@ const WorkIndex = () => {
   return (
     <>
       <div className={styles["work-index-controls"]}>
-        <SearchBar />
-        <div className={styles["work-index-tools"]}>
+        <div className={styles["controls-left"]}>
+          {accessToken && <VisibilityFilter />}
+          <SortOrderSwitch />
+        </div>
+        <div className={styles["controls-center"]}>
+          <SearchBar />
+        </div>
+        <div className={styles["controls-right"]}>
           <PageSizeSelect />
         </div>
       </div>
