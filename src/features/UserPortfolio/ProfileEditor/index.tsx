@@ -9,6 +9,7 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Button from "@/shared/ui/Button";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import { normalizeInputText } from "@/util/normalizeInputText";
 
 import type { UserProfileData } from "../api/getUserProfile";
 
@@ -22,10 +23,12 @@ const PROFILE_MAX_LENGTH = 500;
 const GITHUB_USERNAME_MAX_LENGTH = 39;
 const X_USERNAME_MAX_LENGTH = 15;
 const GITHUB_USERNAME_PATTERN = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+const DISCARD_CONFIRM_MESSAGE =
+  "保存していない変更があります。編集した内容を破棄しますか？";
 const X_USERNAME_PATTERN = /^[a-z\d_]+$/i;
 
 const normalizeSocialUsername = (username: string) =>
-  username.normalize("NFKC").trim().replace(/^@/, "");
+  normalizeInputText(username).replace(/^@/, "");
 
 const getGithubError = (username: string) => {
   if (username === "") return "";
@@ -79,6 +82,18 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
     profile.length > PROFILE_MAX_LENGTH ||
     githubError !== "" ||
     xError !== "";
+
+  const hasUnsavedChanges =
+    trimmedDisplayName !== userProfile.display_name ||
+    profile !== userProfile.profile ||
+    normalizedGithubUsername !== userProfile.github_id ||
+    normalizedXUsername !== userProfile.twitter_id;
+
+  const handleCancel = () => {
+    if (hasUnsavedChanges && !window.confirm(DISCARD_CONFIRM_MESSAGE)) return;
+
+    onClose();
+  };
 
   const handleSubmit = async () => {
     if (isSubmitDisabled || !accessToken) return;
@@ -209,7 +224,7 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
         )}
       </div>
       <div className={styles["actions"]}>
-        <Button onClick={onClose} isDisabled={isSubmitting}>
+        <Button onClick={handleCancel} isDisabled={isSubmitting}>
           キャンセル
         </Button>
         <Button
