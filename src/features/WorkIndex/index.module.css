@@ -1,0 +1,13 @@
+.work-index-controls {
+  box-sizing: border-box;
+  width: min(100%, var(--content-max-width));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-12);
+}
+
+.work-index-tools {
+  display: flex;
+  align-items: center;
+}
