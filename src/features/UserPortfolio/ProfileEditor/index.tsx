@@ -213,10 +213,11 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
           キャンセル
         </Button>
         <Button
+          variant="accent"
           onClick={() => void handleSubmit()}
           isDisabled={isSubmitDisabled}
         >
-          {isSubmitting ? "保存中..." : "保存する"}
+          {isSubmitting ? "保存中..." : "保存"}
         </Button>
       </div>
     </form>

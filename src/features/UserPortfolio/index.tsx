@@ -10,6 +10,7 @@ import ProfileEditor from "./ProfileEditor";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import FavoriteButton from "@/features/FavoriteButton";
 import Avatar from "@/shared/ui/Avatar";
+import Button from "@/shared/ui/Button";
 import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid, { useWorkGridPageSize } from "@/shared/ui/WorkCardGrid";
@@ -55,14 +56,14 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
                 {userProfile.display_name}
               </h1>
               {isOwner && !isEditing && (
-                <button
-                  type="button"
-                  className={styles["edit-profile-button"]}
+                <Button
+                  variant="accent"
                   onClick={() => setIsEditing(true)}
+                  ariaLabel="プロフィールを編集"
                 >
                   <EditSquareIcon />
-                  プロフィールを編集
-                </button>
+                  編集
+                </Button>
               )}
             </div>
           </div>
