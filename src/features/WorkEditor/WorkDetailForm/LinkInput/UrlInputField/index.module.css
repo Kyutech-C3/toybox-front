@@ -6,7 +6,7 @@
 
 .input-row {
   box-sizing: border-box;
-  min-height: 56px;
+  min-height: 48px;
   padding: 0 var(--space-8) 0 var(--space-16);
   border: solid 2px var(--border-color);
   border-radius: 25px;

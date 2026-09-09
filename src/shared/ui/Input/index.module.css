@@ -12,8 +12,8 @@
 }
 
 .input-field {
-  padding: 22px 24px;
-  height: 60px;
+  padding: 0 var(--space-24);
+  height: 48px;
   border: solid 2px var(--primary-color);
   border-radius: 25px;
   box-sizing: border-box;
@@ -34,8 +34,8 @@
   }
 
   .input-field {
-    height: 52px;
-    padding: 14px 16px;
+    height: var(--touch-target-min);
+    padding: 0 var(--space-16);
     border-radius: 16px;
   }
 }
