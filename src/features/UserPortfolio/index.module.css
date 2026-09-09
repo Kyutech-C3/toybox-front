@@ -70,6 +70,12 @@
   box-shadow: var(--hover-shadow);
 }
 
+.profile-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
 .profile-text {
   margin: 0;
   color: var(--font-color);
@@ -77,6 +83,25 @@
   line-height: 1.7;
   text-align: left;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12) var(--space-24);
+}
+
+.social-link {
+  min-width: 0;
+  min-height: var(--touch-target-min);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  color: var(--font-color);
+}
+
+.social-link span {
   overflow-wrap: anywhere;
 }
 
