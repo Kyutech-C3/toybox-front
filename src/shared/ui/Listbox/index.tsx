@@ -14,7 +14,7 @@ import type { KeyboardEvent, ReactNode, RefObject } from "react";
 export type ListboxOption<T> = {
   id: string | number;
   value: T;
-  label: string;
+  label: ReactNode;
   icon?: ReactNode;
 };
 

@@ -11,6 +11,7 @@
 }
 
 .input-wrapper {
+  position: relative;
   padding: 0;
   border: solid 2px var(--primary-color);
   border-radius: 25px;
@@ -33,12 +34,15 @@
   padding: 16px 0 16px 24px;
 }
 
-.input-listbox-container {
-  position: relative;
+.tag-input-wrapper .tag-listbox {
+  width: 100%;
+  max-height: min(300px, calc(100vh - 32px));
 }
 
-.tag-listbox {
-  max-height: min(300px, calc(100vh - 32px));
+.tag-option-match {
+  border-radius: 4px;
+  background: var(--primary-pale-color);
+  font-weight: 700;
 }
 
 .tag-error {
