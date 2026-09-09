@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
 import styles from "./index.module.css";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
+import Button from "@/shared/ui/Button";
 
 import type React from "react";
 import type { Comment } from "@/shared/types/comment";
@@ -101,14 +103,18 @@ const CommentInput = ({
         </label>
         <div className={styles["send-wrap"]}>
           <p className={styles["send-hint"]}>Ctrl + Enter で送信</p>
-          <button
-            type="button"
-            onClick={() => void handleSend()}
-            disabled={!value.trim() || isSubmitting}
-            className={styles["send-button"]}
-          >
-            {isSubmitting ? "送信中..." : "送信"}
-          </button>
+          <div className={styles["send-button-slot"]}>
+            <Button
+              variant="accent"
+              onClick={() => void handleSend()}
+              isDisabled={!value.trim() || isSubmitting}
+            >
+              <span className={styles["send-icon"]} aria-hidden="true">
+                <SendRoundedIcon fontSize="inherit" />
+              </span>
+              {isSubmitting ? "送信中..." : "送信"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
