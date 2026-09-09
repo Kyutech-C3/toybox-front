@@ -40,7 +40,7 @@ const AudioCard = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const clipID = useId();
   const [shouldLoad, setShouldLoad] = useState(isActive);
-  const { peaks, playbackURL, isLoadError } = useAudioWaveform({
+  const { peaks, playbackURL } = useAudioWaveform({
     src,
     barCount: WAVEFORM_BAR_COUNT,
     isEnabled: shouldLoad,
@@ -65,10 +65,6 @@ const AudioCard = ({
   useEffect(() => {
     if (isActive) setShouldLoad(true);
   }, [isActive]);
-
-  useEffect(() => {
-    if (isLoadError) onLoadError?.();
-  }, [isLoadError, onLoadError]);
 
   return (
     <CardWrapper>

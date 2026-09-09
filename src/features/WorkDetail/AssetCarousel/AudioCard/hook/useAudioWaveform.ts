@@ -9,7 +9,6 @@ type UseAudioWaveformParams = {
 type UseAudioWaveformReturn = {
   peaks: number[];
   playbackURL?: string;
-  isLoadError: boolean;
 };
 
 const useAudioWaveform = ({
@@ -19,7 +18,6 @@ const useAudioWaveform = ({
 }: UseAudioWaveformParams): UseAudioWaveformReturn => {
   const [peaks, setPeaks] = useState<number[]>([]);
   const [playbackURL, setPlaybackURL] = useState<string>();
-  const [isLoadError, setIsLoadError] = useState(false);
 
   useEffect(() => {
     if (!isEnabled) return;
@@ -29,7 +27,6 @@ const useAudioWaveform = ({
     const controller = new AbortController();
     setPeaks([]);
     setPlaybackURL(undefined);
-    setIsLoadError(false);
 
     const buildWaveform = async () => {
       const response = await fetch(src, { signal: controller.signal });
@@ -72,7 +69,7 @@ const useAudioWaveform = ({
       if (!isActive || controller.signal.aborted) return;
 
       setPeaks([]);
-      if (!objectURL) setIsLoadError(true);
+      if (!objectURL) setPlaybackURL(src);
     });
 
     return () => {
@@ -82,7 +79,7 @@ const useAudioWaveform = ({
     };
   }, [src, barCount, isEnabled]);
 
-  return { peaks, playbackURL, isLoadError };
+  return { peaks, playbackURL };
 };
 
 export default useAudioWaveform;
