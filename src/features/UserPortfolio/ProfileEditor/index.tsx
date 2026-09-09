@@ -20,9 +20,9 @@ type ProfileEditorProps = {
 const DISPLAY_NAME_MAX_LENGTH = 32;
 const PROFILE_MAX_LENGTH = 500;
 const GITHUB_USERNAME_MAX_LENGTH = 39;
-const TWITTER_USERNAME_MAX_LENGTH = 15;
+const X_USERNAME_MAX_LENGTH = 15;
 const GITHUB_USERNAME_PATTERN = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
-const TWITTER_USERNAME_PATTERN = /^[a-z\d_]+$/i;
+const X_USERNAME_PATTERN = /^[a-z\d_]+$/i;
 
 const normalizeSocialUsername = (username: string) =>
   username.normalize("NFKC").trim().replace(/^@/, "");
@@ -38,13 +38,13 @@ const getGithubError = (username: string) => {
   return "";
 };
 
-const getTwitterError = (username: string) => {
+const getXError = (username: string) => {
   if (username === "") return "";
-  if (username.length > TWITTER_USERNAME_MAX_LENGTH) {
-    return `Twitter のユーザー名は${TWITTER_USERNAME_MAX_LENGTH}文字以内で入力してください`;
+  if (username.length > X_USERNAME_MAX_LENGTH) {
+    return `X のユーザー名は${X_USERNAME_MAX_LENGTH}文字以内で入力してください`;
   }
-  if (!TWITTER_USERNAME_PATTERN.test(username)) {
-    return "Twitter のユーザー名には英数字とアンダースコアのみ使用できます";
+  if (!X_USERNAME_PATTERN.test(username)) {
+    return "X のユーザー名には英数字とアンダースコアのみ使用できます";
   }
   return "";
 };
@@ -54,8 +54,8 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
   const profileID = useId();
   const githubID = useId();
   const githubErrorID = useId();
-  const twitterID = useId();
-  const twitterErrorID = useId();
+  const xID = useId();
+  const xErrorID = useId();
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useUserStore((state) => state.user);
   const setUser = useUserStore((state) => state.setUser);
@@ -64,21 +64,21 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
   const [displayName, setDisplayName] = useState(userProfile.display_name);
   const [profile, setProfile] = useState(userProfile.profile);
   const [github, setGithub] = useState(userProfile.github_id);
-  const [twitter, setTwitter] = useState(userProfile.twitter_id);
+  const [xUsername, setXUsername] = useState(userProfile.twitter_id);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmedDisplayName = displayName.trim();
   const normalizedGithub = normalizeSocialUsername(github);
-  const normalizedTwitter = normalizeSocialUsername(twitter);
+  const normalizedXUsername = normalizeSocialUsername(xUsername);
   const githubError = getGithubError(normalizedGithub);
-  const twitterError = getTwitterError(normalizedTwitter);
+  const xError = getXError(normalizedXUsername);
   const isSubmitDisabled =
     isSubmitting ||
     trimmedDisplayName.length === 0 ||
     trimmedDisplayName.length > DISPLAY_NAME_MAX_LENGTH ||
     profile.length > PROFILE_MAX_LENGTH ||
     githubError !== "" ||
-    twitterError !== "";
+    xError !== "";
 
   const handleSubmit = async () => {
     if (isSubmitDisabled || !accessToken) return;
@@ -90,7 +90,7 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
         displayName: trimmedDisplayName,
         profile,
         githubID: normalizedGithub,
-        twitterID: normalizedTwitter,
+        xUsername: normalizedXUsername,
         accessToken,
       });
       await mutate(
@@ -180,35 +180,31 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
         )}
       </div>
       <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={twitterID}>
-          Twitter
+        <label className={styles["label"]} htmlFor={xID}>
+          X
         </label>
         <div
           className={styles["social-input"]}
-          data-invalid={twitterError !== "" ? "true" : "false"}
+          data-invalid={xError !== "" ? "true" : "false"}
         >
-          <span className={styles["url-prefix"]}>https://twitter.com/</span>
+          <span className={styles["url-prefix"]}>https://x.com/</span>
           <input
-            id={twitterID}
+            id={xID}
             className={styles["social-id-input"]}
-            value={twitter}
-            placeholder="Twitter の ID"
+            value={xUsername}
+            placeholder="X の ID"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
-            aria-invalid={twitterError !== ""}
-            aria-describedby={twitterError !== "" ? twitterErrorID : undefined}
-            onChange={(event) => setTwitter(event.target.value)}
-            onBlur={() => setTwitter(normalizedTwitter)}
+            aria-invalid={xError !== ""}
+            aria-describedby={xError !== "" ? xErrorID : undefined}
+            onChange={(event) => setXUsername(event.target.value)}
+            onBlur={() => setXUsername(normalizedXUsername)}
           />
         </div>
-        {twitterError !== "" && (
-          <span
-            id={twitterErrorID}
-            className={styles["input-error"]}
-            role="alert"
-          >
-            {twitterError}
+        {xError !== "" && (
+          <span id={xErrorID} className={styles["input-error"]} role="alert">
+            {xError}
           </span>
         )}
       </div>

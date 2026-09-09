@@ -6,7 +6,7 @@ type UpdateUserProfileParams = {
   userProfile: UserProfileData;
   displayName: string;
   profile: string;
-  twitterID: string;
+  xUsername: string;
   githubID: string;
   accessToken: string;
 };
@@ -15,7 +15,7 @@ export const updateUserProfile = async ({
   userProfile,
   displayName,
   profile,
-  twitterID,
+  xUsername,
   githubID,
   accessToken,
 }: UpdateUserProfileParams): Promise<UserProfileData> =>
@@ -25,7 +25,7 @@ export const updateUserProfile = async ({
       display_name: displayName,
       profile,
       email: userProfile.email,
-      twitter_id: twitterID,
+      twitter_id: xUsername,
       github_id: githubID,
     }),
     accessToken,

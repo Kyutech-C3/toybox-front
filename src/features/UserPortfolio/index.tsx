@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import GitHubIcon from "@mui/icons-material/GitHub";
-import TwitterIcon from "@mui/icons-material/Twitter";
+import XIcon from "@mui/icons-material/X";
 
 import useUserPortfolio from "./hook/useUserPortfolio";
 import styles from "./index.module.css";
@@ -96,11 +96,11 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
                   {userProfile.twitter_id && (
                     <a
                       className={styles["social-link"]}
-                      href={`https://twitter.com/${encodeURIComponent(userProfile.twitter_id)}`}
+                      href={`https://x.com/${encodeURIComponent(userProfile.twitter_id)}`}
                       target="_blank"
                       rel="noreferrer"
                     >
-                      <TwitterIcon fontSize="small" />
+                      <XIcon fontSize="small" />
                       <span>{userProfile.twitter_id}</span>
                     </a>
                   )}
