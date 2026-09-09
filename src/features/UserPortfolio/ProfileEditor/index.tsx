@@ -68,9 +68,9 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmedDisplayName = displayName.trim();
-  const normalizedGithub = normalizeSocialUsername(github);
+  const normalizedGithubUsername = normalizeSocialUsername(github);
   const normalizedXUsername = normalizeSocialUsername(xUsername);
-  const githubError = getGithubError(normalizedGithub);
+  const githubError = getGithubError(normalizedGithubUsername);
   const xError = getXError(normalizedXUsername);
   const isSubmitDisabled =
     isSubmitting ||
@@ -89,7 +89,7 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
         userProfile,
         displayName: trimmedDisplayName,
         profile,
-        githubID: normalizedGithub,
+        githubUsername: normalizedGithubUsername,
         xUsername: normalizedXUsername,
         accessToken,
       });
@@ -166,7 +166,7 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
             aria-invalid={githubError !== ""}
             aria-describedby={githubError !== "" ? githubErrorID : undefined}
             onChange={(event) => setGithub(event.target.value)}
-            onBlur={() => setGithub(normalizedGithub)}
+            onBlur={() => setGithub(normalizedGithubUsername)}
           />
         </div>
         {githubError !== "" && (
