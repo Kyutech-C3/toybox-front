@@ -29,8 +29,6 @@ const WorkDetailForm = () => {
   return (
     <Paper>
       <div className={styles["work-detail-form-wrapper"]}>
-        <ImageUpload />
-        <AssetUpload />
         <Input heading="タイトル" value={title} onChange={setTitle} />
         <TagInput
           heading="タグ"
@@ -44,6 +42,8 @@ const WorkDetailForm = () => {
           onRemoveFailedTag={handleRemoveFailedTag}
           allTagOptions={allTagOptions}
         />
+        <ImageUpload />
+        <AssetUpload />
         <LinkInput urls={urls} onChangeUrls={setUrls} />
       </div>
     </Paper>
