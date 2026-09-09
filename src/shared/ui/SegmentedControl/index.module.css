@@ -1,0 +1,111 @@
+.segmented-control {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-grid;
+  grid-template-columns: repeat(var(--segment-count, 2), minmax(0, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  background: var(--background-color);
+  isolation: isolate;
+}
+
+.segment-thumb {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  width: calc(
+    (100% - 8px - 4px * (var(--segment-count, 2) - 1)) /
+    var(--segment-count, 2)
+  );
+  border-radius: 9999px;
+  background: var(--primary-color);
+  box-shadow: 0 2px 6px var(--shadow-soft-color);
+  transform: translateX(calc(var(--segment-index, 0) * (100% + 4px)));
+  transition: transform 0.25s ease;
+}
+
+.segment {
+  position: relative;
+  z-index: 1;
+  min-height: 38px;
+  padding: 0 var(--space-12);
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  color: var(--font-muted-color);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    color var(--hover-transition),
+    background-color var(--hover-transition);
+}
+
+.segment[data-selected="true"] {
+  color: var(--font-color);
+}
+
+.segment[data-selected="false"]:hover {
+  background: var(--primary-soft-color);
+  color: var(--font-color);
+}
+
+.segment:has(.segment-input:focus-visible) {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+.segment-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segment-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.segment-label {
+  white-space: nowrap;
+}
+
+.segment-label-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment-thumb {
+    transition: none;
+  }
+}
+
+@media (max-width: 1279px) {
+  .segment {
+    min-height: var(--touch-target-min);
+  }
+}
+
+@media (hover: none) {
+  .segment[data-selected="false"]:hover {
+    background: transparent;
+    color: var(--font-muted-color);
+  }
+}
