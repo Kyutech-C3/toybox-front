@@ -30,7 +30,11 @@
 
 .primary-button {
   &:not([data-disabled="true"]):hover {
-    background: var(--primary-soft-color);
+    background: color-mix(
+      in srgb,
+      var(--primary-color) 10%,
+      var(--button-color)
+    );
     color: var(--font-color);
     box-shadow: var(--hover-shadow);
   }
@@ -60,7 +64,7 @@
   color: var(--error-color);
 
   &:not([data-disabled="true"]):hover {
-    background: var(--error-soft-color);
+    background: color-mix(in srgb, var(--error-color) 12%, var(--button-color));
     color: var(--error-color);
     box-shadow: var(--hover-shadow);
   }
