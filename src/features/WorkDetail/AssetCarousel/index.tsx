@@ -21,6 +21,10 @@ type AssetCarouselProps = {
 
 const SEEK_STEP_SECONDS = 5;
 
+type WebkitFullscreenVideo = HTMLVideoElement & {
+  webkitEnterFullscreen?: () => void;
+};
+
 const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const containerRef = useRef<HTMLUListElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -127,14 +131,31 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   };
 
   const handleFullscreen = async () => {
-    try {
-      if (isFullscreen) {
-        await document.exitFullscreen();
-        return;
-      }
+    const viewport = viewportRef.current;
+    if (!viewport) return;
 
-      await viewportRef.current?.requestFullscreen();
-    } catch {}
+    if (isFullscreen) {
+      try {
+        await document.exitFullscreen();
+      } catch {}
+      return;
+    }
+
+    if (viewport.requestFullscreen) {
+      try {
+        await viewport.requestFullscreen();
+        return;
+      } catch {}
+    }
+
+    const video = viewport.querySelector<WebkitFullscreenVideo>(
+      "li[data-active='true'] video",
+    );
+    if (video?.webkitEnterFullscreen) {
+      try {
+        video.webkitEnterFullscreen();
+      } catch {}
+    }
   };
 
   useEffect(() => {

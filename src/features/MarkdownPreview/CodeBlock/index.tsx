@@ -6,6 +6,8 @@ import { prism as style } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import styles from "./index.module.css";
 
+import { copyTextToClipboard } from "@/util/copyTextToClipboard";
+
 type CodeBlockProps = {
   language: string;
   children: string;
@@ -15,7 +17,9 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
   const [isCopied, setCopied] = useState(false);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(children);
+    const didCopy = await copyTextToClipboard(children);
+    if (!didCopy) return;
+
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
