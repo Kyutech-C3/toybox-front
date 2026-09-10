@@ -33,8 +33,15 @@ type UseUrlFieldsReturn = {
   handleFocusApplied: () => void;
 };
 
+let URL_FIELD_SEQUENCE = 0;
+
+const createUrlFieldID = (): string => {
+  URL_FIELD_SEQUENCE += 1;
+  return `url-field-${Date.now()}-${URL_FIELD_SEQUENCE}`;
+};
+
 const createUrlField = (value = ""): UrlField => ({
-  id: crypto.randomUUID(),
+  id: createUrlFieldID(),
   value,
   committedUrl: value === "" ? null : value,
   error: "",

@@ -3,6 +3,7 @@ import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 import styles from "./index.module.css";
 
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 
 type ShareButtonProps = {
   title: string;
@@ -19,20 +20,21 @@ const ShareButton = ({ title }: ShareButtonProps) => {
       try {
         await navigator.share({ title, url });
         return;
-      } catch {
-        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError")
+          return;
       }
     }
 
-    try {
-      await navigator.clipboard.writeText(url);
+    if (await copyTextToClipboard(url)) {
       showToast({ message: "リンクをコピーしました", severity: "success" });
-    } catch {
-      showToast({
-        message: "リンクをコピーできませんでした",
-        severity: "error",
-      });
+      return;
     }
+
+    showToast({
+      message: "リンクをコピーできませんでした",
+      severity: "error",
+    });
   };
 
   return (

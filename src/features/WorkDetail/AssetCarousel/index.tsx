@@ -21,11 +21,16 @@ type AssetCarouselProps = {
 
 const SEEK_STEP_SECONDS = 5;
 
+type WebkitFullscreenVideo = HTMLVideoElement & {
+  webkitEnterFullscreen?: () => void;
+};
+
 const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   const containerRef = useRef<HTMLUListElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const [activeAssetIndex, setActiveAssetIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPseudoFullscreen, setIsPseudoFullscreen] = useState(false);
   const [failedAssetIDs, setFailedAssetIDs] = useState<Set<string>>(
     () => new Set(),
   );
@@ -50,6 +55,17 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isPseudoFullscreen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isPseudoFullscreen]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -127,14 +143,39 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   };
 
   const handleFullscreen = async () => {
-    try {
-      if (isFullscreen) {
-        await document.exitFullscreen();
-        return;
-      }
+    const viewport = viewportRef.current;
+    if (!viewport) return;
 
-      await viewportRef.current?.requestFullscreen();
-    } catch {}
+    if (isPseudoFullscreen) {
+      setIsPseudoFullscreen(false);
+      return;
+    }
+
+    if (isFullscreen) {
+      try {
+        await document.exitFullscreen();
+      } catch {}
+      return;
+    }
+
+    if (viewport.requestFullscreen) {
+      try {
+        await viewport.requestFullscreen();
+        return;
+      } catch {}
+    }
+
+    const video = viewport.querySelector<WebkitFullscreenVideo>(
+      "li[data-active='true'] video",
+    );
+    if (video?.webkitEnterFullscreen) {
+      try {
+        video.webkitEnterFullscreen();
+        return;
+      } catch {}
+    }
+
+    setIsPseudoFullscreen(true);
   };
 
   useEffect(() => {
@@ -158,7 +199,14 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
 
       const isPointerInside = isPointerInsideRef.current;
       const isFocusInside = viewport.contains(document.activeElement);
-      if (!isFullscreen && !isPointerInside && !isFocusInside) return;
+      if (
+        !isFullscreen &&
+        !isPseudoFullscreen &&
+        !isPointerInside &&
+        !isFocusInside
+      ) {
+        return;
+      }
 
       const active = document.activeElement as HTMLElement | null;
       if (
@@ -166,6 +214,12 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
         active?.tagName === "TEXTAREA" ||
         active?.isContentEditable
       ) {
+        return;
+      }
+
+      if (event.key === "Escape" && isPseudoFullscreen) {
+        event.preventDefault();
+        setIsPseudoFullscreen(false);
         return;
       }
 
@@ -226,7 +280,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
       viewport?.removeEventListener("pointerleave", handlePointerLeave);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isFullscreen]);
+  }, [isFullscreen, isPseudoFullscreen]);
 
   handleFullscreenRef.current = handleFullscreen;
 
@@ -241,18 +295,23 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   };
 
   const activeAsset = assets[activeAssetIndex];
+  const isFullscreenActive = isFullscreen || isPseudoFullscreen;
   const isFullscreenAvailable =
     !!activeAsset &&
     (activeAsset.asset_type === "image" ||
       activeAsset.asset_type === "model") &&
     !failedAssetIDs.has(activeAsset.id);
-  const FullscreenIcon = isFullscreen
+  const FullscreenIcon = isFullscreenActive
     ? FullscreenExitRoundedIcon
     : FullscreenRoundedIcon;
 
   return (
     <div className={styles["asset-wrapper"]}>
-      <div className={styles["carousel-viewport"]} ref={viewportRef}>
+      <div
+        className={styles["carousel-viewport"]}
+        ref={viewportRef}
+        data-pseudo-fullscreen={isPseudoFullscreen ? "true" : "false"}
+      >
         {assets.length > 1 && (
           <>
             <button
@@ -277,7 +336,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
           <button
             className={styles["fullscreen-button"]}
             type="button"
-            aria-label={isFullscreen ? "全画面表示を終了" : "全画面表示"}
+            aria-label={isFullscreenActive ? "全画面表示を終了" : "全画面表示"}
             onClick={handleFullscreen}
           >
             <FullscreenIcon aria-hidden="true" fontSize="large" />
@@ -330,7 +389,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                     <MovieCard
                       src={safeURL}
                       extension={asset.extension}
-                      isFullscreen={isFullscreen}
+                      isFullscreen={isFullscreenActive}
                       onLoadError={() => handleLoadError(asset.id)}
                       onToggleFullscreen={() => void handleFullscreen()}
                     />
@@ -346,7 +405,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                     <AudioCard
                       src={safeURL}
                       isActive={assets[activeAssetIndex]?.id === asset.id}
-                      isFullscreen={isFullscreen}
+                      isFullscreen={isFullscreenActive}
                       onLoadError={() => handleLoadError(asset.id)}
                       onToggleFullscreen={() => void handleFullscreen()}
                     />
