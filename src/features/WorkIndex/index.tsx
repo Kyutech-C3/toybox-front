@@ -14,8 +14,11 @@ import FavoriteButton from "@/features/FavoriteButton";
 import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid, {
   PageSizeSelect,
+  useWorkGridColumns,
   useWorkPageSize,
 } from "@/shared/ui/WorkCardGrid";
+
+import type { CSSProperties } from "react";
 
 const WorkIndex = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,6 +27,10 @@ const WorkIndex = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const currentPage = Number(searchParams.get("page")) || 1;
   const { itemsPerPage } = useWorkPageSize();
+  const { columns } = useWorkGridColumns();
+  const controlsStyle = {
+    "--work-card-columns": String(columns),
+  } as CSSProperties;
 
   const { data, totalCount } = useWorks({
     page: currentPage,
@@ -46,15 +53,13 @@ const WorkIndex = () => {
 
   return (
     <>
-      <div className={styles["work-index-controls"]}>
-        <div className={styles["controls-left"]}>
-          {accessToken && <VisibilityFilter />}
-          <SortOrderSwitch />
-        </div>
-        <div className={styles["controls-center"]}>
+      <div className={styles["work-index-controls"]} style={controlsStyle}>
+        {accessToken && <VisibilityFilter />}
+        <SortOrderSwitch />
+        <div className={styles["controls-search"]}>
           <SearchBar />
         </div>
-        <div className={styles["controls-right"]}>
+        <div className={styles["controls-page-size"]}>
           <PageSizeSelect />
         </div>
       </div>
