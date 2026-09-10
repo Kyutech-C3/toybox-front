@@ -39,13 +39,13 @@
   --touch-target-min: 44px;
   --fab-clearance: 0px;
 
-  --content-width-ratio: 0.95;
+  --content-width-ratio: 0.9;
   --content-max-width: calc(var(--content-width-ratio) * 100vw);
   --content-read-width: 1024px;
   --content-panel-width: 60vw;
 
   --card-columns: 0;
-  --card-min-width: 264px;
+  --card-min-width: 248px;
   --card-max-width: 320px;
   --card-max-columns: 7;
 
