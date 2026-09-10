@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
-import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
 import UserButton from "../UserButton";
 import VisibilityIcon from "../VisibilityIcon";
@@ -97,86 +96,97 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
         />
       </div>
       <div className={styles["card-body"]}>
-        <h3
-          className={styles["card-title"]}
-          title={work.title}
-          ref={titleMarquee.setContainer}
-        >
-          <Link to={`/works/${work.id}`} className={styles["work-link"]}>
+        <div className={styles["card-headline"]}>
+          <h3
+            className={styles["card-title"]}
+            title={work.title}
+            ref={titleMarquee.setContainer}
+          >
+            <Link to={`/works/${work.id}`} className={styles["work-link"]}>
+              <span
+                className={styles["marquee-content"]}
+                data-marquee={titleMarquee.marqueeState}
+                style={titleMarquee.marqueeStyle}
+                ref={titleMarquee.setContent}
+              >
+                <span
+                  className={styles["marquee-item"]}
+                  ref={titleMarquee.setItem}
+                >
+                  {work.title}
+                </span>
+                {titleMarquee.isOverflowing && (
+                  <span className={styles["marquee-item"]} aria-hidden="true">
+                    {work.title}
+                  </span>
+                )}
+              </span>
+            </Link>
+          </h3>
+          <div className={styles["card-tags"]} ref={tagsMarquee.setContainer}>
             <span
               className={styles["marquee-content"]}
-              data-marquee={titleMarquee.marqueeState}
-              style={titleMarquee.marqueeStyle}
-              ref={titleMarquee.setContent}
+              data-marquee={tagsMarquee.marqueeState}
+              style={tagsMarquee.marqueeStyle}
+              ref={tagsMarquee.setContent}
             >
               <span
                 className={styles["marquee-item"]}
-                ref={titleMarquee.setItem}
+                ref={tagsMarquee.setItem}
               >
-                {work.title}
+                {work.tags.map((tag) => (
+                  <span
+                    key={`${work.id}-${tag.id}`}
+                    className={styles["card-tag"]}
+                  >
+                    #{tag.name}
+                  </span>
+                ))}
               </span>
-              {titleMarquee.isOverflowing && (
+              {tagsMarquee.isOverflowing && (
                 <span className={styles["marquee-item"]} aria-hidden="true">
-                  {work.title}
+                  {work.tags.map((tag) => (
+                    <span
+                      key={`${work.id}-${tag.id}-loop`}
+                      className={styles["card-tag"]}
+                    >
+                      #{tag.name}
+                    </span>
+                  ))}
                 </span>
               )}
             </span>
-          </Link>
-        </h3>
-        <div className={styles["card-tags"]} ref={tagsMarquee.setContainer}>
-          <span
-            className={styles["marquee-content"]}
-            data-marquee={tagsMarquee.marqueeState}
-            style={tagsMarquee.marqueeStyle}
-            ref={tagsMarquee.setContent}
-          >
-            <span className={styles["marquee-item"]} ref={tagsMarquee.setItem}>
-              {work.tags.map((tag) => (
-                <Batch key={`${work.id}-${tag.id}`} color="pale">
-                  {tag.name}
-                </Batch>
-              ))}
-            </span>
-            {tagsMarquee.isOverflowing && (
-              <span className={styles["marquee-item"]} aria-hidden="true">
-                {work.tags.map((tag) => (
-                  <Batch key={`${work.id}-${tag.id}-loop`} color="pale">
-                    {tag.name}
-                  </Batch>
-                ))}
-              </span>
-            )}
-          </span>
+          </div>
         </div>
-        <p className={styles["card-date"]}>
-          <VisibilityIcon
-            visibility={work.visibility}
-            className={styles["card-visibility-icon"]}
-          />
-          <time dateTime={work.created_at}>
-            {formatDateTime(work.created_at)}
-          </time>
-        </p>
-        <div className={styles["card-footer"]}>
+        <div className={styles["card-meta"]}>
           <UserButton
             userID={work.user.id}
             displayName={work.user.display_name}
             avatarURL={work.user.avatar_url || undefined}
             size="compact"
           />
-          <div className={styles["card-actions"]}>
-            {isEditable && (
-              <Link
-                to={`/edit/${work.id}`}
-                className={styles["edit-link"]}
-                aria-label={`${work.title}を編集する`}
-                title="編集する"
-              >
-                <EditSquareIcon />
-              </Link>
-            )}
-            {favoriteButton}
-          </div>
+          <p className={styles["card-date"]}>
+            <VisibilityIcon
+              visibility={work.visibility}
+              className={styles["card-visibility-icon"]}
+            />
+            <time dateTime={work.created_at}>
+              {formatDateTime(work.created_at)}
+            </time>
+          </p>
+        </div>
+        <div className={styles["card-actions"]}>
+          {isEditable && (
+            <Link
+              to={`/edit/${work.id}`}
+              className={styles["edit-link"]}
+              aria-label={`${work.title}を編集する`}
+              title="編集する"
+            >
+              <EditSquareIcon />
+            </Link>
+          )}
+          {favoriteButton}
         </div>
       </div>
     </article>

@@ -1,6 +1,7 @@
 .avatar-wrapper {
   height: 36px;
   width: 36px;
+  flex-shrink: 0;
   overflow: hidden;
   border-radius: 9999px;
   display: flex;
