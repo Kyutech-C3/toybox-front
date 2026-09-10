@@ -1,6 +1,7 @@
 /* 列数の計算は useWorkGridColumns が行い、--work-card-columns で受け取る */
-.work-card-grid {
-  width: min(
+.work-card-grid,
+.work-card-grid-empty {
+  --work-grid-width: min(
     100%,
     var(--content-max-width),
     calc(
@@ -10,6 +11,10 @@
       (var(--work-card-columns, 3) - 1)
     )
   );
+}
+
+.work-card-grid {
+  width: var(--work-grid-width);
   display: grid;
   grid-template-columns: repeat(var(--work-card-columns, 3), minmax(0, 1fr));
   gap: var(--grid-gap);
@@ -17,7 +22,7 @@
 
 .work-card-grid-empty {
   box-sizing: border-box;
-  width: min(100%, var(--content-max-width));
+  width: var(--work-grid-width);
   min-height: 160px;
   padding: 40px;
   border-radius: 20px;

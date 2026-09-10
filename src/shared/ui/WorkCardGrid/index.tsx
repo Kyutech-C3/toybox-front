@@ -25,7 +25,11 @@ const WorkCardGrid = ({
   } as CSSProperties;
 
   if (works.length === 0) {
-    return <p className={styles["work-card-grid-empty"]}>{emptyMessage}</p>;
+    return (
+      <p className={styles["work-card-grid-empty"]} style={gridStyle}>
+        {emptyMessage}
+      </p>
+    );
   }
 
   return (
