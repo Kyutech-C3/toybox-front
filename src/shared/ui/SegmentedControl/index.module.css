@@ -30,6 +30,9 @@
 
 .segment {
   position: relative;
+  border: 0;
+  background: transparent;
+  font: inherit;
   z-index: 1;
   min-height: 38px;
   padding: 0 var(--space-12);
@@ -58,7 +61,8 @@
   color: var(--font-color);
 }
 
-.segment:has(.segment-input:focus-visible) {
+.segment:has(.segment-input:focus-visible),
+.segment:focus-visible {
   outline: 2px solid var(--link-color);
   outline-offset: 2px;
 }
