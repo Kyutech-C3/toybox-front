@@ -9,13 +9,12 @@
 .profile-card {
   box-sizing: border-box;
   width: min(100%, var(--content-panel-width));
-  min-height: calc(var(--content-panel-width) / 5);
   padding: var(--space-16) var(--space-24);
   border-radius: 24px;
   display: grid;
-  grid-template-columns: 20% minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--space-24);
+  gap: var(--space-12) var(--space-24);
   background: var(--paper-color);
   box-shadow: 0 2px 8px var(--shadow-soft-color);
 }
@@ -23,28 +22,22 @@
 .profile-avatar {
   display: flex;
   align-items: center;
-  justify-content: center;
 }
 
 .profile-main {
   min-width: 0;
-  height: 100%;
-  display: grid;
-  grid-template-rows: 3fr 7fr;
-  align-items: center;
-  gap: var(--space-8);
-}
-
-.profile-identity {
-  min-width: 0;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-8) var(--space-16);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
 }
 
 .profile-edit {
-  margin-left: auto;
+  justify-self: end;
+}
+
+.profile-editor-slot {
+  grid-column: 2 / -1;
 }
 
 .display-name {
@@ -56,6 +49,7 @@
 }
 
 .profile-text {
+  grid-column: 1 / -1;
   margin: 0;
   align-self: start;
   color: var(--font-color);
@@ -105,15 +99,19 @@
 
 @media (max-width: 767px) {
   .profile-card {
-    min-height: 0;
     padding: var(--space-16);
     border-radius: 16px;
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: auto minmax(0, 1fr);
     gap: var(--space-12);
   }
 
-  .profile-main {
-    grid-template-rows: auto auto;
+  .profile-edit {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .profile-editor-slot {
+    grid-column: 1 / -1;
   }
 
   .display-name {

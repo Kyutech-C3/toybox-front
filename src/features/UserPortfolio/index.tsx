@@ -53,14 +53,16 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
             />
           </div>
           {isOwner && isEditing ? (
-            <ProfileEditor
-              key={userProfile.id}
-              userProfile={userProfile}
-              onClose={() => setIsEditing(false)}
-            />
+            <div className={styles["profile-editor-slot"]}>
+              <ProfileEditor
+                key={userProfile.id}
+                userProfile={userProfile}
+                onClose={() => setIsEditing(false)}
+              />
+            </div>
           ) : (
-            <div className={styles["profile-main"]}>
-              <div className={styles["profile-identity"]}>
+            <>
+              <div className={styles["profile-main"]}>
                 <h1 className={styles["display-name"]}>
                   {userProfile.display_name}
                 </h1>
@@ -93,23 +95,23 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
                     )}
                   </nav>
                 )}
-                {isOwner && (
-                  <div className={styles["profile-edit"]}>
-                    <Button
-                      variant="accent"
-                      onClick={() => setIsEditing(true)}
-                      ariaLabel="プロフィールを編集"
-                    >
-                      <EditSquareIcon />
-                      編集
-                    </Button>
-                  </div>
-                )}
               </div>
-              <p className={styles["profile-text"]}>
-                {userProfile.profile || "プロフィールはまだありません"}
-              </p>
-            </div>
+              {isOwner && (
+                <div className={styles["profile-edit"]}>
+                  <Button
+                    variant="accent"
+                    onClick={() => setIsEditing(true)}
+                    ariaLabel="プロフィールを編集"
+                  >
+                    <EditSquareIcon />
+                    編集
+                  </Button>
+                </div>
+              )}
+              {userProfile.profile && (
+                <p className={styles["profile-text"]}>{userProfile.profile}</p>
+              )}
+            </>
           )}
         </div>
       </section>

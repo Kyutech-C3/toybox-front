@@ -14,8 +14,8 @@
 }
 
 .avatar-wrapper[data-size="profile"] {
-  width: min(160px, 26vw);
-  height: min(160px, 26vw);
+  width: min(120px, 22vw);
+  height: min(120px, 22vw);
   border: 8px solid var(--paper-color);
   box-shadow: 4px 4px 8px var(--shadow-soft-color);
 }
