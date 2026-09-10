@@ -14,11 +14,15 @@ type LinkInputProps = {
 const LinkInput = ({ urls, onChangeUrls }: LinkInputProps) => {
   const {
     fields,
+    focusFieldID,
     hasReachedUrlLimit,
     handleAddField,
+    handleAddFieldAfter,
     handleChangeField,
     handleCommitField,
     handleRemoveField,
+    handleRemoveEmptyField,
+    handleFocusApplied,
   } = useUrlFields({ urls, onChangeUrls });
 
   return (
@@ -48,9 +52,17 @@ const LinkInput = ({ urls, onChangeUrls }: LinkInputProps) => {
               value={field.value}
               committedUrl={field.committedUrl}
               error={field.error}
+              isFocusRequested={field.id === focusFieldID}
+              isRemovable={fields.length > 1}
+              hasReachedUrlLimit={hasReachedUrlLimit}
               onChange={(value) => handleChangeField(field.id, value)}
               onCommit={(value) => handleCommitField(field.id, value)}
+              onAddAfter={(value) => handleAddFieldAfter(field.id, value)}
               onRemove={() => handleRemoveField(field.id)}
+              onRemoveEmpty={(direction) =>
+                handleRemoveEmptyField(field.id, direction)
+              }
+              onFocusApplied={handleFocusApplied}
             />
           ))}
         </div>

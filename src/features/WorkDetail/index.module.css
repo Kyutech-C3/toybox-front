@@ -7,14 +7,14 @@
   --asset-carousel-radius: 16px 16px 0 0;
 
   margin: calc(-1 * var(--paper-padding)) calc(-1 * var(--paper-padding))
-    var(--space-24);
+    var(--space-12);
 }
 
 .work-detail-header {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--space-12);
+  gap: var(--space-8);
 }
 
 .work-detail-meta-row {
@@ -38,18 +38,25 @@
   font-size: 16px;
 }
 
+.work-detail-meta {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-16);
+}
+
 .visibility-icon {
-  margin-left: var(--space-8);
   color: var(--font-muted-color);
-  font-size: 28px;
-  vertical-align: middle;
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
 .work-detail-title {
   min-width: 0;
   margin: 0;
   color: var(--font-color);
-  font-size: 3.5rem;
+  font-size: 2.25rem;
   font-weight: 700;
   line-height: 1.25;
   overflow-wrap: anywhere;
@@ -119,7 +126,7 @@
 
 .work-detail-divider {
   width: 100%;
-  margin: var(--space-24) 0;
+  margin: var(--space-16) 0;
   border: 0;
   border-top: 1px solid var(--border-color);
 }
@@ -136,11 +143,11 @@
   }
 
   .work-detail-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
 
   .work-detail-divider {
-    margin: var(--space-16) 0;
+    margin: var(--space-12) 0;
   }
 }
 

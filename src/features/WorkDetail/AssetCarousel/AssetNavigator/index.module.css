@@ -22,7 +22,7 @@
 }
 
 .asset-thumbnail {
-  width: 80px;
+  width: 60px;
   aspect-ratio: 4 / 3;
   padding: 0;
   border: 2px solid transparent;
@@ -61,17 +61,17 @@
 }
 
 .asset-thumbnail-icon {
-  font-size: 28px;
+  font-size: 22px;
 }
 
 @media (max-width: 767px) {
   .asset-thumbnail {
-    width: 64px;
+    width: 48px;
     border-radius: 6px;
   }
 
   .asset-thumbnail-icon {
-    font-size: 22px;
+    font-size: 18px;
   }
 }
 

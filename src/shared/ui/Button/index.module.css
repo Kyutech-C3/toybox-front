@@ -1,5 +1,7 @@
 /* 共通のボタン */
-.primary-button {
+.primary-button,
+.accent-button,
+.destructive-button {
   height: 48px;
   min-width: 48px;
   padding: 0 var(--space-16);
@@ -8,6 +10,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-8);
   background: var(--button-color);
   cursor: pointer;
   font-size: 14px;
@@ -18,8 +21,20 @@
     box-shadow var(--hover-transition),
     color var(--hover-transition);
 
+  &[data-disabled="true"] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+.primary-button {
   &:not([data-disabled="true"]):hover {
-    background: var(--primary-soft-color);
+    background: color-mix(
+      in srgb,
+      var(--primary-color) 10%,
+      var(--button-color)
+    );
     color: var(--font-color);
     box-shadow: var(--hover-shadow);
   }
@@ -31,16 +46,34 @@
     font-weight: 600;
     box-shadow: var(--hover-shadow);
   }
+}
 
-  &[data-disabled="true"] {
-    opacity: 0.45;
-    cursor: not-allowed;
-    box-shadow: none;
+/* 編集・保存・送信のようにユーザーが自分から起こす主要操作はキーカラーの面にする */
+.accent-button {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
+  color: var(--font-color);
+
+  &:not([data-disabled="true"]):hover {
+    box-shadow: var(--hover-shadow);
+  }
+}
+
+/* 取り消しの効かない操作は文字を赤にし、hover も赤い面で区別する */
+.destructive-button {
+  color: var(--error-color);
+
+  &:not([data-disabled="true"]):hover {
+    background: color-mix(in srgb, var(--error-color) 12%, var(--button-color));
+    color: var(--error-color);
+    box-shadow: var(--hover-shadow);
   }
 }
 
 @media (max-width: 767px) {
-  .primary-button {
+  .primary-button,
+  .accent-button,
+  .destructive-button {
     height: var(--touch-target-min);
     min-width: var(--touch-target-min);
     padding: 0 var(--space-12);
@@ -49,6 +82,15 @@
 
 @media (hover: none) {
   .primary-button:not([data-disabled="true"]):not([data-active="true"]):hover {
+    background: var(--button-color);
+    box-shadow: none;
+  }
+
+  .accent-button:not([data-disabled="true"]):hover {
+    box-shadow: none;
+  }
+
+  .destructive-button:not([data-disabled="true"]):hover {
     background: var(--button-color);
     box-shadow: none;
   }

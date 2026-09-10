@@ -1,7 +1,43 @@
 /* 列数の計算は useWorkGridColumns が行い、--work-card-columns で受け取る */
+.work-card-grid,
+.work-card-grid-empty {
+  --work-grid-width: min(
+    100%,
+    var(--content-max-width),
+    calc(
+      var(--card-max-width) *
+      var(--work-card-columns, 3) +
+      var(--grid-gap) *
+      (var(--work-card-columns, 3) - 1)
+    )
+  );
+}
+
 .work-card-grid {
-  width: min(100%, var(--content-max-width));
+  width: var(--work-grid-width);
   display: grid;
   grid-template-columns: repeat(var(--work-card-columns, 3), minmax(0, 1fr));
   gap: var(--grid-gap);
+}
+
+.work-card-grid-empty {
+  box-sizing: border-box;
+  width: var(--work-grid-width);
+  min-height: 160px;
+  padding: 40px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--paper-overlay-color);
+  color: var(--font-color);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .work-card-grid-empty {
+    min-height: 120px;
+    padding: 24px;
+    font-size: 1rem;
+  }
 }

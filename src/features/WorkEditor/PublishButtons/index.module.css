@@ -1,8 +1,24 @@
+.publish-buttons-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-8) 0 calc(var(--space-12) + var(--fab-clearance));
+  background: linear-gradient(to bottom, transparent, var(--background-color));
+  pointer-events: none;
+}
+
 .publish-buttons-wrapper {
   gap: var(--space-12);
   width: min(100%, var(--content-read-width));
   display: flex;
   justify-content: flex-end;
+}
+
+.publish-buttons-wrapper > * {
+  pointer-events: auto;
 }
 
 @media (max-width: 767px) {

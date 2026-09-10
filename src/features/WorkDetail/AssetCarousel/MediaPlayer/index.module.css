@@ -1,14 +1,14 @@
 .media-player {
   box-sizing: border-box;
   width: 100%;
-  padding: var(--space-12) var(--space-16);
+  padding: var(--space-8) var(--space-16);
   border-radius: 9999px;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-auto-flow: column;
   grid-auto-columns: auto;
   align-items: center;
-  gap: var(--space-12);
+  gap: var(--space-8);
   background: var(--paper-overlay-color);
   transition:
     opacity var(--hover-transition),
@@ -22,8 +22,8 @@
 
 .play-button {
   flex-shrink: 0;
-  width: var(--touch-target-min);
-  height: var(--touch-target-min);
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: 1px solid var(--primary-color);
   border-radius: 9999px;
@@ -32,7 +32,7 @@
   justify-content: center;
   background: var(--primary-color);
   color: var(--font-color);
-  font-size: 28px;
+  font-size: 22px;
   cursor: pointer;
   transition: box-shadow var(--hover-transition);
 }
@@ -50,7 +50,7 @@
 
 .progress {
   width: 100%;
-  height: 24px;
+  height: 16px;
   margin: 0;
   accent-color: var(--primary-color);
   cursor: pointer;
@@ -64,7 +64,7 @@
   display: flex;
   justify-content: space-between;
   color: var(--font-muted-color);
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -76,8 +76,8 @@
 }
 
 .volume-button {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   border-radius: 9999px;
@@ -86,7 +86,7 @@
   justify-content: center;
   background: transparent;
   color: var(--font-muted-color);
-  font-size: 20px;
+  font-size: 18px;
   cursor: pointer;
   transition:
     background-color var(--hover-transition),
@@ -107,8 +107,8 @@
 .download-link,
 .fullscreen-button {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 0;
   border: 0;
   border-radius: 9999px;
@@ -117,7 +117,7 @@
   justify-content: center;
   background: transparent;
   color: var(--font-muted-color);
-  font-size: 20px;
+  font-size: 18px;
   cursor: pointer;
   transition:
     background-color var(--hover-transition),
@@ -136,6 +136,18 @@
   .media-player {
     padding: var(--space-8) var(--space-12);
     gap: var(--space-8);
+  }
+
+  .play-button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+
+  .volume-button,
+  .download-link,
+  .fullscreen-button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
   }
 
   .volume-range {

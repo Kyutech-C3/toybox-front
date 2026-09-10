@@ -120,7 +120,7 @@
   gap: var(--space-8);
   align-items: center;
   justify-content: center;
-  padding: var(--space-16);
+  padding: var(--space-8);
   border: 2px dashed var(--primary-color);
   border-radius: 25px;
   color: var(--font-color);

@@ -84,18 +84,29 @@ export const KeyboardAndValidation: Story = {
 
     await userEvent.type(input, "  https://example.com/  {enter}");
     await expect(input).toHaveValue("https://example.com/");
-
-    await userEvent.click(
-      canvas.getByRole("button", { name: "リンク入力欄を追加" }),
-    );
     const secondInput = canvas.getByRole("textbox", { name: "リンク 2" });
+    await expect(secondInput).toHaveFocus();
+
     await userEvent.type(secondInput, "https://example.com/{enter}");
     await expect(canvas.getByRole("alert")).toHaveTextContent(
       "このURLは追加済みです",
     );
+    await expect(
+      canvas.queryByRole("textbox", { name: "リンク 3" }),
+    ).toBeNull();
 
-    await userEvent.clear(input);
-    await userEvent.type(input, "https://example.org/{enter}");
-    await expect(input).toHaveValue("https://example.org/");
+    await userEvent.clear(secondInput);
+    await userEvent.type(secondInput, "{backspace}");
+    await expect(
+      canvas.queryByRole("textbox", { name: "リンク 2" }),
+    ).toBeNull();
+    await expect(input).toHaveFocus();
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "リンク入力欄を追加" }),
+    );
+    await expect(
+      canvas.getByRole("textbox", { name: "リンク 2" }),
+    ).toHaveFocus();
   },
 };

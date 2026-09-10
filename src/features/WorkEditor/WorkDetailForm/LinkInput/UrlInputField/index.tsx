@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import UrlFavicon from "../UrlFavicon";
@@ -11,9 +11,15 @@ type UrlInputFieldProps = {
   value: string;
   committedUrl: string | null;
   error: string;
+  isFocusRequested: boolean;
+  isRemovable: boolean;
+  hasReachedUrlLimit: boolean;
   onChange: (value: string) => void;
   onCommit: (value: string) => void;
+  onAddAfter: (value: string) => void;
   onRemove: () => void;
+  onRemoveEmpty: (direction: "backward" | "forward") => void;
+  onFocusApplied: () => void;
 };
 
 const UrlInputField = ({
@@ -21,16 +27,46 @@ const UrlInputField = ({
   value,
   committedUrl,
   error,
+  isFocusRequested,
+  isRemovable,
+  hasReachedUrlLimit,
   onChange,
   onCommit,
+  onAddAfter,
   onRemove,
+  onRemoveEmpty,
+  onFocusApplied,
 }: UrlInputFieldProps) => {
   const errorID = useId();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isFocusRequested) return;
+
+    inputRef.current?.focus();
+    onFocusApplied();
+  }, [isFocusRequested, onFocusApplied]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       event.preventDefault();
-      event.currentTarget.blur();
+      if (value.trim() === "" || hasReachedUrlLimit) {
+        event.currentTarget.blur();
+        return;
+      }
+      onAddAfter(event.currentTarget.value);
+      return;
+    }
+
+    if (value !== "" || !isRemovable) return;
+    if (event.key === "Backspace") {
+      event.preventDefault();
+      onRemoveEmpty("backward");
+      return;
+    }
+    if (event.key === "Delete") {
+      event.preventDefault();
+      onRemoveEmpty("forward");
     }
   };
 
@@ -55,6 +91,7 @@ const UrlInputField = ({
             aria-label={`リンク ${index + 1}`}
             aria-invalid={error !== ""}
             aria-describedby={error !== "" ? errorID : undefined}
+            ref={inputRef}
             onChange={(event) => onChange(event.target.value)}
             onBlur={(event) => onCommit(event.currentTarget.value)}
             onKeyDown={handleKeyDown}

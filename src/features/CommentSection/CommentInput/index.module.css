@@ -62,30 +62,10 @@
   font-size: 0.75rem;
 }
 
-.send-button {
-  min-width: 96px;
-  height: var(--touch-target-min);
-  padding: 0 var(--space-16);
-  border: none;
-  border-radius: 9999px;
-  background: var(--primary-color);
-  color: var(--font-color);
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
+.send-icon {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  transition: box-shadow var(--hover-transition);
-}
-
-.send-button:not(:disabled):hover {
-  box-shadow: var(--hover-shadow);
-}
-
-.send-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  font-size: 18px;
 }
 
 .reply-info {
@@ -137,8 +117,12 @@
     flex-wrap: wrap;
   }
 
-  .send-button {
+  .send-button-slot {
     flex: 1;
+  }
+
+  .send-button-slot > button {
+    width: 100%;
   }
 }
 
@@ -146,9 +130,5 @@
   .cancel-reply-button:hover {
     background: transparent;
     color: var(--font-muted-color);
-  }
-
-  .send-button:not(:disabled):hover {
-    box-shadow: none;
   }
 }

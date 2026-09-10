@@ -4,7 +4,7 @@ import Batch from "../Batch";
 import Listbox from "../Listbox";
 import styles from "./index.module.css";
 
-import type { FormEvent, InputHTMLAttributes } from "react";
+import type { FormEvent, InputHTMLAttributes, ReactNode } from "react";
 import type { ListboxOption } from "../Listbox";
 
 export type TagInputTag = {
@@ -27,6 +27,21 @@ type TagInputProps = {
   InputHTMLAttributes<HTMLInputElement>,
   "value" | "onChange" | "className"
 >;
+
+const renderTagOptionLabel = (name: string, keyword: string): ReactNode => {
+  const matchIndex = name.toLowerCase().indexOf(keyword.toLowerCase());
+  if (keyword === "" || matchIndex < 0) return name;
+
+  return (
+    <span className={styles["tag-option-label"]}>
+      {name.slice(0, matchIndex)}
+      <span className={styles["tag-option-match"]}>
+        {name.slice(matchIndex, matchIndex + keyword.length)}
+      </span>
+      {name.slice(matchIndex + keyword.length)}
+    </span>
+  );
+};
 
 const TagInput = ({
   tags,
@@ -60,14 +75,25 @@ const TagInput = ({
 
   const tagOptions = useMemo<ListboxOption<string>[]>(() => {
     if (!allTagOptions) return [];
-    const lowerInput = inputValue.toLowerCase();
+    const keyword = inputValue.trim();
+    const lowerKeyword = keyword.toLowerCase();
+
     return allTagOptions
       .filter(
         (option) =>
-          option.toLowerCase().includes(lowerInput) &&
+          option.toLowerCase().includes(lowerKeyword) &&
           !tags.some(({ name }) => name.toLowerCase() === option.toLowerCase()),
       )
-      .map((option) => ({ id: option, value: option, label: option }));
+      .sort(
+        (left, right) =>
+          left.toLowerCase().indexOf(lowerKeyword) -
+          right.toLowerCase().indexOf(lowerKeyword),
+      )
+      .map((option) => ({
+        id: option,
+        value: option,
+        label: renderTagOptionLabel(option, keyword),
+      }));
   }, [inputValue, allTagOptions, tags]);
 
   return (
@@ -104,31 +130,29 @@ const TagInput = ({
               </Batch>
             );
           })}
-          <span className={styles["input-listbox-container"]}>
-            <Listbox
-              id={tagListboxID}
-              isOpen={tagOptions.length > 0 && isFocused}
-              options={tagOptions}
-              placement="bottom"
-              align="start"
-              ariaLabel="タグ候補"
-              className={styles["tag-listbox"]}
-              onClose={() => setFocused(false)}
-              triggerRef={inputRef}
-              onSelect={(tag) => {
-                if (
-                  tags.some(
-                    ({ name }) => name.toLowerCase() === tag.toLowerCase(),
-                  )
-                ) {
-                  return;
-                }
-                onAddTag(tag);
-                setInputValue("");
-                setFocused(false);
-              }}
-            />
-          </span>
+          <Listbox
+            id={tagListboxID}
+            isOpen={tagOptions.length > 0 && isFocused}
+            options={tagOptions}
+            placement="bottom"
+            align="start"
+            ariaLabel="タグ候補"
+            className={styles["tag-listbox"]}
+            onClose={() => setFocused(false)}
+            triggerRef={inputRef}
+            onSelect={(tag) => {
+              if (
+                tags.some(
+                  ({ name }) => name.toLowerCase() === tag.toLowerCase(),
+                )
+              ) {
+                return;
+              }
+              onAddTag(tag);
+              setInputValue("");
+              setFocused(false);
+            }}
+          />
           <input
             type="text"
             role="combobox"

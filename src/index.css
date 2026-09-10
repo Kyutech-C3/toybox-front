@@ -30,11 +30,11 @@
   --space-48: 48px;
   --space-64: 64px;
 
-  --header-height: 72px;
-  --header-logo-height: 44px;
+  --header-height: 64px;
+  --header-logo-height: 40px;
   --page-margin: 32px;
   --paper-padding: 40px;
-  --grid-gap: 32px;
+  --grid-gap: 24px;
   --section-gap: 32px;
   --touch-target-min: 44px;
   --fab-clearance: 0px;
@@ -42,9 +42,11 @@
   --content-width-ratio: 0.9;
   --content-max-width: calc(var(--content-width-ratio) * 100vw);
   --content-read-width: 1024px;
+  --content-panel-width: 60vw;
 
   --card-columns: 0;
-  --card-min-width: 280px;
+  --card-min-width: 248px;
+  --card-max-width: 320px;
   --card-max-columns: 7;
 
   --hover-transition: 0.2s ease;
@@ -64,21 +66,22 @@
 
 @media (max-width: 1279px) {
   :root {
-    --header-height: 64px;
-    --header-logo-height: 40px;
+    --header-height: 58px;
+    --header-logo-height: 36px;
     --page-margin: 24px;
     --paper-padding: 24px;
     --grid-gap: 24px;
     --section-gap: 32px;
     --fab-clearance: 104px;
+    --content-panel-width: var(--content-max-width);
     --card-columns: 3;
   }
 }
 
 @media (max-width: 767px) {
   :root {
-    --header-height: 56px;
-    --header-logo-height: 32px;
+    --header-height: 52px;
+    --header-logo-height: 30px;
     --page-margin: 16px;
     --paper-padding: 16px;
     --grid-gap: 16px;

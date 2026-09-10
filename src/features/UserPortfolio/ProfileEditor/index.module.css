@@ -22,7 +22,7 @@
 .textarea {
   box-sizing: border-box;
   width: 100%;
-  padding: var(--space-12) var(--space-16);
+  padding: var(--space-8) var(--space-16);
   border: solid 2px var(--primary-color);
   border-radius: 16px;
   background: transparent;
@@ -33,10 +33,15 @@
   resize: none;
 }
 
+.input {
+  height: 48px;
+  padding: 0 var(--space-16);
+}
+
 .social-input {
   box-sizing: border-box;
   width: 100%;
-  min-height: var(--touch-target-min);
+  min-height: 48px;
   border: solid 2px var(--primary-color);
   border-radius: 16px;
   display: flex;
@@ -49,7 +54,7 @@
 }
 
 .url-prefix {
-  padding: var(--space-12) 0 var(--space-12) var(--space-16);
+  padding: 0 0 0 var(--space-16);
   display: flex;
   align-items: center;
   color: var(--font-muted-color);
@@ -61,7 +66,7 @@
   box-sizing: border-box;
   min-width: 0;
   flex: 1;
-  padding: var(--space-12) var(--space-16) var(--space-12) 0;
+  padding: 0 var(--space-16) 0 0;
   border: 0;
   background: transparent;
   color: var(--font-color);
@@ -79,6 +84,12 @@
 .input-error {
   color: var(--error-color);
   font-size: 0.75rem;
+}
+
+.save-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 18px;
 }
 
 .actions {

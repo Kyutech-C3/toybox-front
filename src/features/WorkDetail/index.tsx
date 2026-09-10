@@ -38,13 +38,7 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
           </div>
         )}
         <header className={styles["work-detail-header"]}>
-          <h1 className={styles["work-detail-title"]}>
-            {data.title}
-            <VisibilityIcon
-              visibility={data.visibility}
-              className={styles["visibility-icon"]}
-            />
-          </h1>
+          <h1 className={styles["work-detail-title"]}>{data.title}</h1>
           {data.tags.length > 0 && (
             <div className={styles["work-detail-tags"]}>
               {data.tags.map((tag) => (
@@ -55,42 +49,49 @@ const WorkDetail = ({ workID }: WorkDetailProps) => {
             </div>
           )}
           <div className={styles["work-detail-meta-row"]}>
-            <dl className={styles["work-detail-dates"]}>
-              <div className={styles["work-detail-date"]}>
-                <dt>
-                  <span
-                    className={styles["date-icon"]}
-                    role="img"
-                    aria-label="投稿日"
-                    title="投稿日"
-                  >
-                    <AccessTimeRoundedIcon fontSize="inherit" />
-                  </span>
-                </dt>
-                <dd>
-                  <time dateTime={data.created_at}>
-                    {formatDateTime(data.created_at)}
-                  </time>
-                </dd>
-              </div>
-              <div className={styles["work-detail-date"]}>
-                <dt>
-                  <span
-                    className={styles["date-icon"]}
-                    role="img"
-                    aria-label="更新日"
-                    title="更新日"
-                  >
-                    <AutorenewRoundedIcon fontSize="inherit" />
-                  </span>
-                </dt>
-                <dd>
-                  <time dateTime={data.updated_at}>
-                    {formatDateTime(data.updated_at)}
-                  </time>
-                </dd>
-              </div>
-            </dl>
+            <div className={styles["work-detail-meta"]}>
+              <VisibilityIcon
+                visibility={data.visibility}
+                className={styles["visibility-icon"]}
+                isLabelVisible
+              />
+              <dl className={styles["work-detail-dates"]}>
+                <div className={styles["work-detail-date"]}>
+                  <dt>
+                    <span
+                      className={styles["date-icon"]}
+                      role="img"
+                      aria-label="投稿日"
+                      title="投稿日"
+                    >
+                      <AccessTimeRoundedIcon fontSize="inherit" />
+                    </span>
+                  </dt>
+                  <dd>
+                    <time dateTime={data.created_at}>
+                      {formatDateTime(data.created_at)}
+                    </time>
+                  </dd>
+                </div>
+                <div className={styles["work-detail-date"]}>
+                  <dt>
+                    <span
+                      className={styles["date-icon"]}
+                      role="img"
+                      aria-label="更新日"
+                      title="更新日"
+                    >
+                      <AutorenewRoundedIcon fontSize="inherit" />
+                    </span>
+                  </dt>
+                  <dd>
+                    <time dateTime={data.updated_at}>
+                      {formatDateTime(data.updated_at)}
+                    </time>
+                  </dd>
+                </div>
+              </dl>
+            </div>
             <div className={styles["work-detail-actions"]}>
               <ShareButton title={data.title} />
               <FavoriteButton workID={data.id} isCountVisible />
