@@ -35,11 +35,16 @@ const LikeButton = ({
       disabled={isDisabled}
       onClick={onToggle}
     >
-      {isLiked ? (
-        <FavoriteRoundedIcon fontSize="inherit" />
-      ) : (
-        <FavoriteBorderRoundedIcon fontSize="inherit" />
-      )}
+      <span className={styles["like-icon"]}>
+        <FavoriteRoundedIcon
+          className={styles["like-icon-fill"]}
+          fontSize="inherit"
+        />
+        <FavoriteBorderRoundedIcon
+          className={styles["like-icon-outline"]}
+          fontSize="inherit"
+        />
+      </span>
       {isCountVisible && <span className={styles["like-count"]}>{count}</span>}
     </button>
   );

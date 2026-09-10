@@ -17,7 +17,26 @@
     color var(--hover-transition);
 }
 
+.like-icon {
+  position: relative;
+  display: inline-flex;
+}
+
+.like-icon-fill {
+  color: var(--like-idle-fill-color, transparent);
+}
+
+.like-icon-outline {
+  position: absolute;
+  inset: 0;
+  color: var(--like-outline-color, inherit);
+}
+
 .like-button[data-liked="true"] {
+  color: var(--error-color);
+}
+
+.like-button[data-liked="true"] .like-icon-fill {
   color: var(--error-color);
 }
 
