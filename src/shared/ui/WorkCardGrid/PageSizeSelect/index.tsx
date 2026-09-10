@@ -1,31 +1,29 @@
+import SegmentedControl from "../../SegmentedControl";
 import {
   useWorkPageSizeStore,
   WORK_PAGE_SIZE_OPTIONS,
 } from "../store/useWorkPageSizeStore";
-import styles from "./index.module.css";
 
-import Button from "@/shared/ui/Button";
+import type { SegmentedControlOption } from "../../SegmentedControl";
+import type { WorkPageSize } from "../store/useWorkPageSizeStore";
+
+const PAGE_SIZE_SEGMENTS: SegmentedControlOption<string>[] =
+  WORK_PAGE_SIZE_OPTIONS.map((option) => ({
+    value: String(option),
+    label: `${option}件`,
+  }));
 
 const PageSizeSelect = () => {
   const pageSize = useWorkPageSizeStore((state) => state.pageSize);
   const setPageSize = useWorkPageSizeStore((state) => state.setPageSize);
 
   return (
-    <div className={styles["page-size-select"]}>
-      <span className={styles["label"]}>表示件数</span>
-      <div className={styles["options"]}>
-        {WORK_PAGE_SIZE_OPTIONS.map((option) => (
-          <Button
-            key={option}
-            isActive={option === pageSize}
-            onClick={() => setPageSize(option)}
-            ariaLabel={`1ページあたり${option}件で表示`}
-          >
-            {option}
-          </Button>
-        ))}
-      </div>
-    </div>
+    <SegmentedControl
+      options={PAGE_SIZE_SEGMENTS}
+      value={String(pageSize)}
+      onChange={(value) => setPageSize(Number(value) as WorkPageSize)}
+      ariaLabel="1ページの表示件数"
+    />
   );
 };
 
