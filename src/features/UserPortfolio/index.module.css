@@ -1,65 +1,66 @@
 .profile-section {
   position: relative;
-  padding: var(--space-24) var(--page-margin) var(--section-gap);
+  padding: var(--space-16) var(--page-margin) var(--space-16);
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .profile-card {
-  position: relative;
   box-sizing: border-box;
   width: min(100%, var(--content-panel-width));
-  margin-top: var(--space-64);
-  padding: var(--paper-padding);
+  min-height: calc(var(--content-panel-width) / 5);
+  padding: var(--space-16) var(--space-24);
   border-radius: 24px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 20% minmax(0, 1fr);
+  align-items: center;
   gap: var(--space-24);
   background: var(--paper-color);
   box-shadow: 0 2px 8px var(--shadow-soft-color);
 }
 
-.profile-head {
+.profile-avatar {
   display: flex;
   align-items: center;
-  gap: var(--space-24);
+  justify-content: center;
 }
 
-.profile-head > *:first-child {
-  flex-shrink: 0;
-  margin-top: calc(-1 * var(--space-64));
+.profile-main {
+  min-width: 0;
+  height: 100%;
+  display: grid;
+  grid-template-rows: 3fr 7fr;
+  align-items: center;
+  gap: var(--space-8);
 }
 
 .profile-identity {
   min-width: 0;
-  flex: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-8);
+  gap: var(--space-8) var(--space-16);
+}
+
+.profile-edit {
+  margin-left: auto;
 }
 
 .display-name {
   min-width: 0;
   margin: 0;
   color: var(--font-color);
-  font-size: 2rem;
+  font-size: 1.75rem;
   overflow-wrap: anywhere;
-}
-
-.profile-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-16);
 }
 
 .profile-text {
   margin: 0;
+  align-self: start;
   color: var(--font-color);
   font-size: 1rem;
-  line-height: 1.7;
+  line-height: 1.6;
   text-align: left;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -68,16 +69,16 @@
 .social-links {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-12) var(--space-24);
+  gap: var(--space-8) var(--space-16);
 }
 
 .social-link {
   min-width: 0;
-  min-height: var(--touch-target-min);
   display: inline-flex;
   align-items: center;
-  gap: var(--space-8);
+  gap: var(--space-4);
   color: var(--font-color);
+  font-size: 0.875rem;
 }
 
 .social-link span {
@@ -104,20 +105,15 @@
 
 @media (max-width: 767px) {
   .profile-card {
-    margin-top: var(--space-48);
-    padding: var(--paper-padding);
+    min-height: 0;
+    padding: var(--space-16);
     border-radius: 16px;
-    gap: var(--space-16);
-  }
-
-  .profile-head {
-    flex-direction: column;
-    align-items: flex-start;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-12);
   }
 
-  .profile-head > *:first-child {
-    margin-top: calc(-1 * var(--space-48));
+  .profile-main {
+    grid-template-rows: auto auto;
   }
 
   .display-name {

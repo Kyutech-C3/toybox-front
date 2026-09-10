@@ -45,27 +45,12 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
     <>
       <section className={styles["profile-section"]}>
         <div className={styles["profile-card"]}>
-          <div className={styles["profile-head"]}>
+          <div className={styles["profile-avatar"]}>
             <Avatar
               avatarURL={userProfile.avatar_url || undefined}
               alt={`${userProfile.display_name}のプロフィール画像`}
               size="profile"
             />
-            <div className={styles["profile-identity"]}>
-              <h1 className={styles["display-name"]}>
-                {userProfile.display_name}
-              </h1>
-              {isOwner && !isEditing && (
-                <Button
-                  variant="accent"
-                  onClick={() => setIsEditing(true)}
-                  ariaLabel="プロフィールを編集"
-                >
-                  <EditSquareIcon />
-                  編集
-                </Button>
-              )}
-            </div>
           </div>
           {isOwner && isEditing ? (
             <ProfileEditor
@@ -74,39 +59,56 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
               onClose={() => setIsEditing(false)}
             />
           ) : (
-            <div className={styles["profile-body"]}>
+            <div className={styles["profile-main"]}>
+              <div className={styles["profile-identity"]}>
+                <h1 className={styles["display-name"]}>
+                  {userProfile.display_name}
+                </h1>
+                {(userProfile.github_id || userProfile.twitter_id) && (
+                  <nav
+                    className={styles["social-links"]}
+                    aria-label="ソーシャルアカウント"
+                  >
+                    {userProfile.github_id && (
+                      <a
+                        className={styles["social-link"]}
+                        href={`https://github.com/${encodeURIComponent(userProfile.github_id)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <GitHubIcon fontSize="small" />
+                        <span>{userProfile.github_id}</span>
+                      </a>
+                    )}
+                    {userProfile.twitter_id && (
+                      <a
+                        className={styles["social-link"]}
+                        href={`https://x.com/${encodeURIComponent(userProfile.twitter_id)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <XIcon fontSize="small" />
+                        <span>{userProfile.twitter_id}</span>
+                      </a>
+                    )}
+                  </nav>
+                )}
+                {isOwner && (
+                  <div className={styles["profile-edit"]}>
+                    <Button
+                      variant="accent"
+                      onClick={() => setIsEditing(true)}
+                      ariaLabel="プロフィールを編集"
+                    >
+                      <EditSquareIcon />
+                      編集
+                    </Button>
+                  </div>
+                )}
+              </div>
               <p className={styles["profile-text"]}>
                 {userProfile.profile || "プロフィールはまだありません"}
               </p>
-              {(userProfile.github_id || userProfile.twitter_id) && (
-                <nav
-                  className={styles["social-links"]}
-                  aria-label="ソーシャルアカウント"
-                >
-                  {userProfile.github_id && (
-                    <a
-                      className={styles["social-link"]}
-                      href={`https://github.com/${encodeURIComponent(userProfile.github_id)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <GitHubIcon fontSize="small" />
-                      <span>{userProfile.github_id}</span>
-                    </a>
-                  )}
-                  {userProfile.twitter_id && (
-                    <a
-                      className={styles["social-link"]}
-                      href={`https://x.com/${encodeURIComponent(userProfile.twitter_id)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <XIcon fontSize="small" />
-                      <span>{userProfile.twitter_id}</span>
-                    </a>
-                  )}
-                </nav>
-              )}
             </div>
           )}
         </div>
