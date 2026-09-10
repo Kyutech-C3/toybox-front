@@ -1,58 +1,46 @@
 import { useState } from "react";
-import AppsRoundedIcon from "@mui/icons-material/AppsRounded";
 
 import styles from "./index.module.css";
 
-import SegmentedControl from "@/shared/ui/SegmentedControl";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
 
 import type { WorkVisibility } from "@/shared/types/work";
-import type { SegmentedControlOption } from "@/shared/ui/SegmentedControl";
 
-type VisibilityFilterValue = "all" | WorkVisibility;
-
-const VISIBILITY_FILTER_OPTIONS: SegmentedControlOption<VisibilityFilterValue>[] =
-  [
-    {
-      value: "all",
-      label: "すべて",
-      icon: (
-        <span className={styles["filter-icon"]}>
-          <AppsRoundedIcon fontSize="inherit" />
-        </span>
-      ),
-      isLabelVisible: false,
-    },
-    {
-      value: "public",
-      label: "全体公開",
-      icon: <VisibilityIcon visibility="public" />,
-      isLabelVisible: false,
-    },
-    {
-      value: "private",
-      label: "限定公開",
-      icon: <VisibilityIcon visibility="private" />,
-      isLabelVisible: false,
-    },
-    {
-      value: "draft",
-      label: "下書き",
-      icon: <VisibilityIcon visibility="draft" />,
-      isLabelVisible: false,
-    },
-  ];
+const VISIBILITY_FILTER_ITEMS: { value: WorkVisibility; label: string }[] = [
+  { value: "public", label: "全体公開" },
+  { value: "private", label: "限定公開" },
+  { value: "draft", label: "下書き" },
+];
 
 const VisibilityFilter = () => {
-  const [visibility, setVisibility] = useState<VisibilityFilterValue>("all");
+  const [selectedVisibilities, setSelectedVisibilities] = useState<
+    WorkVisibility[]
+  >([]);
+
+  const handleToggle = (visibility: WorkVisibility) => {
+    setSelectedVisibilities((current) =>
+      current.includes(visibility)
+        ? current.filter((item) => item !== visibility)
+        : [...current, visibility],
+    );
+  };
 
   return (
-    <SegmentedControl
-      options={VISIBILITY_FILTER_OPTIONS}
-      value={visibility}
-      onChange={setVisibility}
-      ariaLabel="公開状態で絞り込み"
-    />
+    <div className={styles["visibility-filter"]}>
+      {VISIBILITY_FILTER_ITEMS.map((item) => (
+        <button
+          key={item.value}
+          type="button"
+          className={styles["visibility-button"]}
+          aria-label={item.label}
+          aria-pressed={selectedVisibilities.includes(item.value)}
+          title={item.label}
+          onClick={() => handleToggle(item.value)}
+        >
+          <VisibilityIcon visibility={item.value} />
+        </button>
+      ))}
+    </div>
   );
 };
 

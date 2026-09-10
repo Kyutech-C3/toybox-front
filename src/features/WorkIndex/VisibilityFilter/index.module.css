@@ -1,5 +1,58 @@
-.filter-icon {
+.visibility-filter {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  background: var(--background-color);
+}
+
+.visibility-button {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--font-muted-color);
   font-size: 18px;
+  cursor: pointer;
+  transition:
+    background-color var(--hover-transition),
+    color var(--hover-transition);
+}
+
+.visibility-button[aria-pressed="true"] {
+  background: var(--primary-color);
+  color: var(--font-color);
+  box-shadow: 0 2px 6px var(--shadow-soft-color);
+}
+
+.visibility-button:not([aria-pressed="true"]):hover {
+  background: var(--primary-soft-color);
+  color: var(--font-color);
+}
+
+.visibility-button:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1279px) {
+  .visibility-button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+}
+
+@media (hover: none) {
+  .visibility-button:not([aria-pressed="true"]):hover {
+    background: transparent;
+    color: var(--font-muted-color);
+  }
 }
