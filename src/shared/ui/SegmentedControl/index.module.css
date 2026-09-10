@@ -101,7 +101,7 @@
   }
 }
 
-@media (max-width: 1279px) {
+@media (pointer: coarse) {
   .segment {
     min-height: var(--touch-target-min);
   }

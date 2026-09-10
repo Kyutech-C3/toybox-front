@@ -43,7 +43,7 @@
   outline-offset: 2px;
 }
 
-@media (max-width: 1279px) {
+@media (pointer: coarse) {
   .visibility-button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);
