@@ -12,7 +12,8 @@ const PASCAL_CASE_PATTERN = /^[A-Z][A-Za-z0-9]*$/;
 const CAMEL_CASE_PATTERN = /^[a-z][A-Za-z0-9]*$/;
 const UPPER_SNAKE_CASE_PATTERN = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;
 const HANDLER_PATTERN = /^on[A-Z]/;
-const BOOLEAN_PREFIX_PATTERN = /^(?:is|has|can)(?:[A-Z]|_)/;
+const BOOLEAN_PREFIX_PATTERN = /^(?:is|has|can)[A-Z]/;
+const API_CONTRACT_TAG_NAME = "apiContract";
 
 const walkFiles = (directory) =>
   fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -22,6 +23,26 @@ const walkFiles = (directory) =>
 
 const getLine = (sourceFile, node) =>
   sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile)).line + 1;
+
+const isApiContractProperty = (node) => {
+  let parent = node.parent;
+
+  while (parent && !ts.isSourceFile(parent)) {
+    if (
+      (ts.isTypeAliasDeclaration(parent) ||
+        ts.isInterfaceDeclaration(parent)) &&
+      ts
+        .getJSDocTags(parent)
+        .some((tag) => tag.tagName.text === API_CONTRACT_TAG_NAME)
+    ) {
+      return true;
+    }
+
+    parent = parent.parent;
+  }
+
+  return false;
+};
 
 const replaceIdentifier = (content, from, to) =>
   content.replace(new RegExp(`\\b${from}\\b`, "g"), to);
@@ -59,6 +80,7 @@ const collectTypeScriptViolations = (file, sourceFile) => {
       ts.isPropertySignatureDeclaration(node) &&
       node.type?.kind === ts.SyntaxKind.BooleanKeyword &&
       ts.isIdentifier(node.name) &&
+      !isApiContractProperty(node) &&
       !BOOLEAN_PREFIX_PATTERN.test(node.name.text)
     ) {
       report(

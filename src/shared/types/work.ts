@@ -1,3 +1,4 @@
+/** @apiContract */
 type Work = {
   assets: Asset[];
   tags: Tag[];
