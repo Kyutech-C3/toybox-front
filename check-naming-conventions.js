@@ -12,7 +12,7 @@ const PASCAL_CASE_PATTERN = /^[A-Z][A-Za-z0-9]*$/;
 const CAMEL_CASE_PATTERN = /^[a-z][A-Za-z0-9]*$/;
 const UPPER_SNAKE_CASE_PATTERN = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/;
 const HANDLER_PATTERN = /^on[A-Z]/;
-const BOOLEAN_PREFIX_PATTERN = /^(?:is|has|can)[A-Z]/;
+const BOOLEAN_PREFIX_PATTERN = /^(?:is|has|can)(?:[A-Z]|_)/;
 
 const walkFiles = (directory) =>
   fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

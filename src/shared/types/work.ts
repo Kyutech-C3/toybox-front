@@ -9,6 +9,7 @@ type Work = {
   thumbnail_url: string;
   visibility: WorkVisibility;
   thumbnail_asset_id: string;
+  is_favorite: boolean;
   urls: string[];
   created_at: string;
   updated_at: string;

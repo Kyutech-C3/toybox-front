@@ -5,18 +5,20 @@ import useToast from "@/shared/ui/Toast/hook/useToast";
 
 type FavoriteButtonProps = {
   workID: string;
+  isInitiallyLiked?: boolean;
   isCountVisible?: boolean;
   className?: string;
 };
 
 const FavoriteButton = ({
   workID,
+  isInitiallyLiked,
   isCountVisible = false,
   className,
 }: FavoriteButtonProps) => {
   const { showToast } = useToast();
   const { count, isLiked, isLoading, isSubmitting, canToggle, toggleFavorite } =
-    useFavorite({ workID, isCountVisible });
+    useFavorite({ workID, isInitiallyLiked, isCountVisible });
   const isDisabled = !canToggle || isLoading || isSubmitting;
   const ariaLabel = !canToggle
     ? "いいねするにはログインが必要です"
