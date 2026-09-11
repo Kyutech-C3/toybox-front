@@ -210,6 +210,7 @@
     grid-template-columns: 36% minmax(0, 1fr);
     grid-template-rows: 1fr auto;
     gap: var(--space-4) var(--space-8);
+    overflow: visible;
   }
 
   .work-link:focus-visible::after {
@@ -282,12 +283,12 @@
 
   .edit-link {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: calc(-1 * var(--space-4));
+    right: calc(-1 * var(--space-4));
     z-index: 2;
     width: 26px;
     height: 26px;
-    border-radius: 0 8px 0 8px;
+    border-radius: 4px;
     background: var(--primary-color);
     color: var(--font-color);
     font-size: 22px;
@@ -295,7 +296,7 @@
 
   .edit-link::after {
     position: absolute;
-    inset: 0 0 -18px -18px;
+    inset: -9px;
     content: "";
   }
 
