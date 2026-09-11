@@ -13,6 +13,11 @@ export type FavoriteStatusResponse = {
   isFavorite: boolean;
 };
 
+/** @apiContract */
+type FavoriteStatusApiResponse = {
+  is_favorite: boolean;
+};
+
 export const getFavoriteCount = async (
   workID: string,
 ): Promise<FavoriteCountResponse> => fetchData(`/works/${workID}/favorite`);
@@ -21,7 +26,7 @@ export const getFavoriteStatus = async (
   workID: string,
   accessToken: string,
 ): Promise<FavoriteStatusResponse> => {
-  const response: Record<"is_favorite", boolean> = await fetchDataWithAuth(
+  const response: FavoriteStatusApiResponse = await fetchDataWithAuth(
     `/auth/works/${workID}/favorite/is-favorite`,
     accessToken,
   );
