@@ -16,7 +16,11 @@
 }
 
 .work-link {
+  display: -webkit-box;
+  overflow: hidden;
   color: var(--font-color);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
 .work-link::after {
@@ -194,15 +198,13 @@
 .card-title {
   min-height: 2.5em;
   margin: 0;
-  display: -webkit-box;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
   color: var(--font-color);
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.25;
   text-align: left;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 .card-meta {
