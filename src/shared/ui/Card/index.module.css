@@ -219,8 +219,10 @@
   .card-image-wrapper {
     grid-column: 1;
     grid-row: 1 / -1;
-    height: 100%;
-    border-radius: 8px;
+    margin: calc(-1 * var(--space-8)) 0 calc(-1 * var(--space-8))
+      calc(-1 * var(--space-8));
+    height: auto;
+    border-radius: 8px 0 0 8px;
     aspect-ratio: auto;
   }
 
@@ -303,7 +305,7 @@
 
     position: absolute;
     right: calc(64% + 2px);
-    bottom: var(--space-12);
+    bottom: var(--space-4);
     z-index: 2;
     width: 26px;
     min-width: 0;
@@ -315,7 +317,7 @@
 
   .card-actions button::after {
     position: absolute;
-    inset: -9px;
+    inset: -14px -9px -4px;
     content: "";
   }
 }
