@@ -247,7 +247,7 @@
     align-self: center;
     display: -webkit-box;
     overflow: hidden;
-    font-size: clamp(0.75rem, calc(12vw - 28px), 1.5rem);
+    font-size: clamp(0.75rem, calc(40vw / 3 - 32px), 1.5rem);
     white-space: normal;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;

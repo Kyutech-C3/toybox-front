@@ -72,7 +72,7 @@ export const Mobile: Story = {
     viewport: { value: "mobile2", isRotated: false },
   },
   parameters: {
-    containerWidth: "min(640px, 90vw)",
+    containerWidth: "min(640px, 100vw - 32px)",
   },
   args: {
     viewerUserID: MOCK_WORK.user.id,

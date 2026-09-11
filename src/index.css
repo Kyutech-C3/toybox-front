@@ -88,6 +88,7 @@
     --grid-gap: 16px;
     --section-gap: 24px;
     --fab-clearance: 88px;
+    --content-width-ratio: 1;
     --card-columns: 1;
     --card-max-width: 640px;
   }
