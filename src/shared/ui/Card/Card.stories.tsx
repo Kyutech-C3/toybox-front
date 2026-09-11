@@ -32,13 +32,16 @@ const MOCK_WORK: Work = {
   updated_at: "2025-01-01T00:00:00Z",
 };
 
+const getContainerWidth = (parameters: { containerWidth?: string }) =>
+  parameters.containerWidth ?? "min(320px, 100%)";
+
 const META: Meta<typeof Card> = {
   title: "UI/Card",
   component: Card,
   decorators: [
-    (Story) => (
+    (Story, context) => (
       <MemoryRouter>
-        <div style={{ width: 280 }}>
+        <div style={{ width: getContainerWidth(context.parameters) }}>
           <Story />
         </div>
       </MemoryRouter>
@@ -59,6 +62,18 @@ type Story = StoryObj<typeof META>;
 export const Default: Story = {};
 
 export const Editable: Story = {
+  args: {
+    viewerUserID: MOCK_WORK.user.id,
+  },
+};
+
+export const Mobile: Story = {
+  globals: {
+    viewport: { value: "mobile2", isRotated: false },
+  },
+  parameters: {
+    containerWidth: "min(640px, 100vw - 32px)",
+  },
   args: {
     viewerUserID: MOCK_WORK.user.id,
   },
