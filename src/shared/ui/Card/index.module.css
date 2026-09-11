@@ -21,6 +21,7 @@
   color: var(--font-color);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .work-link::after {
@@ -58,6 +59,7 @@
 .card-favorite {
   --like-idle-fill-color: var(--overlay-dark-color);
   --like-outline-color: var(--paper-color);
+  --like-outline-width: 1;
 
   position: absolute;
   right: var(--space-4);
