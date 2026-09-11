@@ -143,6 +143,6 @@ export {
   clearAuthSession,
   getLoginUrl,
   logout,
-  removeLegacyAuthStorage,
   refreshAccessToken,
+  removeLegacyAuthStorage,
 };
