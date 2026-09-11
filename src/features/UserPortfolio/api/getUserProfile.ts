@@ -5,7 +5,6 @@ export type UserProfileData = {
   display_name: string;
   profile: string;
   avatar_url: string;
-  email: string;
   twitter_id: string;
   github_id: string;
 };
