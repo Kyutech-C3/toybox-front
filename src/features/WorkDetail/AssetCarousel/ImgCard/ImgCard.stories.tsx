@@ -25,7 +25,7 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole("button", { name: "画像を全画面表示" }),
+      canvas.getByRole("img", { name: "作品のアセット画像" }),
     ).toBeInTheDocument();
   },
 };

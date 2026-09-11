@@ -1,4 +1,5 @@
-import ts from "typescript";
+import * as ts from "typescript/unstable/ast";
+import { API } from "typescript/unstable/sync";
 
 import { checkCssModules } from "./check-kebab-case.js";
 
@@ -25,14 +26,7 @@ const getLine = (sourceFile, node) =>
 const replaceIdentifier = (content, from, to) =>
   content.replace(new RegExp(`\\b${from}\\b`, "g"), to);
 
-const collectTypeScriptViolations = (file, content) => {
-  const sourceFile = ts.createSourceFile(
-    file,
-    content,
-    ts.ScriptTarget.Latest,
-    true,
-    file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-  );
+const collectTypeScriptViolations = (file, sourceFile) => {
   const violations = [];
 
   const report = (node, message) =>
@@ -62,7 +56,7 @@ const collectTypeScriptViolations = (file, content) => {
     }
 
     if (
-      ts.isPropertySignature(node) &&
+      ts.isPropertySignatureDeclaration(node) &&
       node.type?.kind === ts.SyntaxKind.BooleanKeyword &&
       ts.isIdentifier(node.name) &&
       !BOOLEAN_PREFIX_PATTERN.test(node.name.text)
@@ -74,7 +68,7 @@ const collectTypeScriptViolations = (file, content) => {
     }
 
     if (
-      ts.isPropertySignature(node) &&
+      ts.isPropertySignatureDeclaration(node) &&
       ts.isIdentifier(node.name) &&
       ts.isFunctionTypeNode(node.type) &&
       (ts.isTypeAliasDeclaration(node.parent) ||
@@ -205,7 +199,7 @@ const collectTypeScriptViolations = (file, content) => {
       }
     }
 
-    ts.forEachChild(node, visit);
+    node.forEachChild(visit);
   };
 
   visit(sourceFile);
@@ -236,14 +230,7 @@ const collectTypeScriptViolations = (file, content) => {
   return violations;
 };
 
-const applySafeFixes = (file, content) => {
-  const sourceFile = ts.createSourceFile(
-    file,
-    content,
-    ts.ScriptTarget.Latest,
-    true,
-    file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
-  );
+const applySafeFixes = (content, sourceFile) => {
   const renames = new Map();
 
   const visit = (node) => {
@@ -254,7 +241,7 @@ const applySafeFixes = (file, content) => {
       renames.set(node.name.text, `${node.name.text}s`);
     }
 
-    ts.forEachChild(node, visit);
+    node.forEachChild(visit);
   };
 
   visit(sourceFile);
@@ -284,13 +271,32 @@ const checkTypeScript = ({ fix = false } = {}) => {
     }
   }
 
-  for (const file of files) {
-    let content = fs.readFileSync(file, "utf8");
-    violations.push(...collectTypeScriptViolations(file, content));
-    if (fix) {
-      content = applySafeFixes(file, content);
-      fs.writeFileSync(file, content);
+  const api = new API({ cwd: process.cwd() });
+  const snapshot = api.updateSnapshot({
+    openProjects: [path.resolve("tsconfig.app.json")],
+  });
+  const project = snapshot.getProjects()[0];
+
+  try {
+    if (!project) {
+      throw new Error("tsconfig.app.json の解析結果を取得できませんでした");
     }
+
+    for (const file of files) {
+      const sourceFile = project.program.getSourceFile(file);
+      if (!sourceFile) {
+        throw new Error(`${file} のASTを取得できませんでした`);
+      }
+
+      violations.push(...collectTypeScriptViolations(file, sourceFile));
+      if (fix) {
+        const content = fs.readFileSync(file, "utf8");
+        fs.writeFileSync(file, applySafeFixes(content, sourceFile));
+      }
+    }
+  } finally {
+    snapshot.dispose();
+    api.close();
   }
 
   return violations;
