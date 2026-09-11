@@ -40,16 +40,13 @@ const getHorizontalWheelDelta = (event: WheelEvent) =>
 const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
   const isEditable = viewerUserID === work.user.id;
   const wrapperRef = useRef<HTMLElement>(null);
-  const titleMarquee = useMarquee();
   const tagsMarquee = useMarquee();
 
   const handleMouseEnter = () => {
-    titleMarquee.measure();
     tagsMarquee.measure();
   };
 
   const handleMouseLeave = () => {
-    titleMarquee.reset();
     tagsMarquee.reset();
   };
 
@@ -60,7 +57,6 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
     }
   };
 
-  const scrollTitleBy = titleMarquee.scrollBy;
   const scrollTagsBy = tagsMarquee.scrollBy;
 
   useEffect(() => {
@@ -70,15 +66,12 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
     const handleWheel = (event: WheelEvent) => {
       const delta = getHorizontalWheelDelta(event);
       if (delta === 0) return;
-
-      const isTitleScrolled = scrollTitleBy(delta);
-      const isTagsScrolled = scrollTagsBy(delta);
-      if (isTitleScrolled || isTagsScrolled) event.preventDefault();
+      if (scrollTagsBy(delta)) event.preventDefault();
     };
 
     wrapper.addEventListener("wheel", handleWheel, { passive: false });
     return () => wrapper.removeEventListener("wheel", handleWheel);
-  }, [scrollTitleBy, scrollTagsBy]);
+  }, [scrollTagsBy]);
 
   return (
     <article
@@ -94,35 +87,12 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
           className={styles["card-image"]}
           onError={handleImageError}
         />
+        {favoriteButton && (
+          <div className={styles["card-favorite"]}>{favoriteButton}</div>
+        )}
       </div>
       <div className={styles["card-body"]}>
         <div className={styles["card-headline"]}>
-          <h3
-            className={styles["card-title"]}
-            title={work.title}
-            ref={titleMarquee.setContainer}
-          >
-            <Link to={`/works/${work.id}`} className={styles["work-link"]}>
-              <span
-                className={styles["marquee-content"]}
-                data-marquee={titleMarquee.marqueeState}
-                style={titleMarquee.marqueeStyle}
-                ref={titleMarquee.setContent}
-              >
-                <span
-                  className={styles["marquee-item"]}
-                  ref={titleMarquee.setItem}
-                >
-                  {work.title}
-                </span>
-                {titleMarquee.isOverflowing && (
-                  <span className={styles["marquee-item"]} aria-hidden="true">
-                    {work.title}
-                  </span>
-                )}
-              </span>
-            </Link>
-          </h3>
           <div className={styles["card-tags"]} ref={tagsMarquee.setContainer}>
             <span
               className={styles["marquee-content"]}
@@ -157,6 +127,11 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
               )}
             </span>
           </div>
+          <h3 className={styles["card-title"]} title={work.title}>
+            <Link to={`/works/${work.id}`} className={styles["work-link"]}>
+              {work.title}
+            </Link>
+          </h3>
         </div>
         <div className={styles["card-meta"]}>
           <UserButton
@@ -175,20 +150,17 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
             </time>
           </p>
         </div>
-        <div className={styles["card-actions"]}>
-          {isEditable && (
-            <Link
-              to={`/edit/${work.id}`}
-              className={styles["edit-link"]}
-              aria-label={`${work.title}を編集する`}
-              title="編集する"
-            >
-              <EditSquareIcon />
-            </Link>
-          )}
-          {favoriteButton}
-        </div>
       </div>
+      {isEditable && (
+        <Link
+          to={`/edit/${work.id}`}
+          className={styles["edit-link"]}
+          aria-label={`${work.title}を編集する`}
+          title="編集する"
+        >
+          <EditSquareIcon />
+        </Link>
+      )}
     </article>
   );
 };
