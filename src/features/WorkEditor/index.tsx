@@ -3,6 +3,7 @@ import useWorkEditorSetup from "./hook/useWorkEditorSetup";
 import styles from "./index.module.css";
 import MarkdownEditor from "./MarkdownEditor";
 import PublishButtons from "./PublishButtons";
+import { useWorkEditorStore } from "./store/useWorkEditorStore";
 import WorkEditorStoreProvider from "./store/WorkEditorStoreProvider";
 import WorkDetailForm from "./WorkDetailForm";
 
@@ -19,6 +20,7 @@ type WorkEditorContentProps = {
 
 const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
   const { status } = useWorkEditorSetup({ workID });
+  const isSubmitting = useWorkEditorStore((state) => state.isSubmitting);
   useUnsavedChangesGuard();
 
   if (status === "forbidden") {
@@ -43,7 +45,11 @@ const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
   if (status === "loading") return <PageLoading />;
 
   return (
-    <div className={styles["work-editor-wrapper"]}>
+    <div
+      className={styles["work-editor-wrapper"]}
+      inert={isSubmitting}
+      aria-busy={isSubmitting}
+    >
       <WorkDetailForm />
       <MarkdownEditor />
       <PublishButtons />
