@@ -7,6 +7,7 @@ import { deletePendingResources } from "../../api/deletePendingResources";
 import { postWork } from "../../api/postWork";
 import { buildWorkUpdatePayload, toWorkPayload } from "../../api/toWorkPayload";
 import { updateWork } from "../../api/updateWork";
+import { getWorkEditorSWRKey } from "../../hook/useWorkForEdit";
 import {
   selectIsUploading,
   selectOrphanedBackendResources,
@@ -129,7 +130,12 @@ const PublishButton = () => {
           updatePayload,
           accessToken,
         );
-        await mutate(`/works/${workID}`, updatedWork, { revalidate: false });
+        await Promise.all([
+          mutate(`/works/${workID}`, updatedWork, { revalidate: false }),
+          mutate(getWorkEditorSWRKey({ workID, accessToken }), updatedWork, {
+            revalidate: false,
+          }),
+        ]);
 
         deleteOrphanedResources();
         markSaved();
