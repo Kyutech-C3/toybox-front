@@ -9,9 +9,14 @@ import { MAX_WORK_URL_COUNT } from "@/features/WorkEditor/constants";
 type LinkInputProps = {
   urls: string[];
   onChangeUrls: (urls: string[]) => void;
+  onValidationChange?: (hasInvalidUrls: boolean) => void;
 };
 
-const LinkInput = ({ urls, onChangeUrls }: LinkInputProps) => {
+const LinkInput = ({
+  urls,
+  onChangeUrls,
+  onValidationChange,
+}: LinkInputProps) => {
   const {
     fields,
     focusFieldID,
@@ -23,7 +28,7 @@ const LinkInput = ({ urls, onChangeUrls }: LinkInputProps) => {
     handleRemoveField,
     handleRemoveEmptyField,
     handleFocusApplied,
-  } = useUrlFields({ urls, onChangeUrls });
+  } = useUrlFields({ urls, onChangeUrls, onValidationChange });
 
   return (
     <div className={styles["link-input"]}>

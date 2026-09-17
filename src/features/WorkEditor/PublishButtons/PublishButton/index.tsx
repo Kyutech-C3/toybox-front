@@ -80,6 +80,7 @@ const PublishButton = () => {
   const baseline = useWorkEditorStore((state) => state.baseline);
   const setVisibility = useWorkEditorStore((state) => state.setVisibility);
   const markSaved = useWorkEditorStore((state) => state.markSaved);
+  const hasInvalidUrls = useWorkEditorStore((state) => state.hasInvalidUrls);
   const hasUnsettledBackendWork = useWorkEditorStore(
     selectHasUnsettledBackendWork,
   );
@@ -95,7 +96,8 @@ const PublishButton = () => {
 
   const { visibility } = current;
   const isEditMode = mode === "edit";
-  const isSubmitDisabled = hasUnsettledBackendWork || isSubmitting;
+  const isSubmitDisabled =
+    hasUnsettledBackendWork || hasInvalidUrls || isSubmitting;
   const deleteOrphanedResources = () => {
     const orphaned = selectOrphanedBackendResources(storeApi.getState());
     if (orphaned.assetIDs.length === 0 && orphaned.tagIDs.length === 0) return;
@@ -218,6 +220,11 @@ const PublishButton = () => {
       {hasUnsettledBackendWork && (
         <output className={styles["upload-notice"]}>
           アップロードまたはタグの処理を完了してから保存できます
+        </output>
+      )}
+      {hasInvalidUrls && (
+        <output className={styles["upload-notice"]}>
+          URL入力のエラーを解消してから保存できます
         </output>
       )}
       {submitError && (

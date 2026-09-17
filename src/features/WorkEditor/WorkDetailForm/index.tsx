@@ -14,6 +14,9 @@ const WorkDetailForm = () => {
   const urls = useWorkEditorStore((state) => state.current.urls);
   const setTitle = useWorkEditorStore((state) => state.setTitle);
   const setUrls = useWorkEditorStore((state) => state.setUrls);
+  const setHasInvalidUrls = useWorkEditorStore(
+    (state) => state.setHasInvalidUrls,
+  );
   const {
     tags,
     allTagOptions,
@@ -44,7 +47,11 @@ const WorkDetailForm = () => {
         />
         <ImageUpload />
         <AssetUpload />
-        <LinkInput urls={urls} onChangeUrls={setUrls} />
+        <LinkInput
+          urls={urls}
+          onChangeUrls={setUrls}
+          onValidationChange={setHasInvalidUrls}
+        />
       </div>
     </Paper>
   );
