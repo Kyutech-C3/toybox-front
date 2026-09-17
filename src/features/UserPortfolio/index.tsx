@@ -34,8 +34,9 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const totalPages = Math.ceil(totalCount / USER_WORKS_PAGE_SIZE);
 
   useEffect(() => {
-    if (totalPages > 0 && currentPage > totalPages) {
-      setSearchParams({ page: String(totalPages) }, { replace: true });
+    const lastPage = Math.max(totalPages, 1);
+    if (currentPage > lastPage) {
+      setSearchParams({ page: String(lastPage) }, { replace: true });
     }
   }, [currentPage, totalPages, setSearchParams]);
 

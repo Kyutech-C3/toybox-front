@@ -78,19 +78,9 @@ const useUserPortfolio = ({
     throw new Error("User portfolio response is empty");
   }
 
-  const visibleWorks = (data.worksResponse.works ?? []).filter((work) => {
-    if (work.visibility === "public") {
-      return true;
-    }
-    if (work.visibility === "private") {
-      return Boolean(accessToken);
-    }
-    return isOwner;
-  });
-
   return {
     userProfile: data.userProfile,
-    works: visibleWorks,
+    works: data.worksResponse.works ?? [],
     totalCount: data.worksResponse.total_count,
     isOwner,
     swrKey,
