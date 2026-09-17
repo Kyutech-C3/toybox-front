@@ -80,7 +80,7 @@ const requestCallbackAccessToken = async (code: string, generation: number) => {
   }
 
   assertAuthRequestIsCurrent(generation);
-  useAuthStore.getState().setAccessToken(response.access_token);
+  useAuthStore.getState().startSession(response.access_token);
   return response.access_token;
 };
 
