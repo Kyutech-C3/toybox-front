@@ -79,12 +79,15 @@ const PublishButton = () => {
   const baseline = useWorkEditorStore((state) => state.baseline);
   const setVisibility = useWorkEditorStore((state) => state.setVisibility);
   const markSaved = useWorkEditorStore((state) => state.markSaved);
+  const isSubmitting = useWorkEditorStore((state) => state.isSubmitting);
+  const setIsSubmitting = useWorkEditorStore(
+    (state) => state.setIsSubmitting,
+  );
   const isUploading = useWorkEditorStore(selectIsUploading);
   const accessToken = useAuthStore((state) => state.accessToken);
   const storeApi = useWorkEditorStoreApi();
   const { showToast } = useToast();
   const [isListboxOpen, setIsListboxOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const listboxTriggerRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
