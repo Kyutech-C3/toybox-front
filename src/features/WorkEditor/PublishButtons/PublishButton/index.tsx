@@ -80,9 +80,7 @@ const PublishButton = () => {
   const setVisibility = useWorkEditorStore((state) => state.setVisibility);
   const markSaved = useWorkEditorStore((state) => state.markSaved);
   const isSubmitting = useWorkEditorStore((state) => state.isSubmitting);
-  const setIsSubmitting = useWorkEditorStore(
-    (state) => state.setIsSubmitting,
-  );
+  const setIsSubmitting = useWorkEditorStore((state) => state.setIsSubmitting);
   const isUploading = useWorkEditorStore(selectIsUploading);
   const accessToken = useAuthStore((state) => state.accessToken);
   const storeApi = useWorkEditorStoreApi();
