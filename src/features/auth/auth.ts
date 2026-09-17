@@ -65,7 +65,7 @@ const requestCallbackAccessToken = async (code: string) => {
     throw new Error("Access token was not returned");
   }
 
-  useAuthStore.getState().setAccessToken(response.access_token);
+  useAuthStore.getState().startSession(response.access_token);
   return response.access_token;
 };
 

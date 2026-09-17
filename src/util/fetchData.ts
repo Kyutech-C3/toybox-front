@@ -60,6 +60,7 @@ const fetchWithAuth = async (
   accessToken: string,
   init: RequestInit,
 ) => {
+  const requestSessionVersion = useAuthStore.getState().sessionVersion;
   const request = (token: string) =>
     requestWithNetworkError(path, {
       ...init,
@@ -74,14 +75,22 @@ const fetchWithAuth = async (
     return response;
   }
 
-  const currentToken = useAuthStore.getState().accessToken;
+  const currentAuth = useAuthStore.getState();
+  if (currentAuth.sessionVersion !== requestSessionVersion) {
+    throw new ApiError(401);
+  }
+
   let retryToken: string;
   try {
     retryToken =
-      currentToken && currentToken !== accessToken
-        ? currentToken
+      currentAuth.accessToken && currentAuth.accessToken !== accessToken
+        ? currentAuth.accessToken
         : await refreshAccessToken();
   } catch {
+    throw new ApiError(401);
+  }
+
+  if (useAuthStore.getState().sessionVersion !== requestSessionVersion) {
     throw new ApiError(401);
   }
 
