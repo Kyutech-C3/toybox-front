@@ -16,6 +16,19 @@ type LoginURLResponse = {
 
 let REFRESH_REQUEST: Promise<string> | null = null;
 let CALLBACK_REQUEST: Promise<string> | null = null;
+let AUTH_REQUEST_GENERATION = 0;
+
+const invalidateAuthRequests = () => {
+  AUTH_REQUEST_GENERATION += 1;
+  REFRESH_REQUEST = null;
+  CALLBACK_REQUEST = null;
+};
+
+const assertAuthRequestIsCurrent = (generation: number) => {
+  if (generation !== AUTH_REQUEST_GENERATION) {
+    throw new Error("Authentication request was invalidated");
+  }
+};
 
 const removeLegacyAuthStorage = () => {
   localStorage.removeItem("auth-storage");
@@ -23,6 +36,7 @@ const removeLegacyAuthStorage = () => {
 };
 
 const clearAuthSession = async () => {
+  invalidateAuthRequests();
   removeLegacyAuthStorage();
   useAuthStore.getState().clearAuth();
   useUserStore.getState().clearUser();
@@ -49,7 +63,7 @@ const getLoginUrl = async () => {
   return response.url;
 };
 
-const requestCallbackAccessToken = async (code: string) => {
+const requestCallbackAccessToken = async (code: string, generation: number) => {
   const searchParams = new URLSearchParams({ code });
   const request = await fetch(
     `${API_BASE_URL}/auth/discord/callback?${searchParams.toString()}`,
@@ -65,26 +79,31 @@ const requestCallbackAccessToken = async (code: string) => {
     throw new Error("Access token was not returned");
   }
 
+  assertAuthRequestIsCurrent(generation);
   useAuthStore.getState().setAccessToken(response.access_token);
   return response.access_token;
 };
 
 const authenticateWithCode = (code: string) => {
   if (!CALLBACK_REQUEST) {
-    CALLBACK_REQUEST = requestCallbackAccessToken(code)
+    const generation = AUTH_REQUEST_GENERATION;
+    const request = requestCallbackAccessToken(code, generation)
       .catch(async (error: unknown) => {
-        await clearAuthSession();
+        if (generation === AUTH_REQUEST_GENERATION) {
+          await clearAuthSession();
+        }
         throw error;
       })
       .finally(() => {
-        CALLBACK_REQUEST = null;
+        if (CALLBACK_REQUEST === request) CALLBACK_REQUEST = null;
       });
+    CALLBACK_REQUEST = request;
   }
 
   return CALLBACK_REQUEST;
 };
 
-const requestAccessToken = async () => {
+const requestAccessToken = async (generation: number) => {
   const request = await fetch(`${API_BASE_URL}/auth/refresh`, {
     method: "POST",
     credentials: "include",
@@ -99,26 +118,32 @@ const requestAccessToken = async () => {
     throw new Error("Access token was not returned");
   }
 
+  assertAuthRequestIsCurrent(generation);
   useAuthStore.getState().setAccessToken(response.access_token);
   return response.access_token;
 };
 
 const refreshAccessToken = () => {
   if (!REFRESH_REQUEST) {
-    REFRESH_REQUEST = requestAccessToken()
+    const generation = AUTH_REQUEST_GENERATION;
+    const request = requestAccessToken(generation)
       .catch(async (error: unknown) => {
-        await clearAuthSession();
+        if (generation === AUTH_REQUEST_GENERATION) {
+          await clearAuthSession();
+        }
         throw error;
       })
       .finally(() => {
-        REFRESH_REQUEST = null;
+        if (REFRESH_REQUEST === request) REFRESH_REQUEST = null;
       });
+    REFRESH_REQUEST = request;
   }
 
   return REFRESH_REQUEST;
 };
 
 const logout = async () => {
+  invalidateAuthRequests();
   let requestError: unknown;
 
   try {

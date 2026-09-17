@@ -29,6 +29,7 @@ export type WorkEditorStore = {
   failedTagNames: string[];
   uploadedAssetIDs: string[];
   createdTagIDs: string[];
+  isSubmitting: boolean;
 
   initializeForNew: () => void;
   initializeForEdit: (work: Work) => void;
@@ -47,6 +48,7 @@ export type WorkEditorStore = {
   addUploadedAssetID: (assetID: string) => void;
   addCreatedTagID: (tagID: string) => void;
   clearPendingBackendResources: () => void;
+  setIsSubmitting: (isSubmitting: boolean) => void;
   setUrls: (urls: string[]) => void;
   addAssets: (assets: EditorAsset[]) => void;
   updateAsset: (key: string, update: Partial<EditorAsset>) => void;
@@ -75,6 +77,7 @@ export const createWorkEditorStore = () =>
     failedTagNames: [],
     uploadedAssetIDs: [],
     createdTagIDs: [],
+    isSubmitting: false,
 
     initializeForNew: () => {
       set((state) => {
@@ -91,6 +94,7 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          isSubmitting: false,
         };
       });
     },
@@ -111,6 +115,7 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          isSubmitting: false,
         };
       });
     },
@@ -133,6 +138,7 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          isSubmitting: false,
         };
       });
     },
@@ -151,6 +157,7 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          isSubmitting: false,
         };
       });
     },
@@ -252,6 +259,10 @@ export const createWorkEditorStore = () =>
 
     clearPendingBackendResources: () => {
       set({ uploadedAssetIDs: [], createdTagIDs: [] });
+    },
+
+    setIsSubmitting: (isSubmitting: boolean) => {
+      set({ isSubmitting });
     },
 
     setUrls: (urls: string[]) => {

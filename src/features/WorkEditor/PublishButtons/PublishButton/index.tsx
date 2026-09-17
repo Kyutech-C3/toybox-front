@@ -7,6 +7,7 @@ import { deletePendingResources } from "../../api/deletePendingResources";
 import { postWork } from "../../api/postWork";
 import { buildWorkUpdatePayload, toWorkPayload } from "../../api/toWorkPayload";
 import { updateWork } from "../../api/updateWork";
+import { getWorkEditorSWRKey } from "../../hook/useWorkForEdit";
 import {
   selectHasUnsettledBackendWork,
   selectOrphanedBackendResources,
@@ -82,11 +83,12 @@ const PublishButton = () => {
   const hasUnsettledBackendWork = useWorkEditorStore(
     selectHasUnsettledBackendWork,
   );
+  const isSubmitting = useWorkEditorStore((state) => state.isSubmitting);
+  const setIsSubmitting = useWorkEditorStore((state) => state.setIsSubmitting);
   const accessToken = useAuthStore((state) => state.accessToken);
   const storeApi = useWorkEditorStoreApi();
   const { showToast } = useToast();
   const [isListboxOpen, setIsListboxOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const listboxTriggerRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
@@ -130,7 +132,12 @@ const PublishButton = () => {
           updatePayload,
           accessToken,
         );
-        await mutate(`/works/${workID}`, updatedWork, { revalidate: false });
+        await Promise.all([
+          mutate(`/works/${workID}`, updatedWork, { revalidate: false }),
+          mutate(getWorkEditorSWRKey({ workID, accessToken }), updatedWork, {
+            revalidate: false,
+          }),
+        ]);
 
         deleteOrphanedResources();
         markSaved();
