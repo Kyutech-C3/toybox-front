@@ -73,7 +73,12 @@ const WorkIndex = () => {
         }
         renderFavoriteButton={
           viewerUserID
-            ? (work) => <FavoriteButton workID={work.id} />
+            ? (work) => (
+                <FavoriteButton
+                  workID={work.id}
+                  isInitiallyLiked={work.is_favorite}
+                />
+              )
             : undefined
         }
       />

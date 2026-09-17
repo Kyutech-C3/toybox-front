@@ -27,6 +27,7 @@ const MOCK_WORK: Work = {
   thumbnail_url: "/comingSoonLugia.webp",
   visibility: "public",
   thumbnail_asset_id: "",
+  is_favorite: false,
   urls: [],
   created_at: "2025-01-01T00:00:00Z",
   updated_at: "2025-01-01T00:00:00Z",

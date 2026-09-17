@@ -17,6 +17,7 @@ import type {
 
 type UseFavoriteParams = {
   workID: string;
+  isInitiallyLiked?: boolean;
   isCountVisible: boolean;
 };
 
@@ -31,6 +32,7 @@ type UseFavoriteReturn = {
 
 const useFavorite = ({
   workID,
+  isInitiallyLiked,
   isCountVisible,
 }: UseFavoriteParams): UseFavoriteReturn => {
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -49,7 +51,14 @@ const useFavorite = ({
     useSWR<FavoriteStatusResponse>(
       statusKey,
       () => getFavoriteStatus(workID, accessToken ?? ""),
-      { suspense: false },
+      {
+        suspense: false,
+        fallbackData:
+          isInitiallyLiked === undefined
+            ? undefined
+            : { isFavorite: isInitiallyLiked },
+        revalidateOnMount: isInitiallyLiked === undefined,
+      },
     );
 
   const isLiked = statusResponse?.isFavorite ?? false;
