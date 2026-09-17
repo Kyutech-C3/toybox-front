@@ -117,12 +117,10 @@ const useUrlFields = ({
   }, [urls]);
 
   useLayoutEffect(() => {
-    const hasInvalidUrls = fields.some(
-      (field) => {
-        const value = normalizeInputText(field.value);
-        return value !== "" && getUrlError(value, fields, field.id) !== "";
-      },
-    );
+    const hasInvalidUrls = fields.some((field) => {
+      const value = normalizeInputText(field.value);
+      return value !== "" && getUrlError(value, fields, field.id) !== "";
+    });
     onValidationChange?.(hasInvalidUrls);
   }, [fields, onValidationChange]);
 
