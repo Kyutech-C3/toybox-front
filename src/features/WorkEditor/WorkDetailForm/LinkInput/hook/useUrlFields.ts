@@ -13,6 +13,7 @@ type UrlField = {
 type UseUrlFieldsParams = {
   urls: string[];
   onChangeUrls: (urls: string[]) => void;
+  onValidationChange?: (hasInvalidUrls: boolean) => void;
 };
 
 type UrlFieldFocusDirection = "backward" | "forward";
@@ -94,6 +95,7 @@ const createInitialFields = (urls: string[]): UrlField[] => {
 const useUrlFields = ({
   urls,
   onChangeUrls,
+  onValidationChange,
 }: UseUrlFieldsParams): UseUrlFieldsReturn => {
   const [fields, setFields] = useState<UrlField[]>(() =>
     createInitialFields(urls),
@@ -113,6 +115,16 @@ const useUrlFields = ({
 
     setFields(createInitialFields(urls));
   }, [urls]);
+
+  useLayoutEffect(() => {
+    const hasInvalidUrls = fields.some(
+      (field) => {
+        const value = normalizeInputText(field.value);
+        return value !== "" && getUrlError(value, fields, field.id) !== "";
+      },
+    );
+    onValidationChange?.(hasInvalidUrls);
+  }, [fields, onValidationChange]);
 
   const commitUrls = (nextFields: UrlField[]) => {
     const nextUrls = getCommittedUrls(nextFields);
