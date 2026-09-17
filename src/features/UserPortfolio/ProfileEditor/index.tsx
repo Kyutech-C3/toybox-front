@@ -102,7 +102,6 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
     setIsSubmitting(true);
     try {
       await updateUserProfile({
-        userProfile,
         displayName: trimmedDisplayName,
         profile,
         githubUsername: normalizedGithubUsername,

@@ -1,9 +1,8 @@
-import { putDataWithAuth } from "@/util/fetchData";
+import { patchDataWithAuth } from "@/util/fetchData";
 
 import type { UserProfileData } from "./getUserProfile";
 
 type UpdateUserProfileParams = {
-  userProfile: UserProfileData;
   displayName: string;
   profile: string;
   xUsername: string;
@@ -12,19 +11,17 @@ type UpdateUserProfileParams = {
 };
 
 export const updateUserProfile = async ({
-  userProfile,
   displayName,
   profile,
   xUsername,
   githubUsername: githubID,
   accessToken,
 }: UpdateUserProfileParams): Promise<UserProfileData> =>
-  putDataWithAuth(
+  patchDataWithAuth(
     "/auth/users",
     JSON.stringify({
       display_name: displayName,
       profile,
-      email: userProfile.email,
       twitter_id: xUsername,
       github_id: githubID,
     }),
