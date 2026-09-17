@@ -9,7 +9,7 @@ import { buildWorkUpdatePayload, toWorkPayload } from "../../api/toWorkPayload";
 import { updateWork } from "../../api/updateWork";
 import { getWorkEditorSWRKey } from "../../hook/useWorkForEdit";
 import {
-  selectIsUploading,
+  selectHasUnsettledBackendWork,
   selectOrphanedBackendResources,
   useWorkEditorStore,
   useWorkEditorStoreApi,
@@ -80,9 +80,11 @@ const PublishButton = () => {
   const baseline = useWorkEditorStore((state) => state.baseline);
   const setVisibility = useWorkEditorStore((state) => state.setVisibility);
   const markSaved = useWorkEditorStore((state) => state.markSaved);
+  const hasUnsettledBackendWork = useWorkEditorStore(
+    selectHasUnsettledBackendWork,
+  );
   const isSubmitting = useWorkEditorStore((state) => state.isSubmitting);
   const setIsSubmitting = useWorkEditorStore((state) => state.setIsSubmitting);
-  const isUploading = useWorkEditorStore(selectIsUploading);
   const accessToken = useAuthStore((state) => state.accessToken);
   const storeApi = useWorkEditorStoreApi();
   const { showToast } = useToast();
@@ -93,7 +95,7 @@ const PublishButton = () => {
 
   const { visibility } = current;
   const isEditMode = mode === "edit";
-  const isSubmitDisabled = isUploading || isSubmitting;
+  const isSubmitDisabled = hasUnsettledBackendWork || isSubmitting;
   const deleteOrphanedResources = () => {
     const orphaned = selectOrphanedBackendResources(storeApi.getState());
     if (orphaned.assetIDs.length === 0 && orphaned.tagIDs.length === 0) return;
@@ -213,9 +215,9 @@ const PublishButton = () => {
           className={styles["visibility-listbox"]}
         />
       </span>
-      {isUploading && (
+      {hasUnsettledBackendWork && (
         <output className={styles["upload-notice"]}>
-          アップロード完了後に保存できます
+          アップロードまたはタグの処理を完了してから保存できます
         </output>
       )}
       {submitError && (
