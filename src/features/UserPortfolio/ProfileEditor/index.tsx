@@ -3,7 +3,6 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { mutate } from "swr";
 
 import { updateUserProfile } from "../api/updateUserProfile";
-import { getUserPortfolioSWRKey } from "../hook/useUserPortfolio";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
@@ -13,9 +12,11 @@ import useToast from "@/shared/ui/Toast/hook/useToast";
 import { normalizeInputText } from "@/util/normalizeInputText";
 
 import type { UserProfileData } from "../api/getUserProfile";
+import type { UserPortfolioSWRKey } from "../hook/useUserPortfolio";
 
 type ProfileEditorProps = {
   userProfile: UserProfileData;
+  userPortfolioSWRKey: UserPortfolioSWRKey;
   onClose: () => void;
 };
 
@@ -53,7 +54,11 @@ const getXError = (username: string) => {
   return "";
 };
 
-const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
+const ProfileEditor = ({
+  userProfile,
+  userPortfolioSWRKey,
+  onClose,
+}: ProfileEditorProps) => {
   const displayNameID = useId();
   const profileID = useId();
   const githubID = useId();
@@ -108,9 +113,7 @@ const ProfileEditor = ({ userProfile, onClose }: ProfileEditorProps) => {
         xUsername: normalizedXUsername,
         accessToken,
       });
-      await mutate(
-        getUserPortfolioSWRKey({ userID: userProfile.id, accessToken }),
-      );
+      await mutate(userPortfolioSWRKey);
       if (user) setUser({ ...user, display_name: trimmedDisplayName });
 
       showToast({ message: "プロフィールを更新しました", severity: "success" });
