@@ -29,6 +29,8 @@ export type WorkEditorStore = {
   failedTagNames: string[];
   uploadedAssetIDs: string[];
   createdTagIDs: string[];
+  hasInvalidUrls: boolean;
+  isSubmitting: boolean;
 
   initializeForNew: () => void;
   initializeForEdit: (work: Work) => void;
@@ -47,6 +49,8 @@ export type WorkEditorStore = {
   addUploadedAssetID: (assetID: string) => void;
   addCreatedTagID: (tagID: string) => void;
   clearPendingBackendResources: () => void;
+  setHasInvalidUrls: (hasInvalidUrls: boolean) => void;
+  setIsSubmitting: (isSubmitting: boolean) => void;
   setUrls: (urls: string[]) => void;
   addAssets: (assets: EditorAsset[]) => void;
   updateAsset: (key: string, update: Partial<EditorAsset>) => void;
@@ -75,6 +79,8 @@ export const createWorkEditorStore = () =>
     failedTagNames: [],
     uploadedAssetIDs: [],
     createdTagIDs: [],
+    hasInvalidUrls: false,
+    isSubmitting: false,
 
     initializeForNew: () => {
       set((state) => {
@@ -91,6 +97,8 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          hasInvalidUrls: false,
+          isSubmitting: false,
         };
       });
     },
@@ -111,6 +119,8 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          hasInvalidUrls: false,
+          isSubmitting: false,
         };
       });
     },
@@ -133,6 +143,8 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          hasInvalidUrls: false,
+          isSubmitting: false,
         };
       });
     },
@@ -151,6 +163,8 @@ export const createWorkEditorStore = () =>
           failedTagNames: [],
           uploadedAssetIDs: [],
           createdTagIDs: [],
+          hasInvalidUrls: false,
+          isSubmitting: false,
         };
       });
     },
@@ -252,6 +266,14 @@ export const createWorkEditorStore = () =>
 
     clearPendingBackendResources: () => {
       set({ uploadedAssetIDs: [], createdTagIDs: [] });
+    },
+
+    setHasInvalidUrls: (hasInvalidUrls: boolean) => {
+      set({ hasInvalidUrls });
+    },
+
+    setIsSubmitting: (isSubmitting: boolean) => {
+      set({ isSubmitting });
     },
 
     setUrls: (urls: string[]) => {

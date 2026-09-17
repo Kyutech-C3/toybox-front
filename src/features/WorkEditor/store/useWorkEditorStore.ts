@@ -29,6 +29,7 @@ export function useWorkEditorStore<T>(
 }
 
 export {
+  selectHasUnsettledBackendWork,
   selectIsDirty,
   selectIsUploading,
   selectOrphanedBackendResources,
