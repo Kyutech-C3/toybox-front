@@ -131,11 +131,9 @@ const PublishButton = () => {
         );
         await Promise.all([
           mutate(`/works/${workID}`, updatedWork, { revalidate: false }),
-          mutate(
-            getWorkEditorSWRKey({ workID, accessToken }),
-            updatedWork,
-            { revalidate: false },
-          ),
+          mutate(getWorkEditorSWRKey({ workID, accessToken }), updatedWork, {
+            revalidate: false,
+          }),
         ]);
 
         deleteOrphanedResources();
