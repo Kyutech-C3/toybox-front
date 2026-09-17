@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import XIcon from "@mui/icons-material/X";
 
-import useUserPortfolio from "./hook/useUserPortfolio";
+import useUserPortfolio, {
+  USER_WORKS_PAGE_SIZE,
+} from "./hook/useUserPortfolio";
 import styles from "./index.module.css";
 import ProfileEditor from "./ProfileEditor";
 
@@ -13,7 +15,7 @@ import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
 import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import { Pagination } from "@/shared/ui/Pagination";
-import WorkCardGrid, { useWorkPageSize } from "@/shared/ui/WorkCardGrid";
+import WorkCardGrid from "@/shared/ui/WorkCardGrid";
 
 type UserPortfolioProps = {
   userID: string;
@@ -22,19 +24,20 @@ type UserPortfolioProps = {
 const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const viewerUserID = useUserStore((state) => state.user?.id);
-  const requestedPage = Number(searchParams.get("page")) || 1;
-  const { userProfile, works, isOwner } = useUserPortfolio({ userID });
+  const currentPage = Math.max(Number(searchParams.get("page")) || 1, 1);
+  const { userProfile, works, totalCount, isOwner, swrKey } = useUserPortfolio({
+    userID,
+    page: currentPage,
+  });
   const [isEditing, setIsEditing] = useState(false);
-  const { itemsPerPage } = useWorkPageSize();
 
-  const workList = works ?? [];
-  const totalPages = Math.max(1, Math.ceil(workList.length / itemsPerPage));
-  const currentPage = Math.min(Math.max(requestedPage, 1), totalPages);
-  const firstWorkIndex = (currentPage - 1) * itemsPerPage;
-  const displayedWorks = workList.slice(
-    firstWorkIndex,
-    firstWorkIndex + itemsPerPage,
-  );
+  const totalPages = Math.ceil(totalCount / USER_WORKS_PAGE_SIZE);
+
+  useEffect(() => {
+    if (totalPages > 0 && currentPage > totalPages) {
+      setSearchParams({ page: String(totalPages) }, { replace: true });
+    }
+  }, [currentPage, totalPages, setSearchParams]);
 
   const handlePageChange = (page: number) => {
     setSearchParams({ page: String(page) });
@@ -57,6 +60,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
               <ProfileEditor
                 key={userProfile.id}
                 userProfile={userProfile}
+                userPortfolioSWRKey={swrKey}
                 onClose={() => setIsEditing(false)}
               />
             </div>
@@ -123,7 +127,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
         }
       >
         <WorkCardGrid
-          works={displayedWorks}
+          works={works}
           viewerUserID={viewerUserID}
           renderFavoriteButton={
             viewerUserID

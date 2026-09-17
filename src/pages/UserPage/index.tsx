@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { mutate } from "swr";
 
 import styles from "./index.module.css";
@@ -16,7 +16,9 @@ import { ApiError } from "@/util/fetchData";
 const UserPage = () => {
   const { id } = useParams<{ id: string }>();
   const { key: locationKey } = useLocation();
+  const [searchParams] = useSearchParams();
   const accessToken = useAuthStore((state) => state.accessToken);
+  const currentPage = Math.max(Number(searchParams.get("page")) || 1, 1);
 
   const getErrorMessage = (error: Error) => {
     if (error instanceof ApiError && error.status === 404) {
@@ -32,7 +34,11 @@ const UserPage = () => {
     if (!id) return;
 
     await mutate(
-      getUserPortfolioSWRKey({ userID: id, accessToken }),
+      getUserPortfolioSWRKey({
+        userID: id,
+        accessToken,
+        page: currentPage,
+      }),
       undefined,
       { revalidate: false },
     );
