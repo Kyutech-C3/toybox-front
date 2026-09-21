@@ -389,6 +389,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
                     <MovieCard
                       src={safeURL}
                       extension={asset.extension}
+                      isActive={assets[activeAssetIndex]?.id === asset.id}
                       isFullscreen={isFullscreenActive}
                       onLoadError={() => handleLoadError(asset.id)}
                       onToggleFullscreen={() => void handleFullscreen()}

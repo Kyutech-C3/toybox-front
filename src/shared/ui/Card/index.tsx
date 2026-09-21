@@ -84,6 +84,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
         <img
           src={work.thumbnail_url || DEFAULT_CARD_IMAGE_URL}
           alt={`${work.title}のサムネイル`}
+          loading="lazy"
           className={styles["card-image"]}
           onError={handleImageError}
         />
