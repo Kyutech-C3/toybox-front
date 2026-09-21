@@ -66,10 +66,10 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
     const handleWheel = (event: WheelEvent) => {
       const delta = getHorizontalWheelDelta(event);
       if (delta === 0) return;
-      if (scrollTagsBy(delta)) event.preventDefault();
+      scrollTagsBy(delta);
     };
 
-    wrapper.addEventListener("wheel", handleWheel, { passive: false });
+    wrapper.addEventListener("wheel", handleWheel, { passive: true });
     return () => wrapper.removeEventListener("wheel", handleWheel);
   }, [scrollTagsBy]);
 
