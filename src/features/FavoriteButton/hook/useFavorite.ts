@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useSWR from "swr";
 
 import {
@@ -36,12 +36,23 @@ const useFavorite = ({
   isCountVisible,
 }: UseFavoriteParams): UseFavoriteReturn => {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const isListItem = isInitiallyLiked !== undefined;
+  const [isLocallyLiked, setIsLocallyLiked] = useState(
+    isInitiallyLiked ?? false,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
   const countKey = isCountVisible ? `/works/${workID}/favorite` : null;
-  const statusKey = accessToken
-    ? ([`/auth/works/${workID}/favorite/is-favorite`, accessToken] as const)
-    : null;
+  const statusKey =
+    accessToken && !isListItem
+      ? ([`/auth/works/${workID}/favorite/is-favorite`, accessToken] as const)
+      : null;
+
+  useEffect(() => {
+    if (isInitiallyLiked !== undefined) {
+      setIsLocallyLiked(isInitiallyLiked);
+    }
+  }, [isInitiallyLiked]);
 
   const { data: countResponse, mutate: mutateCount } =
     useSWR<FavoriteCountResponse>(countKey, () => getFavoriteCount(workID), {
@@ -53,16 +64,14 @@ const useFavorite = ({
       () => getFavoriteStatus(workID, accessToken ?? ""),
       {
         suspense: false,
-        fallbackData:
-          isInitiallyLiked === undefined
-            ? undefined
-            : { isFavorite: isInitiallyLiked },
-        revalidateOnMount: isInitiallyLiked === undefined,
       },
     );
 
-  const isLiked = statusResponse?.isFavorite ?? false;
-  const isLoading = !!accessToken && statusResponse === undefined;
+  const isLiked = isListItem
+    ? isLocallyLiked
+    : (statusResponse?.isFavorite ?? false);
+  const isLoading =
+    !!accessToken && !isListItem && statusResponse === undefined;
 
   const toggleFavorite = async () => {
     if (!accessToken || isSubmittingRef.current || isLoading) return;
@@ -74,7 +83,11 @@ const useFavorite = ({
     setIsSubmitting(true);
 
     try {
-      await mutateStatus({ isFavorite: nextIsLiked }, false);
+      if (isListItem) {
+        setIsLocallyLiked(nextIsLiked);
+      } else {
+        await mutateStatus({ isFavorite: nextIsLiked }, false);
+      }
       if (isCountVisible) {
         await mutateCount(
           (current) =>
@@ -91,10 +104,14 @@ const useFavorite = ({
       } else {
         await deleteFavorite(workID, accessToken);
       }
-      void mutateStatus().catch(() => undefined);
+      if (!isListItem) void mutateStatus().catch(() => undefined);
       if (isCountVisible) void mutateCount().catch(() => undefined);
     } catch (error) {
-      await mutateStatus({ isFavorite: isLiked }, false);
+      if (isListItem) {
+        setIsLocallyLiked(isLiked);
+      } else {
+        await mutateStatus({ isFavorite: isLiked }, false);
+      }
       if (isCountUpdated) {
         await mutateCount(
           (current) =>
