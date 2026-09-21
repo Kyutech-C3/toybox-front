@@ -1,4 +1,4 @@
-import { fn } from "storybook/test";
+import { expect, fn, userEvent, within } from "storybook/test";
 
 import LikeButton from "./index";
 
@@ -14,6 +14,18 @@ const META = {
     onToggle: fn(),
   },
   tags: ["autodocs"],
+  play: async ({ canvasElement, args }) => {
+    const button = within(canvasElement).getByRole("button");
+    await expect(button).toHaveAttribute("aria-pressed", String(args.isLiked));
+    if (args.isDisabled) {
+      await expect(button).toBeDisabled();
+      await userEvent.click(button);
+      await expect(args.onToggle).not.toHaveBeenCalled();
+    } else {
+      await userEvent.click(button);
+      await expect(args.onToggle).toHaveBeenCalledTimes(1);
+    }
+  },
 } satisfies Meta<typeof LikeButton>;
 
 export default META;

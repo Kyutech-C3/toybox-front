@@ -29,3 +29,7 @@ storybook-static
 
 # env
 .env
+# Test artifacts
+coverage/
+**/__screenshots__/
+.vitest-attachments/

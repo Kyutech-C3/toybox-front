@@ -2,6 +2,8 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import AssetCarousel from "./index";
 
+import TRIANGLE_URL from "@/test/assets/triangle.gltf?url";
+
 import type { Meta, StoryObj } from "@storybook/react";
 import type { Asset } from "@/shared/types/work";
 
@@ -36,8 +38,24 @@ const createAsset = (
 export const WebPImage: Story = {
   args: {
     assets: [
-      createAsset("asset-webp", "image", "webp", "/comingSoonHo-Oh.webp"),
+      createAsset(
+        "asset-webp",
+        "image",
+        "webp",
+        new URL("/comingSoonHo-Oh.webp", window.location.origin).href,
+      ),
     ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const image = canvas.getByRole("img", { name: "作品のアセット画像" });
+    await waitFor(
+      () => expect((image as HTMLImageElement).naturalWidth).toBeGreaterThan(0),
+      { timeout: 5000 },
+    );
+    await expect(
+      canvas.getByRole("button", { name: /^全画面表示$/ }),
+    ).toBeVisible();
   },
 };
 
@@ -48,13 +66,13 @@ export const Models: Story = {
         "asset-gltf",
         "model",
         "gltf",
-        "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
+        new URL(TRIANGLE_URL, window.location.origin).href,
       ),
       createAsset(
-        "asset-fbx",
+        "asset-gltf-second",
         "model",
-        "fbx",
-        "https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx",
+        "gltf",
+        new URL(TRIANGLE_URL, window.location.origin).href,
       ),
     ],
   },

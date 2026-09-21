@@ -1,3 +1,5 @@
+import { expect, fn, userEvent, within } from "storybook/test";
+
 import Button from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -10,9 +12,21 @@ const META: Meta<typeof Button> = {
   },
   args: {
     children: "ボタン",
-    onClick: () => {},
+    onClick: fn(),
   },
   tags: ["autodocs"],
+  play: async ({ canvasElement, args }) => {
+    const button = within(canvasElement).getByRole("button");
+    if (args.isDisabled) {
+      await expect(button).toBeDisabled();
+      await userEvent.click(button);
+      await expect(args.onClick).not.toHaveBeenCalled();
+    } else {
+      await expect(button).toBeEnabled();
+      await userEvent.click(button);
+      await expect(args.onClick).toHaveBeenCalledTimes(1);
+    }
+  },
 };
 
 export default META;

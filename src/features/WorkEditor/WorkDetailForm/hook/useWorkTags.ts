@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 import { createTag } from "../../api/createTag";
+import { deletePendingResources } from "../../api/deletePendingResources";
+import useEditorRequestGuard from "../../hook/useEditorRequestGuard";
 import {
   useWorkEditorStore,
   useWorkEditorStoreApi,
@@ -34,6 +36,7 @@ const useWorkTags = (): UseWorkTagsReturn => {
   const addTag = useWorkEditorStore((state) => state.addTag);
   const removeTag = useWorkEditorStore((state) => state.removeTag);
   const storeApi = useWorkEditorStoreApi();
+  const { createRequestGuard } = useEditorRequestGuard();
   const failedTags = useWorkEditorStore((state) => state.failedTagNames);
   const addCreatingTagName = useWorkEditorStore(
     (state) => state.addCreatingTagName,
@@ -52,16 +55,29 @@ const useWorkTags = (): UseWorkTagsReturn => {
 
   const [retryingTags, setRetryingTags] = useState<string[]>([]);
 
-  const resolveTagID = async (tagName: string): Promise<string> => {
+  const resolveTagID = async (
+    tagName: string,
+    isCurrentRequest: () => boolean,
+  ): Promise<string | null> => {
     const normalizedName = tagName.toLowerCase();
     const existingID = findTag(allTagOptions.data, normalizedName)?.id;
     if (existingID) return existingID;
 
-    const accessToken = useAuthStore.getState().accessToken;
+    const { accessToken, sessionVersion: authSessionVersion } =
+      useAuthStore.getState();
     if (!accessToken) {
       throw new Error("No access token available");
     }
     const newTag = await createTag(tagName, accessToken);
+    if (!isCurrentRequest()) {
+      if (useAuthStore.getState().sessionVersion !== authSessionVersion)
+        return null;
+      void deletePendingResources(
+        { assetIDs: [], tagIDs: [newTag.id] },
+        accessToken,
+      );
+      return null;
+    }
     addCreatedTagID(newTag.id);
     return newTag.id;
   };
@@ -74,15 +90,17 @@ const useWorkTags = (): UseWorkTagsReturn => {
     if (isCreating) return;
     if (tags.some((tag) => tag.name.toLowerCase() === normalizedName)) return;
     addCreatingTagName(tagName);
+    const isCurrentRequest = createRequestGuard();
 
     try {
-      const tagID = await resolveTagID(tagName);
+      const tagID = await resolveTagID(tagName, isCurrentRequest);
+      if (!isCurrentRequest() || tagID === null) return;
       addTag({ id: tagID, name: normalizedName });
       removeFailedTagName(tagName);
     } catch {
-      addFailedTagName(tagName);
+      if (isCurrentRequest()) addFailedTagName(tagName);
     } finally {
-      removeCreatingTagName(tagName);
+      if (isCurrentRequest()) removeCreatingTagName(tagName);
     }
   };
 

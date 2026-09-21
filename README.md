@@ -4,13 +4,14 @@
 
 2025/09/23 by semikoron
 2026/08/22 by keitan
+2026/09/22 by keitan
 
 ## 起動方法
 
 1. パッケージをインストール
 
 ```
-npm i
+npm ci
 ```
 
 2. ローカルサーバーを起動
@@ -29,11 +30,15 @@ npm run dev
 - グローバル状態管理:Zustand
 - サーバー状態管理:swr
 - linter:biome
-- UI テスト:Storybook
-- API テスト:Jest
+- 単体テスト:Vitest
+- UI テスト:Vitest Browser Mode + Playwright / Storybook
 - CI: github workflow + husky + lint-staged
 
 詳しくは[こちら](./DesignDocs.md)
+
+## テスト
+
+実行手順・検証範囲・CI・カバレッジは [TESTING.md](./TESTING.md) を参照してください。
 
 ## 開発の始め方
 
@@ -77,7 +82,11 @@ npm run dev
 ## コミット命名規則
 
 基本何をやったか分かるような内容であれば構わない。
-余裕があればブランチ命名規則同様に接頭辞を記載すること。
+コミットの命名規則は以下のようにすること
+
+```
+接頭辞: 内容
+```
 
 ## ルーティング
 

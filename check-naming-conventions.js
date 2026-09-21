@@ -227,7 +227,10 @@ const collectTypeScriptViolations = (file, sourceFile) => {
   visit(sourceFile);
 
   const relativePath = path.relative(SRC_DIRECTORY, file);
-  const basename = path.basename(file).replace(/\.(?:d\.)?tsx?$/, "");
+  const basename = path
+    .basename(file)
+    .replace(/\.(?:d\.)?tsx?$/, "")
+    .replace(/(?:\.browser)?\.test$/, "");
   const isSpecialFilename = ["App", "index", "vite-env"].includes(basename);
   if (
     !isSpecialFilename &&

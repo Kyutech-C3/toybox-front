@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 
 import Switch from "./index";
 
@@ -11,6 +12,19 @@ const META: Meta<typeof Switch> = {
     layout: "centered",
   },
   tags: ["autodocs"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Blog" }));
+    await expect(canvas.getByRole("button", { name: "Blog" })).toHaveAttribute(
+      "data-is-toy",
+      "false",
+    );
+    await userEvent.click(canvas.getByRole("button", { name: "Toy" }));
+    await expect(canvas.getByRole("button", { name: "Toy" })).toHaveAttribute(
+      "data-is-toy",
+      "true",
+    );
+  },
 };
 
 export default META;

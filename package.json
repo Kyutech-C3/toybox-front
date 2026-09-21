@@ -4,6 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run --project=unit",
+    "test:browser": "vitest run --project=browser --project=storybook",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "npx biome lint ./src",
