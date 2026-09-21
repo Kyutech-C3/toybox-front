@@ -13,6 +13,7 @@ const ImgCard = ({ src, alt, onLoadError }: ImgCardProps) => {
       <img
         src={src}
         alt={alt}
+        loading="lazy"
         className={styles["card-img"]}
         onError={onLoadError}
       />

@@ -27,6 +27,7 @@ const Avatar = ({
       <img
         alt={alt}
         src={avatarURL || DEFAULT_AVATAR_URL}
+        loading="lazy"
         className={styles["avatar-image"]}
         onError={handleImageError}
       />

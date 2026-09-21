@@ -8,6 +8,7 @@ import styles from "./index.module.css";
 type MovieCardProps = {
   src: string;
   extension: string;
+  isActive: boolean;
   isFullscreen?: boolean;
   onLoadError?: () => void;
   onToggleFullscreen?: () => void;
@@ -33,6 +34,7 @@ const getVideoMimeTypes = (extension: string): string[] => {
 const MovieCard = ({
   src,
   extension,
+  isActive,
   isFullscreen,
   onLoadError,
   onToggleFullscreen,
@@ -61,7 +63,7 @@ const MovieCard = ({
         ref={videoRef}
         className={styles["movie"]}
         playsInline
-        preload="metadata"
+        preload={isActive ? "metadata" : "none"}
         onClick={togglePlay}
         onError={onLoadError}
       >
