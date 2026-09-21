@@ -117,10 +117,15 @@ const useMarquee = (): UseMarqueeReturn => {
   const reset = useCallback(() => {
     window.clearTimeout(resumeTimeoutRef.current);
     resumeTimeoutRef.current = undefined;
-    offsetRef.current = 0;
-    isPausedRef.current = false;
-    setOffset(0);
-    setIsPaused(false);
+
+    if (offsetRef.current !== 0) {
+      offsetRef.current = 0;
+      setOffset(0);
+    }
+    if (isPausedRef.current) {
+      isPausedRef.current = false;
+      setIsPaused(false);
+    }
   }, []);
 
   useEffect(() => () => window.clearTimeout(resumeTimeoutRef.current), []);
