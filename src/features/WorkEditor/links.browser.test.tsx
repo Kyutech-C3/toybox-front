@@ -26,6 +26,36 @@ const LinkHarness = () => {
 };
 
 describe("リンク編集", () => {
+  it("Enter・重複検証・Backspace・追加ボタンで入力欄とfocusを操作", async () => {
+    await render(<LinkHarness />);
+    const input = page.getByRole("textbox", { name: "リンク 1" });
+
+    await input.fill("  https://example.com/  ");
+    await userEvent.keyboard("{Enter}");
+    await expect.element(input).toHaveValue("https://example.com/");
+
+    const secondInput = page.getByRole("textbox", { name: "リンク 2" });
+    await expect.element(secondInput).toHaveFocus();
+    await secondInput.fill("https://example.com/");
+    await userEvent.keyboard("{Enter}");
+    await expect
+      .element(page.getByRole("alert"))
+      .toHaveTextContent("このURLは追加済みです");
+    await expect
+      .element(page.getByRole("textbox", { name: "リンク 3" }))
+      .not.toBeInTheDocument();
+
+    await secondInput.clear();
+    await userEvent.keyboard("{Backspace}");
+    await expect.element(secondInput).not.toBeInTheDocument();
+    await expect.element(input).toHaveFocus();
+
+    await page.getByRole("button", { name: "リンク入力欄を追加" }).click();
+    await expect
+      .element(page.getByRole("textbox", { name: "リンク 2" }))
+      .toHaveFocus();
+  });
+
   it.each([
     "javascript:alert(1)",
     "data:text/html,test",

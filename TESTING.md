@@ -68,4 +68,4 @@ GitHub Actionsで静的チェック後にChromiumをインストールし、`tes
 - Swagger/schemaとの照合では、現行backendの作品更新 `asset_ids` / `tag_ids` に `min=1` がある一方、frontendは全削除を空配列として送ります。payloadテストは送信内容の保証であり、実APIがその削除を受け付ける保証ではありません。backendの変更はこの作業に含めていません。
 - 公開範囲フィルターと並び順のUIは現行コードでは一覧取得条件に接続されていません。機能が完成したようなテストは追加していません。
 - Chromium以外、iOS固有のfullscreen/共有、実機タッチ操作、全動画codec/FBXアニメーション、画面全体の見た目は別途確認が必要です。
-- React/SWRのSuspenseと一部既存StoryでReactの警告が出る場合があります。テスト失敗・未処理例外と区別し、警告を一括抑制していません。
+- React 19とSWR 2.5の既知の問題（`vercel/swr#4314`）によるSuspense警告だけをbrowser testの共通setupで除外しています。それ以外のconsole errorは出力し、原因を修正します。

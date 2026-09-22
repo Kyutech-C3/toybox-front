@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
 
 import LinkInput from "./index";
 
@@ -70,43 +69,4 @@ export const MaximumUrls: Story = {
       ]}
     />
   ),
-};
-
-export const KeyboardAndValidation: Story = {
-  args: {
-    urls: [],
-    onChangeUrls: () => undefined,
-  },
-  render: () => <LinkInputStory initialUrls={[]} />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox", { name: "リンク 1" });
-
-    await userEvent.type(input, "  https://example.com/  {enter}");
-    await expect(input).toHaveValue("https://example.com/");
-    const secondInput = canvas.getByRole("textbox", { name: "リンク 2" });
-    await expect(secondInput).toHaveFocus();
-
-    await userEvent.type(secondInput, "https://example.com/{enter}");
-    await expect(canvas.getByRole("alert")).toHaveTextContent(
-      "このURLは追加済みです",
-    );
-    await expect(
-      canvas.queryByRole("textbox", { name: "リンク 3" }),
-    ).toBeNull();
-
-    await userEvent.clear(secondInput);
-    await userEvent.type(secondInput, "{backspace}");
-    await expect(
-      canvas.queryByRole("textbox", { name: "リンク 2" }),
-    ).toBeNull();
-    await expect(input).toHaveFocus();
-
-    await userEvent.click(
-      canvas.getByRole("button", { name: "リンク入力欄を追加" }),
-    );
-    await expect(
-      canvas.getByRole("textbox", { name: "リンク 2" }),
-    ).toHaveFocus();
-  },
 };
