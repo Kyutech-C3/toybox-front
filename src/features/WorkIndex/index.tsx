@@ -1,32 +1,28 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import useWorkIndexRequest from "./hook/useWorkIndexRequest";
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
 import { SearchBar } from "./SearchBar";
-import { useTagsStore } from "./SearchBar/store/useTagsStore";
 import SortOrderSwitch from "./SortOrderSwitch";
 import VisibilityFilter from "./VisibilityFilter";
 
-import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import FavoriteButton from "@/features/FavoriteButton";
 import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid, {
   PageSizeSelect,
   useWorkGridColumns,
-  useWorkPageSize,
 } from "@/shared/ui/WorkCardGrid";
 
 import type { CSSProperties } from "react";
 
 const WorkIndex = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { tags } = useTagsStore();
+  const [, setSearchParams] = useSearchParams();
+  const { accessToken, currentPage, itemsPerPage, tags } =
+    useWorkIndexRequest();
   const viewerUserID = useUserStore((state) => state.user?.id);
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const currentPage = Number(searchParams.get("page")) || 1;
-  const { itemsPerPage } = useWorkPageSize();
   const { columns } = useWorkGridColumns();
   const controlsStyle = {
     "--work-card-columns": String(columns),
@@ -36,6 +32,7 @@ const WorkIndex = () => {
     page: currentPage,
     limit: itemsPerPage,
     tags: tags,
+    accessToken,
   });
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -93,4 +90,5 @@ const WorkIndex = () => {
   );
 };
 
+export { default as useWorkIndexRequest } from "./hook/useWorkIndexRequest";
 export default WorkIndex;

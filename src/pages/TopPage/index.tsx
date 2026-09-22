@@ -4,33 +4,18 @@ import { mutate } from "swr";
 
 import styles from "./index.module.css";
 
-import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import Header from "@/features/Header";
-import WorkIndex from "@/features/WorkIndex";
-import { getWorksRequestPath } from "@/features/WorkIndex/hook/useWorks";
-import { useTagsStore } from "@/features/WorkIndex/SearchBar/store/useTagsStore";
+import WorkIndex, { useWorkIndexRequest } from "@/features/WorkIndex";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
-import { useWorkPageSizeStore } from "@/shared/ui/WorkCardGrid/store/useWorkPageSizeStore";
 
 const TopPage = () => {
-  const { key: locationKey, search } = useLocation();
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const tags = useTagsStore((state) => state.tags);
-  const pageSize = useWorkPageSizeStore((state) => state.pageSize);
-  const currentPage = Number(new URLSearchParams(search).get("page")) || 1;
+  const { key: locationKey } = useLocation();
+  const { swrKey } = useWorkIndexRequest();
 
   const handleRetry = async () => {
-    const worksRequestPath = getWorksRequestPath({
-      page: currentPage,
-      limit: pageSize,
-      tags,
-    });
-    const worksKey = accessToken
-      ? ([worksRequestPath, accessToken] as const)
-      : worksRequestPath;
     await Promise.all(
-      ["/tags", worksKey].map((key) =>
+      ["/tags", swrKey].map((key) =>
         mutate(key, undefined, { revalidate: true }),
       ),
     );
