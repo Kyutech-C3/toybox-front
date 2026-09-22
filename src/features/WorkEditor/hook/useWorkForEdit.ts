@@ -19,9 +19,6 @@ export const getWorkEditorSWRKey = ({
 }: GetWorkEditorSWRKeyParams) =>
   [WORK_EDITOR_SWR_KEY_PREFIX, workID, accessToken] as const;
 
-export const isWorkEditorSWRKey = (key: unknown) =>
-  Array.isArray(key) && key[0] === WORK_EDITOR_SWR_KEY_PREFIX;
-
 type UseWorkForEditParams = {
   workID: string | null;
 };

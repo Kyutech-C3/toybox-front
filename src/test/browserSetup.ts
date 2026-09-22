@@ -1,12 +1,12 @@
-import { mutate } from "swr";
+import { unload } from "swr";
 import { beforeEach } from "vitest";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import "../index.css";
 
-beforeEach(async () => {
-  await mutate(() => true, undefined, { revalidate: true });
+beforeEach(() => {
+  unload({ revalidate: false });
   useAuthStore.setState({
     accessToken: null,
     sessionVersion: 0,

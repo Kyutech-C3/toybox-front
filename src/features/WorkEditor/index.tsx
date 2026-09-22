@@ -67,4 +67,4 @@ const WorkEditor = ({ workID }: WorkEditorProps) => {
 
 export default WorkEditor;
 
-export { isWorkEditorSWRKey } from "./hook/useWorkForEdit";
+export { getWorkEditorSWRKey } from "./hook/useWorkForEdit";

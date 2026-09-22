@@ -5,8 +5,9 @@ import { mutate } from "swr";
 import styles from "./index.module.css";
 
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import Header from "@/features/Header";
-import WorkEditor, { isWorkEditorSWRKey } from "@/features/WorkEditor";
+import WorkEditor, { getWorkEditorSWRKey } from "@/features/WorkEditor";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
 import { ApiError } from "@/util/fetchData";
@@ -18,6 +19,7 @@ type EditPageProps = {
 const EditPage = ({ isNewWork = false }: EditPageProps) => {
   const { id } = useParams<{ id: string }>();
   const { key: locationKey } = useLocation();
+  const accessToken = useAuthStore((state) => state.accessToken);
   const workID = isNewWork ? null : (id ?? null);
 
   const getErrorMessage = (error: Error) => {
@@ -34,10 +36,12 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
   };
 
   const handleRetry = async () => {
-    await mutate(
-      (key) => key === "/tags" || isWorkEditorSWRKey(key),
-      undefined,
-      { revalidate: false },
+    const keys = [
+      "/tags",
+      ...(workID ? [getWorkEditorSWRKey({ workID, accessToken })] : []),
+    ];
+    await Promise.all(
+      keys.map((key) => mutate(key, undefined, { revalidate: true })),
     );
   };
 

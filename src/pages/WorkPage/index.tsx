@@ -35,13 +35,13 @@ const WorkPage = () => {
   const handleWorkRetry = async () => {
     if (!id) return;
 
-    await mutate(`/works/${id}`, undefined, { revalidate: false });
+    await mutate(`/works/${id}`, undefined, { revalidate: true });
   };
 
   const handleCommentRetry = async () => {
     if (!id) return;
 
-    await mutate(getCommentSWRKey(id), undefined, { revalidate: false });
+    await mutate(getCommentSWRKey(id), undefined, { revalidate: true });
   };
 
   return (

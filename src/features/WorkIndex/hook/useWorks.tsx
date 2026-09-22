@@ -18,7 +18,7 @@ interface UseWorksReturn {
   limit: number;
 }
 
-const buildWorksUrl = ({ page, limit, tags }: UseWorksParams) => {
+export const getWorksRequestPath = ({ page, limit, tags }: UseWorksParams) => {
   const tagsQuery = tags?.map((tag) => tag.id).join(",") ?? "";
   let url = `/works?page=${page ?? 1}&limit=${limit ?? 21}`;
 
@@ -46,7 +46,7 @@ const useWorks = ({
   tags = [],
 }: UseWorksParams = {}): UseWorksReturn => {
   const accessToken = useAuthStore((state) => state.accessToken);
-  const url = buildWorksUrl({ page, limit, tags });
+  const url = getWorksRequestPath({ page, limit, tags });
 
   const { data: response } = useSWR<WorkListResponse>(
     accessToken ? [url, accessToken] : url,

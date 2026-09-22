@@ -40,7 +40,7 @@ const UserPage = () => {
         page: currentPage,
       }),
       undefined,
-      { revalidate: false },
+      { revalidate: true },
     );
   };
 
