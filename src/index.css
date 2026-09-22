@@ -15,7 +15,10 @@
   --phrase-holder: #d9d9d9;
   --border-color: #d9d9d9;
   --error-color: #c62828;
-  --link-color: #4a90e2;
+  --link-color: #1565c0;
+  --error-on-dark-color: #ff8a80;
+  --code-keyword-color: #005f87;
+  --code-string-color: #416800;
   --paper-overlay-color: rgba(255, 255, 255, 0.9);
   --overlay-dark-color: rgba(0, 0, 0, 0.3);
   --primary-soft-color: rgba(250, 190, 0, 0.1);

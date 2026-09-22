@@ -124,6 +124,18 @@ export default defineConfig({
       },
       {
         extends: true,
+        optimizeDeps: {
+          include: [
+            "@mui/icons-material/AccessTimeRounded",
+            "@mui/icons-material/ArrowDropUpRounded",
+            "@mui/icons-material/AutorenewRounded",
+            "@mui/icons-material/AudiotrackRounded",
+            "@mui/icons-material/CloudUploadRounded",
+            "@mui/icons-material/GitHub",
+            "@mui/icons-material/RefreshRounded",
+            "@mui/icons-material/X",
+          ],
+        },
         plugins: [
           // The plugin will run tests for the stories defined in your Storybook config
           // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest

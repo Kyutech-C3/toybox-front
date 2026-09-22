@@ -56,6 +56,7 @@ const TagInput = ({
   heading,
   ...props
 }: TagInputProps) => {
+  const accessibleName = props["aria-label"] ?? heading;
   const [isFocused, setFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -156,6 +157,7 @@ const TagInput = ({
           <input
             type="text"
             role="combobox"
+            aria-label={accessibleName}
             name="tag"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}

@@ -12,12 +12,14 @@ type InputProps = {
 >;
 
 const Input = ({ value, onChange, heading, ...props }: InputProps) => {
+  const accessibleName = props["aria-label"] ?? heading;
   return (
     <div className={styles["input-wrapper"]}>
       {heading && <h3>{heading}</h3>}
       <input
         type="text"
         value={value}
+        aria-label={accessibleName}
         className={styles["input-field"]}
         onChange={(e) => onChange(e.target.value)}
         {...props}

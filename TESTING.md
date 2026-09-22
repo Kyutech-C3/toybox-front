@@ -1,6 +1,6 @@
 # フロントエンドのテスト
 
-Node.js 24 / npm を使います。実行場所は `frontend/` です。
+Node.js 24 / npm を使います。
 
 ```bash
 npm ci
@@ -42,6 +42,8 @@ Linux CI では `npx playwright install --with-deps chromium` でOS依存もイ�
 | その他 | プロフィール検証、アカウント操作、共有/コピーのfallback、MarkdownのHTML/危険URL、エラー境界 |
 
 表示できただけのStoryと、操作・結果をassertしたテストは同じ保証ではありません。画像Storyは自然サイズを確認し、代替表示が出ただけでは成功にしません。
+
+Storybookには共有UI、機能単位のUI、主要ページ、作品編集画面を収録します。通常・空・disabled・error・長文など見た目が変わる状態をStoryで分け、操作があるStoryは`play`で結果まで検証します。アクセシビリティ違反はCIで失敗として扱います。
 
 ## テストを書くとき
 

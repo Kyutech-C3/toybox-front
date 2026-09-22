@@ -13,6 +13,12 @@ type CodeBlockProps = {
   children: string;
 };
 
+const CODE_STYLE = {
+  ...style,
+  keyword: { ...style.keyword, color: "var(--code-keyword-color)" },
+  string: { ...style.string, color: "var(--code-string-color)" },
+};
+
 const CodeBlock = ({ language, children }: CodeBlockProps) => {
   const [isCopied, setCopied] = useState(false);
 
@@ -38,7 +44,7 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
           <ContentCopyIcon fontSize="small" />
         )}
       </button>
-      <SyntaxHighlighter PreTag="div" language={language} style={style}>
+      <SyntaxHighlighter PreTag="div" language={language} style={CODE_STYLE}>
         {children}
       </SyntaxHighlighter>
     </div>

@@ -1,4 +1,5 @@
 import { MemoryRouter } from "react-router-dom";
+import { expect, within } from "storybook/test";
 
 import UserButton from "./index";
 
@@ -28,6 +29,22 @@ export const Default: Story = {
     userID: "user-1",
     displayName: "UserName",
     avatarURL: "/comingSoonLugia.webp",
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole("link", {
+        name: "UserNameのユーザーページを開く",
+      }),
+    ).toHaveAttribute("href", "/users/user-1");
+  },
+};
+
+export const Compact: Story = {
+  args: {
+    userID: "user-1",
+    displayName: "UserName",
+    avatarURL: "/comingSoonLugia.webp",
+    size: "compact",
   },
 };
 

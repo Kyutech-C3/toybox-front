@@ -25,7 +25,7 @@ const Toast = ({
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
       onClose={onClose}
     >
-      <Alert severity={severity} variant="filled" onClose={onClose}>
+      <Alert severity={severity} variant="standard" onClose={onClose}>
         {message}
       </Alert>
     </Snackbar>

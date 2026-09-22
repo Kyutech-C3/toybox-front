@@ -36,7 +36,6 @@
 
   &[data-retrying="true"] {
     cursor: not-allowed;
-    opacity: 0.4;
   }
 }
 
