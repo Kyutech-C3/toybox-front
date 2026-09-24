@@ -3,15 +3,15 @@ import { useSearchParams } from "react-router-dom";
 
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
-import { SearchBar } from "./SearchBar";
-import useTagOptions from "./SearchBar/hook/useTagOptions";
 import SortOrderSwitch from "./SortOrderSwitch";
 import VisibilityFilter from "./VisibilityFilter";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import FavoriteButton from "@/features/FavoriteButton";
+import useTagOptions from "@/features/Tag/hook/useTagOptions";
 import { Pagination } from "@/shared/ui/Pagination";
+import TagSelector from "@/shared/ui/TagSelector";
 import WorkCardGrid, {
   PageSizeSelect,
   useWorkGridColumns,
@@ -113,7 +113,7 @@ const WorkIndex = () => {
             {accessToken && <VisibilityFilter />}
             <SortOrderSwitch />
           </div>
-          <SearchBar
+          <TagSelector
             allTags={allTags}
             selectedTags={selectedTags}
             onAddTag={handleAddTag}

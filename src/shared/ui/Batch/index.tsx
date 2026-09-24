@@ -7,25 +7,54 @@ import type { ReactNode } from "react";
 
 type BatchProps = {
   children: ReactNode;
-  color?: "primary" | "secondary" | "pale";
+  color?: "neutral" | "selected" | "primary" | "secondary" | "pale";
   variant?: "default" | "error";
   onClick?: (() => void) | null;
   onRetry?: (() => void) | null;
+  onSelect?: (() => void) | null;
+  isSelected?: boolean;
+  ariaLabel?: string;
   isRetrying?: boolean;
 };
 
 const Batch = ({
   children,
-  color = "primary",
+  color = "neutral",
   variant = "default",
   onClick = null,
   onRetry = null,
+  onSelect = null,
+  isSelected = false,
+  ariaLabel,
   isRetrying = false,
 }: BatchProps) => {
+  const resolvedColor =
+    color === "primary" || color === "pale"
+      ? "selected"
+      : color === "secondary"
+        ? "neutral"
+        : color;
+
+  if (onSelect) {
+    return (
+      <button
+        type="button"
+        className={styles["batch"]}
+        data-color={isSelected ? "selected" : "neutral"}
+        data-selectable="true"
+        aria-pressed={isSelected}
+        aria-label={ariaLabel}
+        onClick={onSelect}
+      >
+        {children}
+      </button>
+    );
+  }
+
   return (
     <span
       className={styles["batch"]}
-      data-color={color}
+      data-color={resolvedColor}
       data-variant={variant}
       data-clickable={onClick ? "true" : "false"}
       data-retrying={isRetrying ? "true" : "false"}
@@ -57,7 +86,7 @@ const Batch = ({
           className={styles["batch-button"]}
           onClick={onClick}
           disabled={isRetrying}
-          aria-label={`Remove ${children} batch`}
+          aria-label={ariaLabel ?? `Remove ${children} batch`}
         >
           <CloseIcon fontSize="inherit" />
         </button>

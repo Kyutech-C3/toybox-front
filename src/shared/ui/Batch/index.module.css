@@ -1,4 +1,10 @@
 .batch {
+  box-sizing: border-box;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--border-color);
+  background: var(--paper-color);
+  color: var(--font-color);
+  font: inherit;
   font-size: inherit;
   border-radius: 9999px;
   text-align: center;
@@ -7,18 +13,11 @@
   text-wrap-mode: nowrap;
   gap: var(--space-4);
   vertical-align: middle;
+  overflow-wrap: anywhere;
 
-  &[data-color="primary"] {
-    background-color: var(--primary-color);
-  }
-
-  &[data-color="secondary"] {
-    background-color: var(--border-color);
-  }
-
-  &[data-color="pale"] {
+  &[data-color="selected"] {
+    box-shadow: inset 0 0 0 1px var(--primary-color);
     background-color: var(--primary-pale-color);
-    color: var(--font-muted-color);
   }
 
   &[data-variant="error"] {
@@ -32,6 +31,21 @@
 
   &[data-clickable="false"] {
     padding: 2px var(--space-12);
+  }
+
+  &[data-selectable="true"] {
+    padding: 2px var(--space-12);
+    cursor: pointer;
+  }
+
+  &[data-selectable="true"]:hover {
+    background: var(--primary-soft-color);
+  }
+
+  &[data-selectable="true"]:focus-visible,
+  .batch-button:focus-visible {
+    outline: 2px solid var(--font-color);
+    outline-offset: 2px;
   }
 
   &[data-retrying="true"] {

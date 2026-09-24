@@ -22,8 +22,6 @@
 }
 
 .search-form input:focus-visible,
-.tag-button:focus-visible,
-.selected-tag:focus-visible,
 .clear-button:focus-visible {
   outline: 2px solid var(--font-color);
   outline-offset: 2px;
@@ -77,6 +75,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-8);
+  font-size: 0.875rem;
+}
+
+.tag-panel .tag-list > button > span {
+  color: var(--font-muted-color);
 }
 
 .tag-list[data-scrollable="true"] {
@@ -84,35 +87,6 @@
   overflow-y: auto;
 }
 
-.tag-button,
-.selected-tag {
-  box-sizing: border-box;
-  min-height: var(--touch-target-min);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-8);
-  padding: var(--space-8) var(--space-12);
-  border: 1px solid var(--border-color);
-  border-radius: 22px;
-  background: var(--paper-color);
-  color: var(--font-color);
-  font: inherit;
-  cursor: pointer;
-  overflow-wrap: anywhere;
-}
-
-.tag-button:hover,
-.selected-tag:hover {
-  background: var(--primary-soft-color);
-}
-
-.tag-button[aria-pressed="true"],
-.selected-tag {
-  border-color: var(--primary-color);
-  background: var(--primary-pale-color);
-}
-
-.tag-count,
 .hint {
   color: var(--font-muted-color);
   font-size: 14px;

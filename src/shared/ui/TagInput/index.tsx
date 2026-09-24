@@ -1,11 +1,13 @@
-import { useId, useMemo, useRef, useState } from "react";
+import { useId, useState } from "react";
 
 import Batch from "../Batch";
-import Listbox from "../Listbox";
+import TagSelector from "../TagSelector";
 import styles from "./index.module.css";
 
-import type { FormEvent, InputHTMLAttributes, ReactNode } from "react";
-import type { ListboxOption } from "../Listbox";
+import { formatTagLabel, normalizeTagNameInput } from "@/util/tagName";
+
+import type { FormEvent, InputHTMLAttributes } from "react";
+import type { TagSelectorOption } from "../TagSelector";
 
 export type TagInputTag = {
   id: string;
@@ -14,34 +16,20 @@ export type TagInputTag = {
 
 type TagInputProps = {
   tags: TagInputTag[];
-  allTagOptions?: string[];
+  allTagOptions: TagSelectorOption[];
   failedTags?: string[];
   retryingTags?: string[];
   errorMessage?: string;
-  onAddTag: (tag: string) => void;
+  onAddTag: (tagID: string) => void;
+  onCreateTag: (tagName: string) => void;
   onRemoveTag: (tagID: string) => void;
-  onRetryTag?: (tag: string) => void;
-  onRemoveFailedTag?: (tag: string) => void;
+  onRetryTag?: (tagName: string) => void;
+  onRemoveFailedTag?: (tagName: string) => void;
   heading?: string;
 } & Omit<
   InputHTMLAttributes<HTMLInputElement>,
   "value" | "onChange" | "className"
 >;
-
-const renderTagOptionLabel = (name: string, keyword: string): ReactNode => {
-  const matchIndex = name.toLowerCase().indexOf(keyword.toLowerCase());
-  if (keyword === "" || matchIndex < 0) return name;
-
-  return (
-    <span className={styles["tag-option-label"]}>
-      {name.slice(0, matchIndex)}
-      <span className={styles["tag-option-match"]}>
-        {name.slice(matchIndex, matchIndex + keyword.length)}
-      </span>
-      {name.slice(matchIndex + keyword.length)}
-    </span>
-  );
-};
 
 const TagInput = ({
   tags,
@@ -50,134 +38,94 @@ const TagInput = ({
   retryingTags = [],
   errorMessage,
   onAddTag,
+  onCreateTag,
   onRemoveTag,
   onRetryTag,
   onRemoveFailedTag,
   heading,
   ...props
 }: TagInputProps) => {
-  const [isFocused, setFocused] = useState(false);
   const [inputValue, setInputValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
-  const tagListboxID = useId();
+  const [isNameEmpty, setNameEmpty] = useState(false);
+  const createInputID = useId();
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const tag = inputValue.trim();
-    if (tag !== "") {
-      if (tags.some(({ name }) => name.toLowerCase() === tag.toLowerCase())) {
-        return;
-      }
-      onAddTag(tag);
-      setInputValue("");
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const tagName = normalizeTagNameInput(inputValue);
+    if (tagName === "") {
+      setNameEmpty(true);
+      return;
     }
+
+    onCreateTag(tagName);
+    setInputValue("");
+    setNameEmpty(false);
   };
 
-  const tagOptions = useMemo<ListboxOption<string>[]>(() => {
-    if (!allTagOptions) return [];
-    const keyword = inputValue.trim();
-    const lowerKeyword = keyword.toLowerCase();
-
-    return allTagOptions
-      .filter(
-        (option) =>
-          option.toLowerCase().includes(lowerKeyword) &&
-          !tags.some(({ name }) => name.toLowerCase() === option.toLowerCase()),
-      )
-      .sort(
-        (left, right) =>
-          left.toLowerCase().indexOf(lowerKeyword) -
-          right.toLowerCase().indexOf(lowerKeyword),
-      )
-      .map((option) => ({
-        id: option,
-        value: option,
-        label: renderTagOptionLabel(option, keyword),
-      }));
-  }, [inputValue, allTagOptions, tags]);
-
   return (
-    <form className={styles["tag-input-wrapper"]} onSubmit={handleSubmit}>
+    <section className={styles["tag-input-wrapper"]}>
       {heading && <h3>{heading}</h3>}
-      <div className={styles["input-wrapper"]}>
-        <div className={styles["tags-wrapper"]}>
-          {tags.map((tag) => (
-            <Batch
-              key={tag.id}
-              color="primary"
-              onClick={() => {
-                onRemoveTag(tag.id);
-              }}
-            >
-              {tag.name}
-            </Batch>
-          ))}
+      <TagSelector
+        allTags={allTagOptions}
+        selectedTags={tags}
+        onAddTag={onAddTag}
+        onRemoveTag={onRemoveTag}
+        onClearTags={() => {
+          tags.forEach((tag) => {
+            onRemoveTag(tag.id);
+          });
+        }}
+        ariaLabel="作品に付けるタグを探す"
+        searchPlaceholder="既存のタグを探す"
+      />
+      <form className={styles["create-form"]} onSubmit={handleSubmit}>
+        <label htmlFor={createInputID}>新しいタグを作成</label>
+        <div className={styles["create-row"]}>
+          <input
+            id={createInputID}
+            type="text"
+            name="tag"
+            placeholder="#タグ名"
+            value={inputValue}
+            onChange={(event) => {
+              setInputValue(event.target.value);
+              setNameEmpty(false);
+            }}
+            {...props}
+          />
+          <button type="submit">作成</button>
+        </div>
+        {isNameEmpty && <p role="alert">タグ名を入力してください。</p>}
+      </form>
+      {failedTags.length > 0 && (
+        <div className={styles["failed-tags"]}>
           {failedTags.map((name) => {
             const isRetrying = retryingTags.some(
               (retrying) => retrying.toLowerCase() === name.toLowerCase(),
             );
             return (
               <Batch
-                key={`failed-${name}`}
+                key={name}
                 variant="error"
                 isRetrying={isRetrying}
                 onRetry={onRetryTag ? () => onRetryTag(name) : null}
                 onClick={
                   onRemoveFailedTag ? () => onRemoveFailedTag(name) : null
                 }
+                ariaLabel={`${formatTagLabel(name)}の作成失敗を取り消す`}
               >
-                {name}
+                {formatTagLabel(name)}
               </Batch>
             );
           })}
-          <Listbox
-            id={tagListboxID}
-            isOpen={tagOptions.length > 0 && isFocused}
-            options={tagOptions}
-            placement="bottom"
-            align="start"
-            ariaLabel="タグ候補"
-            className={styles["tag-listbox"]}
-            onClose={() => setFocused(false)}
-            triggerRef={inputRef}
-            onSelect={(tag) => {
-              if (
-                tags.some(
-                  ({ name }) => name.toLowerCase() === tag.toLowerCase(),
-                )
-              ) {
-                return;
-              }
-              onAddTag(tag);
-              setInputValue("");
-              setFocused(false);
-            }}
-          />
-          <input
-            type="text"
-            role="combobox"
-            name="tag"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onFocus={() => {
-              setFocused(true);
-            }}
-            className={styles["input-field"]}
-            {...props}
-            aria-haspopup="listbox"
-            aria-expanded={tagOptions.length > 0 && isFocused}
-            aria-controls={tagListboxID}
-            aria-autocomplete="list"
-            ref={inputRef}
-          />
         </div>
-      </div>
+      )}
       {errorMessage && (
         <p className={styles["tag-error"]} role="alert">
           {errorMessage}
         </p>
       )}
-    </form>
+    </section>
   );
 };
 

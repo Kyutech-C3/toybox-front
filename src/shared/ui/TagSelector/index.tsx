@@ -2,18 +2,27 @@ import { useId, useMemo, useState } from "react";
 
 import styles from "./index.module.css";
 
+import Batch from "@/shared/ui/Batch";
 import SegmentedControl from "@/shared/ui/SegmentedControl";
+import { formatTagLabel, normalizeTagNameInput } from "@/util/tagName";
 
 import type { FormEvent } from "react";
-import type { TagDetail } from "@/shared/types/work";
 import type { SegmentedControlOption } from "@/shared/ui/SegmentedControl";
 
-type SearchBarProps = {
-  allTags: TagDetail[];
-  selectedTags: TagDetail[];
+export type TagSelectorOption = {
+  id: string;
+  name: string;
+  work_count: number;
+};
+
+type TagSelectorProps = {
+  allTags: TagSelectorOption[];
+  selectedTags: { id: string; name: string }[];
   onAddTag: (tagID: string) => void;
   onRemoveTag: (tagID: string) => void;
   onClearTags: () => void;
+  ariaLabel?: string;
+  searchPlaceholder?: string;
 };
 
 type TagViewMode = "popular" | "all-popular" | "all-name" | "results";
@@ -26,13 +35,15 @@ const TAG_VIEW_OPTIONS: SegmentedControlOption<TagViewMode>[] = [
   { value: "results", label: "検索" },
 ];
 
-export const SearchBar = ({
+const TagSelector = ({
   allTags,
   selectedTags,
   onAddTag,
   onRemoveTag,
   onClearTags,
-}: SearchBarProps) => {
+  ariaLabel = "タグで作品を探す",
+  searchPlaceholder = "タグで作品を探す",
+}: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
   const [viewMode, setViewMode] = useState<TagViewMode>("popular");
   const panelID = useId();
@@ -45,36 +56,51 @@ export const SearchBar = ({
       [...allTags].sort(
         (left, right) =>
           right.work_count - left.work_count ||
-          left.name.localeCompare(right.name, "ja"),
+          normalizeTagNameInput(left.name).localeCompare(
+            normalizeTagNameInput(right.name),
+            "ja",
+          ),
       ),
     [allTags],
   );
   const tagsByName = useMemo(
     () =>
       [...allTags].sort((left, right) =>
-        left.name.localeCompare(right.name, "ja"),
+        normalizeTagNameInput(left.name).localeCompare(
+          normalizeTagNameInput(right.name),
+          "ja",
+        ),
       ),
     [allTags],
   );
-  const normalizedKeyword = keyword.trim().toLocaleLowerCase();
+  const normalizedKeyword = normalizeTagNameInput(keyword).toLocaleLowerCase();
   const matchingTags = useMemo(
     () =>
       normalizedKeyword === ""
         ? []
         : tagsByPopularity
             .filter((tag) =>
-              tag.name.toLocaleLowerCase().includes(normalizedKeyword),
+              normalizeTagNameInput(tag.name)
+                .toLocaleLowerCase()
+                .includes(normalizedKeyword),
             )
             .sort(
               (left, right) =>
                 Number(
-                  right.name.toLocaleLowerCase().startsWith(normalizedKeyword),
+                  normalizeTagNameInput(right.name)
+                    .toLocaleLowerCase()
+                    .startsWith(normalizedKeyword),
                 ) -
                   Number(
-                    left.name.toLocaleLowerCase().startsWith(normalizedKeyword),
+                    normalizeTagNameInput(left.name)
+                      .toLocaleLowerCase()
+                      .startsWith(normalizedKeyword),
                   ) ||
                 right.work_count - left.work_count ||
-                left.name.localeCompare(right.name, "ja"),
+                normalizeTagNameInput(left.name).localeCompare(
+                  normalizeTagNameInput(right.name),
+                  "ja",
+                ),
             ),
     [normalizedKeyword, tagsByPopularity],
   );
@@ -91,7 +117,9 @@ export const SearchBar = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const exactMatch = matchingTags.find(
-      (tag) => tag.name.toLocaleLowerCase() === normalizedKeyword,
+      (tag) =>
+        normalizeTagNameInput(tag.name).toLocaleLowerCase() ===
+        normalizedKeyword,
     );
     const tagToAdd =
       exactMatch ?? matchingTags.find((tag) => !selectedIDs.has(tag.id));
@@ -99,12 +127,12 @@ export const SearchBar = ({
   };
 
   return (
-    <section className={styles["tag-search"]} aria-label="タグで作品を探す">
+    <section className={styles["tag-search"]} aria-label={ariaLabel}>
       <form className={styles["search-form"]} onSubmit={handleSubmit}>
         <input
           type="search"
-          aria-label="タグで作品を探す"
-          placeholder="タグで作品を探す"
+          aria-label={ariaLabel}
+          placeholder={searchPlaceholder}
           value={keyword}
           onChange={(event) => {
             setKeyword(event.target.value);
@@ -137,22 +165,18 @@ export const SearchBar = ({
               data-scrollable={viewMode !== "popular" ? "true" : "false"}
             >
               {visibleTags.map((tag) => (
-                <button
+                <Batch
                   key={tag.id}
-                  type="button"
-                  className={styles["tag-button"]}
-                  aria-pressed={selectedIDs.has(tag.id)}
-                  onClick={() =>
+                  onSelect={() =>
                     selectedIDs.has(tag.id)
                       ? onRemoveTag(tag.id)
                       : onAddTag(tag.id)
                   }
+                  isSelected={selectedIDs.has(tag.id)}
+                  ariaLabel={`${formatTagLabel(tag.name)}、${tag.work_count}作品`}
                 >
-                  <span>{tag.name}</span>
-                  <span className={styles["tag-count"]}>
-                    {tag.work_count}作品
-                  </span>
-                </button>
+                  {formatTagLabel(tag.name)} <span>{tag.work_count}</span>
+                </Batch>
               ))}
             </div>
           ) : (
@@ -181,15 +205,14 @@ export const SearchBar = ({
           </div>
           <div className={styles["tag-list"]}>
             {selectedTags.map((tag) => (
-              <button
+              <Batch
                 key={tag.id}
-                type="button"
-                className={styles["selected-tag"]}
-                aria-label={`${tag.name}を解除`}
+                color="selected"
+                ariaLabel={`${formatTagLabel(tag.name)}を解除`}
                 onClick={() => onRemoveTag(tag.id)}
               >
-                {tag.name} <span aria-hidden="true">×</span>
-              </button>
+                {formatTagLabel(tag.name)}
+              </Batch>
             ))}
           </div>
         </div>
@@ -197,3 +220,5 @@ export const SearchBar = ({
     </section>
   );
 };
+
+export default TagSelector;

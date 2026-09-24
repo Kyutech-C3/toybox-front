@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
+import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
 import UserButton from "../UserButton";
 import VisibilityIcon from "../VisibilityIcon";
@@ -8,6 +9,7 @@ import useMarquee from "./hook/useMarquee";
 import styles from "./index.module.css";
 
 import { formatDateTime } from "@/util/formatDateTime";
+import { formatTagLabel } from "@/util/tagName";
 
 import type { ReactNode, SyntheticEvent } from "react";
 import type { Work } from "@/shared/types/work";
@@ -106,23 +108,17 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
                 ref={tagsMarquee.setItem}
               >
                 {work.tags.map((tag) => (
-                  <span
-                    key={`${work.id}-${tag.id}`}
-                    className={styles["card-tag"]}
-                  >
-                    #{tag.name}
-                  </span>
+                  <Batch key={`${work.id}-${tag.id}`}>
+                    {formatTagLabel(tag.name)}
+                  </Batch>
                 ))}
               </span>
               {tagsMarquee.isOverflowing && (
                 <span className={styles["marquee-item"]} aria-hidden="true">
                   {work.tags.map((tag) => (
-                    <span
-                      key={`${work.id}-${tag.id}-loop`}
-                      className={styles["card-tag"]}
-                    >
-                      #{tag.name}
-                    </span>
+                    <Batch key={`${work.id}-${tag.id}-loop`}>
+                      {formatTagLabel(tag.name)}
+                    </Batch>
                   ))}
                 </span>
               )}

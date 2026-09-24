@@ -24,6 +24,7 @@ const WorkDetailForm = () => {
     retryingTags,
     tagError,
     handleAddTag,
+    handleCreateTag,
     handleRemoveTag,
     handleRetryTag,
     handleRemoveFailedTag,
@@ -40,6 +41,7 @@ const WorkDetailForm = () => {
           retryingTags={retryingTags}
           errorMessage={tagError}
           onAddTag={handleAddTag}
+          onCreateTag={handleCreateTag}
           onRemoveTag={handleRemoveTag}
           onRetryTag={handleRetryTag}
           onRemoveFailedTag={handleRemoveFailedTag}
