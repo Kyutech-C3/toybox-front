@@ -212,7 +212,7 @@
 }
 
 .tag-search[data-layout="top-page"] .clear-button {
-  min-height: 28px;
+  min-height: 25px;
   padding: 0 var(--space-12);
   border: 1px solid var(--error-color);
   border-radius: 9999px;
@@ -232,7 +232,7 @@
 }
 
 .tag-search[data-layout="top-page"] .selected-tags .tag-list > button {
-  min-height: 28px;
+  min-height: 25px;
 }
 
 @media (max-width: 767px) {
