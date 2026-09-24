@@ -31,13 +31,7 @@ type TagSelectorProps = {
 
 type TagViewMode = "popular" | "all-popular" | "all-name";
 
-const POPULAR_TAG_LIMIT = 10;
 const TAG_VIEW_OPTIONS: SegmentedControlOption<TagViewMode>[] = [
-  { value: "popular", label: "人気" },
-  { value: "all-popular", label: "全件・人気" },
-  { value: "all-name", label: "全件・名前" },
-];
-const TOP_PAGE_TAG_VIEW_OPTIONS: SegmentedControlOption<TagViewMode>[] = [
   { value: "popular", label: "多い順" },
   { value: "all-popular", label: "全件多い順" },
   { value: "all-name", label: "全件名前順" },
@@ -57,7 +51,7 @@ const TagSelector = ({
 }: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
   const [viewMode, setViewMode] = useState<TagViewMode>("popular");
-  const [visibleTagCount, setVisibleTagCount] = useState(POPULAR_TAG_LIMIT);
+  const [visibleTagCount, setVisibleTagCount] = useState(0);
   const measureListRef = useRef<HTMLDivElement>(null);
   const panelID = useId();
   const selectedIDs = useMemo(
@@ -100,7 +94,7 @@ const TagSelector = ({
     [normalizedKeyword, sortedTags],
   );
   useLayoutEffect(() => {
-    if (layout !== "top-page" || viewMode !== "popular") return;
+    if (viewMode !== "popular") return;
 
     const measureList = measureListRef.current;
     if (!measureList) return;
@@ -131,20 +125,14 @@ const TagSelector = ({
       isActive = false;
       observer.disconnect();
     };
-  }, [layout, viewMode, tagsByPopularity]);
+  }, [viewMode, tagsByPopularity]);
 
   const visibleTags =
     viewMode === "popular"
-      ? layout === "top-page"
-        ? tagsByPopularity.slice(0, visibleTagCount)
-        : tagsByPopularity
-            .filter((tag) => tag.work_count > 0)
-            .slice(0, POPULAR_TAG_LIMIT)
+      ? tagsByPopularity.slice(0, visibleTagCount)
       : matchingTags;
   const isPopularTruncated =
-    layout === "top-page" &&
-    viewMode === "popular" &&
-    visibleTagCount < tagsByPopularity.length;
+    viewMode === "popular" && visibleTagCount < tagsByPopularity.length;
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (normalizedKeyword === "") return;
@@ -190,11 +178,7 @@ const TagSelector = ({
       <div className={styles["tag-browser"]}>
         <div className={styles["view-switch"]}>
           <SegmentedControl
-            options={
-              layout === "top-page"
-                ? TOP_PAGE_TAG_VIEW_OPTIONS
-                : TAG_VIEW_OPTIONS
-            }
+            options={TAG_VIEW_OPTIONS}
             value={viewMode}
             onChange={(mode) => {
               if (mode === "popular") setKeyword("");
@@ -251,7 +235,7 @@ const TagSelector = ({
             </p>
           )}
         </div>
-        {layout === "top-page" && viewMode === "popular" && (
+        {viewMode === "popular" && (
           <div
             ref={measureListRef}
             className={`${styles["tag-list"]} ${styles["measure-list"]}`}
@@ -283,7 +267,7 @@ const TagSelector = ({
               className={styles["clear-button"]}
               onClick={onClearTags}
             >
-              {layout === "top-page" ? "選択解除" : "すべて解除"}
+              選択解除
             </button>
           </div>
           <div className={styles["tag-list"]}>

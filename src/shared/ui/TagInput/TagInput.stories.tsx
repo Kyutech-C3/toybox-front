@@ -20,6 +20,13 @@ const INITIAL_TAGS: TagDetail[] = [
     created_at: "2025-01-01T00:00:00Z",
     updated_at: "2025-01-01T00:00:00Z",
   },
+  {
+    id: "new-tag",
+    name: "新しいタグ",
+    work_count: 0,
+    created_at: "2025-01-01T00:00:00Z",
+    updated_at: "2025-01-01T00:00:00Z",
+  },
 ];
 
 const TagInputPreview = () => {
