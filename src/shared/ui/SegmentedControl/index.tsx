@@ -13,8 +13,9 @@ export type SegmentedControlOption<T extends string> = {
 
 type SegmentedControlProps<T extends string> = {
   options: SegmentedControlOption<T>[];
-  value: T;
+  value: T | null;
   onChange: (value: T) => void;
+  onDeselect?: () => void;
   ariaLabel: string;
   role?: "radiogroup" | "tablist";
   getOptionID?: (value: T) => string;
@@ -30,6 +31,7 @@ const SegmentedControl = <T extends string>({
   options,
   value,
   onChange,
+  onDeselect,
   ariaLabel,
   role = "radiogroup",
   getOptionID,
@@ -42,13 +44,14 @@ const SegmentedControl = <T extends string>({
     "--segment-index": Math.max(selectedIndex, 0),
   };
 
-  const handleTabKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
     event.preventDefault();
 
     const offset = event.key === "ArrowRight" ? 1 : -1;
+    const startIndex = selectedIndex < 0 && offset < 0 ? 0 : selectedIndex;
     const nextOption =
-      options[(selectedIndex + offset + options.length) % options.length];
+      options[(startIndex + offset + options.length) % options.length];
     if (!nextOption) return;
 
     onChange(nextOption.value);
@@ -80,7 +83,22 @@ const SegmentedControl = <T extends string>({
     <>
       <span className={styles["segment-thumb"]} aria-hidden="true" />
       {options.map((option) =>
-        role === "tablist" ? (
+        onDeselect ? (
+          <button
+            key={option.value}
+            type="button"
+            className={styles["segment"]}
+            data-value={option.value}
+            data-selected={option.value === value ? "true" : "false"}
+            aria-pressed={option.value === value}
+            title={option.isLabelVisible === false ? option.label : undefined}
+            onClick={() =>
+              option.value === value ? onDeselect() : onChange(option.value)
+            }
+          >
+            {renderContent(option)}
+          </button>
+        ) : role === "tablist" ? (
           <button
             key={option.value}
             type="button"
@@ -118,6 +136,20 @@ const SegmentedControl = <T extends string>({
       )}
     </>
   );
+
+  if (onDeselect) {
+    return (
+      <fieldset
+        className={styles["segmented-control"]}
+        style={controlStyle}
+        aria-label={ariaLabel}
+        data-has-selection={selectedIndex >= 0 ? "true" : "false"}
+        onKeyDown={handleTabKeyDown}
+      >
+        {segments}
+      </fieldset>
+    );
+  }
 
   if (role === "tablist") {
     return (

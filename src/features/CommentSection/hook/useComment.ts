@@ -1,6 +1,7 @@
 import useSWR from "swr";
 
-import { fetchData } from "@/util/fetchData";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { fetchData, fetchDataWithAuth } from "@/util/fetchData";
 
 import type { Comment } from "@/shared/types/comment";
 
@@ -12,19 +13,25 @@ interface UseCommentReturn {
   data: Comment[];
 }
 
-export const getCommentSWRKey = (workId: string) => `/works/${workId}/comments`;
+export const getCommentSWRKey = (
+  workId: string,
+  accessToken: string | null,
+) => {
+  const url = `/works/${workId}/comments`;
+  return accessToken ? ([url, accessToken] as const) : url;
+};
 
 const useComment = ({ workId }: UseCommentParams): UseCommentReturn => {
-  const url = getCommentSWRKey(workId);
+  const accessToken = useAuthStore((state) => state.accessToken);
 
-  const fetcher = async (url: string): Promise<Comment[]> => {
-    const response = await fetchData(url);
-    return response;
-  };
-
-  const { data: response } = useSWR<Comment[]>(url, fetcher, {
-    suspense: true,
-  });
+  const { data: response } = useSWR<Comment[]>(
+    getCommentSWRKey(workId, accessToken),
+    () =>
+      accessToken
+        ? fetchDataWithAuth(`/works/${workId}/comments`, accessToken)
+        : fetchData(`/works/${workId}/comments`),
+    { suspense: true },
+  );
 
   return {
     data: response ?? [],

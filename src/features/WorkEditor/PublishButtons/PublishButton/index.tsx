@@ -17,6 +17,7 @@ import {
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { getWorkDetailSWRKey } from "@/features/WorkDetail/hook/useWorkDetail";
 import Listbox from "@/shared/ui/Listbox";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
@@ -111,8 +112,25 @@ const PublishButton = () => {
       setSubmitError("ログインが必要です");
       return;
     }
-    if (!current.thumbnail?.assetID) {
+    const payload = toWorkPayload(current);
+    if (!payload.title.trim()) {
+      setSubmitError("タイトルを入力してください");
+      return;
+    }
+    if (!payload.description.trim()) {
+      setSubmitError("説明を入力してください");
+      return;
+    }
+    if (payload.tag_ids.length === 0) {
+      setSubmitError("タグを1つ以上指定してください");
+      return;
+    }
+    if (!payload.thumbnail_asset_id) {
       setSubmitError("サムネイルのアップロードを完了してください");
+      return;
+    }
+    if (payload.asset_ids.length === 0) {
+      setSubmitError("アセットを1つ以上追加してください");
       return;
     }
 
@@ -135,7 +153,9 @@ const PublishButton = () => {
           accessToken,
         );
         await Promise.all([
-          mutate(`/works/${workID}`, updatedWork, { revalidate: false }),
+          mutate(getWorkDetailSWRKey(workID, accessToken), updatedWork, {
+            revalidate: false,
+          }),
           mutate(getWorkEditorSWRKey({ workID, accessToken }), updatedWork, {
             revalidate: false,
           }),
@@ -147,7 +167,7 @@ const PublishButton = () => {
         navigate(`/works/${workID}`);
         return;
       }
-      await postWork(toWorkPayload(current), accessToken);
+      await postWork(payload, accessToken);
       deleteOrphanedResources();
       markSaved();
       showToast({ message: "作品を投稿しました", severity: "success" });

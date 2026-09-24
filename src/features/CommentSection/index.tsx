@@ -44,7 +44,7 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
       await postComment(postId, trimmed, accessToken, replyingTo?.id);
       setReplyingTo(undefined);
       try {
-        await mutate(getCommentSWRKey(postId));
+        await mutate(getCommentSWRKey(postId, accessToken));
       } catch {
         showToast({
           message: "コメント一覧を更新できませんでした",
