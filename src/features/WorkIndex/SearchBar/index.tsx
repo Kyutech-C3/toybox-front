@@ -90,10 +90,12 @@ export const SearchBar = ({
           : matchingTags;
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const firstUnselectedTag = matchingTags.find(
-      (tag) => !selectedIDs.has(tag.id),
+    const exactMatch = matchingTags.find(
+      (tag) => tag.name.toLocaleLowerCase() === normalizedKeyword,
     );
-    if (firstUnselectedTag) onAddTag(firstUnselectedTag.id);
+    const tagToAdd =
+      exactMatch ?? matchingTags.find((tag) => !selectedIDs.has(tag.id));
+    if (tagToAdd && !selectedIDs.has(tagToAdd.id)) onAddTag(tagToAdd.id);
   };
 
   return (
