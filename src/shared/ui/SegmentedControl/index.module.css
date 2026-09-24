@@ -5,8 +5,8 @@
   margin: 0;
   display: inline-grid;
   grid-template-columns: repeat(var(--segment-count, 2), minmax(0, 1fr));
-  gap: 4px;
-  padding: 4px;
+  gap: 2px;
+  padding: 2px;
   border: 1px solid var(--border-color);
   border-radius: 9999px;
   background: var(--background-color);
@@ -16,17 +16,17 @@
 .segment-thumb {
   position: absolute;
   z-index: 0;
-  top: 4px;
-  bottom: 4px;
-  left: 4px;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
   width: calc(
-    (100% - 8px - 4px * (var(--segment-count, 2) - 1)) /
+    (100% - 4px - 2px * (var(--segment-count, 2) - 1)) /
     var(--segment-count, 2)
   );
   border-radius: 9999px;
   background: var(--primary-color);
   box-shadow: 0 2px 6px var(--shadow-soft-color);
-  transform: translateX(calc(var(--segment-index, 0) * (100% + 4px)));
+  transform: translateX(calc(var(--segment-index, 0) * (100% + 2px)));
   transition: transform 0.25s ease;
 }
 
@@ -36,19 +36,21 @@
 
 .segment {
   position: relative;
+  box-sizing: border-box;
   border: 0;
   background: transparent;
   font: inherit;
   z-index: 1;
-  min-height: 38px;
-  padding: 0 var(--space-12);
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0 var(--space-4);
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
   color: var(--font-muted-color);
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
@@ -56,6 +58,10 @@
   transition:
     color var(--hover-transition),
     background-color var(--hover-transition);
+}
+
+.segment:has(.segment-label-hidden) {
+  padding-inline: 0;
 }
 
 .segment[data-selected="true"] {
@@ -104,12 +110,6 @@
 @media (prefers-reduced-motion: reduce) {
   .segment-thumb {
     transition: none;
-  }
-}
-
-@media (pointer: coarse) {
-  .segment {
-    min-height: var(--touch-target-min);
   }
 }
 
