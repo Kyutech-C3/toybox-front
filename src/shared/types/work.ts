@@ -41,8 +41,13 @@ type Tag = {
   updated_at: string;
 };
 
+/** @apiContract */
+type TagDetail = Tag & {
+  work_count: number;
+};
+
 type TagListResponse = {
-  tags: Tag[];
+  tags: TagDetail[];
 };
 
 type Asset = {
@@ -66,6 +71,7 @@ type WorkListResponse = {
 export type {
   Asset,
   Tag,
+  TagDetail,
   TagListResponse,
   Work,
   WorkListResponse,

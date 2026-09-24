@@ -1,24 +1,25 @@
 import useSWR from "swr";
 
-import { fetchData } from "@/util/fetchData";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { fetchData, fetchDataWithAuth } from "@/util/fetchData";
 
-import type { Tag, TagListResponse } from "@/shared/types/work";
+import type { TagDetail, TagListResponse } from "@/shared/types/work";
 
 interface UseTagOptionsReturn {
-  data: Tag[];
+  data: TagDetail[];
 }
 
 const useTagOptions = (): UseTagOptionsReturn => {
   const url = "/tags";
+  const accessToken = useAuthStore((state) => state.accessToken);
 
-  const fetcher = async (url: string): Promise<TagListResponse> => {
-    const response = await fetchData(url);
-    return response;
-  };
-
-  const { data: response } = useSWR<TagListResponse>(url, fetcher, {
-    suspense: true,
-  });
+  const { data: response } = useSWR<TagListResponse>(
+    accessToken ? [url, accessToken] : url,
+    accessToken
+      ? ([requestUrl, token]) => fetchDataWithAuth(requestUrl, token)
+      : (requestUrl) => fetchData(requestUrl),
+    { suspense: true },
+  );
 
   return {
     data: response?.tags ?? [],
