@@ -18,7 +18,42 @@
   text-align: left;
 }
 
-.result-count {
+.result-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.result-count,
+.result-position {
   margin: 0;
+}
+
+.result-count {
   font-weight: 700;
+}
+
+.result-position {
+  color: var(--font-muted-color);
+}
+
+.result-position-button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--link-color);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.result-position-button:hover {
+  text-decoration: underline;
+}
+
+.result-position-button:focus-visible {
+  outline: 2px solid var(--link-color);
+  outline-offset: 2px;
 }
