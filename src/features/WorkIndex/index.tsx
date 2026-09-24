@@ -23,7 +23,8 @@ import type { CSSProperties } from "react";
 const WorkIndex = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: allTags } = useTagOptions();
-  const tagsByID = new Map(allTags.map((tag) => [tag.id, tag]));
+  const searchableTags = allTags.filter((tag) => tag.work_count > 0);
+  const tagsByID = new Map(searchableTags.map((tag) => [tag.id, tag]));
   const requestedTagIDs = searchParams.get("tags")?.split(",") ?? [];
   const selectedTagIDs = [...new Set(requestedTagIDs)].filter((tagID) =>
     tagsByID.has(tagID),
@@ -114,7 +115,7 @@ const WorkIndex = () => {
             <SortOrderSwitch />
           </div>
           <TagSelector
-            allTags={allTags}
+            allTags={searchableTags}
             selectedTags={selectedTags}
             onAddTag={handleAddTag}
             onRemoveTag={handleRemoveTag}
