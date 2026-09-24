@@ -46,7 +46,9 @@ const WorkPage = () => {
   const handleCommentRetry = async () => {
     if (!id) return;
 
-    await mutate(getCommentSWRKey(id), undefined, { revalidate: false });
+    await mutate(getCommentSWRKey(id, accessToken), undefined, {
+      revalidate: true,
+    });
   };
 
   return (
