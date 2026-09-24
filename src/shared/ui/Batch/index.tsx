@@ -108,7 +108,10 @@ const Batch = ({
           disabled={isRetrying}
           aria-label={ariaLabel ?? `Remove ${children} batch`}
         >
-          <CloseIcon fontSize="inherit" />
+          <CloseIcon
+            className={styles["batch-close-icon"]}
+            aria-hidden="true"
+          />
         </button>
       )}
     </span>

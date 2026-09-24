@@ -6,6 +6,7 @@
   color: var(--font-color);
   font: inherit;
   font-size: inherit;
+  font-weight: 700;
   border-radius: 9999px;
   text-align: center;
   display: inline-flex;
@@ -59,9 +60,10 @@
   }
 }
 
-.batch-close-icon {
-  width: 16px;
-  height: 16px;
+.batch .batch-close-icon {
+  width: 10px;
+  height: 10px;
+  font-size: 10px;
   flex-shrink: 0;
 }
 
@@ -69,6 +71,9 @@
   height: 16px;
   width: 16px;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 16px;
   border: none;
   background: transparent;

@@ -173,10 +173,10 @@ const TagSelector = ({
                       : onAddTag(tag.id)
                   }
                   isSelected={selectedIDs.has(tag.id)}
-                  ariaLabel={`${normalizeTagNameInput(tag.name)}、${tag.work_count}作品`}
+                  ariaLabel={`${normalizeTagNameInput(tag.name)}、${tag.work_count}件`}
                 >
                   {normalizeTagNameInput(tag.name)}{" "}
-                  <span>{tag.work_count}</span>
+                  <span>{tag.work_count}件</span>
                 </Batch>
               ))}
             </div>
