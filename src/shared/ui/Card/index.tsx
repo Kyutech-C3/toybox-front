@@ -9,7 +9,7 @@ import useMarquee from "./hook/useMarquee";
 import styles from "./index.module.css";
 
 import { formatDateTime } from "@/util/formatDateTime";
-import { formatTagLabel } from "@/util/tagName";
+import { normalizeTagNameInput } from "@/util/tagName";
 
 import type { ReactNode, SyntheticEvent } from "react";
 import type { Work } from "@/shared/types/work";
@@ -109,7 +109,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
               >
                 {work.tags.map((tag) => (
                   <Batch key={`${work.id}-${tag.id}`}>
-                    {formatTagLabel(tag.name)}
+                    {normalizeTagNameInput(tag.name)}
                   </Batch>
                 ))}
               </span>
@@ -117,7 +117,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
                 <span className={styles["marquee-item"]} aria-hidden="true">
                   {work.tags.map((tag) => (
                     <Batch key={`${work.id}-${tag.id}-loop`}>
-                      {formatTagLabel(tag.name)}
+                      {normalizeTagNameInput(tag.name)}
                     </Batch>
                   ))}
                 </span>

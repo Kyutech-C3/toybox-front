@@ -19,25 +19,25 @@ type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
   args: {
-    children: "#React",
+    children: "React",
   },
 };
 
 export const TypeScript: Story = {
   args: {
-    children: "#TypeScript",
+    children: "TypeScript",
   },
 };
 
 export const LongTag: Story = {
   args: {
-    children: "#JavaScript Development",
+    children: "JavaScript Development",
   },
 };
 
 export const Removable: Story = {
   args: {
-    children: "#React",
+    children: "React",
     color: "selected",
     onClick: () => {},
   },
@@ -45,7 +45,7 @@ export const Removable: Story = {
 
 export const CreationFailed: Story = {
   args: {
-    children: "#React",
+    children: "React",
     variant: "error",
     onRetry: () => {},
     onClick: () => {},
@@ -54,7 +54,7 @@ export const CreationFailed: Story = {
 
 export const Retrying: Story = {
   args: {
-    children: "#React",
+    children: "React",
     variant: "error",
     isRetrying: true,
     onRetry: () => {},

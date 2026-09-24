@@ -4,7 +4,4 @@ const normalizeTagNameInput = (name: string): string =>
     .replace(/^(?:[#＃]\s*)+/, "")
     .trim();
 
-const formatTagLabel = (name: string): string =>
-  `#${normalizeTagNameInput(name)}`;
-
-export { formatTagLabel, normalizeTagNameInput };
+export { normalizeTagNameInput };

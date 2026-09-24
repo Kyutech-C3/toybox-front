@@ -15,7 +15,7 @@ import Paper from "@/shared/ui/Paper";
 import UserButton from "@/shared/ui/UserButton";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
 import { formatDateTime } from "@/util/formatDateTime";
-import { formatTagLabel } from "@/util/tagName";
+import { normalizeTagNameInput } from "@/util/tagName";
 
 import type { Work } from "@/shared/types/work";
 
@@ -40,7 +40,7 @@ const WorkDetail = ({ data }: WorkDetailProps) => {
             <div className={styles["work-detail-tags"]}>
               {data.tags.map((tag) => (
                 <Batch key={`${data.id}-${tag.id}`}>
-                  {formatTagLabel(tag.name)}
+                  {normalizeTagNameInput(tag.name)}
                 </Batch>
               ))}
             </div>

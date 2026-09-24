@@ -4,7 +4,7 @@ import styles from "./index.module.css";
 
 import Batch from "@/shared/ui/Batch";
 import SegmentedControl from "@/shared/ui/SegmentedControl";
-import { formatTagLabel, normalizeTagNameInput } from "@/util/tagName";
+import { normalizeTagNameInput } from "@/util/tagName";
 
 import type { FormEvent } from "react";
 import type { SegmentedControlOption } from "@/shared/ui/SegmentedControl";
@@ -173,9 +173,10 @@ const TagSelector = ({
                       : onAddTag(tag.id)
                   }
                   isSelected={selectedIDs.has(tag.id)}
-                  ariaLabel={`${formatTagLabel(tag.name)}、${tag.work_count}作品`}
+                  ariaLabel={`${normalizeTagNameInput(tag.name)}、${tag.work_count}作品`}
                 >
-                  {formatTagLabel(tag.name)} <span>{tag.work_count}</span>
+                  {normalizeTagNameInput(tag.name)}{" "}
+                  <span>{tag.work_count}</span>
                 </Batch>
               ))}
             </div>
@@ -208,10 +209,10 @@ const TagSelector = ({
               <Batch
                 key={tag.id}
                 color="selected"
-                ariaLabel={`${formatTagLabel(tag.name)}を解除`}
+                ariaLabel={`${normalizeTagNameInput(tag.name)}を解除`}
                 onClick={() => onRemoveTag(tag.id)}
               >
-                {formatTagLabel(tag.name)}
+                {normalizeTagNameInput(tag.name)}
               </Batch>
             ))}
           </div>

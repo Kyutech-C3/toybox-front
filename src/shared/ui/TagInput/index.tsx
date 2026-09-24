@@ -4,7 +4,7 @@ import Batch from "../Batch";
 import TagSelector from "../TagSelector";
 import styles from "./index.module.css";
 
-import { formatTagLabel, normalizeTagNameInput } from "@/util/tagName";
+import { normalizeTagNameInput } from "@/util/tagName";
 
 import type { FormEvent, InputHTMLAttributes } from "react";
 import type { TagSelectorOption } from "../TagSelector";
@@ -85,7 +85,7 @@ const TagInput = ({
             id={createInputID}
             type="text"
             name="tag"
-            placeholder="#タグ名"
+            placeholder="タグ名"
             value={inputValue}
             onChange={(event) => {
               setInputValue(event.target.value);
@@ -112,9 +112,9 @@ const TagInput = ({
                 onClick={
                   onRemoveFailedTag ? () => onRemoveFailedTag(name) : null
                 }
-                ariaLabel={`${formatTagLabel(name)}の作成失敗を取り消す`}
+                ariaLabel={`${normalizeTagNameInput(name)}の作成失敗を取り消す`}
               >
-                {formatTagLabel(name)}
+                {normalizeTagNameInput(name)}
               </Batch>
             );
           })}
