@@ -108,7 +108,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
                 ref={tagsMarquee.setItem}
               >
                 {work.tags.map((tag) => (
-                  <Batch key={`${work.id}-${tag.id}`}>
+                  <Batch key={`${work.id}-${tag.id}`} color="selected">
                     {normalizeTagNameInput(tag.name)}
                   </Batch>
                 ))}
@@ -116,7 +116,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
               {tagsMarquee.isOverflowing && (
                 <span className={styles["marquee-item"]} aria-hidden="true">
                   {work.tags.map((tag) => (
-                    <Batch key={`${work.id}-${tag.id}-loop`}>
+                    <Batch key={`${work.id}-${tag.id}-loop`} color="selected">
                       {normalizeTagNameInput(tag.name)}
                     </Batch>
                   ))}

@@ -39,7 +39,7 @@ const WorkDetail = ({ data }: WorkDetailProps) => {
           {data.tags.length > 0 && (
             <div className={styles["work-detail-tags"]}>
               {data.tags.map((tag) => (
-                <Batch key={`${data.id}-${tag.id}`}>
+                <Batch key={`${data.id}-${tag.id}`} color="selected">
                   {normalizeTagNameInput(tag.name)}
                 </Batch>
               ))}
