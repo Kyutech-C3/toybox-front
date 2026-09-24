@@ -24,7 +24,8 @@ type TagSelectorProps = {
   onClearTags: () => void;
   ariaLabel?: string;
   searchPlaceholder?: string;
-  layout?: "default" | "top-page";
+  layout?: "default" | "top-page" | "editor";
+  onCreateTag?: (tagName: string) => Promise<boolean>;
   leadingControls?: ReactNode;
   trailingControls?: ReactNode;
 };
@@ -46,10 +47,12 @@ const TagSelector = ({
   ariaLabel = "タグで作品を探す",
   searchPlaceholder = "タグで作品を探す",
   layout = "default",
+  onCreateTag,
   leadingControls,
   trailingControls,
 }: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
+  const [isCreating, setCreating] = useState(false);
   const [viewMode, setViewMode] = useState<TagViewMode>("popular");
   const [visibleTagCount, setVisibleTagCount] = useState(0);
   const measureListRef = useRef<HTMLDivElement>(null);
@@ -81,6 +84,14 @@ const TagSelector = ({
     [allTags],
   );
   const normalizedKeyword = normalizeTagNameInput(keyword).toLocaleLowerCase();
+  const tagName = normalizeTagNameInput(keyword);
+  const canCreateTag =
+    tagName !== "" &&
+    !allTags.some(
+      (tag) =>
+        normalizeTagNameInput(tag.name).toLocaleLowerCase() ===
+        normalizedKeyword,
+    );
   const sortedTags = viewMode === "all-name" ? tagsByName : tagsByPopularity;
   const matchingTags = useMemo(
     () =>
@@ -145,6 +156,17 @@ const TagSelector = ({
       exactMatch ?? matchingTags.find((tag) => !selectedIDs.has(tag.id));
     if (tagToAdd && !selectedIDs.has(tagToAdd.id)) onAddTag(tagToAdd.id);
   };
+  const handleCreateTag = async () => {
+    if (!onCreateTag || !canCreateTag || isCreating) return;
+    if (!window.confirm(`「${tagName}」を新しいタグとして作成しますか？`))
+      return;
+    setCreating(true);
+    try {
+      if (await onCreateTag(tagName)) setKeyword("");
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <section
@@ -165,6 +187,7 @@ const TagSelector = ({
           aria-label={ariaLabel}
           placeholder={searchPlaceholder}
           value={keyword}
+          readOnly={isCreating}
           onChange={(event) => {
             const nextKeyword = event.target.value;
             setKeyword(nextKeyword);
@@ -173,6 +196,16 @@ const TagSelector = ({
             }
           }}
         />
+        {onCreateTag && (
+          <button
+            type="button"
+            className={styles["create-button"]}
+            disabled={!canCreateTag || isCreating}
+            onClick={() => void handleCreateTag()}
+          >
+            {isCreating ? "作成中…" : "新規作成"}
+          </button>
+        )}
       </form>
 
       <div className={styles["tag-browser"]}>

@@ -8,6 +8,7 @@ import {
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import useTagOptions from "@/features/Tag/hook/useTagOptions";
+import useToast from "@/shared/ui/Toast/hook/useToast";
 import { normalizeTagNameInput } from "@/util/tagName";
 
 import type { TagSelectorOption } from "@/shared/ui/TagSelector";
@@ -22,7 +23,7 @@ type UseWorkTagsReturn = {
   retryingTags: string[];
   tagError: string;
   handleAddTag: (tagID: string) => void;
-  handleCreateTag: (tagName: string) => Promise<void>;
+  handleCreateTag: (tagName: string) => Promise<boolean>;
   handleRemoveTag: (tagID: string) => void;
   handleRetryTag: (tagName: string) => Promise<void>;
   handleRemoveFailedTag: (tagName: string) => void;
@@ -57,6 +58,7 @@ const useWorkTags = (): UseWorkTagsReturn => {
   );
   const addCreatedTagID = useWorkEditorStore((state) => state.addCreatedTagID);
   const allTagOptions = useTagOptions();
+  const { showToast } = useToast();
   const [createdTagOptions, setCreatedTagOptions] = useState<
     TagSelectorOption[]
   >([]);
@@ -73,10 +75,12 @@ const useWorkTags = (): UseWorkTagsReturn => {
 
   const [retryingTags, setRetryingTags] = useState<string[]>([]);
 
-  const resolveTag = async (tagName: string): Promise<EditorTag> => {
+  const resolveTag = async (
+    tagName: string,
+  ): Promise<{ tag: EditorTag; isCreated: boolean }> => {
     const normalizedName = tagName.toLowerCase();
     const existingTag = findTag(availableTags, normalizedName);
-    if (existingTag) return existingTag;
+    if (existingTag) return { tag: existingTag, isCreated: false };
 
     const accessToken = useAuthStore.getState().accessToken;
     if (!accessToken) {
@@ -88,32 +92,40 @@ const useWorkTags = (): UseWorkTagsReturn => {
       ...current,
       { id: newTag.id, name: newTag.name, work_count: 0 },
     ]);
-    return newTag;
+    return { tag: newTag, isCreated: true };
   };
 
-  const addTagByName = async (tagName: string) => {
+  const addTagByName = async (tagName: string): Promise<boolean> => {
     const normalizedName = normalizeTagNameInput(tagName).toLowerCase();
-    if (normalizedName === "") return;
+    if (normalizedName === "") return false;
     const isCreating = storeApi
       .getState()
       .creatingTagNames.some((name) => name.toLowerCase() === normalizedName);
-    if (isCreating) return;
+    if (isCreating) return false;
     if (
       tags.some(
         (tag) =>
           normalizeTagNameInput(tag.name).toLowerCase() === normalizedName,
       )
     ) {
-      return;
+      return false;
     }
     addCreatingTagName(normalizedName);
 
     try {
-      const tag = await resolveTag(normalizedName);
+      const { tag, isCreated } = await resolveTag(normalizedName);
       addTag({ id: tag.id, name: tag.name });
       removeFailedTagName(normalizedName);
+      if (isCreated) {
+        showToast({
+          message: `タグ「${tag.name}」を作成しました`,
+          severity: "success",
+        });
+      }
+      return true;
     } catch {
       addFailedTagName(normalizedName);
+      return false;
     } finally {
       removeCreatingTagName(normalizedName);
     }

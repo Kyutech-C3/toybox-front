@@ -40,13 +40,13 @@ const TagInputPreview = () => {
         tags={options.filter((tag) => selectedIDs.includes(tag.id))}
         allTagOptions={options}
         onAddTag={(tagID) => setSelectedIDs((current) => [...current, tagID])}
-        onCreateTag={(name) => {
+        onCreateTag={async (name) => {
           const existing = options.find((tag) => tag.name === name);
           if (existing) {
             setSelectedIDs((current) => [
               ...new Set([...current, existing.id]),
             ]);
-            return;
+            return true;
           }
           setOptions((current) => [
             ...current,
@@ -59,6 +59,7 @@ const TagInputPreview = () => {
             },
           ]);
           setSelectedIDs((current) => [...current, name]);
+          return true;
         }}
         onRemoveTag={(tagID) =>
           setSelectedIDs((current) => current.filter((id) => id !== tagID))

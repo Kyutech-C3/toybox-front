@@ -12,11 +12,14 @@
   grid-row: 1;
   min-width: 0;
   width: 100%;
+  display: flex;
+  gap: var(--space-8);
 }
 
 .search-form input {
   box-sizing: border-box;
   width: 100%;
+  min-width: 0;
   min-height: 38px;
   padding: 0 var(--space-12);
   border: 2px solid var(--primary-color);
@@ -28,9 +31,43 @@
 }
 
 .search-form input:focus-visible,
+.create-button:focus-visible,
 .clear-button:focus-visible {
   outline: 2px solid var(--font-color);
   outline-offset: 2px;
+}
+
+.create-button {
+  box-sizing: border-box;
+  flex: none;
+  min-height: 38px;
+  padding: 0 var(--space-16);
+  border: 1px solid var(--primary-color);
+  border-radius: 24px;
+  background: var(--primary-pale-color);
+  color: var(--font-color);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.create-button:hover:not(:disabled) {
+  background: var(--primary-soft-color);
+}
+
+.create-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tag-search[data-layout="editor"] .search-form input,
+.tag-search[data-layout="editor"] .create-button,
+.tag-search[data-layout="editor"] .view-switch > div {
+  height: 48px;
+}
+
+.tag-search[data-layout="editor"] .view-switch > div > button {
+  height: 100%;
 }
 
 .tag-browser {
@@ -256,6 +293,16 @@
 
   .tag-search[data-view-mode="popular"] .search-form {
     display: none;
+  }
+
+  .tag-search[data-layout="editor"] .search-form {
+    display: flex;
+  }
+
+  .tag-search[data-layout="editor"] .search-form input,
+  .tag-search[data-layout="editor"] .create-button,
+  .tag-search[data-layout="editor"] .view-switch > div {
+    height: var(--touch-target-min);
   }
 
   .tag-panel {
