@@ -155,7 +155,6 @@
 }
 
 .card-tags .marquee-item > * {
-  min-height: auto;
   padding: 0 var(--space-4);
   font-weight: 700;
   line-height: 1.3;
@@ -261,7 +260,6 @@
 
   .card-tags {
     grid-row: 1;
-    font-size: 0.6875rem;
   }
 
   .card-title {

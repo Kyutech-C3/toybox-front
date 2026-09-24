@@ -51,6 +51,26 @@ const Batch = ({
     );
   }
 
+  if (onClick && !onRetry) {
+    return (
+      <button
+        type="button"
+        className={styles["batch"]}
+        data-color={resolvedColor}
+        data-variant={variant}
+        data-clickable="true"
+        data-retrying={isRetrying ? "true" : "false"}
+        aria-busy={isRetrying || undefined}
+        aria-label={ariaLabel ?? `Remove ${children} batch`}
+        onClick={onClick}
+        disabled={isRetrying}
+      >
+        {children}
+        <CloseIcon className={styles["batch-close-icon"]} aria-hidden="true" />
+      </button>
+    );
+  }
+
   return (
     <span
       className={styles["batch"]}

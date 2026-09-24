@@ -29,6 +29,10 @@
     padding: 0 var(--space-8) 0 var(--space-12);
   }
 
+  &[data-clickable="true"]:is(button) {
+    cursor: pointer;
+  }
+
   &[data-clickable="false"] {
     padding: 2px var(--space-12);
   }
@@ -43,6 +47,7 @@
   }
 
   &[data-selectable="true"]:focus-visible,
+  &[data-clickable="true"]:focus-visible,
   .batch-button:focus-visible {
     outline: 2px solid var(--font-color);
     outline-offset: 2px;
@@ -54,20 +59,22 @@
   }
 }
 
+.batch-close-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 .batch-button {
   height: 16px;
   width: 16px;
   padding: 0;
   font-size: 16px;
   border: none;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
   border-radius: 9999px;
-  transition: background-color var(--hover-transition);
-}
-
-.batch-button:not(:disabled):hover,
-.batch-button:focus-visible {
-  background: var(--paper-overlay-color);
 }
 
 .batch-button:disabled {
@@ -87,20 +94,5 @@
 @media (prefers-reduced-motion: reduce) {
   .batch-retry-icon[data-spinning="true"] {
     animation: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .batch {
-    min-height: 36px;
-  }
-
-  .batch-button {
-    height: 28px;
-    width: 28px;
-  }
-
-  .batch[data-clickable="true"] {
-    padding: 0 4px 0 12px;
   }
 }
