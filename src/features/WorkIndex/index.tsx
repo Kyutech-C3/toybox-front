@@ -109,23 +109,22 @@ const WorkIndex = () => {
   return (
     <>
       <div className={styles["work-index-header"]} style={controlsStyle}>
-        <div className={styles["work-index-controls"]}>
-          <div className={styles["left-controls"]}>
-            {accessToken && <VisibilityFilter />}
-            <SortOrderSwitch />
-          </div>
-          <TagSelector
-            allTags={searchableTags}
-            selectedTags={selectedTags}
-            onAddTag={handleAddTag}
-            onRemoveTag={handleRemoveTag}
-            onClearTags={() => updateTags([])}
-          />
-          <div className={styles["controls-page-size"]}>
-            <PageSizeSelect />
-          </div>
-        </div>
-        <p className={styles["result-count"]}>作品一覧 · {totalCount}件</p>
+        <TagSelector
+          layout="top-page"
+          allTags={searchableTags}
+          selectedTags={selectedTags}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTag}
+          onClearTags={() => updateTags([])}
+          leadingControls={
+            <>
+              {accessToken && <VisibilityFilter />}
+              <SortOrderSwitch />
+            </>
+          }
+          trailingControls={<PageSizeSelect />}
+        />
+        <p className={styles["result-count"]}>全{totalCount}件</p>
       </div>
       <WorkCardGrid
         works={data ?? []}

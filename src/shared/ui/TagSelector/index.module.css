@@ -96,6 +96,144 @@
   margin: 0;
 }
 
+.tag-search[data-layout="top-page"] {
+  position: relative;
+  display: grid;
+  grid-template-columns: max-content max-content minmax(120px, 1fr) max-content;
+  align-items: center;
+  gap: var(--space-8) var(--space-12);
+}
+
+.tag-search[data-layout="top-page"] .controls-row,
+.tag-search[data-layout="top-page"] .tag-browser {
+  display: contents;
+}
+
+.tag-search[data-layout="top-page"] .leading-controls {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.tag-search[data-layout="top-page"] .view-switch {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.tag-search[data-layout="top-page"] .search-form {
+  grid-column: 3;
+  grid-row: 1;
+  min-width: 0;
+}
+
+.tag-search[data-layout="top-page"] .search-form input {
+  min-height: 32px;
+  padding: 0 var(--space-12);
+  font-size: 0.875rem;
+}
+
+.tag-search[data-layout="top-page"] .trailing-controls {
+  grid-column: 4;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: var(--space-8);
+}
+
+.tag-search[data-layout="top-page"] .tag-panel {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+}
+
+.tag-search[data-layout="top-page"] .tag-panel .tag-list {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.tag-search[data-layout="top-page"]
+  .tag-panel
+  .tag-list[data-scrollable="true"] {
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.tag-search[data-layout="top-page"] .measure-list {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: max-content;
+  flex-wrap: nowrap;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.tag-search[data-layout="top-page"] .measure-list > * {
+  flex: none;
+}
+
+.tag-search[data-layout="top-page"] .expand-button {
+  box-sizing: border-box;
+  padding: 2px var(--space-12);
+  border: 0;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1px var(--link-color);
+  background: var(--paper-color);
+  color: var(--link-color);
+  font: inherit;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tag-search[data-layout="top-page"] .expand-button:hover {
+  background: color-mix(in srgb, var(--link-color) 10%, var(--paper-color));
+}
+
+.tag-search[data-layout="top-page"] .expand-button:focus-visible {
+  outline: 2px solid var(--font-color);
+  outline-offset: 2px;
+}
+
+.tag-search[data-layout="top-page"] .selected-tags {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.tag-search[data-layout="top-page"] .section-heading h2 {
+  display: none;
+}
+
+.tag-search[data-layout="top-page"] .clear-button {
+  min-height: 28px;
+  padding: 0 var(--space-12);
+  border: 1px solid var(--error-color);
+  border-radius: 9999px;
+  background: var(--button-color);
+  color: var(--error-color);
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.tag-search[data-layout="top-page"] .clear-button:hover {
+  background: color-mix(in srgb, var(--error-color) 12%, var(--button-color));
+}
+
+.tag-search[data-layout="top-page"] .selected-tags .tag-list {
+  flex: 1;
+}
+
+.tag-search[data-layout="top-page"] .selected-tags .tag-list > button {
+  min-height: 28px;
+}
+
 @media (max-width: 767px) {
   .view-switch > div {
     min-width: 0;
@@ -104,5 +242,50 @@
 
   .view-switch > div > button {
     padding-inline: var(--space-8);
+  }
+
+  .tag-search[data-layout="top-page"] {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tag-search[data-layout="top-page"] .controls-row {
+    order: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-8);
+  }
+
+  .tag-search[data-layout="top-page"] .leading-controls,
+  .tag-search[data-layout="top-page"] .trailing-controls {
+    gap: var(--space-4);
+  }
+
+  .tag-search[data-layout="top-page"] .view-switch {
+    order: 1;
+  }
+
+  .tag-search[data-layout="top-page"] .search-form {
+    order: 2;
+    display: none;
+  }
+
+  .tag-search[data-layout="top-page"][data-view-mode="results"] .search-form {
+    display: block;
+  }
+
+  .tag-search[data-layout="top-page"] .tag-panel {
+    order: 3;
+    align-self: stretch;
+  }
+
+  .tag-search[data-layout="top-page"] .measure-list {
+    display: none;
+  }
+
+  .tag-search[data-layout="top-page"] .selected-tags {
+    order: 4;
   }
 }
