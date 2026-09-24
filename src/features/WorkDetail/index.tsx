@@ -15,6 +15,7 @@ import Paper from "@/shared/ui/Paper";
 import UserButton from "@/shared/ui/UserButton";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
 import { formatDateTime } from "@/util/formatDateTime";
+import { normalizeTagNameInput } from "@/util/tagName";
 
 import type { Work } from "@/shared/types/work";
 
@@ -38,9 +39,16 @@ const WorkDetail = ({ data }: WorkDetailProps) => {
           {data.tags.length > 0 && (
             <div className={styles["work-detail-tags"]}>
               {data.tags.map((tag) => (
-                <Batch key={`${data.id}-${tag.id}`} color="pale">
-                  {tag.name}
-                </Batch>
+                <Link
+                  key={tag.id}
+                  to={`/?tags=${encodeURIComponent(tag.id)}`}
+                  className={styles["work-detail-tag-link"]}
+                  aria-label={`${normalizeTagNameInput(tag.name)}の作品を探す`}
+                >
+                  <Batch color="selected">
+                    {normalizeTagNameInput(tag.name)}
+                  </Batch>
+                </Link>
               ))}
             </div>
           )}

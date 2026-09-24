@@ -1,5 +1,12 @@
 .batch {
+  box-sizing: border-box;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--border-color);
+  background: var(--paper-color);
+  color: var(--font-color);
+  font: inherit;
   font-size: inherit;
+  font-weight: 700;
   border-radius: 9999px;
   text-align: center;
   display: inline-flex;
@@ -7,18 +14,11 @@
   text-wrap-mode: nowrap;
   gap: var(--space-4);
   vertical-align: middle;
+  overflow-wrap: anywhere;
 
-  &[data-color="primary"] {
-    background-color: var(--primary-color);
-  }
-
-  &[data-color="secondary"] {
-    background-color: var(--border-color);
-  }
-
-  &[data-color="pale"] {
+  &[data-color="selected"] {
+    box-shadow: inset 0 0 0 1px var(--primary-color);
     background-color: var(--primary-pale-color);
-    color: var(--font-muted-color);
   }
 
   &[data-variant="error"] {
@@ -30,8 +30,28 @@
     padding: 0 var(--space-8) 0 var(--space-12);
   }
 
+  &[data-clickable="true"]:is(button) {
+    cursor: pointer;
+  }
+
   &[data-clickable="false"] {
     padding: 2px var(--space-12);
+  }
+
+  &[data-selectable="true"] {
+    padding: 2px var(--space-12);
+    cursor: pointer;
+  }
+
+  &[data-selectable="true"]:hover {
+    background: var(--primary-soft-color);
+  }
+
+  &[data-selectable="true"]:focus-visible,
+  &[data-clickable="true"]:focus-visible,
+  .batch-button:focus-visible {
+    outline: 2px solid var(--font-color);
+    outline-offset: 2px;
   }
 
   &[data-retrying="true"] {
@@ -40,20 +60,26 @@
   }
 }
 
+.batch .batch-close-icon {
+  width: 10px;
+  height: 10px;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
 .batch-button {
   height: 16px;
   width: 16px;
   padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-size: 16px;
   border: none;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
   border-radius: 9999px;
-  transition: background-color var(--hover-transition);
-}
-
-.batch-button:not(:disabled):hover,
-.batch-button:focus-visible {
-  background: var(--paper-overlay-color);
 }
 
 .batch-button:disabled {
@@ -73,20 +99,5 @@
 @media (prefers-reduced-motion: reduce) {
   .batch-retry-icon[data-spinning="true"] {
     animation: none;
-  }
-}
-
-@media (max-width: 767px) {
-  .batch {
-    min-height: 36px;
-  }
-
-  .batch-button {
-    height: 28px;
-    width: 28px;
-  }
-
-  .batch[data-clickable="true"] {
-    padding: 0 4px 0 12px;
   }
 }

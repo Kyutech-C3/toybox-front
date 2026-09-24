@@ -38,6 +38,7 @@ export const LongTag: Story = {
 export const Removable: Story = {
   args: {
     children: "React",
+    color: "selected",
     onClick: () => {},
   },
 };

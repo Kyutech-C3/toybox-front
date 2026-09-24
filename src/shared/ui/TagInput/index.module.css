@@ -1,91 +1,30 @@
 .tag-input-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-
-  h3 {
-    margin: 8px 5px;
-    font-size: 18px;
-    font-weight: bold;
-  }
+  gap: var(--space-16);
 }
 
-.input-wrapper {
-  position: relative;
-  padding: 0;
-  border: solid 2px var(--primary-color);
-  border-radius: 25px;
-  box-sizing: border-box;
-  background: transparent;
+.tag-input-wrapper h3 {
+  margin: 8px 5px;
+  font-size: 18px;
+}
+
+.failed-tags {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
-  resize: none;
-  outline: none;
-  color: var(--font-color);
-  text-align: left;
-}
-
-.tags-wrapper {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px 0 10px 24px;
-}
-
-.tag-input-wrapper .tag-listbox {
-  width: 100%;
-  max-height: min(300px, calc(100vh - 32px));
-}
-
-.tag-option-label {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.tag-option-match {
-  border-radius: 4px;
-  background: var(--primary-pale-color);
-  font-weight: 700;
+  gap: var(--space-8);
+  font-size: 0.875rem;
 }
 
 .tag-error {
-  margin: 6px 5px 0;
-  font-size: 14px;
+  margin: 0;
   color: var(--error-color);
-}
-
-.input-field {
-  flex-grow: 1;
-  padding: 0;
-  height: 24px;
-  border: none;
-  background: transparent;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  resize: none;
-  outline: none;
-  color: var(--font-color);
-  text-align: left;
+  font-size: 14px;
 }
 
 @media (max-width: 767px) {
-  .tag-listbox {
-    max-height: min(240px, calc(100vh - 32px));
-  }
   .tag-input-wrapper h3 {
     margin: 8px 2px;
     font-size: 16px;
-  }
-
-  .input-wrapper {
-    border-radius: 16px;
-  }
-
-  .tags-wrapper {
-    gap: 6px;
-    padding: 8px 0 8px 16px;
   }
 }

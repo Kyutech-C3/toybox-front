@@ -1,17 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
-import { SearchBar } from "./SearchBar";
-import useTagOptions from "./SearchBar/hook/useTagOptions";
 import SortOrderSwitch from "./SortOrderSwitch";
 import VisibilityFilter from "./VisibilityFilter";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import FavoriteButton from "@/features/FavoriteButton";
+import useTagOptions from "@/features/Tag/hook/useTagOptions";
 import { Pagination } from "@/shared/ui/Pagination";
+import TagSelector from "@/shared/ui/TagSelector";
 import WorkCardGrid, {
   PageSizeSelect,
   useWorkGridColumns,
@@ -21,9 +21,11 @@ import WorkCardGrid, {
 import type { CSSProperties } from "react";
 
 const WorkIndex = () => {
+  const paginationRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: allTags } = useTagOptions();
-  const tagsByID = new Map(allTags.map((tag) => [tag.id, tag]));
+  const searchableTags = allTags.filter((tag) => tag.work_count > 0);
+  const tagsByID = new Map(searchableTags.map((tag) => [tag.id, tag]));
   const requestedTagIDs = searchParams.get("tags")?.split(",") ?? [];
   const selectedTagIDs = [...new Set(requestedTagIDs)].filter((tagID) =>
     tagsByID.has(tagID),
@@ -53,6 +55,14 @@ const WorkIndex = () => {
   });
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const displayedItemCount = data?.length ?? 0;
+  const firstItem =
+    displayedItemCount > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0;
+  const lastItem = firstItem > 0 ? firstItem + displayedItemCount - 1 : 0;
+  const resultPosition =
+    totalCount > 0
+      ? `${firstItem}〜${lastItem}件目・${currentPage}ページ目 / 全${totalPages}ページ`
+      : "0件表示";
 
   useEffect(() => {
     const nextPage = Math.min(currentPage, Math.max(totalPages, 1));
@@ -105,26 +115,46 @@ const WorkIndex = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handleScrollToPagination = () => {
+    paginationRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
   return (
     <>
       <div className={styles["work-index-header"]} style={controlsStyle}>
-        <div className={styles["work-index-controls"]}>
-          <div className={styles["left-controls"]}>
-            {accessToken && <VisibilityFilter />}
-            <SortOrderSwitch />
-          </div>
-          <SearchBar
-            allTags={allTags}
-            selectedTags={selectedTags}
-            onAddTag={handleAddTag}
-            onRemoveTag={handleRemoveTag}
-            onClearTags={() => updateTags([])}
-          />
-          <div className={styles["controls-page-size"]}>
-            <PageSizeSelect />
-          </div>
+        <TagSelector
+          layout="top-page"
+          allTags={searchableTags}
+          selectedTags={selectedTags}
+          onAddTag={handleAddTag}
+          onRemoveTag={handleRemoveTag}
+          onClearTags={() => updateTags([])}
+          leadingControls={
+            <>
+              {accessToken && <VisibilityFilter />}
+              <SortOrderSwitch />
+            </>
+          }
+          trailingControls={<PageSizeSelect />}
+        />
+        <div className={styles["result-summary"]}>
+          <p className={styles["result-count"]}>全{totalCount}件</p>
+          {totalPages > 1 ? (
+            <button
+              type="button"
+              className={styles["result-position-button"]}
+              onClick={handleScrollToPagination}
+              aria-label={`${resultPosition}。ページ送りへ移動`}
+            >
+              {resultPosition}
+            </button>
+          ) : (
+            <p className={styles["result-position"]}>{resultPosition}</p>
+          )}
         </div>
-        <p className={styles["result-count"]}>作品一覧 · {totalCount}件</p>
       </div>
       <WorkCardGrid
         works={data ?? []}
@@ -146,11 +176,13 @@ const WorkIndex = () => {
         }
       />
       {totalPages > 1 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        <div ref={paginationRef}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
       )}
     </>
   );
