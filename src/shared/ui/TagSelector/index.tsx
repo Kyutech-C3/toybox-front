@@ -1,11 +1,4 @@
-import {
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { getVisiblePopularTagCount } from "./getVisiblePopularTagCount";
 import styles from "./index.module.css";
@@ -36,25 +29,18 @@ type TagSelectorProps = {
   trailingControls?: ReactNode;
 };
 
-type TagViewMode = "popular" | "all-popular" | "all-name" | "results";
+type TagViewMode = "popular" | "all-popular" | "all-name";
 
 const POPULAR_TAG_LIMIT = 10;
 const TAG_VIEW_OPTIONS: SegmentedControlOption<TagViewMode>[] = [
   { value: "popular", label: "人気" },
   { value: "all-popular", label: "全件・人気" },
   { value: "all-name", label: "全件・名前" },
-  { value: "results", label: "検索" },
 ];
 const TOP_PAGE_TAG_VIEW_OPTIONS: SegmentedControlOption<TagViewMode>[] = [
   { value: "popular", label: "多い順" },
   { value: "all-popular", label: "全件多い順" },
-  { value: "all-name", label: "名前順" },
-  { value: "results", label: "検索" },
-];
-const MOBILE_TAG_VIEW_OPTIONS: SegmentedControlOption<TagViewMode>[] = [
-  { value: "all-popular", label: "多い順" },
-  { value: "all-name", label: "名前順" },
-  { value: "results", label: "検索" },
+  { value: "all-name", label: "全件名前順" },
 ];
 
 const TagSelector = ({
@@ -71,26 +57,9 @@ const TagSelector = ({
 }: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
   const [viewMode, setViewMode] = useState<TagViewMode>("popular");
-  const [isMobile, setMobile] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      window.matchMedia("(max-width: 767px)").matches,
-  );
   const [visibleTagCount, setVisibleTagCount] = useState(POPULAR_TAG_LIMIT);
   const measureListRef = useRef<HTMLDivElement>(null);
   const panelID = useId();
-  const activeViewMode =
-    layout === "top-page" && isMobile && viewMode === "popular"
-      ? "all-popular"
-      : viewMode;
-  useEffect(() => {
-    if (layout !== "top-page") return;
-    const mobileQuery = window.matchMedia("(max-width: 767px)");
-    const updateMobile = () => setMobile(mobileQuery.matches);
-    mobileQuery.addEventListener("change", updateMobile);
-    updateMobile();
-    return () => mobileQuery.removeEventListener("change", updateMobile);
-  }, [layout]);
   const selectedIDs = useMemo(
     () => new Set(selectedTags.map((tag) => tag.id)),
     [selectedTags],
@@ -118,54 +87,30 @@ const TagSelector = ({
     [allTags],
   );
   const normalizedKeyword = normalizeTagNameInput(keyword).toLocaleLowerCase();
+  const sortedTags = viewMode === "all-name" ? tagsByName : tagsByPopularity;
   const matchingTags = useMemo(
     () =>
       normalizedKeyword === ""
-        ? []
-        : tagsByPopularity
-            .filter((tag) =>
-              normalizeTagNameInput(tag.name)
-                .toLocaleLowerCase()
-                .includes(normalizedKeyword),
-            )
-            .sort(
-              (left, right) =>
-                Number(
-                  normalizeTagNameInput(right.name)
-                    .toLocaleLowerCase()
-                    .startsWith(normalizedKeyword),
-                ) -
-                  Number(
-                    normalizeTagNameInput(left.name)
-                      .toLocaleLowerCase()
-                      .startsWith(normalizedKeyword),
-                  ) ||
-                right.work_count - left.work_count ||
-                normalizeTagNameInput(left.name).localeCompare(
-                  normalizeTagNameInput(right.name),
-                  "ja",
-                ),
-            ),
-    [normalizedKeyword, tagsByPopularity],
+        ? sortedTags
+        : sortedTags.filter((tag) =>
+            normalizeTagNameInput(tag.name)
+              .toLocaleLowerCase()
+              .includes(normalizedKeyword),
+          ),
+    [normalizedKeyword, sortedTags],
   );
   useLayoutEffect(() => {
-    if (layout !== "top-page" || activeViewMode !== "popular") return;
+    if (layout !== "top-page" || viewMode !== "popular") return;
 
     const measureList = measureListRef.current;
     if (!measureList) return;
 
-    const desktopQuery = window.matchMedia("(min-width: 768px)");
     let isActive = true;
     const measure = () => {
       if (!isActive) return;
-      if (!desktopQuery.matches) {
-        setVisibleTagCount(tagsByPopularity.length);
-        return;
-      }
-
       const items = Array.from(measureList.children) as HTMLElement[];
       const tagWidths = items
-        .slice(0, -1)
+        .slice(0, tagsByPopularity.length)
         .map((item) => item.getBoundingClientRect().width);
       const expandWidth = items.at(-1)?.getBoundingClientRect().width ?? 0;
       const availableWidth = measureList.clientWidth;
@@ -179,37 +124,30 @@ const TagSelector = ({
 
     const observer = new ResizeObserver(measure);
     observer.observe(measureList);
-    desktopQuery.addEventListener("change", measure);
     void document.fonts.ready.then(measure);
     measure();
 
     return () => {
       isActive = false;
       observer.disconnect();
-      desktopQuery.removeEventListener("change", measure);
     };
-  }, [layout, activeViewMode, tagsByPopularity]);
+  }, [layout, viewMode, tagsByPopularity]);
 
   const visibleTags =
-    activeViewMode === "popular"
+    viewMode === "popular"
       ? layout === "top-page"
         ? tagsByPopularity.slice(0, visibleTagCount)
         : tagsByPopularity
             .filter((tag) => tag.work_count > 0)
             .slice(0, POPULAR_TAG_LIMIT)
-      : activeViewMode === "all-popular"
-        ? tagsByPopularity
-        : activeViewMode === "all-name"
-          ? tagsByName
-          : layout === "top-page" && normalizedKeyword === ""
-            ? tagsByPopularity
-            : matchingTags;
+      : matchingTags;
   const isPopularTruncated =
     layout === "top-page" &&
-    activeViewMode === "popular" &&
+    viewMode === "popular" &&
     visibleTagCount < tagsByPopularity.length;
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (normalizedKeyword === "") return;
     const exactMatch = matchingTags.find(
       (tag) =>
         normalizeTagNameInput(tag.name).toLocaleLowerCase() ===
@@ -225,7 +163,7 @@ const TagSelector = ({
       className={styles["tag-search"]}
       aria-label={ariaLabel}
       data-layout={layout}
-      data-view-mode={activeViewMode}
+      data-view-mode={viewMode}
     >
       {layout === "top-page" && (
         <div className={styles["controls-row"]}>
@@ -240,8 +178,11 @@ const TagSelector = ({
           placeholder={searchPlaceholder}
           value={keyword}
           onChange={(event) => {
-            setKeyword(event.target.value);
-            setViewMode("results");
+            const nextKeyword = event.target.value;
+            setKeyword(nextKeyword);
+            if (viewMode === "popular" && normalizeTagNameInput(nextKeyword)) {
+              setViewMode("all-popular");
+            }
           }}
         />
       </form>
@@ -251,13 +192,14 @@ const TagSelector = ({
           <SegmentedControl
             options={
               layout === "top-page"
-                ? isMobile
-                  ? MOBILE_TAG_VIEW_OPTIONS
-                  : TOP_PAGE_TAG_VIEW_OPTIONS
+                ? TOP_PAGE_TAG_VIEW_OPTIONS
                 : TAG_VIEW_OPTIONS
             }
-            value={activeViewMode}
-            onChange={setViewMode}
+            value={viewMode}
+            onChange={(mode) => {
+              if (mode === "popular") setKeyword("");
+              setViewMode(mode);
+            }}
             role="tablist"
             ariaLabel="タグ一覧の表示"
             getOptionID={(value) => `${panelID}-${value}`}
@@ -268,12 +210,12 @@ const TagSelector = ({
           id={panelID}
           className={styles["tag-panel"]}
           role="tabpanel"
-          aria-labelledby={`${panelID}-${activeViewMode}`}
+          aria-labelledby={`${panelID}-${viewMode}`}
         >
           {visibleTags.length > 0 || isPopularTruncated ? (
             <div
               className={styles["tag-list"]}
-              data-scrollable={activeViewMode !== "popular" ? "true" : "false"}
+              data-scrollable={viewMode !== "popular" ? "true" : "false"}
             >
               {visibleTags.map((tag) => (
                 <Batch
@@ -303,15 +245,13 @@ const TagSelector = ({
             </div>
           ) : (
             <p className={styles["hint"]}>
-              {activeViewMode === "results"
-                ? normalizedKeyword === ""
-                  ? "タグ名を入力してください。"
-                  : "一致するタグはありません。"
-                : "表示できるタグはありません。"}
+              {normalizedKeyword === ""
+                ? "表示できるタグはありません。"
+                : "一致するタグはありません。"}
             </p>
           )}
         </div>
-        {layout === "top-page" && activeViewMode === "popular" && (
+        {layout === "top-page" && viewMode === "popular" && (
           <div
             ref={measureListRef}
             className={`${styles["tag-list"]} ${styles["measure-list"]}`}

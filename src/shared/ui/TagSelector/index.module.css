@@ -158,7 +158,7 @@
 .tag-search[data-layout="top-page"]
   .tag-panel
   .tag-list[data-scrollable="true"] {
-  max-height: 160px;
+  max-height: 300px;
   overflow-y: auto;
 }
 
@@ -168,6 +168,7 @@
   width: 100%;
   height: max-content;
   flex-wrap: nowrap;
+  overflow: hidden;
   visibility: hidden;
   pointer-events: none;
 }
@@ -269,20 +270,15 @@
 
   .tag-search[data-layout="top-page"] .search-form {
     order: 2;
-    display: none;
   }
 
-  .tag-search[data-layout="top-page"][data-view-mode="results"] .search-form {
-    display: block;
+  .tag-search[data-layout="top-page"][data-view-mode="popular"] .search-form {
+    display: none;
   }
 
   .tag-search[data-layout="top-page"] .tag-panel {
     order: 3;
     align-self: stretch;
-  }
-
-  .tag-search[data-layout="top-page"] .measure-list {
-    display: none;
   }
 
   .tag-search[data-layout="top-page"] .selected-tags {
