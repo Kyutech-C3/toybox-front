@@ -112,14 +112,11 @@
   border-left: none;
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 767px) {
   .action-button {
     min-height: var(--touch-target-min);
     font-size: 0.875rem;
   }
-}
-
-@media (max-width: 767px) {
   .comment-row {
     gap: var(--space-8);
   }

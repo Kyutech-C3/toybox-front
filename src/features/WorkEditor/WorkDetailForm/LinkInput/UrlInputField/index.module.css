@@ -85,14 +85,11 @@
   font-size: 0.875rem;
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 767px) {
   .input-control button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);
   }
-}
-
-@media (max-width: 767px) {
   .input-row {
     padding: 0 var(--space-4) 0 var(--space-12);
     border-radius: 16px;

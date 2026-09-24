@@ -65,20 +65,6 @@
   text-size-adjust: 100%;
 }
 
-@media (max-width: 1279px) {
-  :root {
-    --header-height: 58px;
-    --header-logo-height: 36px;
-    --page-margin: 24px;
-    --paper-padding: 24px;
-    --grid-gap: 24px;
-    --section-gap: 32px;
-    --fab-clearance: 104px;
-    --content-panel-width: var(--content-max-width);
-    --card-columns: 3;
-  }
-}
-
 @media (max-width: 767px) {
   :root {
     --header-height: 52px;
@@ -89,6 +75,7 @@
     --section-gap: 24px;
     --fab-clearance: 88px;
     --content-width-ratio: 1;
+    --content-panel-width: var(--content-max-width);
     --card-columns: 1;
     --card-max-width: 640px;
   }

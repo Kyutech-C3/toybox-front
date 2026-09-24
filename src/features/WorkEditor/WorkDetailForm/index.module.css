@@ -9,14 +9,6 @@
   gap: var(--space-24);
 }
 
-@media (max-width: 1279px) {
-  .work-detail-form-wrapper {
-    --upload-grid-gap: var(--space-12);
-
-    gap: var(--space-24);
-  }
-}
-
 @media (max-width: 767px) {
   .work-detail-form-wrapper {
     --upload-grid-gap: var(--space-12);

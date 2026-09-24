@@ -53,12 +53,6 @@
   }
 }
 
-@media (max-width: 1279px) {
-  .user-button[data-size="compact"] {
-    height: auto;
-  }
-}
-
 @media (max-width: 767px) {
   .user-button {
     gap: var(--space-8);
