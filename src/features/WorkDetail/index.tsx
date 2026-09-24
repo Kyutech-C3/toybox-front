@@ -4,7 +4,6 @@ import AutorenewRoundedIcon from "@mui/icons-material/AutorenewRounded";
 
 import MarkdownPreview from "../MarkdownPreview";
 import AssetCarousel from "./AssetCarousel";
-import useWorkDetail from "./hook/useWorkDetail";
 import styles from "./index.module.css";
 import ShareButton from "./ShareButton";
 
@@ -17,17 +16,14 @@ import UserButton from "@/shared/ui/UserButton";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
 import { formatDateTime } from "@/util/formatDateTime";
 
+import type { Work } from "@/shared/types/work";
+
 type WorkDetailProps = {
-  workID: string;
+  data: Work;
 };
 
-const WorkDetail = ({ workID }: WorkDetailProps) => {
-  const { data } = useWorkDetail({ id: workID });
+const WorkDetail = ({ data }: WorkDetailProps) => {
   const viewerUserID = useUserStore((state) => state.user?.id);
-
-  if (!data) {
-    return <div>データがありません</div>;
-  }
 
   return (
     <Paper>
