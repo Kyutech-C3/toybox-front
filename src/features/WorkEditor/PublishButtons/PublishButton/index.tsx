@@ -17,6 +17,7 @@ import {
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { getWorkDetailSWRKey } from "@/features/WorkDetail/hook/useWorkDetail";
 import Listbox from "@/shared/ui/Listbox";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
@@ -135,7 +136,9 @@ const PublishButton = () => {
           accessToken,
         );
         await Promise.all([
-          mutate(`/works/${workID}`, updatedWork, { revalidate: false }),
+          mutate(getWorkDetailSWRKey(workID, accessToken), updatedWork, {
+            revalidate: false,
+          }),
           mutate(getWorkEditorSWRKey({ workID, accessToken }), updatedWork, {
             revalidate: false,
           }),

@@ -4,10 +4,12 @@ import { mutate } from "swr";
 
 import styles from "./index.module.css";
 
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import CommentSection from "@/features/CommentSection";
 import { getCommentSWRKey } from "@/features/CommentSection/hook/useComment";
 import Header from "@/features/Header";
 import WorkDetail from "@/features/WorkDetail";
+import { getWorkDetailSWRKey } from "@/features/WorkDetail/hook/useWorkDetail";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
 import { ApiError } from "@/util/fetchData";
@@ -15,6 +17,7 @@ import { ApiError } from "@/util/fetchData";
 const WorkPage = () => {
   const { id } = useParams<{ id: string }>();
   const { key: locationKey } = useLocation();
+  const accessToken = useAuthStore((state) => state.accessToken);
 
   const getErrorMessage = (error: Error) => {
     if (error instanceof ApiError && error.status === 404) {
@@ -35,7 +38,9 @@ const WorkPage = () => {
   const handleWorkRetry = async () => {
     if (!id) return;
 
-    await mutate(`/works/${id}`, undefined, { revalidate: false });
+    await mutate(getWorkDetailSWRKey(id, accessToken), undefined, {
+      revalidate: true,
+    });
   };
 
   const handleCommentRetry = async () => {

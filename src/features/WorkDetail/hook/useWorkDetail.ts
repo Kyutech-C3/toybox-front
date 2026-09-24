@@ -1,6 +1,7 @@
 import useSWR from "swr";
 
-import { fetchData } from "@/util/fetchData";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { fetchData, fetchDataWithAuth } from "@/util/fetchData";
 
 import type { Work } from "@/shared/types/work";
 
@@ -12,17 +13,22 @@ interface UseWorkDetailReturn {
   data: Work | undefined;
 }
 
-const useWorkDetail = ({ id }: UseWorkDetailParams): UseWorkDetailReturn => {
+export const getWorkDetailSWRKey = (id: string, accessToken: string | null) => {
   const url = `/works/${id}`;
+  return accessToken ? ([url, accessToken] as const) : url;
+};
 
-  const fetcher = async (url: string): Promise<Work> => {
-    const response = await fetchData(url);
-    return response;
-  };
+const useWorkDetail = ({ id }: UseWorkDetailParams): UseWorkDetailReturn => {
+  const accessToken = useAuthStore((state) => state.accessToken);
 
-  const { data: response } = useSWR<Work>(url, fetcher, {
-    suspense: true,
-  });
+  const { data: response } = useSWR<Work>(
+    getWorkDetailSWRKey(id, accessToken),
+    () =>
+      accessToken
+        ? fetchDataWithAuth(`/works/${id}`, accessToken)
+        : fetchData(`/works/${id}`),
+    { suspense: true },
+  );
 
   return {
     data: response,
