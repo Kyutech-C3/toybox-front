@@ -18,16 +18,9 @@
   color: var(--font-color);
 }
 
-@media (max-width: 1279px) {
-  .work-editor-wrapper {
-    gap: var(--space-24);
-    padding: var(--space-16) var(--page-margin) var(--space-24);
-    box-sizing: border-box;
-  }
-}
-
 @media (max-width: 767px) {
   .work-editor-wrapper {
+    box-sizing: border-box;
     gap: var(--space-16);
     padding: var(--space-12) var(--page-margin) var(--space-16);
   }

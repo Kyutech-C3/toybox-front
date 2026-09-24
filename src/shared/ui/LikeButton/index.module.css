@@ -69,7 +69,7 @@
   font-weight: 700;
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 767px) {
   .like-button {
     min-width: var(--touch-target-min);
     height: var(--touch-target-min);

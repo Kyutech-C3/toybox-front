@@ -46,12 +46,6 @@
   max-height: min(300px, calc(100vh - 32px));
 }
 
-@media (max-width: 1279px) {
-  .pagination {
-    gap: var(--space-8);
-  }
-}
-
 @media (max-width: 767px) {
   .pagination {
     gap: var(--space-4);

@@ -149,14 +149,6 @@
   bottom: calc(var(--space-12) + env(safe-area-inset-bottom));
 }
 
-@media (max-width: 1279px) {
-  .scroll-left-button,
-  .scroll-right-button {
-    width: 48px;
-    height: 48px;
-  }
-}
-
 @media (max-width: 767px) {
   .scroll-left-button,
   .scroll-right-button {

@@ -87,16 +87,6 @@
   padding: 0 var(--page-margin) var(--space-64);
 }
 
-@media (max-width: 1279px) {
-  .display-name {
-    font-size: 1.75rem;
-  }
-
-  .works-section {
-    padding: 0 var(--page-margin) var(--space-48);
-  }
-}
-
 @media (max-width: 767px) {
   .profile-card {
     padding: var(--space-16);

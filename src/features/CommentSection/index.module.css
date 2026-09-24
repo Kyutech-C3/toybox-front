@@ -45,13 +45,10 @@
   text-align: center;
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 767px) {
   .content {
     gap: 24px;
   }
-}
-
-@media (max-width: 767px) {
   .title {
     margin: 0 0 var(--space-16);
     font-size: 1.25rem;

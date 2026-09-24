@@ -67,14 +67,11 @@
   gap: var(--space-8);
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 767px) {
   .add-button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);
   }
-}
-
-@media (max-width: 767px) {
   .heading-row {
     margin: 0 2px 8px;
     gap: 8px;
