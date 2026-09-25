@@ -1,6 +1,6 @@
 import EditNoteRoundedIcon from "@mui/icons-material/EditNoteRounded";
+import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 import LockRoundedIcon from "@mui/icons-material/LockRounded";
-import PublicRoundedIcon from "@mui/icons-material/PublicRounded";
 
 import styles from "./index.module.css";
 
@@ -31,7 +31,7 @@ const VisibilityIcon = ({
     <>
       {visibility === "private" && <LockRoundedIcon fontSize="inherit" />}
       {visibility === "draft" && <EditNoteRoundedIcon fontSize="inherit" />}
-      {visibility === "public" && <PublicRoundedIcon fontSize="inherit" />}
+      {visibility === "public" && <LanguageRoundedIcon fontSize="inherit" />}
     </>
   );
 
