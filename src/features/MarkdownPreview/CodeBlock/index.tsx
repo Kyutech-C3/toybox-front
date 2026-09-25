@@ -8,6 +8,12 @@ import styles from "./index.module.css";
 
 import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 
+const CODE_STYLE = {
+  ...style,
+  keyword: { ...style.keyword, color: "var(--code-keyword-color)" },
+  string: { ...style.string, color: "var(--code-string-color)" },
+};
+
 type CodeBlockProps = {
   language: string;
   children: string;
@@ -38,7 +44,7 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
           <ContentCopyIcon fontSize="small" />
         )}
       </button>
-      <SyntaxHighlighter PreTag="div" language={language} style={style}>
+      <SyntaxHighlighter PreTag="div" language={language} style={CODE_STYLE}>
         {children}
       </SyntaxHighlighter>
     </div>

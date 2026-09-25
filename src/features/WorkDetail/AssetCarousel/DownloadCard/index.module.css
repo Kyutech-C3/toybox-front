@@ -27,7 +27,7 @@
 
 .description {
   margin: 0;
-  color: var(--font-muted-color);
+  color: var(--paper-color);
   line-height: 1.6;
 }
 
@@ -70,6 +70,6 @@
 
 .url-error {
   margin: 0;
-  color: var(--error-color);
+  color: var(--error-on-dark-color);
   line-height: 1.6;
 }

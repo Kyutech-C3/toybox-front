@@ -124,11 +124,11 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
               )}
             </span>
           </div>
-          <h3 className={styles["card-title"]} title={work.title}>
+          <h2 className={styles["card-title"]} title={work.title}>
             <Link to={`/works/${work.id}`} className={styles["work-link"]}>
               {work.title}
             </Link>
-          </h3>
+          </h2>
         </div>
         <div className={styles["card-meta"]}>
           <UserButton
