@@ -21,19 +21,19 @@ type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
   args: {
-    avatarURL: "./comingSoonLugia.webp",
+    avatarURL: "/comingSoonLugia.webp",
   },
 };
 
 export const CustomImage: Story = {
   args: {
-    avatarURL: "https://via.placeholder.com/46x46.png?text=Avatar",
+    avatarURL: "/comingSoonHo-Oh.webp",
   },
 };
 
 export const Profile: Story = {
   args: {
-    avatarURL: "./comingSoonLugia.webp",
+    avatarURL: "/comingSoonLugia.webp",
     alt: "プロフィール画像",
     size: "profile",
   },

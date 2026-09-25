@@ -15,6 +15,14 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
       <Markdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
         components={{
+          input(props) {
+            return (
+              <input
+                {...props}
+                aria-label={props.checked ? "完了した項目" : "未完了の項目"}
+              />
+            );
+          },
           code(props) {
             const { children, className, ...rest } = props;
             const match = /language-(\w+)/.exec(className || "");

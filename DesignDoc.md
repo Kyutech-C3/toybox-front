@@ -97,8 +97,7 @@ src
 │       └── index.tsx
 ├── shared
 │   └── ui
-│       ├── Card
-│       └── Switch
+│       └── Card
 ├── types
 │   └── work.ts
 └── util
