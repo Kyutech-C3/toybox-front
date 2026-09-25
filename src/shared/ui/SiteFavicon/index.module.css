@@ -1,0 +1,27 @@
+.site-favicon {
+  --site-favicon-size: 24px;
+
+  position: relative;
+  width: var(--site-favicon-size);
+  height: var(--site-favicon-size);
+  flex: none;
+  display: inline-block;
+  border-radius: 4px;
+  color: var(--font-muted-color);
+}
+
+.small {
+  --site-favicon-size: 18px;
+}
+
+.site-favicon svg,
+.site-favicon img {
+  position: absolute;
+  inset: 0;
+  width: var(--site-favicon-size);
+  height: var(--site-favicon-size);
+}
+
+.site-favicon img {
+  object-fit: contain;
+}

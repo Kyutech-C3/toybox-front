@@ -6,6 +6,7 @@ import MarkdownPreview from "../MarkdownPreview";
 import AssetCarousel from "./AssetCarousel";
 import styles from "./index.module.css";
 import ShareButton from "./ShareButton";
+import WorkLinks from "./WorkLinks";
 
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import FavoriteButton from "@/features/FavoriteButton";
@@ -115,6 +116,7 @@ const WorkDetail = ({ data }: WorkDetailProps) => {
             )}
           </div>
         </header>
+        <WorkLinks urls={data.urls} />
         <hr className={styles["work-detail-divider"]} />
         <MarkdownPreview content={data.description} />
       </article>
