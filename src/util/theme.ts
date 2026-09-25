@@ -11,9 +11,18 @@ export const subscribeTheme = (onChange: () => void) => {
   return () => window.removeEventListener(THEME_CHANGE_EVENT, onChange);
 };
 
-export const getStoredTheme = (): Theme => {
+const getPreferredTheme = (): Theme => {
   try {
-    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark"
+    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (storedTheme === "light" || storedTheme === "dark") {
+      return storedTheme;
+    }
+  } catch {
+    // Storage may be unavailable; use the device preference below.
+  }
+
+  try {
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
       ? "dark"
       : "light";
   } catch {
@@ -21,10 +30,26 @@ export const getStoredTheme = (): Theme => {
   }
 };
 
-export const setTheme = (theme: Theme) => {
+const applyTheme = (theme: Theme) => {
+  const hasChanged = document.documentElement.dataset.theme !== theme;
   document.documentElement.dataset.theme = theme;
   document.documentElement.dataset.colorMode = theme;
-  window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+  if (hasChanged) window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+};
+
+const handleStorageChange = (event: StorageEvent) => {
+  if (event.key === THEME_STORAGE_KEY || event.key === null) {
+    applyTheme(getPreferredTheme());
+  }
+};
+
+export const initializeTheme = () => {
+  applyTheme(getPreferredTheme());
+  window.addEventListener("storage", handleStorageChange);
+};
+
+export const setTheme = (theme: Theme) => {
+  applyTheme(theme);
 
   try {
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);

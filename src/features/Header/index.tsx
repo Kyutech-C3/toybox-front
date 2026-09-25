@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
@@ -14,19 +14,16 @@ import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
 import useToast from "@/shared/ui/Toast/hook/useToast";
-import { getStoredTheme, setTheme } from "@/util/theme";
-
-import type { Theme } from "@/util/theme";
+import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 
 const Header = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const [theme, setCurrentTheme] = useState<Theme>(getStoredTheme);
+  const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
 
   const handleThemeToggle = () => {
     const nextTheme = theme === "light" ? "dark" : "light";
     setTheme(nextTheme);
-    setCurrentTheme(nextTheme);
   };
 
   const handleLogin = async () => {
