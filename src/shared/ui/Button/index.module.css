@@ -42,7 +42,7 @@
   &[data-active="true"],
   &[data-active="true"]:hover {
     background: var(--primary-color);
-    color: var(--font-color);
+    color: var(--on-primary-color);
     font-weight: 600;
     box-shadow: var(--hover-shadow);
   }
@@ -52,7 +52,7 @@
 .accent-button {
   border-color: var(--primary-color);
   background: var(--primary-color);
-  color: var(--font-color);
+  color: var(--on-primary-color);
 
   &:not([data-disabled="true"]):hover {
     box-shadow: var(--hover-shadow);
