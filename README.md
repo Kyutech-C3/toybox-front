@@ -2,8 +2,9 @@
 
 ## 更新ログ
 
-2025/09/23 by semikoron
-2026/08/22 by keitan
+- 2025/09/23 by semikoron
+- 2026/08/22 by keitan
+- 2026/09/25 by keitan
 
 ## 起動方法
 
@@ -77,7 +78,10 @@ npm run dev
 ## コミット命名規則
 
 基本何をやったか分かるような内容であれば構わない。
-余裕があればブランチ命名規則同様に接頭辞を記載すること。
+
+```
+接頭辞: 内容
+```
 
 ## ルーティング
 
@@ -110,8 +114,7 @@ src
 │       └── index.tsx
 ├── shared
 │   └── ui
-│       ├── Card
-│       └── Switch
+│       └── Card
 ├── types
 │   └── work.ts
 └── util
