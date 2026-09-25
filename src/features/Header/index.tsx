@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
+import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
 import { getLoginUrl, logout } from "../auth/auth";
@@ -12,10 +14,20 @@ import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import { getStoredTheme, setTheme } from "@/util/theme";
+
+import type { Theme } from "@/util/theme";
 
 const Header = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const [theme, setCurrentTheme] = useState<Theme>(getStoredTheme);
+
+  const handleThemeToggle = () => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    setCurrentTheme(nextTheme);
+  };
 
   const handleLogin = async () => {
     const url = await getLoginUrl();
@@ -81,6 +93,22 @@ const Header = () => {
         </Link>
       </div>
       <div className={styles["login-wrapper"]}>
+        <button
+          type="button"
+          className={styles["theme-toggle"]}
+          onClick={handleThemeToggle}
+          aria-label={
+            theme === "light"
+              ? "ダークモードに切り替え"
+              : "ライトモードに切り替え"
+          }
+        >
+          {theme === "light" ? (
+            <DarkModeRoundedIcon />
+          ) : (
+            <LightModeRoundedIcon />
+          )}
+        </button>
         {user ? (
           <AccountMenu user={user} onLogout={handleLogout} />
         ) : (

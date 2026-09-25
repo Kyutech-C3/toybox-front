@@ -8,7 +8,7 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
-  color: var(--paper-color);
+  color: var(--asset-font-color);
   text-align: center;
 }
 
@@ -27,7 +27,7 @@
 
 .description {
   margin: 0;
-  color: var(--paper-color);
+  color: var(--asset-font-color);
   line-height: 1.6;
 }
 
@@ -48,12 +48,12 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: var(--font-color);
+  color: var(--on-primary-color);
   font-weight: 700;
   text-decoration: none;
 
   &:hover {
-    color: var(--font-color);
+    color: var(--on-primary-color);
     box-shadow: 0 6px 12px var(--shadow-soft-color);
   }
 
@@ -70,6 +70,6 @@
 
 .url-error {
   margin: 0;
-  color: var(--error-on-dark-color);
+  color: var(--error-color);
   line-height: 1.6;
 }

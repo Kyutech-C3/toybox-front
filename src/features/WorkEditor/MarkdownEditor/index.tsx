@@ -55,7 +55,6 @@ const MarkdownEditor = () => {
         className={styles["markdown-editor"]}
         data-markdown-editor="true"
         data-mode={mode}
-        data-color-mode="light"
       >
         <div className={styles["markdown-editor-header"]}>
           <EditorModeTabs mode={mode} panelID={panelID} onChange={setMode} />

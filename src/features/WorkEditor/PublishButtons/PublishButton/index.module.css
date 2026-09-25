@@ -21,6 +21,7 @@
 
   &[data-active="true"] {
     background: var(--primary-color);
+    color: var(--on-primary-color);
     font-weight: 600;
     box-shadow: 0 6px 14px var(--shadow-soft-color);
   }
@@ -83,7 +84,7 @@
   font-size: 16px;
   font-weight: bold;
   /* 黄色の面に白文字は 1.69:1 で読めないため黒にする */
-  color: var(--font-color);
+  color: var(--on-primary-color);
   cursor: pointer;
 }
 
@@ -110,7 +111,7 @@
   background: var(--primary-color);
   font-size: 16px;
   font-weight: bold;
-  color: var(--font-color);
+  color: var(--on-primary-color);
   cursor: pointer;
 }
 

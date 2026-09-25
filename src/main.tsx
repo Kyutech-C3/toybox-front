@@ -11,6 +11,9 @@ import AppErrorBoundary, {
   AppErrorFallback,
 } from "@/shared/ui/AppErrorBoundary";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
+import { getStoredTheme, setTheme } from "@/util/theme";
+
+setTheme(getStoredTheme());
 
 const ROOT = document.getElementById("root");
 if (!ROOT) throw new Error("Failed to find the root element");

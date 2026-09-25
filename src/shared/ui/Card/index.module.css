@@ -58,7 +58,7 @@
 
 .card-favorite {
   --like-idle-fill-color: var(--overlay-dark-color);
-  --like-outline-color: var(--paper-color);
+  --like-outline-color: var(--asset-font-color);
   --like-outline-width: 1;
 
   position: absolute;
@@ -91,7 +91,7 @@
 }
 
 .card-favorite > button:disabled:hover {
-  --like-outline-color: var(--paper-color);
+  --like-outline-color: var(--asset-font-color);
 
   background: transparent;
 }
@@ -108,7 +108,7 @@
   align-items: center;
   justify-content: center;
   background: var(--primary-color);
-  color: var(--font-color);
+  color: var(--on-primary-color);
   font-size: 22px;
   transition: box-shadow var(--hover-transition);
 }
@@ -286,7 +286,7 @@
   }
 
   .card-favorite > button:hover {
-    --like-outline-color: var(--paper-color);
+    --like-outline-color: var(--asset-font-color);
   }
 
   .edit-link:hover {

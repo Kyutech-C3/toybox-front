@@ -65,7 +65,7 @@
 }
 
 .segment[data-selected="true"] {
-  color: var(--font-color);
+  color: var(--on-primary-color);
 }
 
 .segment[data-selected="false"]:hover {

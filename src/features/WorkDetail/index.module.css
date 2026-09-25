@@ -81,7 +81,7 @@
   align-items: center;
   gap: var(--space-8);
   background: var(--primary-color);
-  color: var(--font-color);
+  color: var(--on-primary-color);
   font-size: 0.875rem;
   font-weight: 700;
   transition: box-shadow var(--hover-transition);
@@ -89,7 +89,7 @@
 
 .edit-link:hover,
 .edit-link:focus-visible {
-  color: var(--font-color);
+  color: var(--on-primary-color);
   box-shadow: var(--hover-shadow);
 }
 

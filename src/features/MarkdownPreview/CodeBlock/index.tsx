@@ -1,18 +1,16 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import CheckIcon from "@mui/icons-material/Check";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { prism as style } from "react-syntax-highlighter/dist/esm/styles/prism";
+import {
+  vs,
+  vscDarkPlus,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import styles from "./index.module.css";
 
 import { copyTextToClipboard } from "@/util/copyTextToClipboard";
-
-const CODE_STYLE = {
-  ...style,
-  keyword: { ...style.keyword, color: "var(--code-keyword-color)" },
-  string: { ...style.string, color: "var(--code-string-color)" },
-};
+import { getCurrentTheme, subscribeTheme } from "@/util/theme";
 
 type CodeBlockProps = {
   language: string;
@@ -21,6 +19,7 @@ type CodeBlockProps = {
 
 const CodeBlock = ({ language, children }: CodeBlockProps) => {
   const [isCopied, setCopied] = useState(false);
+  const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
 
   const handleCopy = async () => {
     const didCopy = await copyTextToClipboard(children);
@@ -44,7 +43,19 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
           <ContentCopyIcon fontSize="small" />
         )}
       </button>
-      <SyntaxHighlighter PreTag="div" language={language} style={CODE_STYLE}>
+      <SyntaxHighlighter
+        PreTag="div"
+        language={language}
+        style={theme === "dark" ? vscDarkPlus : vs}
+        customStyle={{
+          background: "var(--background-color)",
+          backgroundColor: "var(--background-color)",
+          border: "none",
+          padding: 0,
+          margin: 0,
+          overflow: "visible",
+        }}
+      >
         {children}
       </SyntaxHighlighter>
     </div>
