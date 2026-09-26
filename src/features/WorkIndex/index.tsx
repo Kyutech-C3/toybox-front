@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 
+import { getWorkIndexSelection } from "./getWorkIndexSelection";
 import useWorks from "./hook/useWorks";
 import styles from "./index.module.css";
 import SortOrderSwitch from "./SortOrderSwitch";
@@ -24,24 +25,11 @@ const WorkIndex = () => {
   const paginationRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: allTags } = useTagOptions();
-  const searchableTags = allTags.filter((tag) => tag.work_count > 0);
-  const tagsByID = new Map(searchableTags.map((tag) => [tag.id, tag]));
-  const requestedTagIDs = searchParams.get("tags")?.split(",") ?? [];
-  const selectedTagIDs = [...new Set(requestedTagIDs)].filter((tagID) =>
-    tagsByID.has(tagID),
-  );
+  const { searchableTags, selectedTagIDs, selectedTags, currentPage } =
+    getWorkIndexSelection({ searchParams, allTags });
   const normalizedTags = selectedTagIDs.join(",");
-  const selectedTags = selectedTagIDs.flatMap((tagID) => {
-    const tag = tagsByID.get(tagID);
-    return tag ? [tag] : [];
-  });
   const viewerUserID = useUserStore((state) => state.user?.id);
   const accessToken = useAuthStore((state) => state.accessToken);
-  const requestedPage = Number(searchParams.get("page"));
-  const currentPage =
-    Number.isSafeInteger(requestedPage) && requestedPage > 0
-      ? requestedPage
-      : 1;
   const { itemsPerPage } = useWorkPageSize();
   const { columns } = useWorkGridColumns();
   const controlsStyle = {
