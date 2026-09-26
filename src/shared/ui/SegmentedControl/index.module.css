@@ -55,9 +55,6 @@
   line-height: 1;
   cursor: pointer;
   user-select: none;
-  transition:
-    color var(--hover-transition),
-    background-color var(--hover-transition);
 }
 
 .segment:has(.segment-label-hidden) {

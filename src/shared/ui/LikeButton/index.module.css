@@ -12,9 +12,6 @@
   color: var(--font-muted-color);
   font-size: 20px;
   cursor: pointer;
-  transition:
-    background-color var(--hover-transition),
-    color var(--hover-transition);
 }
 
 .like-icon {

@@ -16,7 +16,6 @@
   background: transparent;
   color: var(--font-color);
   text-decoration: none;
-  transition: background-color var(--hover-transition);
 }
 
 .user-button:hover,

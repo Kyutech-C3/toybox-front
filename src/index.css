@@ -140,3 +140,8 @@ body {
     color: var(--font-color);
   }
 }
+
+/* MUI がアイコンに設定する fill の色補間も行わない。 */
+svg.MuiSvgIcon-root {
+  transition: none;
+}
