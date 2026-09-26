@@ -5,6 +5,8 @@ import VerticalSplitRoundedIcon from "@mui/icons-material/VerticalSplitRounded";
 import EditorModeTabs, { getEditorTabID } from "../EditorModeTabs";
 import styles from "./index.module.css";
 
+import Button from "@/shared/ui/Button";
+
 import type { ReactNode, RefObject } from "react";
 import type { EditorMode } from "../types";
 
@@ -92,14 +94,13 @@ const LiveModeDialog = ({
             panelID={livePanelID}
             onChange={handleModeChange}
           />
-          <button
-            type="button"
+          <Button
+            isIconOnly
+            icon={<CloseRoundedIcon />}
             className={styles["live-dialog-close"]}
             aria-label="全画面表示を閉じる"
             onClick={handleCloseClick}
-          >
-            <CloseRoundedIcon />
-          </button>
+          />
         </header>
         <div
           id={livePanelID}

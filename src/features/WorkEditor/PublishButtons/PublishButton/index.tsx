@@ -19,6 +19,7 @@ import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { getWorkDetailSWRKey } from "@/features/WorkDetail/hook/useWorkDetail";
+import Button from "@/shared/ui/Button";
 import Listbox from "@/shared/ui/Listbox";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
@@ -192,21 +193,21 @@ const PublishButton = () => {
       data-disabled={isSubmitDisabled ? "true" : "false"}
       data-visibility={visibility}
     >
-      <button
-        type="button"
+      <Button
+        variant={visibility === "draft" ? "primary" : "accent"}
         className={styles["publish-button"]}
         onClick={() => void handleSubmit()}
         disabled={isSubmitDisabled}
+        isLoading={isSubmitting}
+        icon={<VisibilityIcon visibility={visibility} />}
       >
-        <VisibilityIcon
-          visibility={visibility}
-          className={styles["visibility-icon"]}
-        />
         {submitLabel}
-      </button>
+      </Button>
       <span className={styles["button-span"]} />
-      <button
-        type="button"
+      <Button
+        variant={visibility === "draft" ? "primary" : "accent"}
+        isIconOnly
+        icon={<ArrowDropUpRoundedIcon />}
         className={styles["listbox-trigger"]}
         onClick={() => setIsListboxOpen((prev) => !prev)}
         disabled={isSubmitDisabled}
@@ -215,9 +216,7 @@ const PublishButton = () => {
         aria-expanded={isListboxOpen}
         aria-controls={VISIBILITY_LISTBOX_ID}
         ref={listboxTriggerRef}
-      >
-        <ArrowDropUpRoundedIcon />
-      </button>
+      />
       <span className={styles["listbox-container"]}>
         <Listbox
           id={VISIBILITY_LISTBOX_ID}

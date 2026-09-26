@@ -4,6 +4,7 @@ import { getVisiblePopularTagCount } from "./getVisiblePopularTagCount";
 import styles from "./index.module.css";
 
 import Batch from "@/shared/ui/Batch";
+import Button from "@/shared/ui/Button";
 import Input from "@/shared/ui/Input";
 import SegmentedControl from "@/shared/ui/SegmentedControl";
 import { normalizeTagNameInput } from "@/util/tagName";
@@ -201,14 +202,14 @@ const TagSelector = ({
           />
         </div>
         {onCreateTag && (
-          <button
-            type="button"
-            className={styles["create-button"]}
+          <Button
+            variant="accent"
+            isLoading={isCreating}
             disabled={!canCreateTag || isCreating}
             onClick={() => void handleCreateTag()}
           >
             {isCreating ? "作成中…" : "新規作成"}
-          </button>
+          </Button>
         )}
       </form>
 
@@ -254,14 +255,13 @@ const TagSelector = ({
                 </Batch>
               ))}
               {isPopularTruncated && (
-                <button
-                  type="button"
-                  className={styles["expand-button"]}
+                <Button
+                  size="small"
                   onClick={() => setViewMode("all-popular")}
                   aria-controls={panelID}
                 >
                   全件表示
-                </button>
+                </Button>
               )}
             </div>
           ) : (
@@ -284,13 +284,9 @@ const TagSelector = ({
                 <span>{tag.work_count}件</span>
               </Batch>
             ))}
-            <button
-              type="button"
-              className={styles["expand-button"]}
-              tabIndex={-1}
-            >
+            <Button size="small" tabIndex={-1}>
               全件表示
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -299,13 +295,9 @@ const TagSelector = ({
         <div className={styles["selected-tags"]}>
           <div className={styles["section-heading"]}>
             <h2>選択中</h2>
-            <button
-              type="button"
-              className={styles["clear-button"]}
-              onClick={onClearTags}
-            >
+            <Button variant="destructive" size="small" onClick={onClearTags}>
               選択解除
-            </button>
+            </Button>
           </div>
           <div className={styles["tag-list"]}>
             {selectedTags.map((tag) => (

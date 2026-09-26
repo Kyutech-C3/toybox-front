@@ -25,7 +25,7 @@ const DeleteWorkButton = ({
     <Button
       variant="destructive"
       onClick={() => void handleDelete()}
-      isDisabled={isDeleting}
+      isLoading={isDeleting}
     >
       {isDeleting ? "削除中..." : "削除"}
     </Button>

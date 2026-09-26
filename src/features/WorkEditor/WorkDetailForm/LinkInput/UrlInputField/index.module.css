@@ -12,34 +12,6 @@
   place-items: center;
 }
 
-.input-row {
-  button {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    color: var(--font-color);
-    cursor: pointer;
-    transition: background-color var(--hover-transition);
-  }
-
-  button:hover,
-  button:focus-visible {
-    background: var(--primary-soft-color);
-    color: var(--font-color);
-  }
-
-  button svg {
-    width: 18px;
-    height: 18px;
-  }
-}
-
 .input-error {
   margin: 6px 5px 0;
   color: var(--error-color);
@@ -47,17 +19,7 @@
 }
 
 @media (max-width: 767px) {
-  .input-row button {
-    width: var(--touch-target-min);
-    height: var(--touch-target-min);
-  }
   .input-error {
     margin: 6px 2px 0;
-  }
-}
-
-@media (hover: none) {
-  .input-row button:hover {
-    background: transparent;
   }
 }

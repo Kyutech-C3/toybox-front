@@ -4,6 +4,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import UrlFavicon from "../UrlFavicon";
 import styles from "./index.module.css";
 
+import Button from "@/shared/ui/Button";
 import Input from "@/shared/ui/Input";
 
 import type { KeyboardEvent } from "react";
@@ -76,7 +77,6 @@ const UrlInputField = ({
     <div className={styles["url-field"]}>
       <Input
         isCharacterCountVisible
-        containerClassName={styles["input-row"]}
         leadingContent={
           <span className={styles["favicon-slot"]}>
             {committedUrl !== null && (
@@ -85,13 +85,14 @@ const UrlInputField = ({
           </span>
         }
         trailingContent={
-          <button
-            type="button"
+          <Button
+            variant="ghost"
+            size="small"
+            isIconOnly
+            icon={<CloseRoundedIcon />}
             onClick={onRemove}
             aria-label={`リンク ${index + 1}を削除`}
-          >
-            <CloseRoundedIcon />
-          </button>
+          />
         }
         type="url"
         inputMode="url"

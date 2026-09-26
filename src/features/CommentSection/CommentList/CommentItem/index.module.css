@@ -69,27 +69,6 @@
   gap: var(--space-4);
 }
 
-.action-button {
-  min-height: 32px;
-  padding: 0 var(--space-12);
-  border: none;
-  border-radius: 9999px;
-  background: transparent;
-  color: var(--font-muted-color);
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition:
-    background-color var(--hover-transition),
-    color var(--hover-transition);
-}
-
-.action-button:hover,
-.action-button:focus-visible {
-  background: var(--primary-soft-color);
-  color: var(--font-color);
-}
-
 .reply-input-wrapper {
   padding-left: calc(48px + var(--space-12));
 }
@@ -113,10 +92,6 @@
 }
 
 @media (max-width: 767px) {
-  .action-button {
-    min-height: var(--touch-target-min);
-    font-size: 0.875rem;
-  }
   .comment-row {
     gap: var(--space-8);
   }
@@ -128,12 +103,5 @@
   .replies-container {
     margin-left: var(--space-8);
     padding-left: var(--space-12);
-  }
-}
-
-@media (hover: none) {
-  .action-button:hover {
-    background: transparent;
-    color: var(--font-muted-color);
   }
 }

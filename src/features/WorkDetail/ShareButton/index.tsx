@@ -1,7 +1,6 @@
 import IosShareRoundedIcon from "@mui/icons-material/IosShareRounded";
 
-import styles from "./index.module.css";
-
+import Button from "@/shared/ui/Button";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 
@@ -38,15 +37,15 @@ const ShareButton = ({ title }: ShareButtonProps) => {
   };
 
   return (
-    <button
-      type="button"
-      className={styles["share-button"]}
+    <Button
+      variant="ghost"
+      size="small"
+      isIconOnly
+      icon={<IosShareRoundedIcon />}
       onClick={() => void handleShare()}
       aria-label="この作品を共有する"
       title="共有する"
-    >
-      <IosShareRoundedIcon fontSize="inherit" />
-    </button>
+    />
   );
 };
 

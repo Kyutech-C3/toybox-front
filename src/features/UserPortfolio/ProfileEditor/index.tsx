@@ -232,10 +232,9 @@ const ProfileEditor = ({
           variant="accent"
           onClick={() => void handleSubmit()}
           isDisabled={isSubmitDisabled}
+          isLoading={isSubmitting}
+          icon={<SaveRoundedIcon />}
         >
-          <span className={styles["save-icon"]} aria-hidden="true">
-            <SaveRoundedIcon fontSize="inherit" />
-          </span>
           {isSubmitting ? "保存中..." : "保存"}
         </Button>
       </div>

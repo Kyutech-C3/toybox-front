@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
 import styles from "./index.module.css";
@@ -68,14 +69,13 @@ const CommentInput = ({
               {replyingTo.user ? replyingTo.user.display_name : "Anonymous"}{" "}
               への返信
             </span>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              isIconOnly
+              icon={<CloseRoundedIcon />}
               onClick={onCancelReply}
-              className={styles["cancel-reply-button"]}
               aria-label="返信をキャンセル"
-            >
-              ×
-            </button>
+            />
           </div>
         )}
         <Textarea
@@ -97,11 +97,10 @@ const CommentInput = ({
             <Button
               variant="accent"
               onClick={() => void handleSend()}
-              isDisabled={!value.trim() || isSubmitting}
+              isDisabled={!value.trim()}
+              isLoading={isSubmitting}
+              icon={<SendRoundedIcon />}
             >
-              <span className={styles["send-icon"]} aria-hidden="true">
-                <SendRoundedIcon fontSize="inherit" />
-              </span>
               {isSubmitting ? "送信中..." : "送信"}
             </Button>
           </div>
