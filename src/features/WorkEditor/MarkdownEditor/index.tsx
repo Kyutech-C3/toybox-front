@@ -11,6 +11,7 @@ import styles from "./index.module.css";
 import LiveModeDialog from "./LiveModeDialog";
 
 import CharacterCount from "@/shared/ui/CharacterCount";
+import inputStyles from "@/shared/ui/Input/index.module.css";
 
 import "./editor-custom.css";
 
@@ -40,6 +41,7 @@ const MarkdownEditor = () => {
   const markdownInput = (
     <CharacterCount value={description}>
       <MDEditor
+        className={inputStyles["input-surface"]}
         value={description}
         onChange={(value) => setDescription(value || "")}
         previewOptions={{

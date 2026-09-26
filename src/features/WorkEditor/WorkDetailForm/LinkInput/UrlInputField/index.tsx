@@ -75,7 +75,6 @@ const UrlInputField = ({
   return (
     <div className={styles["url-field"]}>
       <Input
-        variant="plain"
         isCharacterCountVisible
         containerClassName={styles["input-row"]}
         leadingContent={

@@ -12,42 +12,10 @@
   gap: var(--space-8);
 }
 
-.input-box {
-  box-sizing: border-box;
-  padding: var(--space-12) var(--space-16);
-  border: 1px solid var(--border-color);
-  border-radius: 16px;
-  display: flex;
-  align-items: flex-start;
-  background: var(--background-color);
-  transition: border-color var(--hover-transition);
-}
-
-.input-box:focus-within {
-  border-color: var(--primary-color);
-}
-
 .textarea {
-  width: 100%;
-  min-height: 56px;
-  border: none;
-  background: transparent;
-  font-family: inherit;
-  font-size: 16px;
-  line-height: 1.6;
+  min-height: 88px;
   resize: none;
-  outline: none;
-  color: var(--font-color);
-  text-align: left;
   overflow: hidden;
-}
-
-.textarea::placeholder {
-  color: var(--font-muted-color);
-}
-
-.textarea:disabled {
-  cursor: not-allowed;
 }
 
 .send-wrap {

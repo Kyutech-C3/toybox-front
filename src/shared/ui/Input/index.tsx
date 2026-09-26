@@ -33,6 +33,10 @@ const Input = ({
   ...props
 }: InputProps) => {
   const limitHandlers = useCharacterLimit({ maxLength, onChange });
+  const hasAdornments =
+    containerClassName !== undefined ||
+    leadingContent !== undefined ||
+    trailingContent !== undefined;
   const accessibleName = props["aria-label"] ?? heading;
   const input = (
     <input
@@ -40,7 +44,11 @@ const Input = ({
       value={value}
       aria-label={accessibleName}
       className={[
-        variant === "default" ? styles["input-field"] : undefined,
+        variant === "default"
+          ? hasAdornments
+            ? styles["input-inner"]
+            : `${styles["input-surface"]} ${styles["input-field"]}`
+          : undefined,
         className,
       ]
         .filter(Boolean)
@@ -57,24 +65,30 @@ const Input = ({
       }}
     />
   );
-  const control =
-    containerClassName || leadingContent || trailingContent ? (
-      <div
-        className={containerClassName}
-        data-character-count-control
-        data-invalid={
-          props["aria-invalid"] === true || props["aria-invalid"] === "true"
-            ? "true"
-            : "false"
-        }
-      >
-        {leadingContent}
-        {input}
-        {trailingContent}
-      </div>
-    ) : (
-      input
-    );
+  const control = hasAdornments ? (
+    <div
+      className={[
+        variant === "default"
+          ? `${styles["input-surface"]} ${styles["input-adorned"]}`
+          : undefined,
+        containerClassName,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      data-character-count-control
+      data-invalid={
+        props["aria-invalid"] === true || props["aria-invalid"] === "true"
+          ? "true"
+          : "false"
+      }
+    >
+      {leadingContent}
+      {input}
+      {trailingContent}
+    </div>
+  ) : (
+    input
+  );
   const field = isCharacterCountVisible ? (
     <CharacterCount value={value} maxLength={maxLength} id={characterCountID}>
       {control}

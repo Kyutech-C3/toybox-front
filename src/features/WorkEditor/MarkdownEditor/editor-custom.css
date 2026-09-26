@@ -9,10 +9,11 @@
   --md-editor-background-color: var(--paper-color);
   --md-editor-box-shadow-color: var(--border-color);
 
-  border: 1px solid var(--border-color);
-  border-radius: var(--editor-radius);
+  --editor-radius: var(--input-border-radius);
+
+  border-radius: var(--input-border-radius);
   box-shadow: none;
-  padding-bottom: var(--space-24);
+  padding: 0 0 var(--space-24);
 }
 
 /* ツールバー */
@@ -112,12 +113,12 @@
 [data-markdown-editor] .w-md-editor-text {
   min-height: var(--editor-min-height) !important;
   padding: var(--editor-text-padding) 16px;
-  font-size: 15px !important;
+  font-size: 16px !important;
   line-height: var(--editor-line-height) !important;
 }
 
 [data-markdown-editor] .w-md-editor-text-pre > code {
-  font-size: 15px !important;
+  font-size: 16px !important;
   line-height: var(--editor-line-height) !important;
 }
 

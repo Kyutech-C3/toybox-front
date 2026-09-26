@@ -185,7 +185,6 @@ const TagSelector = ({
       <form className={styles["search-form"]} onSubmit={handleSubmit}>
         <div className={styles["search-input"]}>
           <Input
-            variant="plain"
             type="search"
             aria-label={ariaLabel}
             placeholder={searchPlaceholder}

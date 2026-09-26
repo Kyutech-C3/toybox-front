@@ -36,22 +36,13 @@ const CommentInput = ({
     }
   }, [isAutoFocus]);
 
-  const adjustHeight = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  }, []);
-
   const handleSend = useCallback(async () => {
     if (!value.trim() || isSubmitting) return;
     const isSubmitted = await onSubmit(value);
     if (!isSubmitted) return;
 
     setValue("");
-    setTimeout(() => adjustHeight(), 0);
-  }, [onSubmit, value, isSubmitting, adjustHeight]);
+  }, [onSubmit, value, isSubmitting]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -88,20 +79,16 @@ const CommentInput = ({
           </div>
         )}
         <Textarea
+          isAutoResizing
           aria-label="コメントを入力"
-          containerClassName={styles["input-box"]}
           isCharacterCountVisible
-          variant="plain"
           ref={textareaRef}
           className={styles["textarea"]}
           placeholder="コメントを追加"
           value={value}
           disabled={isSubmitting}
           maxLength={255}
-          onChange={(nextValue) => {
-            setValue(nextValue);
-            adjustHeight();
-          }}
+          onChange={setValue}
           onKeyDown={handleKeyDown}
         />
         <div className={styles["send-wrap"]}>

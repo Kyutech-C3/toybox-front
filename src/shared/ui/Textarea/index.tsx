@@ -1,5 +1,6 @@
 import CharacterCount from "../CharacterCount";
 import useCharacterLimit from "../CharacterCount/hook/useCharacterLimit";
+import inputStyles from "../Input/index.module.css";
 import styles from "./index.module.css";
 
 import type { ComponentPropsWithRef } from "react";
@@ -11,6 +12,7 @@ type TextareaProps = {
   characterCountID?: string;
   variant?: "default" | "plain";
   containerClassName?: string;
+  isAutoResizing?: boolean;
 } & Omit<ComponentPropsWithRef<"textarea">, "value" | "onChange">;
 
 const Textarea = ({
@@ -22,16 +24,65 @@ const Textarea = ({
   variant = "default",
   className,
   containerClassName,
+  isAutoResizing = false,
+  ref,
   onCompositionStart,
   onCompositionEnd,
   ...props
 }: TextareaProps) => {
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const setTextareaRef = useCallback(
+    (element: HTMLTextAreaElement | null) => {
+      textareaRef.current = element;
+      if (typeof ref === "function") return ref(element);
+      if (ref) ref.current = element;
+    },
+    [ref],
+  );
+  const adjustHeight = useCallback(() => {
+    const element = textareaRef.current;
+    if (!isAutoResizing || !element) return;
+    element.style.height = "auto";
+    const style = getComputedStyle(element);
+    const correction =
+      style.boxSizing === "border-box"
+        ? Number.parseFloat(style.borderTopWidth) +
+          Number.parseFloat(style.borderBottomWidth)
+        : -Number.parseFloat(style.paddingTop) -
+          Number.parseFloat(style.paddingBottom);
+    element.style.height = `${element.scrollHeight + correction}px`;
+  }, [isAutoResizing]);
+  useLayoutEffect(() => {
+    // Measure the committed value, including values cleared after saving.
+    if (textareaRef.current?.value === value) adjustHeight();
+  }, [value, adjustHeight]);
+  useLayoutEffect(() => {
+    const element = textareaRef.current;
+    if (!isAutoResizing || !element) return;
+    let previousWidth = 0;
+    let frameID = 0;
+    const observer = new ResizeObserver(([entry]) => {
+      if (!entry || entry.contentRect.width === previousWidth) return;
+      previousWidth = entry.contentRect.width;
+      cancelAnimationFrame(frameID);
+      frameID = requestAnimationFrame(adjustHeight);
+    });
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frameID);
+    };
+  }, [isAutoResizing, adjustHeight]);
   const limitHandlers = useCharacterLimit({ maxLength, onChange });
   const input = (
     <textarea
+      ref={setTextareaRef}
+      data-auto-resizing={isAutoResizing ? "true" : undefined}
       value={value}
       className={[
-        variant === "default" ? styles["textarea-field"] : undefined,
+        variant === "default"
+          ? `${inputStyles["input-surface"]} ${styles["textarea-field"]}`
+          : undefined,
         className,
       ]
         .filter(Boolean)
@@ -65,3 +116,5 @@ const Textarea = ({
 };
 
 export default Textarea;
+
+import { useCallback, useLayoutEffect, useRef } from "react";

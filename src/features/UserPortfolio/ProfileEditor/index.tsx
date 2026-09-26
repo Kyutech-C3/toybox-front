@@ -143,9 +143,7 @@ const ProfileEditor = ({
           表示名
         </label>
         <Input
-          variant="plain"
           id={displayNameID}
-          className={styles["input"]}
           value={displayName}
           onChange={setDisplayName}
           maxLength={DISPLAY_NAME_MAX_LENGTH}
@@ -157,9 +155,8 @@ const ProfileEditor = ({
           自己紹介
         </label>
         <Textarea
-          variant="plain"
+          isAutoResizing
           id={profileID}
-          className={styles["textarea"]}
           value={profile}
           onChange={setProfile}
           rows={4}
@@ -172,14 +169,12 @@ const ProfileEditor = ({
           GitHub
         </label>
         <Input
-          variant="plain"
           isCharacterCountVisible
           containerClassName={styles["social-input"]}
           leadingContent={
             <span className={styles["url-prefix"]}>https://github.com/</span>
           }
           id={githubID}
-          className={styles["social-id-input"]}
           value={github}
           placeholder="GitHub の ID"
           autoCapitalize="none"
@@ -206,14 +201,12 @@ const ProfileEditor = ({
           X
         </label>
         <Input
-          variant="plain"
           isCharacterCountVisible
           containerClassName={styles["social-input"]}
           leadingContent={
             <span className={styles["url-prefix"]}>https://x.com/</span>
           }
           id={xID}
-          className={styles["social-id-input"]}
           value={xUsername}
           placeholder="X の ID"
           autoCapitalize="none"

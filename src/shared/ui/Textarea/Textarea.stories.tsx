@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { expect, fireEvent, userEvent, within } from "storybook/test";
+import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 
 import Textarea from "./index";
 
@@ -61,5 +61,40 @@ export const CharacterLimit: Story = {
     await fireEvent.compositionEnd(input, { data: "あいうえおか" });
     await expect(input).toHaveValue("あいうえお");
     await expect(canvas.getByText("5/5")).toBeVisible();
+  },
+};
+
+export const AutoResizing: Story = {
+  args: { isAutoResizing: true },
+  render: (args) => (
+    <div data-testid="resize-container" style={{ width: 320 }}>
+      <EditableTextarea {...args} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "本文" });
+    const initialHeight = input.getBoundingClientRect().height;
+    await userEvent.click(input);
+    await userEvent.paste("内容に合わせて伸びる入力欄です。\n".repeat(15));
+    await waitFor(() =>
+      expect(input.getBoundingClientRect().height).toBeGreaterThan(
+        initialHeight,
+      ),
+    );
+    await expect(input.scrollHeight).toBeLessThanOrEqual(input.clientHeight);
+    await userEvent.clear(input);
+    await waitFor(() =>
+      expect(input.getBoundingClientRect().height).toBe(initialHeight),
+    );
+    await userEvent.paste(
+      "幅が変わったときにも折り返しを調整します。".repeat(20),
+    );
+    const wideHeight = input.getBoundingClientRect().height;
+    canvas.getByTestId("resize-container").style.width = "200px";
+    await waitFor(() =>
+      expect(input.getBoundingClientRect().height).toBeGreaterThan(wideHeight),
+    );
+    await expect(input.scrollHeight).toBeLessThanOrEqual(input.clientHeight);
   },
 };
