@@ -62,7 +62,7 @@
   }
 
   .new-work-icon {
-    font-size: 30px;
+    font-size: 20px;
   }
 
   .new-work-button {
@@ -73,9 +73,9 @@
   }
 
   .new-work-button button {
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
     padding: 0;
     border-radius: 9999px;
     border-color: var(--primary-color);
@@ -95,5 +95,25 @@
   .new-work-button button:not([data-disabled="true"]):hover {
     border-color: var(--primary-color);
     box-shadow: 0 4px 12px var(--shadow-soft-color);
+  }
+}
+
+/* ヘッダー内の操作を36pxのアバターと揃える。 */
+.login-wrapper > button,
+.new-work-button button {
+  height: 36px;
+  min-width: 36px;
+  padding-inline: var(--space-12);
+}
+
+.login-wrapper > button[data-icon-only="true"] {
+  width: 36px;
+  padding: 0;
+}
+
+@media (max-width: 767px) {
+  .new-work-button button {
+    width: 36px;
+    padding: 0;
   }
 }

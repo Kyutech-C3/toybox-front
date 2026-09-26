@@ -96,6 +96,16 @@ export const Default: Story = {
     const surface = input.parentElement;
     if (!surface) throw new Error("入力欄の枠が見つかりません");
     const surfaceRect = surface.getBoundingClientRect();
+    await expect(surfaceRect.height).toBe(32);
+    await expect(
+      canvas.getByRole("button", { name: "新規作成" }).getBoundingClientRect()
+        .height,
+    ).toBe(32);
+    await expect(
+      canvas
+        .getByRole("tablist", { name: "タグ一覧の表示" })
+        .getBoundingClientRect().height,
+    ).toBe(32);
     const buttonRect = clearButton.getBoundingClientRect();
     await expect(buttonRect.right).toBeLessThan(surfaceRect.right);
     await expect(buttonRect.left).toBeGreaterThan(

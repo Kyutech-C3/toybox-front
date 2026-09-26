@@ -219,3 +219,21 @@
 .search-field::-webkit-search-cancel-button {
   appearance: none;
 }
+
+/* タグ検索の操作は、小さい表示切替と同じ32pxに揃える。 */
+.view-switch > div > button {
+  min-height: 26px;
+}
+
+.search-input .search-surface {
+  height: 32px;
+  min-height: 32px;
+  padding-inline: var(--space-12);
+  border-radius: 9999px;
+}
+
+.search-form > .create-button {
+  height: 32px;
+  min-width: 32px;
+  font-size: 12px;
+}

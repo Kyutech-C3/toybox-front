@@ -10,7 +10,7 @@ type ButtonProps = ComponentPropsWithRef<"button"> & {
     | "destructive"
     | "ghost"
     | "link";
-  size?: "default" | "small";
+  size?: "default" | "small" | "compact";
   icon?: ReactNode;
   isIconOnly?: boolean;
   isLoading?: boolean;

@@ -130,3 +130,20 @@
     padding: 0;
   }
 }
+
+/* タグとコード内の補助操作は、本文と同じ密度で表示する。 */
+.button[data-size="compact"] {
+  height: 25px;
+  min-width: 25px;
+  padding-inline: var(--space-12);
+  font-size: 14px;
+}
+
+.button[data-size="compact"][data-icon-only="true"] {
+  width: 25px;
+  padding: 0;
+}
+
+.button[data-size="compact"] .icon {
+  font-size: 16px;
+}

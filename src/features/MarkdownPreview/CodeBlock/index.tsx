@@ -33,7 +33,7 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
   return (
     <div className={styles["code-block-container"]}>
       <Button
-        size="small"
+        size="compact"
         isIconOnly
         className={styles["copy-button"]}
         onClick={handleCopy}

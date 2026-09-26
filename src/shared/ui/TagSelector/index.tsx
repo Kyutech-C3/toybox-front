@@ -191,10 +191,11 @@ const TagSelector = ({
             type="search"
             ref={searchInputRef}
             className={styles["search-field"]}
+            containerClassName={styles["search-surface"]}
             trailingContent={
               <Button
                 variant="ghost"
-                size="small"
+                size="compact"
                 isIconOnly
                 icon={<CloseRoundedIcon />}
                 disabled={keyword === "" || isCreating}
@@ -222,6 +223,8 @@ const TagSelector = ({
         {onCreateTag && (
           <Button
             variant="accent"
+            size="small"
+            className={styles["create-button"]}
             isLoading={isCreating}
             disabled={!canCreateTag || isCreating}
             onClick={() => void handleCreateTag()}
@@ -275,7 +278,7 @@ const TagSelector = ({
               {isPopularTruncated && (
                 <Button
                   variant="link"
-                  size="small"
+                  size="compact"
                   onClick={() => setViewMode("all-popular")}
                   aria-controls={panelID}
                 >
@@ -303,7 +306,7 @@ const TagSelector = ({
                 <span>{tag.work_count}件</span>
               </Batch>
             ))}
-            <Button variant="link" size="small" tabIndex={-1}>
+            <Button variant="link" size="compact" tabIndex={-1}>
               全件表示
             </Button>
           </div>
@@ -314,7 +317,7 @@ const TagSelector = ({
         <div className={styles["selected-tags"]}>
           <div className={styles["section-heading"]}>
             <h2>選択中</h2>
-            <Button variant="destructive" size="small" onClick={onClearTags}>
+            <Button variant="destructive" size="compact" onClick={onClearTags}>
               選択解除
             </Button>
           </div>

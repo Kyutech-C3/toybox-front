@@ -1,7 +1,7 @@
 .code-block-container {
   position: relative;
-  min-height: 32px;
-  padding-inline-end: 48px;
+  min-height: 25px;
+  padding-inline-end: 33px;
   font-family: "Consolas", "Monaco", "Courier New", monospace;
   font-size: 0.9em;
   line-height: 1.5;
@@ -12,10 +12,4 @@
   top: 0;
   right: 0;
   z-index: 1;
-}
-
-@media (max-width: 767px) {
-  .code-block-container {
-    min-height: 48px;
-  }
 }

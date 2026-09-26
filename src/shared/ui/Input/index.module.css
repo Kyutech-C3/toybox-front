@@ -81,3 +81,15 @@
     padding-inline: var(--space-16);
   }
 }
+
+/* 枠内の操作が入力欄の高さを押し広げないようにする。 */
+.input-adorned {
+  height: 48px;
+}
+
+.input-adorned > button[data-size="small"][data-icon-only="true"] {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+}
