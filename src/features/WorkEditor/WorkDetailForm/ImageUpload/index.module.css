@@ -41,40 +41,9 @@
   opacity: 0.4;
 }
 
-.upload-area {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: transparent;
-  cursor: pointer;
-  transition: background-color var(--hover-transition);
-
-  &:hover {
-    background: var(--primary-soft-color);
-  }
-}
-
-.upload-frame[data-has-image="true"] .upload-area {
+.upload-frame[data-has-image="true"] > button {
   flex: 0 0 75%;
   background: var(--asset-background);
-}
-
-.upload-area:disabled {
-  cursor: wait;
-}
-
-.upload-area[data-dragging="true"] svg {
-  color: var(--primary-color);
-}
-
-.file-input {
-  display: none;
 }
 
 /* Card と同じように拡大表示（切り抜き）にする */
@@ -146,11 +115,5 @@
 
   .upload-frame {
     border-radius: 16px;
-  }
-}
-
-@media (hover: none) {
-  .upload-area:hover {
-    background: transparent;
   }
 }

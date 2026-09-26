@@ -256,6 +256,7 @@ const TagSelector = ({
               ))}
               {isPopularTruncated && (
                 <Button
+                  variant="link"
                   size="small"
                   onClick={() => setViewMode("all-popular")}
                   aria-controls={panelID}
@@ -284,7 +285,7 @@ const TagSelector = ({
                 <span>{tag.work_count}件</span>
               </Batch>
             ))}
-            <Button size="small" tabIndex={-1}>
+            <Button variant="link" size="small" tabIndex={-1}>
               全件表示
             </Button>
           </div>

@@ -1,14 +1,11 @@
-import { useRef, useState } from "react";
 import AudiotrackRoundedIcon from "@mui/icons-material/AudiotrackRounded";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
 
 import useAssetUpload, { ASSET_ACCEPT } from "../hook/useAssetUpload";
-import UploadPrompt from "../UploadPrompt";
+import UploadArea from "../UploadArea";
 import UploadRemoveButton from "../UploadRemoveButton";
 import UploadRetryButton from "../UploadRetryButton";
 import styles from "./index.module.css";
-
-import type { ChangeEvent, DragEvent } from "react";
 
 type AssetStatusSource = {
   kind: string;
@@ -33,20 +30,6 @@ const getStatusText = ({
 const AssetUpload = () => {
   const { assets, validationError, handleAddFiles, handleRetry, handleRemove } =
     useAssetUpload();
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    handleAddFiles(Array.from(event.target.files ?? []));
-    event.target.value = "";
-  };
-
-  const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setIsDragging(false);
-    handleAddFiles(Array.from(event.dataTransfer.files));
-  };
-
   return (
     <section className={styles["asset-upload"]}>
       <h3 className={styles["heading"]}>アセット</h3>
@@ -103,30 +86,12 @@ const AssetUpload = () => {
             </div>
           </article>
         ))}
-        <input
-          ref={fileInputRef}
-          className={styles["file-input"]}
-          type="file"
+        <UploadArea
           accept={ASSET_ACCEPT}
-          multiple
-          onChange={handleInputChange}
-          tabIndex={-1}
+          ariaLabel="アセットを追加"
+          onSelectFiles={handleAddFiles}
+          isMultiple
         />
-        <button
-          type="button"
-          className={styles["add-button"]}
-          onClick={() => fileInputRef.current?.click()}
-          onDragOver={(event) => {
-            event.preventDefault();
-            setIsDragging(true);
-          }}
-          onDragLeave={() => setIsDragging(false)}
-          onDrop={handleDrop}
-          data-dragging={isDragging ? "true" : "false"}
-          aria-label="アセットを追加"
-        >
-          <UploadPrompt />
-        </button>
       </div>
       {validationError && (
         <p className={styles["validation-error"]} role="alert">

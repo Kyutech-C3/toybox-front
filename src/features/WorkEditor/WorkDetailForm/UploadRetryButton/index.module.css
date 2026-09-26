@@ -7,9 +7,6 @@
   color: var(--font-color);
   background: var(--paper-overlay-color);
   cursor: pointer;
-  transition:
-    color 0.2s ease,
-    background-color 0.2s ease;
 }
 
 .retry-button:hover:not(:disabled),

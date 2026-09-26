@@ -155,3 +155,7 @@ export const SubmitAndRef: Story = {
     await expect(button).toHaveFocus();
   },
 };
+
+export const Link: Story = {
+  args: { variant: "link", size: "small", children: "全件表示" },
+};

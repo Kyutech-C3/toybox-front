@@ -3,7 +3,13 @@ import styles from "./index.module.css";
 import type { ComponentPropsWithRef, ReactNode } from "react";
 
 type ButtonProps = ComponentPropsWithRef<"button"> & {
-  variant?: "primary" | "secondary" | "accent" | "destructive" | "ghost";
+  variant?:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "destructive"
+    | "ghost"
+    | "link";
   size?: "default" | "small";
   icon?: ReactNode;
   isIconOnly?: boolean;
