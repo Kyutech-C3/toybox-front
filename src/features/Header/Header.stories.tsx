@@ -1,5 +1,5 @@
 import { MemoryRouter } from "react-router-dom";
-import { expect, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 
 import Header from "./index";
 
@@ -38,6 +38,36 @@ export const LoggedOut: Story = {
     await expect(canvas.getByRole("img", { name: "logo-image" })).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "ログイン" }),
+    ).toBeVisible();
+
+    const lightBackground = getComputedStyle(document.body).backgroundColor;
+    await userEvent.click(
+      canvas.getByRole("button", { name: "ダークモードに切り替え" }),
+    );
+    await expect(document.documentElement).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
+    await expect(
+      canvas.getByRole("button", { name: "ライトモードに切り替え" }),
+    ).toBeVisible();
+    expect(getComputedStyle(document.body).backgroundColor).not.toBe(
+      lightBackground,
+    );
+  },
+};
+
+export const Dark: Story = {
+  globals: { theme: "dark" },
+  play: async ({ canvasElement }) => {
+    await expect(document.documentElement).toHaveAttribute(
+      "data-theme",
+      "dark",
+    );
+    await expect(
+      within(canvasElement).getByRole("button", {
+        name: "ライトモードに切り替え",
+      }),
     ).toBeVisible();
   },
 };

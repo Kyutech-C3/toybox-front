@@ -2,6 +2,8 @@ import { expect, userEvent, within } from "storybook/test";
 
 import MarkdownPreview from "./index";
 
+import markdownSyntaxSample from "@/stories/markdownSyntaxSample.md?raw";
+
 import type { Meta, StoryObj } from "@storybook/react";
 
 const META = {
@@ -45,3 +47,17 @@ export const TableAndTaskList: Story = {
 };
 
 export const Empty: Story = { args: { content: "" } };
+
+export const MarkdownSyntaxSample: Story = {
+  args: { content: markdownSyntaxSample },
+  parameters: { a11y: { test: "todo" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("heading", { name: "Markdown 記法テストドキュメント" }),
+    ).toBeInTheDocument();
+    await expect(
+      canvas.getByRole("heading", { name: "最後の確認" }),
+    ).toBeInTheDocument();
+  },
+};
