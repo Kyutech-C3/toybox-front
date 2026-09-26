@@ -111,6 +111,14 @@ p {
   margin: 0;
 }
 
+/* iOS のフォーム部品の既定色より、アプリ側の文字色を優先する。 */
+button,
+input,
+select,
+textarea {
+  color: inherit;
+}
+
 a {
   font-weight: 500;
   color: var(--font-color);
