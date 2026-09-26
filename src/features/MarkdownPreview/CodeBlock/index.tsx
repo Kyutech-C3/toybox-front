@@ -3,7 +3,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import CheckIcon from "@mui/icons-material/Check";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
-  vs,
+  coldarkCold,
   vscDarkPlus,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -46,8 +46,18 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
       <SyntaxHighlighter
         PreTag="div"
         language={language}
-        style={theme === "dark" ? vscDarkPlus : vs}
+        style={theme === "dark" ? vscDarkPlus : coldarkCold}
+        codeTagProps={{
+          style: {
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            lineHeight: "inherit",
+          },
+        }}
         customStyle={{
+          fontFamily: "inherit",
+          fontSize: "inherit",
+          lineHeight: "inherit",
           background: "var(--code-block-background-color)",
           backgroundColor: "var(--code-block-background-color)",
           border: "none",

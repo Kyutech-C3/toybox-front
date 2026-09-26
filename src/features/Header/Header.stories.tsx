@@ -59,6 +59,7 @@ export const LoggedOut: Story = {
 
 export const Dark: Story = {
   globals: { theme: "dark" },
+  parameters: { docs: { story: { inline: false } } },
   play: async ({ canvasElement }) => {
     await expect(document.documentElement).toHaveAttribute(
       "data-theme",

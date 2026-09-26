@@ -20,7 +20,6 @@ const META = {
     onChange: () => undefined,
     heading: "タイトル",
     placeholder: "タイトルを入力",
-    "aria-label": "タイトル",
   },
   render: (args) => <InputWithState {...args} />,
 } satisfies Meta<typeof Input>;
