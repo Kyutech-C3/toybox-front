@@ -16,12 +16,6 @@
   font-size: 0.875rem;
 }
 
-.tag-error {
-  margin: 0;
-  color: var(--error-color);
-  font-size: 14px;
-}
-
 @media (max-width: 767px) {
   .tag-input-wrapper h3 {
     margin: 8px 2px;

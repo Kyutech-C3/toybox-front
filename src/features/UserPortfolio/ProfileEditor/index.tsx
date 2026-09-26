@@ -8,6 +8,7 @@ import styles from "./index.module.css";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Button from "@/shared/ui/Button";
+import FieldError from "@/shared/ui/FieldError";
 import Input from "@/shared/ui/Input";
 import Textarea from "@/shared/ui/Textarea";
 import useToast from "@/shared/ui/Toast/hook/useToast";
@@ -187,13 +188,9 @@ const ProfileEditor = ({
           onBlur={() => setGithub(normalizedGithubUsername)}
         />
         {githubError !== "" && (
-          <span
-            id={githubErrorID}
-            className={styles["input-error"]}
-            role="alert"
-          >
+          <FieldError id={githubErrorID} role="alert">
             {githubError}
-          </span>
+          </FieldError>
         )}
       </div>
       <div className={styles["field"]}>
@@ -219,9 +216,9 @@ const ProfileEditor = ({
           onBlur={() => setXUsername(normalizedXUsername)}
         />
         {xError !== "" && (
-          <span id={xErrorID} className={styles["input-error"]} role="alert">
+          <FieldError id={xErrorID} role="alert">
             {xError}
-          </span>
+          </FieldError>
         )}
       </div>
       <div className={styles["actions"]}>

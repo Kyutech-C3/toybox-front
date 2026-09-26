@@ -5,6 +5,7 @@ import UrlFavicon from "../UrlFavicon";
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
+import FieldError from "@/shared/ui/FieldError";
 import Input from "@/shared/ui/Input";
 
 import type { KeyboardEvent } from "react";
@@ -108,9 +109,9 @@ const UrlInputField = ({
         onKeyDown={handleKeyDown}
       />
       {error !== "" && (
-        <span id={errorID} className={styles["input-error"]} role="alert">
+        <FieldError id={errorID} role="alert">
           {error}
-        </span>
+        </FieldError>
       )}
     </div>
   );

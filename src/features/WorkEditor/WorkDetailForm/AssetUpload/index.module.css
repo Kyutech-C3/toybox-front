@@ -106,19 +106,13 @@
   font-weight: 600;
 }
 
-.status[data-status="error"],
-.validation-error {
+.status[data-status="error"] {
   color: var(--error-color);
 }
 
-.validation-error,
 .format-help {
   margin: 0;
   white-space: pre-line;
-}
-
-.validation-error {
-  font-size: 0.875rem;
 }
 
 .format-help {

@@ -7,6 +7,8 @@ import UploadRemoveButton from "../UploadRemoveButton";
 import UploadRetryButton from "../UploadRetryButton";
 import styles from "./index.module.css";
 
+import FieldError from "@/shared/ui/FieldError";
+
 type AssetStatusSource = {
   kind: string;
   status: string;
@@ -94,9 +96,7 @@ const AssetUpload = () => {
         />
       </div>
       {validationError && (
-        <p className={styles["validation-error"]} role="alert">
-          {validationError}
-        </p>
+        <FieldError role="alert">{validationError}</FieldError>
       )}
       <p className={styles["format-help"]}>
         画像（PNG・JPG・JPEG・BMP・GIF・WEBP）、動画（MP4・MOV）、音声（MP3・WAV・M4A）、ZIP

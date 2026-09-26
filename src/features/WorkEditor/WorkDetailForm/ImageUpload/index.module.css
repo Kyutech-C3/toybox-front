@@ -91,12 +91,6 @@
   font-weight: 600;
 }
 
-.error-message {
-  margin: 0;
-  color: var(--error-color);
-  font-size: 0.875rem;
-}
-
 .format-help {
   margin: 0;
   color: var(--font-muted-color);

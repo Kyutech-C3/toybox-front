@@ -26,11 +26,6 @@
   white-space: nowrap;
 }
 
-.input-error {
-  color: var(--error-color);
-  font-size: 0.75rem;
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;

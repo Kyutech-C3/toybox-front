@@ -2,6 +2,8 @@ import { useWorkEditorStore } from "../store/useWorkEditorStore";
 import { validateWork } from "../validateWork";
 import styles from "./index.module.css";
 
+import FieldError from "@/shared/ui/FieldError";
+
 import type { WorkValidationErrors } from "../validateWork";
 
 type ValidationMessageProps = {
@@ -16,13 +18,13 @@ const ValidationMessage = ({ field }: ValidationMessageProps) => {
   const message = hasAttemptedSubmit ? validateWork(current)[field] : undefined;
   if (!message) return null;
   return (
-    <p
+    <FieldError
       id={`work-error-${field}`}
       className={styles["validation-message"]}
       data-work-validation-error="true"
     >
       {message}
-    </p>
+    </FieldError>
   );
 };
 

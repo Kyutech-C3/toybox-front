@@ -11,15 +11,3 @@
   display: grid;
   place-items: center;
 }
-
-.input-error {
-  margin: 6px 5px 0;
-  color: var(--error-color);
-  font-size: 0.875rem;
-}
-
-@media (max-width: 767px) {
-  .input-error {
-    margin: 6px 2px 0;
-  }
-}

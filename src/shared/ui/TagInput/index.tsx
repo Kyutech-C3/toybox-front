@@ -2,6 +2,7 @@ import Batch from "../Batch";
 import TagSelector from "../TagSelector";
 import styles from "./index.module.css";
 
+import FieldError from "@/shared/ui/FieldError";
 import { normalizeTagNameInput } from "@/util/tagName";
 
 import type { TagSelectorOption } from "../TagSelector";
@@ -79,11 +80,7 @@ const TagInput = ({
           })}
         </div>
       )}
-      {errorMessage && (
-        <p className={styles["tag-error"]} role="alert">
-          {errorMessage}
-        </p>
-      )}
+      {errorMessage && <FieldError role="alert">{errorMessage}</FieldError>}
     </section>
   );
 };

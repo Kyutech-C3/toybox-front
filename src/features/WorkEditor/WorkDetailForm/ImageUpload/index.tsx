@@ -6,6 +6,8 @@ import UploadRemoveButton from "../UploadRemoveButton";
 import UploadRetryButton from "../UploadRetryButton";
 import styles from "./index.module.css";
 
+import FieldError from "@/shared/ui/FieldError";
+
 const ImageUpload = () => {
   const {
     thumbnail,
@@ -73,9 +75,9 @@ const ImageUpload = () => {
         )}
       </div>
       {(validationError || thumbnail?.errorMessage) && (
-        <p className={styles["error-message"]} role="alert">
+        <FieldError role="alert">
           {validationError || thumbnail?.errorMessage}
-        </p>
+        </FieldError>
       )}
       <p className={styles["format-help"]}>
         PNG・JPG・JPEG・BMP・GIF・WEBP / 5MB以下
