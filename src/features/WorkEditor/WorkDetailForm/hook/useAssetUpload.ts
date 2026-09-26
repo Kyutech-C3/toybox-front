@@ -1,11 +1,13 @@
 import { useState } from "react";
 
+import { deletePendingResources } from "../../api/deletePendingResources";
 import { uploadAsset } from "../../api/uploadAsset";
 import {
   createUploadingAsset,
   getExtension,
   getFileAssetKey,
 } from "../../editorAsset";
+import useEditorRequestGuard from "../../hook/useEditorRequestGuard";
 import { useWorkEditorStore } from "../../store/useWorkEditorStore";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
@@ -33,17 +35,30 @@ const useAssetUpload = (): UseAssetUploadReturn => {
     (state) => state.addUploadedAssetID,
   );
   const [validationError, setValidationError] = useState("");
+  const { createRequestGuard } = useEditorRequestGuard();
 
   const upload = async (key: string, file: File) => {
     updateAsset(key, { status: "uploading", assetID: null, errorMessage: "" });
+    const isCurrentRequest = createRequestGuard();
     try {
-      const accessToken = useAuthStore.getState().accessToken;
+      const { accessToken, sessionVersion: authSessionVersion } =
+        useAuthStore.getState();
       if (!accessToken) throw new Error("No access token available");
       const response = await uploadAsset(file, accessToken);
       if (!response.id) throw new Error("Failed to upload asset");
+      if (!isCurrentRequest()) {
+        if (useAuthStore.getState().sessionVersion !== authSessionVersion)
+          return;
+        void deletePendingResources(
+          { assetIDs: [response.id], tagIDs: [] },
+          accessToken,
+        );
+        return;
+      }
       updateAsset(key, { status: "success", assetID: response.id });
       addUploadedAssetID(response.id);
     } catch {
+      if (!isCurrentRequest()) return;
       updateAsset(key, {
         status: "error",
         errorMessage: "アップロードに失敗しました",

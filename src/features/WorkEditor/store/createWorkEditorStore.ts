@@ -19,6 +19,7 @@ import type {
 } from "../types";
 
 export type WorkEditorStore = {
+  sessionVersion: number;
   mode: WorkEditorMode;
   workID: string | null;
   ownerID: string | null;
@@ -69,6 +70,7 @@ const updateCurrent = (
 
 export const createWorkEditorStore = () =>
   createStore<WorkEditorStore>((set) => ({
+    sessionVersion: 0,
     mode: "new",
     workID: null,
     ownerID: null,
@@ -87,6 +89,7 @@ export const createWorkEditorStore = () =>
         if (state.initializedKey === "new") return state;
         revokeValuesPreviewURLs(state.current);
         return {
+          sessionVersion: state.sessionVersion + 1,
           mode: "new",
           workID: null,
           ownerID: null,
@@ -109,6 +112,7 @@ export const createWorkEditorStore = () =>
         revokeValuesPreviewURLs(state.current);
         const values = toWorkEditorValues(work);
         return {
+          sessionVersion: state.sessionVersion + 1,
           mode: "edit",
           workID: work.id,
           ownerID: work.user.id,
@@ -153,6 +157,7 @@ export const createWorkEditorStore = () =>
       set((state) => {
         revokeValuesPreviewURLs(state.current);
         return {
+          sessionVersion: state.sessionVersion + 1,
           mode: "new",
           workID: null,
           ownerID: null,
