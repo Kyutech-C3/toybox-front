@@ -39,14 +39,12 @@ const UploadCard = ({
         <div className={styles["actions"]}>
           {asset.status === "error" && (
             <UploadRetryButton
-              className={styles["action-button"]}
               onClick={onRetry}
               isDisabled={false}
               ariaLabel={`${asset.fileName}を再アップロード`}
             />
           )}
           <UploadRemoveButton
-            className={styles["action-button"]}
             onClick={onRemove}
             isDisabled={asset.status === "uploading"}
             ariaLabel={`${asset.fileName}を削除`}

@@ -1,9 +1,9 @@
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 
-import styles from "./index.module.css";
+import Button from "@/shared/ui/Button";
 
 type UploadRetryButtonProps = {
-  className: string;
+  className?: string;
   onClick: () => void;
   isDisabled: boolean;
   ariaLabel: string;
@@ -16,15 +16,16 @@ const UploadRetryButton = ({
   ariaLabel,
 }: UploadRetryButtonProps) => {
   return (
-    <button
-      type="button"
-      className={`${styles["retry-button"]} ${className}`}
+    <Button
+      variant="primary"
+      size="small"
+      isIconOnly
+      icon={<RefreshRoundedIcon />}
+      className={className}
       onClick={onClick}
       disabled={isDisabled}
       aria-label={ariaLabel}
-    >
-      <RefreshRoundedIcon />
-    </button>
+    />
   );
 };
 

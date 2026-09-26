@@ -1,9 +1,9 @@
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
-import styles from "./index.module.css";
+import Button from "@/shared/ui/Button";
 
 type UploadRemoveButtonProps = {
-  className: string;
+  className?: string;
   onClick: () => void;
   isDisabled: boolean;
   ariaLabel: string;
@@ -16,15 +16,16 @@ const UploadRemoveButton = ({
   ariaLabel,
 }: UploadRemoveButtonProps) => {
   return (
-    <button
-      type="button"
-      className={`${styles["remove-button"]} ${className}`}
+    <Button
+      variant="destructive"
+      size="small"
+      isIconOnly
+      icon={<CloseRoundedIcon />}
+      className={className}
       onClick={onClick}
       disabled={isDisabled}
       aria-label={ariaLabel}
-    >
-      <CloseRoundedIcon />
-    </button>
+    />
   );
 };
 
