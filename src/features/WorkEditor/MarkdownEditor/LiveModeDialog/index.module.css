@@ -12,7 +12,7 @@
 }
 
 .live-dialog::backdrop {
-  background-color: var(--shadow-soft-color);
+  background-color: var(--overlay-dark-color);
   backdrop-filter: blur(6px);
 }
 

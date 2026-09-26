@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-8);
-  background: var(--button-color);
+  background: var(--paper-color);
   color: var(--font-color);
   cursor: pointer;
   font-family: inherit;
@@ -90,7 +90,7 @@
     background: color-mix(
       in srgb,
       var(--primary-color) 10%,
-      var(--button-color)
+      var(--paper-color)
     );
     box-shadow: var(--hover-shadow);
   }
@@ -111,7 +111,7 @@
   }
 
   .button[data-variant="destructive"]:not(:disabled):hover {
-    background: color-mix(in srgb, var(--error-color) 12%, var(--button-color));
+    background: color-mix(in srgb, var(--error-color) 12%, var(--paper-color));
   }
 }
 

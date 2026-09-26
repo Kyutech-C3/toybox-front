@@ -31,7 +31,7 @@
   place-items: center;
   overflow: hidden;
   background-color: var(--asset-background);
-  color: var(--font-sub-color);
+  color: var(--asset-font-color);
   cursor: pointer;
   opacity: 0.5;
   transition: opacity var(--hover-transition);

@@ -86,7 +86,7 @@
 }
 
 [data-markdown-editor] .w-md-editor-toolbar li > button:disabled {
-  color: var(--font-sub-color);
+  color: var(--font-muted-color);
 }
 
 [data-markdown-editor] .w-md-editor-toolbar li > button svg {
@@ -121,6 +121,6 @@
 }
 
 [data-markdown-editor] .w-md-editor-text-input::placeholder {
-  color: var(--phrase-holder);
-  -webkit-text-fill-color: var(--phrase-holder);
+  color: var(--font-muted-color);
+  -webkit-text-fill-color: var(--font-muted-color);
 }

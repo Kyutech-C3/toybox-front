@@ -7,14 +7,14 @@
   background: var(--primary-color);
 
   &[data-visibility="draft"] {
-    background: var(--button-color);
+    background: var(--paper-color);
     outline: 1px solid var(--border-color);
     outline-offset: -1px;
 
     .button-span {
       background-color: var(--border-color);
-      border-top-color: var(--button-color);
-      border-bottom-color: var(--button-color);
+      border-top-color: var(--paper-color);
+      border-bottom-color: var(--paper-color);
     }
   }
 }

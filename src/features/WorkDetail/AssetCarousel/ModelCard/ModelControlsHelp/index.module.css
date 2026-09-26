@@ -10,7 +10,7 @@
   left: var(--space-12);
   bottom: var(--space-12);
   pointer-events: auto;
-  color: var(--font-sub-color);
+  color: var(--asset-font-color);
 }
 
 .controls-help .controls-help-button[aria-expanded="true"] {

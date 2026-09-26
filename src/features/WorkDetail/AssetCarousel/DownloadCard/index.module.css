@@ -14,7 +14,7 @@
 
 .file-icon {
   display: inline-flex;
-  color: var(--font-sub-color);
+  color: var(--asset-font-color);
   font-size: 96px;
 }
 
@@ -70,6 +70,6 @@
 
 .url-error {
   margin: 0;
-  color: var(--error-color);
+  color: color-mix(in srgb, var(--error-color) 65%, var(--asset-font-color));
   line-height: 1.6;
 }

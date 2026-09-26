@@ -226,12 +226,12 @@ const ModelViewer = ({ extension, onLoadError, src }: ModelViewerProps) => {
       const getTokenColor = (tokenName: string) =>
         new Color(rootStyles.getPropertyValue(tokenName).trim());
       const hemisphereLight = new HemisphereLight(
-        getTokenColor("--paper-color"),
-        getTokenColor("--asset-background"),
+        getTokenColor("--asset-font-color"),
+        getTokenColor("--on-primary-color"),
         2.4,
       );
       const keyLight = new DirectionalLight(
-        getTokenColor("--paper-color"),
+        getTokenColor("--asset-font-color"),
         3.5,
       );
       const fillLight = new DirectionalLight(

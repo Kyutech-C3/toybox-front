@@ -33,7 +33,7 @@
   min-height: 0;
   overflow: hidden;
   background: var(--asset-background);
-  color: var(--font-sub-color);
+  color: var(--asset-font-color);
 }
 
 .upload-card .preview > button {

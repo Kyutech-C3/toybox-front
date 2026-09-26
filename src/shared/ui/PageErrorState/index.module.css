@@ -43,7 +43,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--button-color);
+  background: var(--paper-color);
   font-size: 14px;
   font-weight: bold;
   transition: box-shadow var(--hover-transition);
