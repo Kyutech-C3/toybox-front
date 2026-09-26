@@ -70,6 +70,6 @@
 
 .url-error {
   margin: 0;
-  color: var(--error-on-dark-color);
+  color: var(--error-color);
   line-height: 1.6;
 }

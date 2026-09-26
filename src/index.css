@@ -19,7 +19,6 @@
   --phrase-holder: #d9d9d9;
   --border-color: #d9d9d9;
   --error-color: #c62828;
-  --error-on-dark-color: #ef5151;
   --link-color: #1565c0;
   --paper-overlay-color: rgba(255, 255, 255, 0.9);
   --overlay-dark-color: rgba(0, 0, 0, 0.3);
@@ -109,6 +108,14 @@
 
 p {
   margin: 0;
+}
+
+/* iOS のフォーム部品の既定色より、アプリ側の文字色を優先する。 */
+button,
+input,
+select,
+textarea {
+  color: inherit;
 }
 
 a {
