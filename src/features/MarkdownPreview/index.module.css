@@ -67,7 +67,7 @@
 
   /* Code */
   code {
-    background-color: var(--inline-code-background-color);
+    background-color: var(--code-block-background-color);
     padding: 0.2em 0.4em;
     border-radius: 3px;
     font-family: "Consolas", "Monaco", "Courier New", monospace;

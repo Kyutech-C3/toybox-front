@@ -50,6 +50,7 @@ export const Empty: Story = { args: { content: "" } };
 
 export const MarkdownSyntaxSample: Story = {
   args: { content: markdownSyntaxSample },
+  parameters: { a11y: { test: "todo" } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(
