@@ -29,3 +29,9 @@ jobs:
 
       - name: Run CI checks
         run: npm run ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Storybook accessibility and interaction tests
+        run: npm run test:storybook
