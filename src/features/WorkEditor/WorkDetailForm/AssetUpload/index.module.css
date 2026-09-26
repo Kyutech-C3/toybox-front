@@ -5,7 +5,6 @@
   width: 100%;
 }
 
-/* タイトル・タグ入力の見出しに合わせる */
 .heading {
   margin: var(--space-8) 5px;
   color: var(--font-color);
@@ -18,41 +17,6 @@
   grid-template-columns: repeat(auto-fill, var(--upload-cell-width));
   align-items: start;
   gap: var(--upload-grid-gap);
-}
-
-/* プレビュー 4:3 と説明欄 4:1 を積んで正方形にする */
-.asset-card {
-  box-sizing: border-box;
-  width: var(--upload-cell-width);
-  aspect-ratio: 1;
-  min-width: 0;
-  overflow: hidden;
-  border: 2px solid var(--primary-color);
-  border-radius: 25px;
-  display: flex;
-  flex-direction: column;
-  background: var(--paper-color);
-}
-
-.asset-card[data-status="error"] {
-  border-color: var(--error-color);
-  background: color-mix(in srgb, var(--error-color) 12%, var(--paper-color));
-}
-
-.asset-card[data-status="uploading"] {
-  opacity: 0.4;
-}
-
-/* 作品ページのカルーセルと同じく、暗い面に全景を収める */
-.preview {
-  position: relative;
-  flex: 0 0 75%;
-  display: grid;
-  place-items: center;
-  width: 100%;
-  overflow: hidden;
-  background: var(--asset-background);
-  color: var(--font-sub-color);
 }
 
 .preview > img,
@@ -68,69 +32,16 @@
   font-size: 48px;
 }
 
-.overlay-actions {
-  position: absolute;
-  top: var(--space-8);
-  right: var(--space-8);
-  display: flex;
-  gap: var(--space-8);
-}
-
-.overlay-button {
-  width: 36px;
-  height: 36px;
-}
-
-.asset-details {
-  flex: 0 0 25%;
-  min-width: 0;
-  padding: 0 var(--space-12);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  color: var(--font-muted-color);
-  font-size: 0.6875rem;
-}
-
-.file-name,
-.status {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-name {
-  color: var(--font-color);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.status[data-status="error"] {
-  color: var(--error-color);
-}
-
 .format-help {
   margin: 0;
   white-space: pre-line;
-}
-
-.format-help {
   color: var(--font-muted-color);
   font-size: 0.75rem;
 }
 
 @media (max-width: 767px) {
-  .overlay-button {
-    width: var(--touch-target-min);
-    height: var(--touch-target-min);
-  }
   .heading {
     margin: var(--space-8) 2px;
     font-size: 16px;
-  }
-
-  .asset-card {
-    border-radius: 16px;
   }
 }

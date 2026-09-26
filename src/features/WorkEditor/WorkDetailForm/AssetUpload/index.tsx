@@ -3,8 +3,7 @@ import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
 
 import useAssetUpload, { ASSET_ACCEPT } from "../hook/useAssetUpload";
 import UploadArea from "../UploadArea";
-import UploadRemoveButton from "../UploadRemoveButton";
-import UploadRetryButton from "../UploadRetryButton";
+import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
 import FieldError from "@/shared/ui/FieldError";
@@ -37,56 +36,23 @@ const AssetUpload = () => {
       <h3 className={styles["heading"]}>アセット</h3>
       <div className={styles["asset-grid"]}>
         {assets.map((asset) => (
-          <article
-            className={styles["asset-card"]}
+          <UploadCard
             key={asset.key}
-            data-status={asset.status}
+            asset={asset}
+            previewClassName={styles["preview"]}
+            statusText={getStatusText(asset)}
+            onRemove={() => handleRemove(asset.key)}
+            onRetry={() => handleRetry(asset.key)}
           >
-            <div className={styles["preview"]}>
-              {asset.kind === "画像" && asset.previewURL && (
-                <img src={asset.previewURL} alt="" />
-              )}
-              {asset.kind === "動画" && asset.previewURL && (
-                <video
-                  src={asset.previewURL}
-                  muted
-                  aria-label="動画プレビュー"
-                />
-              )}
-              {asset.kind === "音声" && <AudiotrackRoundedIcon />}
-              {asset.kind === "ZIP" && <FolderZipRoundedIcon />}
-              <div className={styles["overlay-actions"]}>
-                {asset.status === "error" && (
-                  <UploadRetryButton
-                    className={styles["overlay-button"]}
-                    onClick={() => handleRetry(asset.key)}
-                    isDisabled={false}
-                    ariaLabel={`${asset.fileName}を再アップロード`}
-                  />
-                )}
-                <UploadRemoveButton
-                  className={styles["overlay-button"]}
-                  onClick={() => handleRemove(asset.key)}
-                  isDisabled={asset.status === "uploading"}
-                  ariaLabel={`${asset.fileName}を削除`}
-                />
-              </div>
-            </div>
-            <div className={styles["asset-details"]}>
-              <span className={styles["file-name"]} title={asset.fileName}>
-                {asset.fileName}
-              </span>
-              <span
-                className={styles["status"]}
-                data-status={asset.status}
-                title={getStatusText(asset)}
-                role={asset.status === "error" ? "alert" : undefined}
-                aria-live="polite"
-              >
-                {getStatusText(asset)}
-              </span>
-            </div>
-          </article>
+            {asset.kind === "画像" && asset.previewURL && (
+              <img src={asset.previewURL} alt="" />
+            )}
+            {asset.kind === "動画" && asset.previewURL && (
+              <video src={asset.previewURL} muted aria-label="動画プレビュー" />
+            )}
+            {asset.kind === "音声" && <AudiotrackRoundedIcon />}
+            {asset.kind === "ZIP" && <FolderZipRoundedIcon />}
+          </UploadCard>
         ))}
         <UploadArea
           accept={ASSET_ACCEPT}
