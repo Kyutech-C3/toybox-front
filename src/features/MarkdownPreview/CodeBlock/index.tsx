@@ -48,8 +48,8 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
         language={language}
         style={theme === "dark" ? vscDarkPlus : vs}
         customStyle={{
-          background: "var(--background-color)",
-          backgroundColor: "var(--background-color)",
+          background: "var(--code-block-background-color)",
+          backgroundColor: "var(--code-block-background-color)",
           border: "none",
           padding: 0,
           margin: 0,
