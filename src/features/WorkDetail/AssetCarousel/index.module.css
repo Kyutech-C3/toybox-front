@@ -35,7 +35,8 @@
 .asset-carousel {
   text-align: left;
   list-style-type: none;
-  height: 100%;
+  min-height: 0;
+  align-self: stretch;
   min-width: 100%;
   flex: 0 0 100%;
   scroll-snap-align: start;
