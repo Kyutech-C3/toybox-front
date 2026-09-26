@@ -45,6 +45,31 @@ export const Editable: Story = {
   },
 };
 
+export const KeyboardFocus: Story = {
+  render: (args) => (
+    <div>
+      <InputWithState {...args} heading="通常の入力欄" />
+      <InputWithState
+        {...args}
+        heading="文字数付きの入力欄"
+        isCharacterCountVisible
+      />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const name of ["通常の入力欄", "文字数付きの入力欄"]) {
+      await userEvent.tab();
+      const input = canvas.getByRole("textbox", { name });
+      await expect(input).toHaveFocus();
+      const surface = input.closest('[class*="input-surface"]');
+      if (!surface) throw new Error("入力欄の枠が見つかりません");
+      await expect(getComputedStyle(surface).outlineStyle).toBe("solid");
+      await expect(getComputedStyle(surface).outlineWidth).toBe("2px");
+    }
+  },
+};
+
 export const CharacterLimit: Story = {
   args: { maxLength: 5, isCharacterCountVisible: true },
   play: async ({ canvasElement }) => {

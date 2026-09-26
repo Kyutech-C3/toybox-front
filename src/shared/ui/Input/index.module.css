@@ -35,6 +35,12 @@
   padding-block: 0;
 }
 
+.input-surface:focus-visible,
+.input-surface:has(> .input-inner:focus-visible) {
+  outline: 2px solid var(--font-color);
+  outline-offset: 2px;
+}
+
 .input-adorned {
   padding-block: 0;
   display: flex;

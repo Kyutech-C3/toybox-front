@@ -8,6 +8,7 @@ import styles from "./index.module.css";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Button from "@/shared/ui/Button";
+import CharacterCount from "@/shared/ui/CharacterCount";
 import FieldError from "@/shared/ui/FieldError";
 import Input from "@/shared/ui/Input";
 import Textarea from "@/shared/ui/Textarea";
@@ -170,10 +171,16 @@ const ProfileEditor = ({
           GitHub
         </label>
         <Input
-          isCharacterCountVisible
           containerClassName={styles["social-input"]}
           leadingContent={
             <span className={styles["url-prefix"]}>https://github.com/</span>
+          }
+          trailingContent={
+            <CharacterCount
+              value={normalizedGithubUsername}
+              maxLength={GITHUB_USERNAME_MAX_LENGTH}
+              placement="inline"
+            />
           }
           id={githubID}
           value={github}
@@ -184,7 +191,6 @@ const ProfileEditor = ({
           aria-invalid={githubError !== ""}
           aria-describedby={githubError !== "" ? githubErrorID : undefined}
           onChange={setGithub}
-          maxLength={GITHUB_USERNAME_MAX_LENGTH}
           onBlur={() => setGithub(normalizedGithubUsername)}
         />
         {githubError !== "" && (
@@ -198,10 +204,16 @@ const ProfileEditor = ({
           X
         </label>
         <Input
-          isCharacterCountVisible
           containerClassName={styles["social-input"]}
           leadingContent={
             <span className={styles["url-prefix"]}>https://x.com/</span>
+          }
+          trailingContent={
+            <CharacterCount
+              value={normalizedXUsername}
+              maxLength={X_USERNAME_MAX_LENGTH}
+              placement="inline"
+            />
           }
           id={xID}
           value={xUsername}
@@ -212,7 +224,6 @@ const ProfileEditor = ({
           aria-invalid={xError !== ""}
           aria-describedby={xError !== "" ? xErrorID : undefined}
           onChange={setXUsername}
-          maxLength={X_USERNAME_MAX_LENGTH}
           onBlur={() => setXUsername(normalizedXUsername)}
         />
         {xError !== "" && (
