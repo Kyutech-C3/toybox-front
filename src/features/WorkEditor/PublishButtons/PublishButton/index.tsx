@@ -14,6 +14,7 @@ import {
   useWorkEditorStore,
   useWorkEditorStoreApi,
 } from "../../store/useWorkEditorStore";
+import { validateWork } from "../../validateWork";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
@@ -95,6 +96,15 @@ const PublishButton = () => {
   const listboxTriggerRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
 
+  const hasAttemptedSubmit = useWorkEditorStore(
+    (state) => state.hasAttemptedSubmit,
+  );
+  const setHasAttemptedSubmit = useWorkEditorStore(
+    (state) => state.setHasAttemptedSubmit,
+  );
+  const validationErrors = validateWork(current);
+  const hasValidationErrors = Object.keys(validationErrors).length > 0;
+
   const { visibility } = current;
   const isEditMode = mode === "edit";
   const isSubmitDisabled =
@@ -112,27 +122,17 @@ const PublishButton = () => {
       setSubmitError("ログインが必要です");
       return;
     }
+    setHasAttemptedSubmit(true);
+    setSubmitError("");
+    if (hasValidationErrors) {
+      requestAnimationFrame(() => {
+        document
+          .querySelector("[data-work-validation-error]")
+          ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      });
+      return;
+    }
     const payload = toWorkPayload(current);
-    if (!payload.title.trim()) {
-      setSubmitError("タイトルを入力してください");
-      return;
-    }
-    if (!payload.description.trim()) {
-      setSubmitError("説明を入力してください");
-      return;
-    }
-    if (payload.tag_ids.length === 0) {
-      setSubmitError("タグを1つ以上指定してください");
-      return;
-    }
-    if (!payload.thumbnail_asset_id) {
-      setSubmitError("サムネイルのアップロードを完了してください");
-      return;
-    }
-    if (payload.asset_ids.length === 0) {
-      setSubmitError("アセットを1つ以上追加してください");
-      return;
-    }
 
     const confirmMessage = VISIBILITY_CONFIRM_MESSAGES[visibility];
     if (confirmMessage && !window.confirm(confirmMessage)) return;
@@ -247,6 +247,15 @@ const PublishButton = () => {
           URL入力のエラーを解消してから保存できます
         </output>
       )}
+      {hasAttemptedSubmit &&
+        hasValidationErrors &&
+        !submitError &&
+        !isSubmitDisabled && (
+          <span className={styles["submit-error"]} role="alert">
+            入力内容に{Object.keys(validationErrors).length}
+            件のエラーがあります。各項目を確認してください。
+          </span>
+        )}
       {submitError && (
         <span className={styles["submit-error"]} role="alert">
           {submitError}

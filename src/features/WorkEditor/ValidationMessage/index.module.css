@@ -1,0 +1,6 @@
+.validation-message {
+  margin: 0;
+  color: var(--error-color);
+  font-size: 14px;
+  scroll-margin-block: calc(var(--header-height) + var(--space-24));
+}

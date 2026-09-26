@@ -1,4 +1,7 @@
+import { MAX_WORK_TITLE_LENGTH } from "../constants";
 import { useWorkEditorStore } from "../store/useWorkEditorStore";
+import ValidationMessage from "../ValidationMessage";
+import { validateWork } from "../validateWork";
 import useWorkTags from "./hook/useWorkTags";
 import styles from "./index.module.css";
 
@@ -10,6 +13,13 @@ import Paper from "@/shared/ui/Paper";
 import TagInput from "@/shared/ui/TagInput";
 
 const WorkDetailForm = () => {
+  const current = useWorkEditorStore((state) => state.current);
+  const hasAttemptedSubmit = useWorkEditorStore(
+    (state) => state.hasAttemptedSubmit,
+  );
+  const titleError = hasAttemptedSubmit
+    ? validateWork(current).title
+    : undefined;
   const title = useWorkEditorStore((state) => state.current.title);
   const urls = useWorkEditorStore((state) => state.current.urls);
   const setTitle = useWorkEditorStore((state) => state.setTitle);
@@ -33,7 +43,23 @@ const WorkDetailForm = () => {
   return (
     <Paper>
       <div className={styles["work-detail-form-wrapper"]}>
-        <Input heading="タイトル" value={title} onChange={setTitle} />
+        <div>
+          <Input
+            heading="タイトル"
+            value={title}
+            onChange={setTitle}
+            aria-invalid={!!titleError}
+            aria-describedby={
+              titleError
+                ? "work-title-count work-error-title"
+                : "work-title-count"
+            }
+          />
+          <p id="work-title-count" className={styles["title-count"]}>
+            {Array.from(title).length} / {MAX_WORK_TITLE_LENGTH}文字
+          </p>
+          <ValidationMessage field="title" />
+        </div>
         <TagInput
           heading="タグ"
           tags={tags}
@@ -47,8 +73,11 @@ const WorkDetailForm = () => {
           onRemoveFailedTag={handleRemoveFailedTag}
           allTagOptions={allTagOptions}
         />
+        <ValidationMessage field="tags" />
         <ImageUpload />
+        <ValidationMessage field="thumbnail" />
         <AssetUpload />
+        <ValidationMessage field="assets" />
         <LinkInput
           urls={urls}
           onChangeUrls={setUrls}

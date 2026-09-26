@@ -16,3 +16,9 @@
     gap: var(--space-24);
   }
 }
+
+.title-count {
+  margin: var(--space-8) 0;
+  color: var(--font-muted-color);
+  font-size: 14px;
+}
