@@ -8,6 +8,8 @@ import styles from "./index.module.css";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Button from "@/shared/ui/Button";
+import Input from "@/shared/ui/Input";
+import Textarea from "@/shared/ui/Textarea";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { normalizeInputText } from "@/util/normalizeInputText";
 
@@ -84,8 +86,8 @@ const ProfileEditor = ({
   const isSubmitDisabled =
     isSubmitting ||
     trimmedDisplayName.length === 0 ||
-    trimmedDisplayName.length > DISPLAY_NAME_MAX_LENGTH ||
-    profile.length > PROFILE_MAX_LENGTH ||
+    Array.from(trimmedDisplayName).length > DISPLAY_NAME_MAX_LENGTH ||
+    Array.from(profile).length > PROFILE_MAX_LENGTH ||
     githubError !== "" ||
     xError !== "";
 
@@ -140,53 +142,55 @@ const ProfileEditor = ({
         <label className={styles["label"]} htmlFor={displayNameID}>
           表示名
         </label>
-        <input
+        <Input
+          variant="plain"
           id={displayNameID}
           className={styles["input"]}
           value={displayName}
+          onChange={setDisplayName}
           maxLength={DISPLAY_NAME_MAX_LENGTH}
-          onChange={(event) => setDisplayName(event.target.value)}
+          isCharacterCountVisible
         />
       </div>
       <div className={styles["field"]}>
         <label className={styles["label"]} htmlFor={profileID}>
           自己紹介
         </label>
-        <textarea
+        <Textarea
+          variant="plain"
           id={profileID}
           className={styles["textarea"]}
           value={profile}
-          maxLength={PROFILE_MAX_LENGTH}
+          onChange={setProfile}
           rows={4}
-          onChange={(event) => setProfile(event.target.value)}
+          maxLength={PROFILE_MAX_LENGTH}
+          isCharacterCountVisible
         />
-        <p className={styles["counter"]}>
-          {profile.length}/{PROFILE_MAX_LENGTH}
-        </p>
       </div>
       <div className={styles["field"]}>
         <label className={styles["label"]} htmlFor={githubID}>
           GitHub
         </label>
-        <div
-          className={styles["social-input"]}
-          data-invalid={githubError !== "" ? "true" : "false"}
-        >
-          <span className={styles["url-prefix"]}>https://github.com/</span>
-          <input
-            id={githubID}
-            className={styles["social-id-input"]}
-            value={github}
-            placeholder="GitHub の ID"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            aria-invalid={githubError !== ""}
-            aria-describedby={githubError !== "" ? githubErrorID : undefined}
-            onChange={(event) => setGithub(event.target.value)}
-            onBlur={() => setGithub(normalizedGithubUsername)}
-          />
-        </div>
+        <Input
+          variant="plain"
+          isCharacterCountVisible
+          containerClassName={styles["social-input"]}
+          leadingContent={
+            <span className={styles["url-prefix"]}>https://github.com/</span>
+          }
+          id={githubID}
+          className={styles["social-id-input"]}
+          value={github}
+          placeholder="GitHub の ID"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-invalid={githubError !== ""}
+          aria-describedby={githubError !== "" ? githubErrorID : undefined}
+          onChange={setGithub}
+          maxLength={GITHUB_USERNAME_MAX_LENGTH}
+          onBlur={() => setGithub(normalizedGithubUsername)}
+        />
         {githubError !== "" && (
           <span
             id={githubErrorID}
@@ -201,25 +205,26 @@ const ProfileEditor = ({
         <label className={styles["label"]} htmlFor={xID}>
           X
         </label>
-        <div
-          className={styles["social-input"]}
-          data-invalid={xError !== "" ? "true" : "false"}
-        >
-          <span className={styles["url-prefix"]}>https://x.com/</span>
-          <input
-            id={xID}
-            className={styles["social-id-input"]}
-            value={xUsername}
-            placeholder="X の ID"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            aria-invalid={xError !== ""}
-            aria-describedby={xError !== "" ? xErrorID : undefined}
-            onChange={(event) => setXUsername(event.target.value)}
-            onBlur={() => setXUsername(normalizedXUsername)}
-          />
-        </div>
+        <Input
+          variant="plain"
+          isCharacterCountVisible
+          containerClassName={styles["social-input"]}
+          leadingContent={
+            <span className={styles["url-prefix"]}>https://x.com/</span>
+          }
+          id={xID}
+          className={styles["social-id-input"]}
+          value={xUsername}
+          placeholder="X の ID"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-invalid={xError !== ""}
+          aria-describedby={xError !== "" ? xErrorID : undefined}
+          onChange={setXUsername}
+          maxLength={X_USERNAME_MAX_LENGTH}
+          onBlur={() => setXUsername(normalizedXUsername)}
+        />
         {xError !== "" && (
           <span id={xErrorID} className={styles["input-error"]} role="alert">
             {xError}

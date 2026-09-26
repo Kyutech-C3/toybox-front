@@ -6,6 +6,7 @@ import styles from "./index.module.css";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
+import Textarea from "@/shared/ui/Textarea";
 
 import type React from "react";
 import type { Comment } from "@/shared/types/comment";
@@ -86,21 +87,23 @@ const CommentInput = ({
             </button>
           </div>
         )}
-        <label className={styles["input-box"]}>
-          <span className={styles["sr-only"]}>コメントを入力</span>
-          <textarea
-            ref={textareaRef}
-            className={styles["textarea"]}
-            placeholder="コメントを追加"
-            value={value}
-            disabled={isSubmitting}
-            onChange={(event) => {
-              setValue(event.target.value);
-              adjustHeight();
-            }}
-            onKeyDown={handleKeyDown}
-          />
-        </label>
+        <Textarea
+          aria-label="コメントを入力"
+          containerClassName={styles["input-box"]}
+          isCharacterCountVisible
+          variant="plain"
+          ref={textareaRef}
+          className={styles["textarea"]}
+          placeholder="コメントを追加"
+          value={value}
+          disabled={isSubmitting}
+          maxLength={255}
+          onChange={(nextValue) => {
+            setValue(nextValue);
+            adjustHeight();
+          }}
+          onKeyDown={handleKeyDown}
+        />
         <div className={styles["send-wrap"]}>
           <p className={styles["send-hint"]}>Ctrl + Enter で送信</p>
           <div className={styles["send-button-slot"]}>

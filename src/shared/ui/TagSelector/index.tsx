@@ -4,6 +4,7 @@ import { getVisiblePopularTagCount } from "./getVisiblePopularTagCount";
 import styles from "./index.module.css";
 
 import Batch from "@/shared/ui/Batch";
+import Input from "@/shared/ui/Input";
 import SegmentedControl from "@/shared/ui/SegmentedControl";
 import { normalizeTagNameInput } from "@/util/tagName";
 
@@ -52,8 +53,8 @@ const TagSelector = ({
   trailingControls,
 }: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
-  const [isCreating, setCreating] = useState(false);
   const [viewMode, setViewMode] = useState<TagViewMode>("popular");
+  const [isCreating, setCreating] = useState(false);
   const [visibleTagCount, setVisibleTagCount] = useState(0);
   const measureListRef = useRef<HTMLDivElement>(null);
   const panelID = useId();
@@ -182,20 +183,24 @@ const TagSelector = ({
         </div>
       )}
       <form className={styles["search-form"]} onSubmit={handleSubmit}>
-        <input
-          type="search"
-          aria-label={ariaLabel}
-          placeholder={searchPlaceholder}
-          value={keyword}
-          readOnly={isCreating}
-          onChange={(event) => {
-            const nextKeyword = event.target.value;
-            setKeyword(nextKeyword);
-            if (viewMode === "popular" && normalizeTagNameInput(nextKeyword)) {
-              setViewMode("all-popular");
-            }
-          }}
-        />
+        <div className={styles["search-input"]}>
+          <Input
+            variant="plain"
+            type="search"
+            aria-label={ariaLabel}
+            placeholder={searchPlaceholder}
+            value={keyword}
+            readOnly={isCreating}
+            maxLength={onCreateTag ? 50 : undefined}
+            isCharacterCountVisible={!!onCreateTag}
+            data-character-count-control={onCreateTag ? true : undefined}
+            onChange={(nextKeyword) => {
+              setKeyword(nextKeyword);
+              if (viewMode === "popular" && normalizeTagNameInput(nextKeyword))
+                setViewMode("all-popular");
+            }}
+          />
+        </div>
         {onCreateTag && (
           <button
             type="button"

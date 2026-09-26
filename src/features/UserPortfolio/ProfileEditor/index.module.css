@@ -75,12 +75,6 @@
   outline: none;
 }
 
-.counter {
-  color: var(--font-muted-color);
-  font-size: 0.75rem;
-  text-align: right;
-}
-
 .input-error {
   color: var(--error-color);
   font-size: 0.75rem;

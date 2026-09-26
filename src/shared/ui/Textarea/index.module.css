@@ -1,0 +1,14 @@
+.textarea-field {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 112px;
+  padding: var(--space-12) var(--space-16);
+  border: solid 2px var(--primary-color);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--font-color);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.6;
+  resize: vertical;
+}

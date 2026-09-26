@@ -1,0 +1,36 @@
+.character-count {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.character-count[data-over-limit="true"] {
+  color: var(--error-color);
+}
+
+.counted-field {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+
+.counted-field > .character-count {
+  position: absolute;
+  right: var(--space-16);
+  bottom: var(--space-8);
+  margin: 0;
+  pointer-events: none;
+}
+
+.counted-field > input,
+.counted-field > textarea,
+.counted-field > [data-character-count-control] {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 64px;
+  padding-bottom: var(--space-24);
+}

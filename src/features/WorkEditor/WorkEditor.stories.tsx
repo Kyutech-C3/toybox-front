@@ -94,12 +94,11 @@ export const ValidationErrors: Story = {
     const title = canvas.getByRole("textbox", { name: "タイトル" });
     await expect(title).toHaveAttribute("aria-invalid", "true");
     await userEvent.type(title, "あ".repeat(101));
-    await expect(
-      canvas.getByText("タイトルは100文字以内で入力してください"),
-    ).toBeVisible();
+    await expect(title).toHaveValue("あ".repeat(100));
+    await expect(canvas.getByText("100/100")).toBeVisible();
     await userEvent.clear(title);
     await userEvent.type(title, "😀".repeat(100));
-    await expect(canvas.getByText("100 / 100文字")).toBeVisible();
+    await expect(canvas.getByText("100/100")).toBeVisible();
     await expect(title).toHaveAttribute("aria-invalid", "false");
     await expect(
       canvas.queryByText("タイトルは100文字以内で入力してください"),

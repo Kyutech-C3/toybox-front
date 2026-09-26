@@ -10,6 +10,8 @@ import useLiveScrollSync from "./hook/useLiveScrollSync";
 import styles from "./index.module.css";
 import LiveModeDialog from "./LiveModeDialog";
 
+import CharacterCount from "@/shared/ui/CharacterCount";
+
 import "./editor-custom.css";
 
 import MarkdownPreview from "@/features/MarkdownPreview";
@@ -36,25 +38,27 @@ const MarkdownEditor = () => {
   });
 
   const markdownInput = (
-    <MDEditor
-      value={description}
-      onChange={(value) => setDescription(value || "")}
-      previewOptions={{
-        rehypePlugins: [[rehypeSanitize]],
-      }}
-      preview="edit"
-      extraCommands={[]}
-      visibleDragbar={false}
-      height="auto"
-      textareaProps={{
-        placeholder: EDITOR_PLACEHOLDER,
-        "aria-label": "説明",
-        "aria-invalid": !!descriptionError,
-        "aria-describedby": descriptionError
-          ? "work-error-description"
-          : undefined,
-      }}
-    />
+    <CharacterCount value={description}>
+      <MDEditor
+        value={description}
+        onChange={(value) => setDescription(value || "")}
+        previewOptions={{
+          rehypePlugins: [[rehypeSanitize]],
+        }}
+        preview="edit"
+        extraCommands={[]}
+        visibleDragbar={false}
+        height="auto"
+        textareaProps={{
+          placeholder: EDITOR_PLACEHOLDER,
+          "aria-label": "説明",
+          "aria-invalid": !!descriptionError,
+          "aria-describedby": descriptionError
+            ? "work-error-description"
+            : undefined,
+        }}
+      />
+    </CharacterCount>
   );
 
   const handleLiveModeClose = () => setMode("edit");

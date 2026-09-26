@@ -51,6 +51,7 @@ export const ValidationError: Story = {
     await userEvent.clear(github);
     await userEvent.type(github, "invalid--name");
     await userEvent.tab();
+    await expect(canvas.getByText("13/39")).toBeVisible();
     await expect(canvas.getByRole("alert")).toHaveTextContent("単独のハイフン");
     await expect(canvas.getByRole("button", { name: /保存/ })).toBeDisabled();
   },

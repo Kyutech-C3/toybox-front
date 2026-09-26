@@ -33,14 +33,7 @@
   place-items: center;
 }
 
-.input-control {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  background: transparent;
-
+.input-row {
   input {
     min-width: 0;
     flex: 1;
@@ -73,7 +66,7 @@
     color: var(--font-color);
   }
 
-  svg {
+  button svg {
     width: 18px;
     height: 18px;
   }
@@ -86,7 +79,7 @@
 }
 
 @media (max-width: 767px) {
-  .input-control button {
+  .input-row button {
     width: var(--touch-target-min);
     height: var(--touch-target-min);
   }
@@ -101,7 +94,7 @@
 }
 
 @media (hover: none) {
-  .input-control button:hover {
+  .input-row button:hover {
     background: transparent;
   }
 }

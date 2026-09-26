@@ -2,45 +2,36 @@ import CharacterCount from "../CharacterCount";
 import useCharacterLimit from "../CharacterCount/hook/useCharacterLimit";
 import styles from "./index.module.css";
 
-import type { ComponentPropsWithRef, ReactNode } from "react";
+import type { ComponentPropsWithRef } from "react";
 
-type InputProps = {
+type TextareaProps = {
   value: string;
   onChange: (value: string) => void;
-  heading?: string;
   isCharacterCountVisible?: boolean;
   characterCountID?: string;
   variant?: "default" | "plain";
   containerClassName?: string;
-  leadingContent?: ReactNode;
-  trailingContent?: ReactNode;
-} & Omit<ComponentPropsWithRef<"input">, "value" | "onChange">;
+} & Omit<ComponentPropsWithRef<"textarea">, "value" | "onChange">;
 
-const Input = ({
+const Textarea = ({
   value,
   onChange,
-  heading,
   maxLength,
   isCharacterCountVisible = false,
   characterCountID,
   variant = "default",
   className,
   containerClassName,
-  leadingContent,
-  trailingContent,
   onCompositionStart,
   onCompositionEnd,
   ...props
-}: InputProps) => {
+}: TextareaProps) => {
   const limitHandlers = useCharacterLimit({ maxLength, onChange });
-  const accessibleName = props["aria-label"] ?? heading;
   const input = (
-    <input
-      type="text"
+    <textarea
       value={value}
-      aria-label={accessibleName}
       className={[
-        variant === "default" ? styles["input-field"] : undefined,
+        variant === "default" ? styles["textarea-field"] : undefined,
         className,
       ]
         .filter(Boolean)
@@ -57,38 +48,20 @@ const Input = ({
       }}
     />
   );
-  const control =
-    containerClassName || leadingContent || trailingContent ? (
-      <div
-        className={containerClassName}
-        data-character-count-control
-        data-invalid={
-          props["aria-invalid"] === true || props["aria-invalid"] === "true"
-            ? "true"
-            : "false"
-        }
-      >
-        {leadingContent}
-        {input}
-        {trailingContent}
-      </div>
-    ) : (
-      input
-    );
-  const field = isCharacterCountVisible ? (
+  const control = containerClassName ? (
+    <div className={containerClassName} data-character-count-control>
+      {input}
+    </div>
+  ) : (
+    input
+  );
+  return isCharacterCountVisible ? (
     <CharacterCount value={value} maxLength={maxLength} id={characterCountID}>
       {control}
     </CharacterCount>
   ) : (
     control
   );
-  if (variant === "plain" && !heading) return field;
-  return (
-    <div className={styles["input-wrapper"]}>
-      {heading && <h3>{heading}</h3>}
-      {field}
-    </div>
-  );
 };
 
-export default Input;
+export default Textarea;

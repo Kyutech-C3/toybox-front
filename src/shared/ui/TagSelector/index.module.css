@@ -314,3 +314,8 @@
     order: 4;
   }
 }
+
+.search-input {
+  min-width: 0;
+  flex: 1;
+}

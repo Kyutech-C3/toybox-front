@@ -48,6 +48,9 @@ const WorkDetailForm = () => {
             heading="タイトル"
             value={title}
             onChange={setTitle}
+            maxLength={MAX_WORK_TITLE_LENGTH}
+            isCharacterCountVisible
+            characterCountID="work-title-count"
             aria-invalid={!!titleError}
             aria-describedby={
               titleError
@@ -55,9 +58,6 @@ const WorkDetailForm = () => {
                 : "work-title-count"
             }
           />
-          <p id="work-title-count" className={styles["title-count"]}>
-            {Array.from(title).length} / {MAX_WORK_TITLE_LENGTH}文字
-          </p>
           <ValidationMessage field="title" />
         </div>
         <TagInput
