@@ -51,7 +51,7 @@ export const CharacterLimit: Story = {
     await userEvent.paste("あ😀いうえお");
     await expect(input).toHaveValue("あ😀いうえ");
     const counter = canvas.getByText("5/5");
-    await expect(counter.getBoundingClientRect().bottom).toBeLessThan(
+    await expect(counter.getBoundingClientRect().top).toBeGreaterThan(
       input.getBoundingClientRect().bottom,
     );
     await userEvent.clear(input);

@@ -34,6 +34,7 @@ const Input = ({
 }: InputProps) => {
   const limitHandlers = useCharacterLimit({ maxLength, onChange });
   const hasAdornments =
+    isCharacterCountVisible ||
     containerClassName !== undefined ||
     leadingContent !== undefined ||
     trailingContent !== undefined;
@@ -84,18 +85,20 @@ const Input = ({
     >
       {leadingContent}
       {input}
+      {isCharacterCountVisible && (
+        <CharacterCount
+          value={value}
+          maxLength={maxLength}
+          id={characterCountID}
+          placement="inline"
+        />
+      )}
       {trailingContent}
     </div>
   ) : (
     input
   );
-  const field = isCharacterCountVisible ? (
-    <CharacterCount value={value} maxLength={maxLength} id={characterCountID}>
-      {control}
-    </CharacterCount>
-  ) : (
-    control
-  );
+  const field = control;
   if (variant === "plain" && !heading) return field;
   return (
     <div className={styles["input-wrapper"]}>

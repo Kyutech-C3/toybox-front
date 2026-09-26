@@ -1,4 +1,5 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import { getVisiblePopularTagCount } from "./getVisiblePopularTagCount";
 import styles from "./index.module.css";
@@ -54,6 +55,7 @@ const TagSelector = ({
   trailingControls,
 }: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [viewMode, setViewMode] = useState<TagViewMode>("popular");
   const [isCreating, setCreating] = useState(false);
   const [visibleTagCount, setVisibleTagCount] = useState(0);
@@ -187,6 +189,22 @@ const TagSelector = ({
         <div className={styles["search-input"]}>
           <Input
             type="search"
+            ref={searchInputRef}
+            className={styles["search-field"]}
+            trailingContent={
+              <Button
+                variant="ghost"
+                size="small"
+                isIconOnly
+                icon={<CloseRoundedIcon />}
+                disabled={keyword === "" || isCreating}
+                aria-label="タグの入力をクリア"
+                onClick={() => {
+                  setKeyword("");
+                  searchInputRef.current?.focus();
+                }}
+              />
+            }
             aria-label={ariaLabel}
             placeholder={searchPlaceholder}
             value={keyword}

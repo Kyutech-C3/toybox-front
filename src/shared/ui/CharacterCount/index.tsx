@@ -7,6 +7,7 @@ type CharacterCountProps = {
   maxLength?: number;
   id?: string;
   children?: ReactNode;
+  placement?: "outside" | "inline";
 };
 
 const CharacterCount = ({
@@ -14,16 +15,18 @@ const CharacterCount = ({
   maxLength,
   id,
   children,
+  placement = "outside",
 }: CharacterCountProps) => {
   const count = Array.from(value).length;
+  const label = `${count}${maxLength !== undefined ? `/${maxLength}` : ""}`;
   const counter = (
     <span
       id={id}
+      data-placement={placement}
       className={styles["character-count"]}
       data-over-limit={maxLength !== undefined && count > maxLength}
     >
-      {count}
-      {maxLength !== undefined && `/${maxLength}`}
+      {label}
     </span>
   );
   if (children === undefined) return counter;

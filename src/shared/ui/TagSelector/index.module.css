@@ -214,3 +214,8 @@
   min-width: 0;
   flex: 1;
 }
+
+/* ブラウザ標準の×を隠し、共通Buttonに揃える。 */
+.search-field::-webkit-search-cancel-button {
+  appearance: none;
+}
