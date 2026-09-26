@@ -39,7 +39,19 @@ export const Default: Story = {
     await userEvent.type(input, "コメント本文{Control>}{Enter}{/Control}");
     await expect(args.onSubmit).toHaveBeenCalledWith("コメント本文");
     await expect(input).toHaveValue("");
+    await expect(canvas.getByText("0/255")).toBeVisible();
   },
 };
 
 export const Submitting: Story = { args: { isSubmitting: true } };
+
+export const CharacterLimit: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "コメントを入力" });
+    await userEvent.click(input);
+    await userEvent.paste("😀".repeat(256));
+    await expect(input).toHaveValue("😀".repeat(255));
+    await expect(canvas.getByText("255/255")).toBeVisible();
+  },
+};

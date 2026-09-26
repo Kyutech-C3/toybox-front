@@ -61,3 +61,16 @@ export const Listbox: Story = {
     ),
   },
 };
+
+export const Dialog: Story = {
+  args: {
+    id: "help-popover",
+    isOpen: true,
+    onClose: () => {},
+    role: "dialog",
+    ariaLabel: "操作方法",
+    align: "start",
+    isAutoFocusEnabled: true,
+    children: <p>ドラッグで回転、ホイールで拡大・縮小できます。</p>,
+  },
+};

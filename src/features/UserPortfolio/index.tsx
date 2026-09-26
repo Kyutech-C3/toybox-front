@@ -107,8 +107,8 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
                     variant="accent"
                     onClick={() => setIsEditing(true)}
                     ariaLabel="プロフィールを編集"
+                    icon={<EditSquareIcon />}
                   >
-                    <EditSquareIcon />
                     編集
                   </Button>
                 </div>

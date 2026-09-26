@@ -8,6 +8,10 @@ import styles from "./index.module.css";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Button from "@/shared/ui/Button";
+import CharacterCount from "@/shared/ui/CharacterCount";
+import FieldError from "@/shared/ui/FieldError";
+import Input from "@/shared/ui/Input";
+import Textarea from "@/shared/ui/Textarea";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { normalizeInputText } from "@/util/normalizeInputText";
 
@@ -84,8 +88,8 @@ const ProfileEditor = ({
   const isSubmitDisabled =
     isSubmitting ||
     trimmedDisplayName.length === 0 ||
-    trimmedDisplayName.length > DISPLAY_NAME_MAX_LENGTH ||
-    profile.length > PROFILE_MAX_LENGTH ||
+    Array.from(trimmedDisplayName).length > DISPLAY_NAME_MAX_LENGTH ||
+    Array.from(profile).length > PROFILE_MAX_LENGTH ||
     githubError !== "" ||
     xError !== "";
 
@@ -140,90 +144,92 @@ const ProfileEditor = ({
         <label className={styles["label"]} htmlFor={displayNameID}>
           表示名
         </label>
-        <input
+        <Input
           id={displayNameID}
-          className={styles["input"]}
           value={displayName}
+          onChange={setDisplayName}
           maxLength={DISPLAY_NAME_MAX_LENGTH}
-          onChange={(event) => setDisplayName(event.target.value)}
+          isCharacterCountVisible
         />
       </div>
       <div className={styles["field"]}>
         <label className={styles["label"]} htmlFor={profileID}>
           自己紹介
         </label>
-        <textarea
+        <Textarea
+          isAutoResizing
           id={profileID}
-          className={styles["textarea"]}
           value={profile}
-          maxLength={PROFILE_MAX_LENGTH}
+          onChange={setProfile}
           rows={4}
-          onChange={(event) => setProfile(event.target.value)}
+          maxLength={PROFILE_MAX_LENGTH}
+          isCharacterCountVisible
         />
-        <p className={styles["counter"]}>
-          {profile.length}/{PROFILE_MAX_LENGTH}
-        </p>
       </div>
       <div className={styles["field"]}>
         <label className={styles["label"]} htmlFor={githubID}>
           GitHub
         </label>
-        <div
-          className={styles["social-input"]}
-          data-invalid={githubError !== "" ? "true" : "false"}
-        >
-          <span className={styles["url-prefix"]}>https://github.com/</span>
-          <input
-            id={githubID}
-            className={styles["social-id-input"]}
-            value={github}
-            placeholder="GitHub の ID"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            aria-invalid={githubError !== ""}
-            aria-describedby={githubError !== "" ? githubErrorID : undefined}
-            onChange={(event) => setGithub(event.target.value)}
-            onBlur={() => setGithub(normalizedGithubUsername)}
-          />
-        </div>
+        <Input
+          containerClassName={styles["social-input"]}
+          leadingContent={
+            <span className={styles["url-prefix"]}>https://github.com/</span>
+          }
+          trailingContent={
+            <CharacterCount
+              value={normalizedGithubUsername}
+              maxLength={GITHUB_USERNAME_MAX_LENGTH}
+              placement="inline"
+            />
+          }
+          id={githubID}
+          value={github}
+          placeholder="GitHub の ID"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-invalid={githubError !== ""}
+          aria-describedby={githubError !== "" ? githubErrorID : undefined}
+          onChange={setGithub}
+          onBlur={() => setGithub(normalizedGithubUsername)}
+        />
         {githubError !== "" && (
-          <span
-            id={githubErrorID}
-            className={styles["input-error"]}
-            role="alert"
-          >
+          <FieldError id={githubErrorID} role="alert">
             {githubError}
-          </span>
+          </FieldError>
         )}
       </div>
       <div className={styles["field"]}>
         <label className={styles["label"]} htmlFor={xID}>
           X
         </label>
-        <div
-          className={styles["social-input"]}
-          data-invalid={xError !== "" ? "true" : "false"}
-        >
-          <span className={styles["url-prefix"]}>https://x.com/</span>
-          <input
-            id={xID}
-            className={styles["social-id-input"]}
-            value={xUsername}
-            placeholder="X の ID"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            aria-invalid={xError !== ""}
-            aria-describedby={xError !== "" ? xErrorID : undefined}
-            onChange={(event) => setXUsername(event.target.value)}
-            onBlur={() => setXUsername(normalizedXUsername)}
-          />
-        </div>
+        <Input
+          containerClassName={styles["social-input"]}
+          leadingContent={
+            <span className={styles["url-prefix"]}>https://x.com/</span>
+          }
+          trailingContent={
+            <CharacterCount
+              value={normalizedXUsername}
+              maxLength={X_USERNAME_MAX_LENGTH}
+              placement="inline"
+            />
+          }
+          id={xID}
+          value={xUsername}
+          placeholder="X の ID"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-invalid={xError !== ""}
+          aria-describedby={xError !== "" ? xErrorID : undefined}
+          onChange={setXUsername}
+          onBlur={() => setXUsername(normalizedXUsername)}
+        />
         {xError !== "" && (
-          <span id={xErrorID} className={styles["input-error"]} role="alert">
+          <FieldError id={xErrorID} role="alert">
             {xError}
-          </span>
+          </FieldError>
         )}
       </div>
       <div className={styles["actions"]}>
@@ -234,10 +240,9 @@ const ProfileEditor = ({
           variant="accent"
           onClick={() => void handleSubmit()}
           isDisabled={isSubmitDisabled}
+          isLoading={isSubmitting}
+          icon={<SaveRoundedIcon />}
         >
-          <span className={styles["save-icon"]} aria-hidden="true">
-            <SaveRoundedIcon fontSize="inherit" />
-          </span>
           {isSubmitting ? "保存中..." : "保存"}
         </Button>
       </div>

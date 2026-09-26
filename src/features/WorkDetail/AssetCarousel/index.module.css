@@ -55,11 +55,10 @@
   justify-content: center;
   align-items: center;
   border: none;
-  color: var(--font-sub-color);
+  color: var(--asset-font-color);
   padding: 0;
   cursor: pointer;
   z-index: 1;
-  transition: color var(--hover-transition);
 }
 
 .scroll-left-button:hover,
@@ -93,10 +92,9 @@
   display: grid;
   place-items: center;
   z-index: 1;
-  color: var(--font-sub-color);
+  color: var(--asset-font-color);
   background-color: transparent;
   cursor: pointer;
-  transition: color var(--hover-transition);
 }
 
 .fullscreen-button:hover {
@@ -162,6 +160,6 @@
   .scroll-left-button:hover,
   .scroll-right-button:hover,
   .fullscreen-button:hover {
-    color: var(--font-sub-color);
+    color: var(--asset-font-color);
   }
 }

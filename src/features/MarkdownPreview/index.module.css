@@ -160,7 +160,6 @@
     color: var(--link-color);
     text-decoration: none;
     border-bottom: 1px solid transparent;
-    transition: border-bottom-color 0.2s;
 
     &:hover {
       border-bottom-color: var(--link-color);

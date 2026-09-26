@@ -1,0 +1,65 @@
+.upload-area[data-variant] {
+  width: var(--upload-cell-width);
+  height: auto;
+  aspect-ratio: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-8);
+  border: 2px dashed var(--primary-color);
+  border-radius: 25px;
+  background: var(--paper-color);
+  color: var(--font-color);
+  font-weight: inherit;
+  white-space: normal;
+  overflow: hidden;
+
+  &[data-embedded="true"] {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    aspect-ratio: auto;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  &:focus-visible {
+    outline-offset: -4px;
+  }
+
+  &:disabled {
+    opacity: 1;
+    cursor: wait;
+  }
+
+  &[data-dragging="true"] {
+    background: var(--primary-soft-color);
+  }
+
+  &[data-dragging="true"] svg {
+    color: var(--primary-color);
+  }
+}
+
+@media (hover: hover) {
+  .upload-area[data-variant]:not(:disabled):hover {
+    background: var(--primary-soft-color);
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .upload-area[data-variant] {
+    border-radius: 16px;
+  }
+
+  .upload-area[data-embedded="true"] {
+    border-radius: 0;
+  }
+}
+
+.file-input {
+  display: none;
+}

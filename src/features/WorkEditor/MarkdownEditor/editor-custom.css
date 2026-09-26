@@ -9,9 +9,11 @@
   --md-editor-background-color: var(--paper-color);
   --md-editor-box-shadow-color: var(--border-color);
 
-  border: 1px solid var(--border-color);
-  border-radius: var(--editor-radius);
+  --editor-radius: var(--input-border-radius);
+
+  border-radius: var(--input-border-radius);
   box-shadow: none;
+  padding: 0;
 }
 
 /* ツールバー */
@@ -63,9 +65,7 @@
   padding: 0;
   border-radius: 10px;
   color: var(--font-muted-color);
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
+  transition: none;
 }
 
 [data-markdown-editor] .w-md-editor-toolbar li > button:hover,
@@ -86,7 +86,7 @@
 }
 
 [data-markdown-editor] .w-md-editor-toolbar li > button:disabled {
-  color: var(--font-sub-color);
+  color: var(--font-muted-color);
 }
 
 [data-markdown-editor] .w-md-editor-toolbar li > button svg {
@@ -111,16 +111,16 @@
 [data-markdown-editor] .w-md-editor-text {
   min-height: var(--editor-min-height) !important;
   padding: var(--editor-text-padding) 16px;
-  font-size: 15px !important;
+  font-size: 16px !important;
   line-height: var(--editor-line-height) !important;
 }
 
 [data-markdown-editor] .w-md-editor-text-pre > code {
-  font-size: 15px !important;
+  font-size: 16px !important;
   line-height: var(--editor-line-height) !important;
 }
 
 [data-markdown-editor] .w-md-editor-text-input::placeholder {
-  color: var(--phrase-holder);
-  -webkit-text-fill-color: var(--phrase-holder);
+  color: var(--font-muted-color);
+  -webkit-text-fill-color: var(--font-muted-color);
 }

@@ -1,9 +1,12 @@
 import { useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 
 import { getVisiblePopularTagCount } from "./getVisiblePopularTagCount";
 import styles from "./index.module.css";
 
 import Batch from "@/shared/ui/Batch";
+import Button from "@/shared/ui/Button";
+import Input from "@/shared/ui/Input";
 import SegmentedControl from "@/shared/ui/SegmentedControl";
 import { normalizeTagNameInput } from "@/util/tagName";
 
@@ -52,8 +55,9 @@ const TagSelector = ({
   trailingControls,
 }: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
-  const [isCreating, setCreating] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [viewMode, setViewMode] = useState<TagViewMode>("popular");
+  const [isCreating, setCreating] = useState(false);
   const [visibleTagCount, setVisibleTagCount] = useState(0);
   const measureListRef = useRef<HTMLDivElement>(null);
   const panelID = useId();
@@ -182,29 +186,51 @@ const TagSelector = ({
         </div>
       )}
       <form className={styles["search-form"]} onSubmit={handleSubmit}>
-        <input
-          type="search"
-          aria-label={ariaLabel}
-          placeholder={searchPlaceholder}
-          value={keyword}
-          readOnly={isCreating}
-          onChange={(event) => {
-            const nextKeyword = event.target.value;
-            setKeyword(nextKeyword);
-            if (viewMode === "popular" && normalizeTagNameInput(nextKeyword)) {
-              setViewMode("all-popular");
+        <div className={styles["search-input"]}>
+          <Input
+            type="search"
+            ref={searchInputRef}
+            className={styles["search-field"]}
+            containerClassName={styles["search-surface"]}
+            trailingContent={
+              <Button
+                variant="ghost"
+                size="compact"
+                isIconOnly
+                icon={<CloseRoundedIcon />}
+                disabled={keyword === "" || isCreating}
+                aria-label="タグの入力をクリア"
+                onClick={() => {
+                  setKeyword("");
+                  searchInputRef.current?.focus();
+                }}
+              />
             }
-          }}
-        />
+            aria-label={ariaLabel}
+            placeholder={searchPlaceholder}
+            value={keyword}
+            readOnly={isCreating}
+            maxLength={onCreateTag ? 50 : undefined}
+            isCharacterCountVisible={!!onCreateTag}
+            data-character-count-control={onCreateTag ? true : undefined}
+            onChange={(nextKeyword) => {
+              setKeyword(nextKeyword);
+              if (viewMode === "popular" && normalizeTagNameInput(nextKeyword))
+                setViewMode("all-popular");
+            }}
+          />
+        </div>
         {onCreateTag && (
-          <button
-            type="button"
+          <Button
+            variant="accent"
+            size="small"
             className={styles["create-button"]}
+            isLoading={isCreating}
             disabled={!canCreateTag || isCreating}
             onClick={() => void handleCreateTag()}
           >
             {isCreating ? "作成中…" : "新規作成"}
-          </button>
+          </Button>
         )}
       </form>
 
@@ -250,14 +276,14 @@ const TagSelector = ({
                 </Batch>
               ))}
               {isPopularTruncated && (
-                <button
-                  type="button"
-                  className={styles["expand-button"]}
+                <Button
+                  variant="link"
+                  size="compact"
                   onClick={() => setViewMode("all-popular")}
                   aria-controls={panelID}
                 >
                   全件表示
-                </button>
+                </Button>
               )}
             </div>
           ) : (
@@ -280,13 +306,9 @@ const TagSelector = ({
                 <span>{tag.work_count}件</span>
               </Batch>
             ))}
-            <button
-              type="button"
-              className={styles["expand-button"]}
-              tabIndex={-1}
-            >
+            <Button variant="link" size="compact" tabIndex={-1}>
               全件表示
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -295,13 +317,9 @@ const TagSelector = ({
         <div className={styles["selected-tags"]}>
           <div className={styles["section-heading"]}>
             <h2>選択中</h2>
-            <button
-              type="button"
-              className={styles["clear-button"]}
-              onClick={onClearTags}
-            >
+            <Button variant="destructive" size="compact" onClick={onClearTags}>
               選択解除
-            </button>
+            </Button>
           </div>
           <div className={styles["tag-list"]}>
             {selectedTags.map((tag) => (

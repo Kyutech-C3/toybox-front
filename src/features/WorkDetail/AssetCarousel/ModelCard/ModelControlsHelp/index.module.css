@@ -5,46 +5,38 @@
   pointer-events: none;
 }
 
-.controls-help-button {
+.controls-help .controls-help-button {
   position: absolute;
   left: var(--space-12);
   bottom: var(--space-12);
-  width: var(--touch-target-min);
-  height: var(--touch-target-min);
-  padding: 0;
-  border: 0;
-  display: grid;
-  place-items: center;
-  color: var(--font-sub-color);
-  background: transparent;
-  cursor: pointer;
   pointer-events: auto;
-  transition: color var(--hover-transition);
+  color: var(--asset-font-color);
 }
 
-.controls-help-button:hover,
-.controls-help-button[aria-expanded="true"] {
+.controls-help .controls-help-button[aria-expanded="true"] {
   color: var(--primary-color);
 }
 
-.controls-help-button:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+.controls-help .controls-help-button:focus-visible {
+  outline-color: var(--primary-color);
 }
 
-.controls-help-popover {
-  position: absolute;
+@media (hover: hover) {
+  .controls-help .controls-help-button[data-variant]:not(:disabled):hover {
+    background: transparent;
+    color: var(--primary-color);
+  }
+}
+
+.controls-help .controls-help-popover {
   left: var(--space-12);
-  bottom: calc(var(--space-12) + var(--touch-target-min) + var(--space-8));
+  right: auto;
+  top: auto;
+  bottom: calc(var(--space-12) + 48px + var(--space-8));
   width: min(340px, calc(100vw - 48px));
-  max-height: calc(100% - var(--touch-target-min) - var(--space-32));
-  box-sizing: border-box;
+  max-height: calc(100% - 48px - var(--space-32));
   padding: var(--space-12);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
   color: var(--font-color);
-  background: var(--paper-color);
-  box-shadow: var(--hover-shadow);
   text-align: left;
   overflow-y: auto;
   pointer-events: auto;
@@ -77,14 +69,4 @@
   margin: 0;
   font-size: 0.75rem;
   line-height: 1.5;
-}
-
-@media (hover: none) {
-  .controls-help-button:hover {
-    color: var(--font-sub-color);
-  }
-
-  .controls-help-button[aria-expanded="true"] {
-    color: var(--primary-color);
-  }
 }

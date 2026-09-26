@@ -90,8 +90,9 @@ const Header = () => {
         </Link>
       </div>
       <div className={styles["login-wrapper"]}>
-        <button
-          type="button"
+        <Button
+          variant="ghost"
+          isIconOnly
           className={styles["theme-toggle"]}
           onClick={handleThemeToggle}
           aria-label={
@@ -99,21 +100,24 @@ const Header = () => {
               ? "ダークモードに切り替え"
               : "ライトモードに切り替え"
           }
-        >
-          {theme === "light" ? (
-            <DarkModeRoundedIcon />
-          ) : (
-            <LightModeRoundedIcon />
-          )}
-        </button>
+          icon={
+            theme === "light" ? (
+              <DarkModeRoundedIcon />
+            ) : (
+              <LightModeRoundedIcon />
+            )
+          }
+        />
         {user ? (
           <AccountMenu user={user} onLogout={handleLogout} />
         ) : (
-          <Button variant="primary" onClick={handleLogin} ariaLabel="ログイン">
-            <span className={styles["login-container"]}>
-              <LoginRoundedIcon fontSize="small" />
-              ログイン
-            </span>
+          <Button
+            variant="primary"
+            onClick={handleLogin}
+            icon={<LoginRoundedIcon />}
+            ariaLabel="ログイン"
+          >
+            ログイン
           </Button>
         )}
         {accessToken && (
@@ -122,13 +126,13 @@ const Header = () => {
               variant="primary"
               onClick={() => navigate("/edit/new")}
               ariaLabel="投稿"
-            >
-              <span className={styles["login-container"]}>
-                <span className={styles["new-work-icon"]} aria-hidden="true">
+              icon={
+                <span className={styles["new-work-icon"]}>
                   <AddRoundedIcon fontSize="inherit" />
                 </span>
-                <span className={styles["new-work-label"]}>投稿</span>
-              </span>
+              }
+            >
+              <span className={styles["new-work-label"]}>投稿</span>
             </Button>
           </div>
         )}

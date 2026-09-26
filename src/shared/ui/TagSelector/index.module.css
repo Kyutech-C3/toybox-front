@@ -16,60 +16,6 @@
   gap: var(--space-8);
 }
 
-.search-form input {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: 0;
-  min-height: 38px;
-  padding: 0 var(--space-12);
-  border: 2px solid var(--primary-color);
-  border-radius: 24px;
-  background: var(--paper-color);
-  color: var(--font-color);
-  font: inherit;
-  font-size: 0.875rem;
-}
-
-.search-form input:focus-visible,
-.create-button:focus-visible,
-.clear-button:focus-visible {
-  outline: 2px solid var(--font-color);
-  outline-offset: 2px;
-}
-
-.create-button {
-  box-sizing: border-box;
-  flex: none;
-  min-height: 38px;
-  padding: 0 var(--space-16);
-  border: 1px solid var(--primary-color);
-  border-radius: 24px;
-  background: var(--primary-pale-color);
-  color: var(--font-color);
-  font: inherit;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.create-button:hover:not(:disabled) {
-  background: var(--primary-soft-color);
-}
-
-.create-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.tag-search[data-layout="editor"] .search-form input,
-.tag-search[data-layout="editor"] .create-button,
-.tag-search[data-layout="editor"] .view-switch > div {
-  height: 48px;
-}
-
-.tag-search[data-layout="editor"] .view-switch > div > button {
-  height: 100%;
-}
-
 .tag-browser {
   display: contents;
 }
@@ -113,24 +59,6 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-16);
-}
-
-.clear-button {
-  min-height: 25px;
-  padding: 0 var(--space-12);
-  border: 1px solid var(--error-color);
-  border-radius: 9999px;
-  background: var(--button-color);
-  color: var(--error-color);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.clear-button:hover {
-  background: color-mix(in srgb, var(--error-color) 12%, var(--button-color));
 }
 
 .tag-list {
@@ -196,10 +124,6 @@
   min-width: 0;
 }
 
-.tag-search[data-layout="top-page"] .search-form input {
-  min-height: 32px;
-}
-
 .tag-search[data-layout="top-page"] .trailing-controls {
   grid-column: 4;
   grid-row: 1;
@@ -229,29 +153,6 @@
 
 .measure-list > * {
   flex: none;
-}
-
-.expand-button {
-  box-sizing: border-box;
-  padding: 2px var(--space-12);
-  border: 0;
-  border-radius: 9999px;
-  box-shadow: inset 0 0 0 1px var(--link-color);
-  background: var(--paper-color);
-  color: var(--link-color);
-  font: inherit;
-  font-weight: 700;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.expand-button:hover {
-  background: color-mix(in srgb, var(--link-color) 10%, var(--paper-color));
-}
-
-.expand-button:focus-visible {
-  outline: 2px solid var(--font-color);
-  outline-offset: 2px;
 }
 
 @media (max-width: 767px) {
@@ -299,12 +200,6 @@
     display: flex;
   }
 
-  .tag-search[data-layout="editor"] .search-form input,
-  .tag-search[data-layout="editor"] .create-button,
-  .tag-search[data-layout="editor"] .view-switch > div {
-    height: var(--touch-target-min);
-  }
-
   .tag-panel {
     order: 3;
     align-self: stretch;
@@ -313,4 +208,32 @@
   .selected-tags {
     order: 4;
   }
+}
+
+.search-input {
+  min-width: 0;
+  flex: 1;
+}
+
+/* ブラウザ標準の×を隠し、共通Buttonに揃える。 */
+.search-field::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+/* タグ検索の操作は、小さい表示切替と同じ32pxに揃える。 */
+.view-switch > div > button {
+  min-height: 26px;
+}
+
+.search-input .search-surface {
+  height: 32px;
+  min-height: 32px;
+  padding-inline: var(--space-12);
+  border-radius: 9999px;
+}
+
+.search-form > .create-button {
+  height: 32px;
+  min-width: 32px;
+  font-size: 12px;
 }

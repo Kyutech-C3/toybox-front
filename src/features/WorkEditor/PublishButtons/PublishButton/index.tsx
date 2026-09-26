@@ -14,10 +14,12 @@ import {
   useWorkEditorStore,
   useWorkEditorStoreApi,
 } from "../../store/useWorkEditorStore";
+import { validateWork } from "../../validateWork";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { getWorkDetailSWRKey } from "@/features/WorkDetail/hook/useWorkDetail";
+import Button from "@/shared/ui/Button";
 import Listbox from "@/shared/ui/Listbox";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
@@ -95,6 +97,15 @@ const PublishButton = () => {
   const listboxTriggerRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
 
+  const hasAttemptedSubmit = useWorkEditorStore(
+    (state) => state.hasAttemptedSubmit,
+  );
+  const setHasAttemptedSubmit = useWorkEditorStore(
+    (state) => state.setHasAttemptedSubmit,
+  );
+  const validationErrors = validateWork(current);
+  const hasValidationErrors = Object.keys(validationErrors).length > 0;
+
   const { visibility } = current;
   const isEditMode = mode === "edit";
   const isSubmitDisabled =
@@ -112,27 +123,17 @@ const PublishButton = () => {
       setSubmitError("ログインが必要です");
       return;
     }
+    setHasAttemptedSubmit(true);
+    setSubmitError("");
+    if (hasValidationErrors) {
+      requestAnimationFrame(() => {
+        document
+          .querySelector("[data-work-validation-error]")
+          ?.scrollIntoView({ block: "center", behavior: "smooth" });
+      });
+      return;
+    }
     const payload = toWorkPayload(current);
-    if (!payload.title.trim()) {
-      setSubmitError("タイトルを入力してください");
-      return;
-    }
-    if (!payload.description.trim()) {
-      setSubmitError("説明を入力してください");
-      return;
-    }
-    if (payload.tag_ids.length === 0) {
-      setSubmitError("タグを1つ以上指定してください");
-      return;
-    }
-    if (!payload.thumbnail_asset_id) {
-      setSubmitError("サムネイルのアップロードを完了してください");
-      return;
-    }
-    if (payload.asset_ids.length === 0) {
-      setSubmitError("アセットを1つ以上追加してください");
-      return;
-    }
 
     const confirmMessage = VISIBILITY_CONFIRM_MESSAGES[visibility];
     if (confirmMessage && !window.confirm(confirmMessage)) return;
@@ -192,21 +193,21 @@ const PublishButton = () => {
       data-disabled={isSubmitDisabled ? "true" : "false"}
       data-visibility={visibility}
     >
-      <button
-        type="button"
+      <Button
+        variant={visibility === "draft" ? "primary" : "accent"}
         className={styles["publish-button"]}
         onClick={() => void handleSubmit()}
         disabled={isSubmitDisabled}
+        isLoading={isSubmitting}
+        icon={<VisibilityIcon visibility={visibility} />}
       >
-        <VisibilityIcon
-          visibility={visibility}
-          className={styles["visibility-icon"]}
-        />
         {submitLabel}
-      </button>
+      </Button>
       <span className={styles["button-span"]} />
-      <button
-        type="button"
+      <Button
+        variant={visibility === "draft" ? "primary" : "accent"}
+        isIconOnly
+        icon={<ArrowDropUpRoundedIcon />}
         className={styles["listbox-trigger"]}
         onClick={() => setIsListboxOpen((prev) => !prev)}
         disabled={isSubmitDisabled}
@@ -215,9 +216,7 @@ const PublishButton = () => {
         aria-expanded={isListboxOpen}
         aria-controls={VISIBILITY_LISTBOX_ID}
         ref={listboxTriggerRef}
-      >
-        <ArrowDropUpRoundedIcon />
-      </button>
+      />
       <span className={styles["listbox-container"]}>
         <Listbox
           id={VISIBILITY_LISTBOX_ID}
@@ -247,6 +246,15 @@ const PublishButton = () => {
           URL入力のエラーを解消してから保存できます
         </output>
       )}
+      {hasAttemptedSubmit &&
+        hasValidationErrors &&
+        !submitError &&
+        !isSubmitDisabled && (
+          <span className={styles["submit-error"]} role="alert">
+            入力内容に{Object.keys(validationErrors).length}
+            件のエラーがあります。各項目を確認してください。
+          </span>
+        )}
       {submitError && (
         <span className={styles["submit-error"]} role="alert">
           {submitError}

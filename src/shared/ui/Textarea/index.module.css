@@ -1,0 +1,11 @@
+.textarea-field {
+  min-height: 112px;
+  padding-block: var(--space-12);
+  line-height: 1.6;
+  resize: vertical;
+}
+
+textarea[data-auto-resizing="true"] {
+  resize: none;
+  overflow: hidden;
+}

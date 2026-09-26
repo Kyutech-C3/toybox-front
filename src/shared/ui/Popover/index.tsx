@@ -18,7 +18,7 @@ type PopoverProps = {
   placement?: PopoverPlacement;
   align?: PopoverAlign;
   textAlign?: PopoverTextAlign;
-  role: "menu" | "listbox";
+  role: "menu" | "listbox" | "dialog";
   ariaLabel: string;
   isAutoFocusEnabled?: boolean;
   className?: string;
@@ -49,11 +49,15 @@ const Popover = ({
     if (!isOpen) return;
 
     if (isAutoFocusEnabled) {
-      popoverRef.current
-        ?.querySelector<HTMLElement>(
-          '[role="menuitem"]:not([disabled]), [role="option"]:not([disabled])',
-        )
-        ?.focus();
+      if (role === "dialog") {
+        popoverRef.current?.focus();
+      } else {
+        popoverRef.current
+          ?.querySelector<HTMLElement>(
+            '[role="menuitem"]:not([disabled]), [role="option"]:not([disabled])',
+          )
+          ?.focus();
+      }
     }
 
     const isInsidePopover = (target: EventTarget | null) =>
@@ -143,10 +147,11 @@ const Popover = ({
     .filter(Boolean)
     .join(" ");
   const accessibilityProps =
-    role === "listbox"
-      ? ({ role: "listbox", "aria-label": ariaLabel } as const)
-      : ({ role: "menu", "aria-label": ariaLabel } as const);
-
+    role === "dialog"
+      ? ({ role: "dialog", "aria-label": ariaLabel, tabIndex: -1 } as const)
+      : role === "listbox"
+        ? ({ role: "listbox", "aria-label": ariaLabel } as const)
+        : ({ role: "menu", "aria-label": ariaLabel } as const);
   return (
     <div
       id={id}

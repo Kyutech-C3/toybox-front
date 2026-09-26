@@ -77,3 +77,39 @@ export const NewWork: Story = {
     ).toBeVisible();
   },
 };
+
+export const ValidationErrors: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /下書き保存/ }));
+    for (const message of [
+      "タイトルを入力してください",
+      "説明を入力してください",
+      "タグを1つ以上指定してください",
+      "サムネイルを追加し、アップロードを完了してください",
+      "アセットを1つ以上追加してください",
+    ]) {
+      await expect(canvas.getByText(message)).toBeVisible();
+    }
+    const title = canvas.getByRole("textbox", { name: "タイトル" });
+    await expect(title).toHaveAttribute("aria-invalid", "true");
+    await userEvent.type(title, "あ".repeat(101));
+    await expect(title).toHaveValue("あ".repeat(100));
+    await expect(canvas.getByText("100/100")).toBeVisible();
+    await userEvent.clear(title);
+    await userEvent.type(title, "😀".repeat(100));
+    await expect(canvas.getByText("100/100")).toBeVisible();
+    await expect(title).toHaveAttribute("aria-invalid", "false");
+    await expect(
+      canvas.queryByText("タイトルは100文字以内で入力してください"),
+    ).not.toBeInTheDocument();
+    const description = canvas.getByRole("textbox", { name: "説明" });
+    await userEvent.type(description, "作品の説明");
+    await expect(description).toHaveAttribute("aria-invalid", "false");
+    await expect(
+      canvas.queryByText("説明を入力してください"),
+    ).not.toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    await expect(canvas.getByText("作品の説明")).toBeVisible();
+  },
+};

@@ -4,104 +4,10 @@
   min-width: 0;
 }
 
-.input-row {
-  box-sizing: border-box;
-  min-height: 48px;
-  padding: 0 var(--space-8) 0 var(--space-16);
-  border: solid 2px var(--border-color);
-  border-radius: 25px;
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  background: transparent;
-  transition: border-color var(--hover-transition);
-}
-
-.input-row:focus-within {
-  border-color: var(--primary-color);
-}
-
-.input-row[data-invalid="true"] {
-  border-color: var(--error-color);
-}
-
 .favicon-slot {
   width: 24px;
   height: 24px;
   flex: 0 0 24px;
   display: grid;
   place-items: center;
-}
-
-.input-control {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  background: transparent;
-
-  input {
-    min-width: 0;
-    flex: 1;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: var(--font-color);
-    font-size: 16px;
-    font-weight: 500;
-  }
-
-  button {
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    color: var(--font-color);
-    cursor: pointer;
-    transition: background-color var(--hover-transition);
-  }
-
-  button:hover,
-  button:focus-visible {
-    background: var(--primary-soft-color);
-    color: var(--font-color);
-  }
-
-  svg {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-.input-error {
-  margin: 6px 5px 0;
-  color: var(--error-color);
-  font-size: 0.875rem;
-}
-
-@media (max-width: 767px) {
-  .input-control button {
-    width: var(--touch-target-min);
-    height: var(--touch-target-min);
-  }
-  .input-row {
-    padding: 0 var(--space-4) 0 var(--space-12);
-    border-radius: 16px;
-  }
-
-  .input-error {
-    margin: 6px 2px 0;
-  }
-}
-
-@media (hover: none) {
-  .input-control button:hover {
-    background: transparent;
-  }
 }

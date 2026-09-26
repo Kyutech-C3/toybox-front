@@ -5,6 +5,7 @@ import styles from "./index.module.css";
 import UrlInputField from "./UrlInputField";
 
 import { MAX_WORK_URL_COUNT } from "@/features/WorkEditor/constants";
+import Button from "@/shared/ui/Button";
 
 type LinkInputProps = {
   urls: string[];
@@ -35,15 +36,15 @@ const LinkInput = ({
       <div className={styles["heading-row"]}>
         <h3>リンク</h3>
         <span className={styles["optional-label"]}>オプション</span>
-        <button
-          type="button"
-          className={styles["add-button"]}
+        <Button
+          variant="ghost"
+          size="small"
+          isIconOnly
+          icon={<AddRoundedIcon />}
           onClick={handleAddField}
           disabled={hasReachedUrlLimit}
           aria-label="リンク入力欄を追加"
-        >
-          <AddRoundedIcon />
-        </button>
+        />
         <span className={styles["url-count"]}>
           {fields.length}/{MAX_WORK_URL_COUNT}
         </span>

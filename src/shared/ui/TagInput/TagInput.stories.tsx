@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { expect, userEvent, within } from "storybook/test";
 
 import TagInput from "./index";
 
@@ -81,4 +82,38 @@ type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
   render: () => <TagInputPreview />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("searchbox", {
+      name: "作品に付けるタグを探す",
+    });
+    const clearButton = canvas.getByRole("button", {
+      name: "タグの入力をクリア",
+    });
+    await expect(clearButton).toBeDisabled();
+    await userEvent.type(input, "react");
+    const counter = canvas.getByText("5/50");
+    const surface = input.parentElement;
+    if (!surface) throw new Error("入力欄の枠が見つかりません");
+    const surfaceRect = surface.getBoundingClientRect();
+    await expect(surfaceRect.height).toBe(32);
+    await expect(
+      canvas.getByRole("button", { name: "新規作成" }).getBoundingClientRect()
+        .height,
+    ).toBe(32);
+    await expect(
+      canvas
+        .getByRole("tablist", { name: "タグ一覧の表示" })
+        .getBoundingClientRect().height,
+    ).toBe(32);
+    const buttonRect = clearButton.getBoundingClientRect();
+    await expect(buttonRect.right).toBeLessThan(surfaceRect.right);
+    await expect(buttonRect.left).toBeGreaterThan(
+      counter.getBoundingClientRect().right,
+    );
+    await userEvent.click(clearButton);
+    await expect(input).toHaveValue("");
+    await expect(input).toHaveFocus();
+    await expect(canvas.getByText("0/50")).toBeVisible();
+  },
 };

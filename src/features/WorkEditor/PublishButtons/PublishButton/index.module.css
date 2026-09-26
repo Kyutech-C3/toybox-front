@@ -1,46 +1,15 @@
-/* 共通のボタン */
 .publish-button-wrapper {
   position: relative;
   height: 48px;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  transition:
-    background-color var(--hover-transition),
-    box-shadow var(--hover-transition),
-    color var(--hover-transition);
   border-radius: 9999px;
-
-  &:not([data-disabled="true"]):hover {
-    background: var(--primary-soft-color);
-    color: var(--font-color);
-    box-shadow: var(--hover-shadow);
-  }
-
-  &[data-active="true"] {
-    background: var(--primary-color);
-    color: var(--on-primary-color);
-    font-weight: 600;
-    box-shadow: 0 6px 14px var(--shadow-soft-color);
-  }
-
-  &[data-disabled="true"] {
-    opacity: 0.45;
-    cursor: not-allowed;
-    box-shadow: none;
-  }
+  background: var(--primary-color);
 
   &[data-visibility="draft"] {
-    outline: 2px solid var(--border-color);
-    outline-offset: -2px;
-
-    .publish-button,
-    .listbox-trigger {
-      background: var(--paper-color);
-      color: var(--font-color);
-    }
+    background: var(--paper-color);
+    outline: 1px solid var(--border-color);
+    outline-offset: -1px;
 
     .button-span {
       background-color: var(--border-color);
@@ -48,12 +17,6 @@
       border-bottom-color: var(--paper-color);
     }
   }
-}
-
-.publish-button:disabled,
-.listbox-trigger:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .upload-notice,
@@ -70,26 +33,11 @@
   color: var(--error-color);
 }
 
-.publish-button {
-  height: 100%;
+.publish-button-wrapper .publish-button {
   min-width: 10em;
-  padding: 0 var(--space-16) 0 var(--space-24);
+  padding-left: var(--space-24);
   border: none;
   border-radius: 9999px 0 0 9999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-8);
-  background: var(--primary-color);
-  font-size: 16px;
-  font-weight: bold;
-  /* 黄色の面に白文字は 1.69:1 で読めないため黒にする */
-  color: var(--on-primary-color);
-  cursor: pointer;
-}
-
-.visibility-icon {
-  font-size: 20px;
 }
 
 .button-span {
@@ -101,18 +49,9 @@
   box-sizing: border-box;
 }
 
-.listbox-trigger {
-  height: 100%;
+.publish-button-wrapper .listbox-trigger {
   border: none;
-  background: none;
-  display: flex;
-  align-items: center;
   border-radius: 0 9999px 9999px 0;
-  background: var(--primary-color);
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--on-primary-color);
-  cursor: pointer;
 }
 
 .listbox-container {
@@ -132,7 +71,7 @@
     width: 100%;
   }
 
-  .publish-button {
+  .publish-button-wrapper .publish-button {
     flex: 1;
     min-width: 0;
     padding: 0 var(--space-12) 0 var(--space-16);

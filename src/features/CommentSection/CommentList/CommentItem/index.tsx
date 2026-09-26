@@ -5,6 +5,7 @@ import CommentInput from "../../CommentInput";
 import styles from "./index.module.css";
 
 import Avatar from "@/shared/ui/Avatar";
+import Button from "@/shared/ui/Button";
 import { formatDateTime } from "@/util/formatDateTime";
 
 import type { Comment } from "@/shared/types/comment";
@@ -96,23 +97,19 @@ const CommentItem = ({
           </div>
           <div className={styles["actions"]}>
             {isReplyEnabled && (
-              <button
-                type="button"
-                className={styles["action-button"]}
+              <Button
+                variant="ghost"
+                size="small"
                 onClick={() => onReply(comment)}
                 aria-expanded={isReplying}
               >
                 {isReplying ? "返信中" : "返信"}
-              </button>
+              </Button>
             )}
             {onDelete && (
-              <button
-                type="button"
-                className={styles["action-button"]}
-                onClick={handleDelete}
-              >
+              <Button variant="destructive" size="small" onClick={handleDelete}>
                 削除
-              </button>
+              </Button>
             )}
           </div>
         </div>

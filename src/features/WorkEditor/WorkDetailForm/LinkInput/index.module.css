@@ -28,33 +28,6 @@
   font-weight: 700;
 }
 
-.add-button {
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: none;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  color: var(--font-color);
-  cursor: pointer;
-
-  transition: background-color var(--hover-transition);
-
-  &:hover,
-  &:focus-visible {
-    background: var(--primary-soft-color);
-    color: var(--font-color);
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.35;
-  }
-}
-
 .url-count {
   margin-left: auto;
   font-size: 16px;
@@ -68,10 +41,6 @@
 }
 
 @media (max-width: 767px) {
-  .add-button {
-    width: var(--touch-target-min);
-    height: var(--touch-target-min);
-  }
   .heading-row {
     margin: 0 2px 8px;
     gap: 8px;

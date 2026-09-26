@@ -4,6 +4,10 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import UrlFavicon from "../UrlFavicon";
 import styles from "./index.module.css";
 
+import Button from "@/shared/ui/Button";
+import FieldError from "@/shared/ui/FieldError";
+import Input from "@/shared/ui/Input";
+
 import type { KeyboardEvent } from "react";
 
 type UrlInputFieldProps = {
@@ -72,43 +76,42 @@ const UrlInputField = ({
 
   return (
     <div className={styles["url-field"]}>
-      <div
-        className={styles["input-row"]}
-        data-invalid={error !== "" ? "true" : "false"}
-      >
-        <span className={styles["favicon-slot"]}>
-          {committedUrl !== null && (
-            <UrlFavicon key={committedUrl} url={committedUrl} />
-          )}
-        </span>
-        <div className={styles["input-control"]}>
-          <input
-            type="url"
-            inputMode="url"
-            name="url"
-            value={value}
-            placeholder="https://example.com/"
-            aria-label={`リンク ${index + 1}`}
-            aria-invalid={error !== ""}
-            aria-describedby={error !== "" ? errorID : undefined}
-            ref={inputRef}
-            onChange={(event) => onChange(event.target.value)}
-            onBlur={(event) => onCommit(event.currentTarget.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            type="button"
+      <Input
+        isCharacterCountVisible
+        leadingContent={
+          <span className={styles["favicon-slot"]}>
+            {committedUrl !== null && (
+              <UrlFavicon key={committedUrl} url={committedUrl} />
+            )}
+          </span>
+        }
+        trailingContent={
+          <Button
+            variant="ghost"
+            size="small"
+            isIconOnly
+            icon={<CloseRoundedIcon />}
             onClick={onRemove}
             aria-label={`リンク ${index + 1}を削除`}
-          >
-            <CloseRoundedIcon />
-          </button>
-        </div>
-      </div>
+          />
+        }
+        type="url"
+        inputMode="url"
+        name="url"
+        value={value}
+        placeholder="https://example.com/"
+        aria-label={`リンク ${index + 1}`}
+        aria-invalid={error !== ""}
+        aria-describedby={error !== "" ? errorID : undefined}
+        ref={inputRef}
+        onChange={onChange}
+        onBlur={(event) => onCommit(event.currentTarget.value)}
+        onKeyDown={handleKeyDown}
+      />
       {error !== "" && (
-        <span id={errorID} className={styles["input-error"]} role="alert">
+        <FieldError id={errorID} role="alert">
           {error}
-        </span>
+        </FieldError>
       )}
     </div>
   );

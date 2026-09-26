@@ -1,14 +1,11 @@
-import { useRef, useState } from "react";
-
 import useThumbnailUpload, {
   THUMBNAIL_ACCEPT,
 } from "../hook/useThumbnailUpload";
-import UploadPrompt from "../UploadPrompt";
-import UploadRemoveButton from "../UploadRemoveButton";
-import UploadRetryButton from "../UploadRetryButton";
+import UploadArea from "../UploadArea";
+import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
-import type { ChangeEvent, DragEvent } from "react";
+import FieldError from "@/shared/ui/FieldError";
 
 const ImageUpload = () => {
   const {
@@ -18,58 +15,32 @@ const ImageUpload = () => {
     handleRetry,
     handleRemove,
   } = useThumbnailUpload();
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const isUploading = thumbnail?.status === "uploading";
-
-  const handleClick = () => {
-    if (isUploading) return;
-    fileInputRef.current?.click();
-  };
-
-  const handleDragOver = (event: DragEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (event: DragEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (event: DragEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    setIsDragging(false);
-    if (isUploading) return;
-    const files = event.dataTransfer.files;
-    if (files.length > 0) handleSelectFile(files[0]);
-  };
-
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) handleSelectFile(files[0]);
-    event.target.value = "";
-  };
 
   return (
     <div className={styles["upload-container"]}>
       <h3 className={styles["upload-heading"]}>サムネイル</h3>
-      <div
-        className={styles["upload-frame"]}
-        data-status={thumbnail?.status ?? "empty"}
-        data-has-image={thumbnail?.previewURL ? "true" : "false"}
+      <UploadCard
+        asset={thumbnail}
+        hasPreview={!!thumbnail?.previewURL}
+        onRemove={handleRemove}
+        onRetry={handleRetry}
+        statusText={
+          thumbnail?.status === "uploading"
+            ? "アップロード中"
+            : thumbnail?.status === "error"
+              ? "アップロードに失敗"
+              : thumbnail?.file
+                ? "アップロード完了"
+                : ""
+        }
       >
-        <button
-          type="button"
-          className={styles["upload-area"]}
-          onClick={handleClick}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          data-dragging={isDragging ? "true" : "false"}
-          disabled={isUploading}
-          aria-label="サムネイル画像をアップロード"
+        <UploadArea
+          accept={THUMBNAIL_ACCEPT}
+          ariaLabel="サムネイル画像をアップロード"
+          onSelectFiles={(files) => handleSelectFile(files[0])}
+          isDisabled={isUploading}
+          isEmbedded
         >
           {thumbnail?.previewURL ? (
             <img
@@ -77,55 +48,13 @@ const ImageUpload = () => {
               alt="サムネイル画像のプレビュー"
               className={styles["preview-image"]}
             />
-          ) : (
-            <UploadPrompt />
-          )}
-        </button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={THUMBNAIL_ACCEPT}
-          onChange={handleInputChange}
-          className={styles["file-input"]}
-          tabIndex={-1}
-        />
-        {thumbnail && (
-          <>
-            <div className={styles["overlay-actions"]}>
-              {thumbnail.status === "error" && (
-                <UploadRetryButton
-                  className={styles["overlay-button"]}
-                  onClick={handleRetry}
-                  isDisabled={false}
-                  ariaLabel={`${thumbnail.fileName}を再アップロード`}
-                />
-              )}
-              <UploadRemoveButton
-                className={styles["overlay-button"]}
-                onClick={handleRemove}
-                isDisabled={isUploading}
-                ariaLabel={`${thumbnail.fileName}を削除`}
-              />
-            </div>
-            <div className={styles["upload-meta"]}>
-              <span className={styles["file-name"]} title={thumbnail.fileName}>
-                {thumbnail.fileName}
-              </span>
-              <span className={styles["status"]} aria-live="polite">
-                {thumbnail.status === "uploading" && "アップロード中"}
-                {thumbnail.status === "success" &&
-                  thumbnail.file &&
-                  "アップロード完了"}
-                {thumbnail.status === "error" && "アップロードに失敗"}
-              </span>
-            </div>
-          </>
-        )}
-      </div>
+          ) : undefined}
+        </UploadArea>
+      </UploadCard>
       {(validationError || thumbnail?.errorMessage) && (
-        <p className={styles["error-message"]} role="alert">
+        <FieldError role="alert">
           {validationError || thumbnail?.errorMessage}
-        </p>
+        </FieldError>
       )}
       <p className={styles["format-help"]}>
         PNG・JPG・JPEG・BMP・GIF・WEBP / 5MB以下

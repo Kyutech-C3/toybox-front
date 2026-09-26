@@ -3,10 +3,15 @@ import MDEditor from "@uiw/react-md-editor";
 import rehypeSanitize from "rehype-sanitize";
 
 import { useWorkEditorStore } from "../store/useWorkEditorStore";
+import ValidationMessage from "../ValidationMessage";
+import { validateWork } from "../validateWork";
 import EditorModeTabs, { getEditorTabID } from "./EditorModeTabs";
 import useLiveScrollSync from "./hook/useLiveScrollSync";
 import styles from "./index.module.css";
 import LiveModeDialog from "./LiveModeDialog";
+
+import CharacterCount from "@/shared/ui/CharacterCount";
+import inputStyles from "@/shared/ui/Input/index.module.css";
 
 import "./editor-custom.css";
 
@@ -18,6 +23,13 @@ import type { EditorMode } from "./types";
 const EDITOR_PLACEHOLDER = "Markdown で作品の説明を書けます";
 
 const MarkdownEditor = () => {
+  const current = useWorkEditorStore((state) => state.current);
+  const hasAttemptedSubmit = useWorkEditorStore(
+    (state) => state.hasAttemptedSubmit,
+  );
+  const descriptionError = hasAttemptedSubmit
+    ? validateWork(current).description
+    : undefined;
   const description = useWorkEditorStore((state) => state.current.description);
   const setDescription = useWorkEditorStore((state) => state.setDescription);
   const [mode, setMode] = useState<EditorMode>("edit");
@@ -27,18 +39,28 @@ const MarkdownEditor = () => {
   });
 
   const markdownInput = (
-    <MDEditor
-      value={description}
-      onChange={(value) => setDescription(value || "")}
-      previewOptions={{
-        rehypePlugins: [[rehypeSanitize]],
-      }}
-      preview="edit"
-      extraCommands={[]}
-      visibleDragbar={false}
-      height="auto"
-      textareaProps={{ placeholder: EDITOR_PLACEHOLDER }}
-    />
+    <CharacterCount value={description}>
+      <MDEditor
+        className={inputStyles["input-surface"]}
+        value={description}
+        onChange={(value) => setDescription(value || "")}
+        previewOptions={{
+          rehypePlugins: [[rehypeSanitize]],
+        }}
+        preview="edit"
+        extraCommands={[]}
+        visibleDragbar={false}
+        height="auto"
+        textareaProps={{
+          placeholder: EDITOR_PLACEHOLDER,
+          "aria-label": "説明",
+          "aria-invalid": !!descriptionError,
+          "aria-describedby": descriptionError
+            ? "work-error-description"
+            : undefined,
+        }}
+      />
+    </CharacterCount>
   );
 
   const handleLiveModeClose = () => setMode("edit");
@@ -78,6 +100,7 @@ const MarkdownEditor = () => {
             </p>
           )}
         </div>
+        <ValidationMessage field="description" />
         {mode === "live" && (
           <LiveModeDialog
             mode={mode}

@@ -88,9 +88,6 @@
   color: var(--font-muted-color);
   font-size: 18px;
   cursor: pointer;
-  transition:
-    background-color var(--hover-transition),
-    color var(--hover-transition);
 }
 
 .volume-button:hover {
@@ -119,9 +116,6 @@
   color: var(--font-muted-color);
   font-size: 18px;
   cursor: pointer;
-  transition:
-    background-color var(--hover-transition),
-    color var(--hover-transition);
 }
 
 .download-link:hover,

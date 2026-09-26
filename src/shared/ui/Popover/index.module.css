@@ -104,7 +104,7 @@
 
 .popover-item[data-destructive="true"]:hover,
 .popover-item[data-destructive="true"]:focus-visible {
-  background: var(--error-soft-color);
+  background: color-mix(in srgb, var(--error-color) 12%, transparent);
   color: var(--error-color);
 }
 

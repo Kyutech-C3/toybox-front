@@ -9,6 +9,7 @@ import {
 
 import styles from "./index.module.css";
 
+import Button from "@/shared/ui/Button";
 import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 import { getCurrentTheme, subscribeTheme } from "@/util/theme";
 
@@ -31,18 +32,14 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
 
   return (
     <div className={styles["code-block-container"]}>
-      <button
-        type="button"
+      <Button
+        size="compact"
+        isIconOnly
         className={styles["copy-button"]}
         onClick={handleCopy}
         aria-label="コードをコピー"
-      >
-        {isCopied ? (
-          <CheckIcon fontSize="small" />
-        ) : (
-          <ContentCopyIcon fontSize="small" />
-        )}
-      </button>
+        icon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
+      />
       <SyntaxHighlighter
         PreTag="div"
         language={language}

@@ -12,7 +12,7 @@
 }
 
 .live-dialog::backdrop {
-  background-color: var(--shadow-soft-color);
+  background-color: var(--overlay-dark-color);
   backdrop-filter: blur(6px);
 }
 
@@ -46,32 +46,7 @@
 }
 
 .live-dialog-close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   justify-self: end;
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  background-color: var(--paper-color);
-  color: var(--font-muted-color);
-  cursor: pointer;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease;
-
-  &:hover {
-    background-color: var(--primary-soft-color);
-    color: var(--font-color);
-    box-shadow: var(--hover-shadow);
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--link-color);
-    outline-offset: 2px;
-  }
 }
 
 .live-dialog-body {

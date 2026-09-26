@@ -32,6 +32,7 @@ export type WorkEditorStore = {
   createdTagIDs: string[];
   hasInvalidUrls: boolean;
   isSubmitting: boolean;
+  hasAttemptedSubmit: boolean;
 
   initializeForNew: () => void;
   initializeForEdit: (work: Work) => void;
@@ -52,6 +53,7 @@ export type WorkEditorStore = {
   clearPendingBackendResources: () => void;
   setHasInvalidUrls: (hasInvalidUrls: boolean) => void;
   setIsSubmitting: (isSubmitting: boolean) => void;
+  setHasAttemptedSubmit: (hasAttemptedSubmit: boolean) => void;
   setUrls: (urls: string[]) => void;
   addAssets: (assets: EditorAsset[]) => void;
   updateAsset: (key: string, update: Partial<EditorAsset>) => void;
@@ -83,6 +85,7 @@ export const createWorkEditorStore = () =>
     createdTagIDs: [],
     hasInvalidUrls: false,
     isSubmitting: false,
+    hasAttemptedSubmit: false,
 
     initializeForNew: () => {
       set((state) => {
@@ -102,6 +105,7 @@ export const createWorkEditorStore = () =>
           createdTagIDs: [],
           hasInvalidUrls: false,
           isSubmitting: false,
+          hasAttemptedSubmit: false,
         };
       });
     },
@@ -125,6 +129,7 @@ export const createWorkEditorStore = () =>
           createdTagIDs: [],
           hasInvalidUrls: false,
           isSubmitting: false,
+          hasAttemptedSubmit: false,
         };
       });
     },
@@ -149,6 +154,7 @@ export const createWorkEditorStore = () =>
           createdTagIDs: [],
           hasInvalidUrls: false,
           isSubmitting: false,
+          hasAttemptedSubmit: false,
         };
       });
     },
@@ -170,6 +176,7 @@ export const createWorkEditorStore = () =>
           createdTagIDs: [],
           hasInvalidUrls: false,
           isSubmitting: false,
+          hasAttemptedSubmit: false,
         };
       });
     },
@@ -275,6 +282,10 @@ export const createWorkEditorStore = () =>
 
     setHasInvalidUrls: (hasInvalidUrls: boolean) => {
       set({ hasInvalidUrls });
+    },
+
+    setHasAttemptedSubmit: (hasAttemptedSubmit: boolean) => {
+      set({ hasAttemptedSubmit });
     },
 
     setIsSubmitting: (isSubmitting: boolean) => {

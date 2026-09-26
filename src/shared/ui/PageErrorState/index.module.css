@@ -43,13 +43,10 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--button-color);
+  background: var(--paper-color);
   font-size: 14px;
   font-weight: bold;
-  transition:
-    background-color var(--hover-transition),
-    box-shadow var(--hover-transition),
-    color var(--hover-transition);
+  transition: box-shadow var(--hover-transition);
 }
 
 .link-action:hover {

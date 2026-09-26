@@ -6,7 +6,6 @@
   align-items: flex-start;
 }
 
-/* タイトル・タグ入力の見出しに合わせる */
 .upload-heading {
   margin: var(--space-8) 5px;
   color: var(--font-color);
@@ -14,118 +13,10 @@
   font-weight: bold;
 }
 
-/* アセットの升目と同じ大きさ・同じ構成（プレビュー 4:3 + 説明欄 4:1 = 正方形） */
-.upload-frame {
-  position: relative;
-  box-sizing: border-box;
-  width: var(--upload-cell-width);
-  aspect-ratio: 1;
-  overflow: hidden;
-  border: 2px dashed var(--primary-color);
-  border-radius: 25px;
-  display: flex;
-  flex-direction: column;
-  background: var(--paper-color);
-}
-
-.upload-frame[data-has-image="true"] {
-  border-style: solid;
-}
-
-.upload-frame[data-status="error"] {
-  border-color: var(--error-color);
-  background: color-mix(in srgb, var(--error-color) 12%, var(--paper-color));
-}
-
-.upload-frame[data-status="uploading"] {
-  opacity: 0.4;
-}
-
-.upload-area {
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: transparent;
-  cursor: pointer;
-  transition: background-color var(--hover-transition);
-
-  &:hover {
-    background: var(--primary-soft-color);
-  }
-}
-
-.upload-frame[data-has-image="true"] .upload-area {
-  flex: 0 0 75%;
-  background: var(--asset-background);
-}
-
-.upload-area:disabled {
-  cursor: wait;
-}
-
-.upload-area[data-dragging="true"] svg {
-  color: var(--primary-color);
-}
-
-.file-input {
-  display: none;
-}
-
-/* Card と同じように拡大表示（切り抜き）にする */
 .preview-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-
-.overlay-actions {
-  position: absolute;
-  top: var(--space-8);
-  right: var(--space-8);
-  display: flex;
-  gap: var(--space-8);
-}
-
-.overlay-button {
-  width: 36px;
-  height: 36px;
-}
-
-.upload-meta {
-  flex: 0 0 25%;
-  min-width: 0;
-  padding: 0 var(--space-12);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2px;
-  color: var(--font-muted-color);
-  font-size: 0.6875rem;
-}
-
-.file-name,
-.status {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-name {
-  color: var(--font-color);
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.error-message {
-  margin: 0;
-  color: var(--error-color);
-  font-size: 0.875rem;
 }
 
 .format-help {
@@ -135,22 +26,8 @@
 }
 
 @media (max-width: 767px) {
-  .overlay-button {
-    width: var(--touch-target-min);
-    height: var(--touch-target-min);
-  }
   .upload-heading {
     margin: var(--space-8) 2px;
     font-size: 16px;
-  }
-
-  .upload-frame {
-    border-radius: 16px;
-  }
-}
-
-@media (hover: none) {
-  .upload-area:hover {
-    background: transparent;
   }
 }

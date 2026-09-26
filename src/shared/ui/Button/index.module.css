@@ -1,7 +1,6 @@
-/* 共通のボタン */
-.primary-button,
-.accent-button,
-.destructive-button {
+.button {
+  box-sizing: border-box;
+  flex-shrink: 0;
   height: 48px;
   min-width: 48px;
   padding: 0 var(--space-16);
@@ -11,87 +10,140 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-8);
-  background: var(--button-color);
+  background: var(--paper-color);
+  color: var(--font-color);
   cursor: pointer;
+  font-family: inherit;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
   user-select: none;
-  transition:
-    background-color var(--hover-transition),
-    box-shadow var(--hover-transition),
-    color var(--hover-transition);
 
-  &[data-disabled="true"] {
+  &:focus-visible {
+    outline: 2px solid var(--font-color);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
     opacity: 0.45;
     cursor: not-allowed;
     box-shadow: none;
   }
+
+  &[data-size="small"] {
+    height: 32px;
+    min-width: 32px;
+    padding-inline: var(--space-12);
+    font-size: 12px;
+  }
+
+  &[data-icon-only="true"] {
+    padding: 0;
+    width: 48px;
+  }
+
+  &[data-icon-only="true"][data-size="small"] {
+    width: 32px;
+  }
+
+  &[data-variant="ghost"] {
+    border-color: transparent;
+    background: transparent;
+    color: var(--font-muted-color);
+  }
+
+  &[data-variant="accent"],
+  &[data-active="true"] {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: var(--on-primary-color);
+  }
+
+  &[data-variant="link"] {
+    border-color: var(--link-color);
+    background: var(--paper-color);
+    color: var(--link-color);
+  }
+
+  &[data-variant="destructive"] {
+    color: var(--error-color);
+  }
 }
 
-.primary-button {
-  &:not([data-disabled="true"]):hover {
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  line-height: 1;
+
+  > svg {
+    width: 1em;
+    height: 1em;
+    font-size: inherit;
+  }
+}
+
+@media (hover: hover) {
+  .button:not(:disabled):hover {
     background: color-mix(
       in srgb,
       var(--primary-color) 10%,
-      var(--button-color)
+      var(--paper-color)
     );
+    box-shadow: var(--hover-shadow);
+  }
+
+  .button[data-variant="ghost"]:not(:disabled):hover {
+    background: var(--primary-soft-color);
     color: var(--font-color);
-    box-shadow: var(--hover-shadow);
+    box-shadow: none;
   }
 
-  &[data-active="true"],
-  &[data-active="true"]:hover {
+  .button[data-variant="accent"]:not(:disabled):hover,
+  .button[data-active="true"]:not(:disabled):hover {
     background: var(--primary-color);
-    color: var(--on-primary-color);
-    font-weight: 600;
-    box-shadow: var(--hover-shadow);
   }
-}
 
-/* 編集・保存・送信のようにユーザーが自分から起こす主要操作はキーカラーの面にする */
-.accent-button {
-  border-color: var(--primary-color);
-  background: var(--primary-color);
-  color: var(--on-primary-color);
-
-  &:not([data-disabled="true"]):hover {
-    box-shadow: var(--hover-shadow);
+  .button[data-variant="link"]:not(:disabled):hover {
+    background: color-mix(in srgb, var(--link-color) 10%, var(--paper-color));
   }
-}
 
-/* 取り消しの効かない操作は文字を赤にし、hover も赤い面で区別する */
-.destructive-button {
-  color: var(--error-color);
-
-  &:not([data-disabled="true"]):hover {
-    background: color-mix(in srgb, var(--error-color) 12%, var(--button-color));
-    color: var(--error-color);
-    box-shadow: var(--hover-shadow);
+  .button[data-variant="destructive"]:not(:disabled):hover {
+    background: color-mix(in srgb, var(--error-color) 12%, var(--paper-color));
   }
 }
 
 @media (max-width: 767px) {
-  .primary-button,
-  .accent-button,
-  .destructive-button {
-    height: var(--touch-target-min);
-    min-width: var(--touch-target-min);
-    padding: 0 var(--space-12);
+  .button,
+  .button[data-size="small"] {
+    height: max(48px, var(--touch-target-min));
+    min-width: max(48px, var(--touch-target-min));
+    padding-inline: var(--space-12);
+    font-size: 14px;
+  }
+
+  .button[data-icon-only="true"],
+  .button[data-icon-only="true"][data-size="small"] {
+    width: max(48px, var(--touch-target-min));
+    padding: 0;
   }
 }
 
-@media (hover: none) {
-  .primary-button:not([data-disabled="true"]):not([data-active="true"]):hover {
-    background: var(--button-color);
-    box-shadow: none;
-  }
+/* タグとコード内の補助操作は、本文と同じ密度で表示する。 */
+.button[data-size="compact"] {
+  height: 25px;
+  min-width: 25px;
+  padding-inline: var(--space-12);
+  font-size: 14px;
+}
 
-  .accent-button:not([data-disabled="true"]):hover {
-    box-shadow: none;
-  }
+.button[data-size="compact"][data-icon-only="true"] {
+  width: 25px;
+  padding: 0;
+}
 
-  .destructive-button:not([data-disabled="true"]):hover {
-    background: var(--button-color);
-    box-shadow: none;
-  }
+.button[data-size="compact"] .icon {
+  font-size: 16px;
 }

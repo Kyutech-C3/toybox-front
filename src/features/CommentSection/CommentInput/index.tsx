@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
 import styles from "./index.module.css";
@@ -6,6 +7,7 @@ import styles from "./index.module.css";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
+import Textarea from "@/shared/ui/Textarea";
 
 import type React from "react";
 import type { Comment } from "@/shared/types/comment";
@@ -35,22 +37,13 @@ const CommentInput = ({
     }
   }, [isAutoFocus]);
 
-  const adjustHeight = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  }, []);
-
   const handleSend = useCallback(async () => {
     if (!value.trim() || isSubmitting) return;
     const isSubmitted = await onSubmit(value);
     if (!isSubmitted) return;
 
     setValue("");
-    setTimeout(() => adjustHeight(), 0);
-  }, [onSubmit, value, isSubmitting, adjustHeight]);
+  }, [onSubmit, value, isSubmitting]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -76,42 +69,38 @@ const CommentInput = ({
               {replyingTo.user ? replyingTo.user.display_name : "Anonymous"}{" "}
               への返信
             </span>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              isIconOnly
+              icon={<CloseRoundedIcon />}
               onClick={onCancelReply}
-              className={styles["cancel-reply-button"]}
               aria-label="返信をキャンセル"
-            >
-              ×
-            </button>
+            />
           </div>
         )}
-        <label className={styles["input-box"]}>
-          <span className={styles["sr-only"]}>コメントを入力</span>
-          <textarea
-            ref={textareaRef}
-            className={styles["textarea"]}
-            placeholder="コメントを追加"
-            value={value}
-            disabled={isSubmitting}
-            onChange={(event) => {
-              setValue(event.target.value);
-              adjustHeight();
-            }}
-            onKeyDown={handleKeyDown}
-          />
-        </label>
+        <Textarea
+          isAutoResizing
+          aria-label="コメントを入力"
+          isCharacterCountVisible
+          ref={textareaRef}
+          className={styles["textarea"]}
+          placeholder="コメントを追加"
+          value={value}
+          disabled={isSubmitting}
+          maxLength={255}
+          onChange={setValue}
+          onKeyDown={handleKeyDown}
+        />
         <div className={styles["send-wrap"]}>
           <p className={styles["send-hint"]}>Ctrl + Enter で送信</p>
           <div className={styles["send-button-slot"]}>
             <Button
               variant="accent"
               onClick={() => void handleSend()}
-              isDisabled={!value.trim() || isSubmitting}
+              isDisabled={!value.trim()}
+              isLoading={isSubmitting}
+              icon={<SendRoundedIcon />}
             >
-              <span className={styles["send-icon"]} aria-hidden="true">
-                <SendRoundedIcon fontSize="inherit" />
-              </span>
               {isSubmitting ? "送信中..." : "送信"}
             </Button>
           </div>
