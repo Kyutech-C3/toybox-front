@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { useLocation, useParams, useSearchParams } from "react-router-dom";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 
 import styles from "./index.module.css";
 
@@ -17,6 +17,7 @@ const UserPage = () => {
   const { id } = useParams<{ id: string }>();
   const { key: locationKey } = useLocation();
   const [searchParams] = useSearchParams();
+  const { mutate } = useSWRConfig();
   const accessToken = useAuthStore((state) => state.accessToken);
   const currentPage = Math.max(Number(searchParams.get("page")) || 1, 1);
 
@@ -40,7 +41,7 @@ const UserPage = () => {
         page: currentPage,
       }),
       undefined,
-      { revalidate: false },
+      { revalidate: true },
     );
   };
 

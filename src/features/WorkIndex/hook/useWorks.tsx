@@ -29,6 +29,14 @@ const buildWorksUrl = ({ page, limit, tags }: UseWorksParams) => {
   return url;
 };
 
+export const getWorksSWRKey = (
+  params: UseWorksParams,
+  accessToken: string | null,
+) => {
+  const url = buildWorksUrl(params);
+  return accessToken ? ([url, accessToken] as const) : url;
+};
+
 const fetchWorks = async (
   url: string,
   accessToken?: string,
@@ -46,10 +54,9 @@ const useWorks = ({
   tags = [],
 }: UseWorksParams = {}): UseWorksReturn => {
   const accessToken = useAuthStore((state) => state.accessToken);
-  const url = buildWorksUrl({ page, limit, tags });
 
   const { data: response } = useSWR<WorkListResponse>(
-    accessToken ? [url, accessToken] : url,
+    getWorksSWRKey({ page, limit, tags }, accessToken),
     accessToken
       ? ([requestUrl, token]) => fetchWorks(requestUrl, token)
       : (requestUrl) => fetchWorks(requestUrl),
