@@ -47,7 +47,17 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
         PreTag="div"
         language={language}
         style={theme === "dark" ? vscDarkPlus : coldarkCold}
+        codeTagProps={{
+          style: {
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            lineHeight: "inherit",
+          },
+        }}
         customStyle={{
+          fontFamily: "inherit",
+          fontSize: "inherit",
+          lineHeight: "inherit",
           background: "var(--code-block-background-color)",
           backgroundColor: "var(--code-block-background-color)",
           border: "none",
