@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { createTag } from "../../api/createTag";
+import { deletePendingResources } from "../../api/deletePendingResources";
+import useEditorRequestGuard from "../../hook/useEditorRequestGuard";
 import {
   useWorkEditorStore,
   useWorkEditorStoreApi,
@@ -40,9 +42,14 @@ const findTag = <T extends { id: string; name: string }>(
 
 const useWorkTags = (): UseWorkTagsReturn => {
   const tags = useWorkEditorStore((state) => state.current.tags);
+  const editorSessionVersion = useWorkEditorStore(
+    (state) => state.sessionVersion,
+  );
+  const authSessionVersion = useAuthStore((state) => state.sessionVersion);
   const addTag = useWorkEditorStore((state) => state.addTag);
   const removeTag = useWorkEditorStore((state) => state.removeTag);
   const storeApi = useWorkEditorStoreApi();
+  const { createRequestGuard } = useEditorRequestGuard();
   const failedTags = useWorkEditorStore((state) => state.failedTagNames);
   const addCreatingTagName = useWorkEditorStore(
     (state) => state.addCreatingTagName,
@@ -75,18 +82,35 @@ const useWorkTags = (): UseWorkTagsReturn => {
 
   const [retryingTags, setRetryingTags] = useState<string[]>([]);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 編集・認証セッション変更時にローカル状態も破棄する
+  useEffect(() => {
+    setCreatedTagOptions([]);
+    setRetryingTags([]);
+  }, [editorSessionVersion, authSessionVersion]);
+
   const resolveTag = async (
     tagName: string,
-  ): Promise<{ tag: EditorTag; isCreated: boolean }> => {
+    isCurrentRequest: () => boolean,
+  ): Promise<{ tag: EditorTag; isCreated: boolean } | null> => {
     const normalizedName = tagName.toLowerCase();
     const existingTag = findTag(availableTags, normalizedName);
     if (existingTag) return { tag: existingTag, isCreated: false };
 
-    const accessToken = useAuthStore.getState().accessToken;
+    const { accessToken, sessionVersion: authSessionVersion } =
+      useAuthStore.getState();
     if (!accessToken) {
       throw new Error("No access token available");
     }
     const newTag = await createTag(tagName, accessToken);
+    if (!isCurrentRequest()) {
+      if (useAuthStore.getState().sessionVersion === authSessionVersion) {
+        void deletePendingResources(
+          { assetIDs: [], tagIDs: [newTag.id] },
+          accessToken,
+        );
+      }
+      return null;
+    }
     addCreatedTagID(newTag.id);
     setCreatedTagOptions((current) => [
       ...current,
@@ -111,9 +135,12 @@ const useWorkTags = (): UseWorkTagsReturn => {
       return false;
     }
     addCreatingTagName(normalizedName);
+    const isCurrentRequest = createRequestGuard();
 
     try {
-      const { tag, isCreated } = await resolveTag(normalizedName);
+      const result = await resolveTag(normalizedName, isCurrentRequest);
+      if (!isCurrentRequest() || result === null) return false;
+      const { tag, isCreated } = result;
       addTag({ id: tag.id, name: tag.name });
       removeFailedTagName(normalizedName);
       if (isCreated) {
@@ -124,10 +151,10 @@ const useWorkTags = (): UseWorkTagsReturn => {
       }
       return true;
     } catch {
-      addFailedTagName(normalizedName);
+      if (isCurrentRequest()) addFailedTagName(normalizedName);
       return false;
     } finally {
-      removeCreatingTagName(normalizedName);
+      if (isCurrentRequest()) removeCreatingTagName(normalizedName);
     }
   };
 
@@ -141,13 +168,16 @@ const useWorkTags = (): UseWorkTagsReturn => {
     if (retryingTags.some((name) => name.toLowerCase() === normalizedName)) {
       return;
     }
+    const isCurrentRequest = createRequestGuard();
     setRetryingTags((prev) => [...prev, tagName]);
     try {
       await addTagByName(tagName);
     } finally {
-      setRetryingTags((prev) =>
-        prev.filter((name) => name.toLowerCase() !== normalizedName),
-      );
+      if (isCurrentRequest()) {
+        setRetryingTags((prev) =>
+          prev.filter((name) => name.toLowerCase() !== normalizedName),
+        );
+      }
     }
   };
 
