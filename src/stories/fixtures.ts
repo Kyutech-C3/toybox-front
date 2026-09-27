@@ -1,3 +1,5 @@
+import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
+
 import type { Work } from "@/shared/types/work";
 
 export const createWork = (overrides: Partial<Work> = {}): Work => ({
@@ -8,7 +10,7 @@ export const createWork = (overrides: Partial<Work> = {}): Work => ({
   user: { id: "owner", display_name: "作者", avatar_url: "" },
   assets: [],
   tags: [],
-  thumbnail_url: "/comingSoonHo-Oh.webp",
+  thumbnail_url: SAMPLE_IMAGE_URL,
   thumbnail_asset_id: "thumbnail",
   is_favorite: false,
   visibility: "public",

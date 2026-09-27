@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
 
 import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
@@ -12,7 +13,7 @@ import LoadingImage from "@/shared/ui/LoadingImage";
 import { formatDateTime } from "@/util/formatDateTime";
 import { normalizeTagNameInput } from "@/util/tagName";
 
-import type { ReactNode, SyntheticEvent } from "react";
+import type { ReactNode } from "react";
 import type { Work } from "@/shared/types/work";
 
 type CardProps = {
@@ -21,7 +22,6 @@ type CardProps = {
   favoriteButton?: ReactNode;
 };
 
-const DEFAULT_CARD_IMAGE_URL = "/comingSoonLugia.webp";
 const WHEEL_LINE_HEIGHT = 16;
 const WHEEL_PAGE_HEIGHT = 100;
 
@@ -41,6 +41,9 @@ const getHorizontalWheelDelta = (event: WheelEvent) =>
   toPixelDelta(getWheelDelta(event), event.deltaMode);
 
 const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
+  const [failedThumbnailURL, setFailedThumbnailURL] = useState<string>();
+  const hasThumbnail =
+    !!work.thumbnail_url && failedThumbnailURL !== work.thumbnail_url;
   const isEditable = viewerUserID === work.user.id;
   const wrapperRef = useRef<HTMLElement>(null);
   const tagsMarquee = useMarquee();
@@ -51,13 +54,6 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
 
   const handleMouseLeave = () => {
     tagsMarquee.reset();
-  };
-
-  const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
-    const image = event.currentTarget;
-    if (!image.src.endsWith(DEFAULT_CARD_IMAGE_URL)) {
-      image.src = DEFAULT_CARD_IMAGE_URL;
-    }
   };
 
   const scrollTagsBy = tagsMarquee.scrollBy;
@@ -84,13 +80,23 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
       onMouseLeave={handleMouseLeave}
     >
       <div className={styles["card-image-wrapper"]}>
-        <LoadingImage
-          src={work.thumbnail_url || DEFAULT_CARD_IMAGE_URL}
-          alt={`${work.title}のサムネイル`}
-          loading="lazy"
-          className={styles["card-image"]}
-          onError={handleImageError}
-        />
+        {hasThumbnail ? (
+          <LoadingImage
+            src={work.thumbnail_url}
+            alt={`${work.title}のサムネイル`}
+            loading="lazy"
+            className={styles["card-image"]}
+            onError={() => setFailedThumbnailURL(work.thumbnail_url)}
+          />
+        ) : (
+          <span
+            className={styles["card-image-placeholder"]}
+            role="img"
+            aria-label={`${work.title}のサムネイルなし`}
+          >
+            <ImageRoundedIcon fontSize="inherit" aria-hidden="true" />
+          </span>
+        )}
         {favoriteButton && (
           <div className={styles["card-favorite"]}>{favoriteButton}</div>
         )}

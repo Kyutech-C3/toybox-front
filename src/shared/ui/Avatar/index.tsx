@@ -1,8 +1,9 @@
+import { useState } from "react";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
+
 import styles from "./index.module.css";
 
 import LoadingImage from "@/shared/ui/LoadingImage";
-
-import type { SyntheticEvent } from "react";
 
 type AvatarProps = {
   avatarURL?: string;
@@ -10,29 +11,33 @@ type AvatarProps = {
   size?: "small" | "default" | "profile";
 };
 
-const DEFAULT_AVATAR_URL = "/comingSoonLugia.webp";
-
 const Avatar = ({
   avatarURL,
   alt = "ユーザーのアバター",
   size = "default",
 }: AvatarProps) => {
-  const handleImageError = (event: SyntheticEvent<HTMLImageElement>) => {
-    const image = event.currentTarget;
-    if (!image.src.endsWith(DEFAULT_AVATAR_URL)) {
-      image.src = DEFAULT_AVATAR_URL;
-    }
-  };
+  const [failedURL, setFailedURL] = useState<string>();
+  const hasImage = !!avatarURL && failedURL !== avatarURL;
 
   return (
     <div className={styles["avatar-wrapper"]} data-size={size}>
-      <LoadingImage
-        alt={alt}
-        src={avatarURL || DEFAULT_AVATAR_URL}
-        loading="lazy"
-        className={styles["avatar-image"]}
-        onError={handleImageError}
-      />
+      {hasImage ? (
+        <LoadingImage
+          alt={alt}
+          src={avatarURL}
+          loading="lazy"
+          className={styles["avatar-image"]}
+          onError={() => setFailedURL(avatarURL)}
+        />
+      ) : (
+        <span
+          className={styles["avatar-placeholder"]}
+          role="img"
+          aria-label={alt}
+        >
+          <PersonRoundedIcon fontSize="inherit" aria-hidden="true" />
+        </span>
+      )}
     </div>
   );
 };

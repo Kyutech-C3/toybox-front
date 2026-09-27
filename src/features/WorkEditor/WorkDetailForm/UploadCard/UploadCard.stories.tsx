@@ -3,6 +3,8 @@ import { expect, fn, userEvent, within } from "storybook/test";
 import UploadArea from "../UploadArea";
 import UploadCard from "./index";
 
+import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
+
 import type { Meta, StoryObj } from "@storybook/react";
 import type { CSSProperties } from "react";
 
@@ -23,13 +25,13 @@ const META = {
       kind: "画像",
       status: "success",
       assetID: "image",
-      previewURL: "/comingSoonLugia.webp",
+      previewURL: SAMPLE_IMAGE_URL,
       file: null,
       errorMessage: "",
     },
     children: (
       <img
-        src="/comingSoonLugia.webp"
+        src={SAMPLE_IMAGE_URL}
         alt="プレビュー"
         style={{ width: "100%", height: "100%", objectFit: "contain" }}
       />

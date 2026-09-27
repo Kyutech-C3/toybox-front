@@ -2,6 +2,8 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import AssetCarousel from "./index";
 
+import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
+
 import type { Meta, StoryObj } from "@storybook/react";
 import type { Asset } from "@/shared/types/work";
 
@@ -33,11 +35,24 @@ const createAsset = (
   work_id: "work-1",
 });
 
-export const WebPImage: Story = {
+export const ImagePreview: Story = {
   args: {
     assets: [
-      createAsset("asset-webp", "image", "webp", "/comingSoonHo-Oh.webp"),
+      createAsset(
+        "asset-image",
+        "image",
+        "svg",
+        new URL(SAMPLE_IMAGE_URL, window.location.origin).href,
+      ),
     ],
+  },
+  play: async ({ canvasElement }) => {
+    const image = (await within(canvasElement).findByRole("img", {
+      name: "作品のアセット画像",
+    })) as HTMLImageElement;
+    await waitFor(() =>
+      expect(image.complete && image.naturalWidth > 0).toBe(true),
+    );
   },
 };
 

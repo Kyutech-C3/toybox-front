@@ -51,7 +51,7 @@ const META = {
       user: {
         id: "owner",
         display_name: "Storybook User",
-        icon_url: "/comingSoonLugia.webp",
+        icon_url: "",
       },
       hasLoadFailed: false,
     });

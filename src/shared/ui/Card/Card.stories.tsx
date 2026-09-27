@@ -1,6 +1,9 @@
 import { MemoryRouter } from "react-router-dom";
+import { expect, waitFor, within } from "storybook/test";
 
 import Card from "./index";
+
+import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
 
 import type { Meta, StoryObj } from "@storybook/react";
 import type { Tag, Work } from "@/shared/types/work";
@@ -22,9 +25,9 @@ const MOCK_WORK: Work = {
   user: {
     id: "user-1",
     display_name: "UserName",
-    avatar_url: "/comingSoonLugia.webp",
+    avatar_url: "",
   },
-  thumbnail_url: "/comingSoonLugia.webp",
+  thumbnail_url: SAMPLE_IMAGE_URL,
   visibility: "public",
   thumbnail_asset_id: "",
   is_favorite: false,
@@ -93,5 +96,30 @@ export const OverflowingTitleAndTags: Story = {
         toTag("tag-5", "サウンド"),
       ],
     },
+  },
+};
+
+export const MissingThumbnail: Story = {
+  args: { work: { ...MOCK_WORK, thumbnail_url: "" } },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole("img", {
+        name: "作品タイトルのサムネイルなし",
+      }),
+    ).toBeVisible();
+  },
+};
+
+export const BrokenThumbnail: Story = {
+  args: { work: { ...MOCK_WORK, thumbnail_url: "/missing-thumbnail.svg" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => {
+      expect(
+        canvas.getByRole("img", { name: "作品タイトルのサムネイルなし" }),
+      ).toBeVisible();
+      expect(canvasElement.querySelector("img")).toBeNull();
+      expect(canvas.queryByRole("status")).not.toBeInTheDocument();
+    });
   },
 };

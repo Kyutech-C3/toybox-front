@@ -3,12 +3,14 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import LoadingImage from "./index";
 
+import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
+
 import type { Meta, StoryObj } from "@storybook/react";
 
 const META = {
   title: "UI/LoadingImage",
   component: LoadingImage,
-  args: { src: "/comingSoonLugia.webp", alt: "プレビュー" },
+  args: { src: SAMPLE_IMAGE_URL, alt: "プレビュー" },
   decorators: [
     (Story) => (
       <div style={{ width: 160, height: 120 }}>

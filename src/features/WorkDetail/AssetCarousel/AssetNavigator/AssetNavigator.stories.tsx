@@ -3,6 +3,8 @@ import { expect, userEvent, within } from "storybook/test";
 
 import AssetNavigator from "./index";
 
+import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
+
 import type { Meta, StoryObj } from "@storybook/react";
 import type { Asset } from "@/shared/types/work";
 
@@ -26,8 +28,8 @@ const ASSETS = [
   toAsset(
     "image",
     "image",
-    "webp",
-    new URL("/comingSoonHo-Oh.webp", window.location.origin).href,
+    "svg",
+    new URL(SAMPLE_IMAGE_URL, window.location.origin).href,
   ),
   toAsset("video", "video", "mp4", "https://example.com/video.mp4"),
   toAsset("audio", "music", "wav", "https://example.com/audio.wav"),
