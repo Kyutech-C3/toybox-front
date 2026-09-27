@@ -3,8 +3,6 @@ import { expect, waitFor, within } from "storybook/test";
 
 import Card from "./index";
 
-import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
-
 import type { Meta, StoryObj } from "@storybook/react";
 import type { Tag, Work } from "@/shared/types/work";
 
@@ -27,7 +25,7 @@ const MOCK_WORK: Work = {
     display_name: "UserName",
     avatar_url: "",
   },
-  thumbnail_url: SAMPLE_IMAGE_URL,
+  thumbnail_url: "",
   visibility: "public",
   thumbnail_asset_id: "",
   is_favorite: false,
@@ -122,4 +120,14 @@ export const BrokenThumbnail: Story = {
       expect(canvas.queryByRole("status")).not.toBeInTheDocument();
     });
   },
+};
+
+export const MissingThumbnailDark: Story = {
+  ...MissingThumbnail,
+  globals: { theme: "dark" },
+};
+
+export const BrokenThumbnailDark: Story = {
+  ...BrokenThumbnail,
+  globals: { theme: "dark" },
 };

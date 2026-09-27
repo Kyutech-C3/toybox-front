@@ -11,7 +11,6 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { useWorkPageSizeStore } from "@/shared/ui/WorkCardGrid/store/useWorkPageSizeStore";
-import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
 import { createWork } from "@/stories/fixtures";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -21,7 +20,7 @@ const WORK = createWork({
   id: "work-1",
   title: "Storybookで確認する作品",
   description: "# 作品説明\n\n画面全体の表示を確認するための固定データです。",
-  thumbnail_url: SAMPLE_IMAGE_URL,
+  thumbnail_url: "",
   tags: [
     {
       id: "tag-react",

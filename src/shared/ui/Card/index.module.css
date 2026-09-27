@@ -306,7 +306,7 @@
   border-radius: inherit;
   display: grid;
   place-items: center;
-  background: var(--asset-background);
-  color: var(--asset-font-color);
+  background: var(--background-color);
+  color: var(--font-muted-color);
   font-size: 48px;
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import ImageRoundedIcon from "@mui/icons-material/ImageRounded";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 
 import Batch from "../Batch";
 import EditSquareIcon from "../EditSquareIcon";
@@ -94,7 +94,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
             role="img"
             aria-label={`${work.title}のサムネイルなし`}
           >
-            <ImageRoundedIcon fontSize="inherit" aria-hidden="true" />
+            <ImageOutlinedIcon fontSize="inherit" aria-hidden="true" />
           </span>
         )}
         {favoriteButton && (
