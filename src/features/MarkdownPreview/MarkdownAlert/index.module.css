@@ -1,0 +1,22 @@
+.markdown-alert[data-markdown-alert] {
+  color: var(--font-color);
+  font-style: normal;
+  border-left-color: var(--link-color);
+
+  &[data-markdown-alert="WARNING"],
+  &[data-markdown-alert="CAUTION"] {
+    border-left-color: var(--error-color);
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+}
+
+.alert-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0;
+  font-weight: 700;
+}

@@ -1,0 +1,48 @@
+.markdown-help {
+  font-size: 0.875rem;
+  color: var(--font-color);
+  min-width: 0;
+
+  > summary {
+    cursor: pointer;
+    color: var(--link-color);
+    width: fit-content;
+
+    &:focus-visible {
+      outline: 2px solid var(--link-color);
+      outline-offset: 3px;
+    }
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.75rem;
+  }
+
+  th,
+  td {
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    white-space: nowrap;
+  }
+
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  td p {
+    margin-bottom: 0;
+  }
+}
+
+.help-table-container {
+  overflow-x: auto;
+}

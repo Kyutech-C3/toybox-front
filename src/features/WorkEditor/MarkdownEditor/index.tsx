@@ -9,6 +9,7 @@ import EditorModeTabs, { getEditorTabID } from "./EditorModeTabs";
 import useLiveScrollSync from "./hook/useLiveScrollSync";
 import styles from "./index.module.css";
 import LiveModeDialog from "./LiveModeDialog";
+import MarkdownHelp from "./MarkdownHelp";
 
 import CharacterCount from "@/shared/ui/CharacterCount";
 import inputStyles from "@/shared/ui/Input/index.module.css";
@@ -101,6 +102,7 @@ const MarkdownEditor = () => {
           )}
         </div>
         <ValidationMessage field="description" />
+        <MarkdownHelp />
         {mode === "live" && (
           <LiveModeDialog
             mode={mode}
