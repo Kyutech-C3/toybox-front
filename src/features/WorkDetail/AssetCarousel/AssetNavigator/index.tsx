@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import MovieRoundedIcon from "@mui/icons-material/MovieRounded";
@@ -32,8 +33,44 @@ const AssetNavigator = ({
   failedAssetIDs,
   onSelect,
 }: AssetNavigatorProps) => {
+  const navigatorRef = useRef<HTMLElement>(null);
+  const activeThumbnailRef = useRef<HTMLButtonElement>(null);
+  const activeAssetID = assets[activeAssetIndex]?.id;
+
+  useLayoutEffect(() => {
+    const navigator = navigatorRef.current;
+    const thumbnail = activeThumbnailRef.current;
+    if (!navigator || !thumbnail || !activeAssetID) return;
+
+    const keepActiveThumbnailVisible = () => {
+      const viewport = navigator.getBoundingClientRect();
+      const item = thumbnail.getBoundingClientRect();
+      const left = viewport.left + navigator.clientLeft;
+      const targetLeft =
+        navigator.scrollLeft +
+        item.left -
+        left +
+        item.width / 2 -
+        navigator.clientWidth / 2;
+      const maxScrollLeft = navigator.scrollWidth - navigator.clientWidth;
+      navigator.scrollTo({
+        left: Math.min(Math.max(targetLeft, 0), maxScrollLeft),
+        behavior: "instant",
+      });
+    };
+
+    keepActiveThumbnailVisible();
+    const observer = new ResizeObserver(keepActiveThumbnailVisible);
+    observer.observe(navigator);
+    return () => observer.disconnect();
+  }, [activeAssetID]);
+
   return (
-    <nav className={styles["asset-navigator"]} aria-label="アセットの一覧">
+    <nav
+      ref={navigatorRef}
+      className={styles["asset-navigator"]}
+      aria-label="アセットの一覧"
+    >
       <ul className={styles["asset-navigator-list"]}>
         {assets.map((asset, assetIndex) => {
           const safeURL = getSafeAssetURL(asset.url);
@@ -47,6 +84,7 @@ const AssetNavigator = ({
           return (
             <li key={asset.id}>
               <button
+                ref={isActive ? activeThumbnailRef : undefined}
                 type="button"
                 className={styles["asset-thumbnail"]}
                 data-active={isActive}

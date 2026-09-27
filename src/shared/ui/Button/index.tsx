@@ -52,7 +52,7 @@ const Button = ({
       data-disabled={isUnavailable ? "true" : "false"}
       data-active={isActive ? "true" : "false"}
     >
-      {isLoading ? (
+      {isLoading && !isIconOnly ? (
         <LoadingSpinner size="small" isDecorative />
       ) : (
         icon && (

@@ -1,4 +1,5 @@
-import { expect, waitFor, within } from "storybook/test";
+import { useState } from "react";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import LoadingImage from "./index";
 
@@ -40,5 +41,29 @@ export const LoadFailure: Story = {
       expect(image.complete && image.naturalWidth === 0).toBe(true);
       expect(canvas.queryByRole("status")).not.toBeInTheDocument();
     });
+  },
+};
+
+export const CachedImage: Story = {
+  render: (args) => {
+    const [version, setVersion] = useState(0);
+    return (
+      <>
+        <button type="button" onClick={() => setVersion(version + 1)}>
+          再表示
+        </button>
+        <LoadingImage key={version} {...args} />
+      </>
+    );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => {
+      const image = canvas.getByRole("img") as HTMLImageElement;
+      expect(image.complete && image.naturalWidth > 0).toBe(true);
+    });
+    await userEvent.click(canvas.getByRole("button", { name: "再表示" }));
+    await expect(canvas.queryByRole("status")).not.toBeInTheDocument();
+    await expect(canvas.getByRole("img")).toBeVisible();
   },
 };
