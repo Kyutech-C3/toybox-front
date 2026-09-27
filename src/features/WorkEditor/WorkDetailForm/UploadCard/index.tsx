@@ -2,6 +2,8 @@ import UploadRemoveButton from "../UploadRemoveButton";
 import UploadRetryButton from "../UploadRetryButton";
 import styles from "./index.module.css";
 
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
 import type { ReactNode } from "react";
 import type { EditorAsset } from "../../types";
 
@@ -35,6 +37,11 @@ const UploadCard = ({
         .join(" ")}
     >
       {children}
+      {asset?.status === "uploading" && (
+        <div className={styles["loading-state"]}>
+          <LoadingSpinner />
+        </div>
+      )}
       {asset && (
         <div className={styles["actions"]}>
           {asset.status === "error" && (

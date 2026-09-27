@@ -23,12 +23,7 @@ const toAsset = (
 });
 
 const ASSETS = [
-  toAsset(
-    "image",
-    "image",
-    "webp",
-    new URL("/comingSoonHo-Oh.webp", window.location.origin).href,
-  ),
+  toAsset("image", "image", "svg", ""),
   toAsset("video", "video", "mp4", "https://example.com/video.mp4"),
   toAsset("audio", "music", "wav", "https://example.com/audio.wav"),
   toAsset("model", "model", "gltf", "https://example.com/model.gltf"),

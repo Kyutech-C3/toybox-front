@@ -23,7 +23,7 @@ const META = {
     user: {
       id: "user-1",
       display_name: "Toybox User",
-      icon_url: "/comingSoonLugia.webp",
+      icon_url: "",
     },
     onLogout: fn(async () => undefined),
   },
@@ -55,7 +55,7 @@ export const LongDisplayName: Story = {
     user: {
       id: "user-2",
       display_name: "とても長い表示名を設定したユーザー",
-      icon_url: "/comingSoonLugia.webp",
+      icon_url: "",
     },
   },
 };

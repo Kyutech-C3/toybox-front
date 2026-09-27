@@ -1,5 +1,7 @@
 import styles from "./index.module.css";
 
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
 import type { ComponentPropsWithRef, ReactNode } from "react";
 
 type ButtonProps = ComponentPropsWithRef<"button"> & {
@@ -50,10 +52,14 @@ const Button = ({
       data-disabled={isUnavailable ? "true" : "false"}
       data-active={isActive ? "true" : "false"}
     >
-      {icon && (
-        <span className={styles["icon"]} aria-hidden="true">
-          {icon}
-        </span>
+      {isLoading && !isIconOnly ? (
+        <LoadingSpinner size="small" isDecorative />
+      ) : (
+        icon && (
+          <span className={styles["icon"]} aria-hidden="true">
+            {icon}
+          </span>
+        )
       )}
       {children}
     </button>

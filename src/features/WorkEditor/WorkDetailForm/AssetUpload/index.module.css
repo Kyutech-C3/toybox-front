@@ -19,7 +19,7 @@
   gap: var(--upload-grid-gap);
 }
 
-.preview > img,
+.preview > span,
 .preview > video {
   position: absolute;
   inset: 0;

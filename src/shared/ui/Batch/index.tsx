@@ -3,6 +3,8 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 
 import styles from "./index.module.css";
 
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
 import type { ReactNode } from "react";
 
 type BatchProps = {
@@ -66,7 +68,14 @@ const Batch = ({
         disabled={isRetrying}
       >
         {children}
-        <CloseIcon className={styles["batch-close-icon"]} aria-hidden="true" />
+        {isRetrying ? (
+          <LoadingSpinner size="small" />
+        ) : (
+          <CloseIcon
+            className={styles["batch-close-icon"]}
+            aria-hidden="true"
+          />
+        )}
       </button>
     );
   }
@@ -93,11 +102,11 @@ const Batch = ({
               : `Retry ${children} batch`
           }
         >
-          <RefreshIcon
-            className={styles["batch-retry-icon"]}
-            data-spinning={isRetrying ? "true" : "false"}
-            fontSize="inherit"
-          />
+          {isRetrying ? (
+            <LoadingSpinner size="small" />
+          ) : (
+            <RefreshIcon fontSize="inherit" />
+          )}
         </button>
       )}
       {onClick && (

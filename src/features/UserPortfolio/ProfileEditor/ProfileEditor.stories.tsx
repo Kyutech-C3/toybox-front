@@ -10,7 +10,7 @@ const PROFILE = {
   id: "user-1",
   display_name: "Toybox User",
   profile: "電子工作とWeb開発をしています。",
-  avatar_url: "/comingSoonLugia.webp",
+  avatar_url: "",
   github_id: "toybox-user",
   twitter_id: "toybox_user",
 };

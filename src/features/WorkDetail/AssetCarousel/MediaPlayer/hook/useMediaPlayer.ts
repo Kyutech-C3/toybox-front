@@ -8,6 +8,7 @@ type UseMediaPlayerParams = {
 
 type UseMediaPlayerReturn = {
   isPlaying: boolean;
+  isLoading: boolean;
   currentTime: number;
   duration: number;
   volume: number;
@@ -20,6 +21,7 @@ type UseMediaPlayerReturn = {
 const useMediaPlayer = ({
   mediaRef,
 }: UseMediaPlayerParams): UseMediaPlayerReturn => {
+  const [isLoading, setIsLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -39,6 +41,25 @@ const useMediaPlayer = ({
 
     handleDurationChange();
     handleVolumeChange();
+    setIsLoading(
+      media.readyState < HTMLMediaElement.HAVE_CURRENT_DATA && !media.error,
+    );
+    const handleLoadStart = () => setIsLoading(true);
+    const handleReady = () => setIsLoading(false);
+    const loadingEvents = ["loadstart", "waiting", "seeking"];
+    const readyEvents = [
+      "loadedmetadata",
+      "loadeddata",
+      "canplay",
+      "playing",
+      "seeked",
+      "error",
+      "abort",
+      "emptied",
+    ];
+    for (const event of loadingEvents)
+      media.addEventListener(event, handleLoadStart);
+    for (const event of readyEvents) media.addEventListener(event, handleReady);
 
     media.addEventListener("play", handlePlay);
     media.addEventListener("pause", handlePause);
@@ -49,6 +70,10 @@ const useMediaPlayer = ({
     media.addEventListener("volumechange", handleVolumeChange);
 
     return () => {
+      for (const event of loadingEvents)
+        media.removeEventListener(event, handleLoadStart);
+      for (const event of readyEvents)
+        media.removeEventListener(event, handleReady);
       media.removeEventListener("play", handlePlay);
       media.removeEventListener("pause", handlePause);
       media.removeEventListener("ended", handlePause);
@@ -104,6 +129,7 @@ const useMediaPlayer = ({
   );
 
   return {
+    isLoading,
     isPlaying,
     currentTime,
     duration,

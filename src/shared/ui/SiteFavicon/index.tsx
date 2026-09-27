@@ -3,6 +3,8 @@ import LanguageRoundedIcon from "@mui/icons-material/LanguageRounded";
 
 import styles from "./index.module.css";
 
+import LoadingImage from "@/shared/ui/LoadingImage";
+
 type SiteFaviconProps = {
   url: string;
   size?: "small" | "default";
@@ -37,7 +39,7 @@ const SiteFavicon = ({ url, size = "default" }: SiteFaviconProps) => {
       {hasFallbackIcon ? (
         <LanguageRoundedIcon />
       ) : (
-        <img
+        <LoadingImage
           src={getFaviconUrl(url)}
           alt=""
           width="24"

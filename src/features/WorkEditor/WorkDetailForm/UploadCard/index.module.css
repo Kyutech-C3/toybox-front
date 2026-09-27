@@ -20,7 +20,7 @@
   }
 }
 
-.upload-card[data-status="uploading"] .preview {
+.upload-card[data-status="uploading"] .preview > :first-child {
   opacity: 0.4;
 }
 
@@ -90,4 +90,12 @@
   .upload-card {
     border-radius: 16px;
   }
+}
+
+.loading-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
 }

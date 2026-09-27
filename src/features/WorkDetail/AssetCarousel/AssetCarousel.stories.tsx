@@ -33,12 +33,8 @@ const createAsset = (
   work_id: "work-1",
 });
 
-export const WebPImage: Story = {
-  args: {
-    assets: [
-      createAsset("asset-webp", "image", "webp", "/comingSoonHo-Oh.webp"),
-    ],
-  },
+export const MissingImage: Story = {
+  args: { assets: [createAsset("asset-image", "image", "svg", "")] },
 };
 
 export const Models: Story = {
@@ -101,5 +97,90 @@ export const DownloadableAssets: Story = {
     await waitFor(() =>
       expect(firstIndicator).toHaveAttribute("aria-current", "true"),
     );
+  },
+};
+
+export const ManyAssets: Story = {
+  args: {
+    assets: Array.from({ length: 30 }, (_, index) =>
+      createAsset(
+        `asset-${index}`,
+        "zip",
+        "zip",
+        `https://example.com/assets/${index}.zip`,
+      ),
+    ),
+  },
+  decorators: [
+    (Story) => (
+      <div style={{ width: 320, maxWidth: "100%" }}>
+        <Story />
+      </div>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const navigator = canvas.getByRole("navigation", {
+      name: "アセットの一覧",
+    });
+    const initialPageScroll = window.scrollY;
+    const expectSelectedVisible = (index: number) => {
+      const thumbnail = canvas.getByRole("button", {
+        name: `${index}番目のアセットを表示`,
+      });
+      expect(thumbnail).toHaveAttribute("aria-current", "true");
+      const item = thumbnail.getBoundingClientRect();
+      const viewport = navigator.getBoundingClientRect();
+      expect(item.left).toBeGreaterThanOrEqual(viewport.left - 1);
+      expect(item.right).toBeLessThanOrEqual(viewport.right + 1);
+      expect(window.scrollY).toBe(initialPageScroll);
+      const slides = canvasElement.querySelector(
+        'li[data-active="true"]',
+      )?.parentElement;
+      expect(slides).not.toBeNull();
+      if (slides)
+        expect(
+          Math.abs(slides.scrollLeft - (index - 1) * slides.clientWidth),
+        ).toBeLessThanOrEqual(1);
+    };
+    await userEvent.click(
+      canvas.getByRole("button", { name: "前のアセットを表示" }),
+    );
+    await waitFor(
+      () => {
+        expectSelectedVisible(30);
+        expect(navigator.scrollLeft).toBe(
+          navigator.scrollWidth - navigator.clientWidth,
+        );
+      },
+      { timeout: 5000 },
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "次のアセットを表示" }),
+    );
+    await waitFor(
+      () => {
+        expectSelectedVisible(1);
+        expect(navigator.scrollLeft).toBe(0);
+      },
+      { timeout: 5000 },
+    );
+    for (let index = 2; index <= 8; index += 1) {
+      await userEvent.click(
+        canvas.getByRole("button", { name: "次のアセットを表示" }),
+      );
+      await waitFor(() => expectSelectedVisible(index), { timeout: 5000 });
+    }
+    await waitFor(() => {
+      const item = canvas
+        .getByRole("button", { name: "8番目のアセットを表示" })
+        .getBoundingClientRect();
+      const viewport = navigator.getBoundingClientRect();
+      expect(
+        Math.abs(
+          item.left + item.width / 2 - viewport.left - viewport.width / 2,
+        ),
+      ).toBeLessThanOrEqual(1);
+    });
   },
 };

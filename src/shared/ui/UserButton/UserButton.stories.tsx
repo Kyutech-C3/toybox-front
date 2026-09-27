@@ -27,7 +27,7 @@ export const Default: Story = {
   args: {
     userID: "user-1",
     displayName: "UserName",
-    avatarURL: "/comingSoonLugia.webp",
+    avatarURL: "",
   },
 };
 
@@ -35,6 +35,6 @@ export const LongDisplayName: Story = {
   args: {
     userID: "user-2",
     displayName: "とても長い表示名のユーザーです",
-    avatarURL: "/comingSoonLugia.webp",
+    avatarURL: "",
   },
 };

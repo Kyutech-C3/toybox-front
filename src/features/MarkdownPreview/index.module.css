@@ -61,7 +61,6 @@
     height: auto;
     display: block;
     margin: 1.5rem auto;
-    border-radius: 8px;
     box-shadow: 0 2px 8px var(--shadow-soft-color);
   }
 

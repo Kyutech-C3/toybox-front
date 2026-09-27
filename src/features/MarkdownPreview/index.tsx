@@ -6,6 +6,8 @@ import remarkGfm from "remark-gfm";
 import CodeBlock from "./CodeBlock";
 import styles from "./index.module.css";
 
+import LoadingImage from "@/shared/ui/LoadingImage";
+
 import type { ComponentProps } from "react";
 import type { ExtraProps } from "react-markdown";
 
@@ -40,6 +42,9 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
         remarkPlugins={[remarkGfm, remarkBreaks]}
         components={{
           li: MarkdownListItem,
+          img({ node, ...props }) {
+            return <LoadingImage {...props} isIntrinsic />;
+          },
           input: MarkdownInput,
           code(props) {
             const { children, className, ...rest } = props;

@@ -8,7 +8,7 @@ export const createWork = (overrides: Partial<Work> = {}): Work => ({
   user: { id: "owner", display_name: "作者", avatar_url: "" },
   assets: [],
   tags: [],
-  thumbnail_url: "/comingSoonHo-Oh.webp",
+  thumbnail_url: "",
   thumbnail_asset_id: "thumbnail",
   is_favorite: false,
   visibility: "public",
@@ -17,3 +17,7 @@ export const createWork = (overrides: Partial<Work> = {}): Work => ({
   updated_at: "2026-01-01T00:00:00Z",
   ...overrides,
 });
+
+// A transparent pixel keeps image loading tests independent of sample artwork.
+export const TEST_IMAGE_URL =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";

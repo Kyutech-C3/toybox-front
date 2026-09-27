@@ -15,7 +15,7 @@ const META = {
         user: {
           id: "viewer",
           display_name: "閲覧者",
-          icon_url: "/comingSoonLugia.webp",
+          icon_url: "",
         },
       });
       return (

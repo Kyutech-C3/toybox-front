@@ -6,6 +6,7 @@ import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
 import FieldError from "@/shared/ui/FieldError";
+import LoadingImage from "@/shared/ui/LoadingImage";
 
 const ImageUpload = () => {
   const {
@@ -43,7 +44,7 @@ const ImageUpload = () => {
           isEmbedded
         >
           {thumbnail?.previewURL ? (
-            <img
+            <LoadingImage
               src={thumbnail.previewURL}
               alt="サムネイル画像のプレビュー"
               className={styles["preview-image"]}

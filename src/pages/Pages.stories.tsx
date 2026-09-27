@@ -20,7 +20,7 @@ const WORK = createWork({
   id: "work-1",
   title: "Storybookで確認する作品",
   description: "# 作品説明\n\n画面全体の表示を確認するための固定データです。",
-  thumbnail_url: "/comingSoonHo-Oh.webp",
+  thumbnail_url: "",
   tags: [
     {
       id: "tag-react",
@@ -35,7 +35,7 @@ const PROFILE = {
   id: "owner",
   display_name: "作者",
   profile: "電子工作とWeb開発をしています。",
-  avatar_url: "/comingSoonLugia.webp",
+  avatar_url: "",
   github_id: "toybox-user",
   twitter_id: "toybox_user",
 };

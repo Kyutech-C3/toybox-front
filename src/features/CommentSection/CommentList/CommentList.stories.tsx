@@ -18,7 +18,7 @@ const COMMENTS: Comment[] = [
     user: {
       id: "user-1",
       display_name: "Toybox User",
-      avatar_url: "/comingSoonLugia.webp",
+      avatar_url: "",
     },
   },
   {
@@ -30,7 +30,7 @@ const COMMENTS: Comment[] = [
     user: {
       id: "user-2",
       display_name: "作者",
-      avatar_url: "/comingSoonHo-Oh.webp",
+      avatar_url: "",
     },
   },
 ];
@@ -44,7 +44,7 @@ const META = {
         user: {
           id: "viewer",
           display_name: "閲覧者",
-          icon_url: "/comingSoonLugia.webp",
+          icon_url: "",
         },
       });
       return (

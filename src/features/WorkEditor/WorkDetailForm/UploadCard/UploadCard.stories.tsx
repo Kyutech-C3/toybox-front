@@ -1,3 +1,4 @@
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { expect, fn, userEvent, within } from "storybook/test";
 
 import UploadArea from "../UploadArea";
@@ -23,17 +24,11 @@ const META = {
       kind: "画像",
       status: "success",
       assetID: "image",
-      previewURL: "/comingSoonLugia.webp",
+      previewURL: "",
       file: null,
       errorMessage: "",
     },
-    children: (
-      <img
-        src="/comingSoonLugia.webp"
-        alt="プレビュー"
-        style={{ width: "100%", height: "100%", objectFit: "contain" }}
-      />
-    ),
+    children: <ImageOutlinedIcon aria-hidden="true" style={{ fontSize: 48 }} />,
     statusText: "画像",
     onRemove: fn(),
     onRetry: fn(),

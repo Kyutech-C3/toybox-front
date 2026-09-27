@@ -12,6 +12,7 @@ type LikeButtonProps = {
   onToggle: () => void;
   isCountVisible?: boolean;
   isDisabled?: boolean;
+  isLoading?: boolean;
   ariaLabel?: string;
   className?: string;
 };
@@ -22,6 +23,7 @@ const LikeButton = ({
   onToggle,
   isCountVisible = false,
   isDisabled = false,
+  isLoading = false,
   ariaLabel,
   className,
 }: LikeButtonProps) => {
@@ -36,7 +38,8 @@ const LikeButton = ({
       aria-pressed={isLiked}
       aria-label={label}
       title={label}
-      disabled={isDisabled}
+      disabled={isDisabled || isLoading}
+      aria-busy={isLoading}
       onClick={onToggle}
     >
       <span className={styles["like-icon"]}>

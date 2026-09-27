@@ -57,6 +57,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
             icon: <LoginRoundedIcon fontSize="small" />,
             onClick: () => void handleLogin(),
             isDisabled: isLoggingIn,
+            isLoading: isLoggingIn,
             type: "button",
           },
           {

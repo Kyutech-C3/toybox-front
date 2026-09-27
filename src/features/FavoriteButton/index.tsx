@@ -43,6 +43,7 @@ const FavoriteButton = ({
       isLiked={isLiked}
       isCountVisible={isCountVisible}
       isDisabled={isDisabled}
+      isLoading={isLoading || isSubmitting}
       ariaLabel={ariaLabel}
       className={className}
       onToggle={() => void handleToggle()}
