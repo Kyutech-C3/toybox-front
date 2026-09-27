@@ -76,6 +76,7 @@ class PageErrorBoundary extends Component<
           label: isRetrying ? "再試行中..." : "再試行",
           onClick: this.handleRetry,
           isDisabled: isRetrying,
+          isLoading: isRetrying,
           type: "button",
         },
       ];

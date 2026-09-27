@@ -30,3 +30,11 @@
     left: var(--space-8);
   }
 }
+
+.loading-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}

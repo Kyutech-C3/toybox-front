@@ -8,6 +8,7 @@ import VisibilityIcon from "../VisibilityIcon";
 import useMarquee from "./hook/useMarquee";
 import styles from "./index.module.css";
 
+import LoadingImage from "@/shared/ui/LoadingImage";
 import { formatDateTime } from "@/util/formatDateTime";
 import { normalizeTagNameInput } from "@/util/tagName";
 
@@ -83,7 +84,7 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
       onMouseLeave={handleMouseLeave}
     >
       <div className={styles["card-image-wrapper"]}>
-        <img
+        <LoadingImage
           src={work.thumbnail_url || DEFAULT_CARD_IMAGE_URL}
           alt={`${work.title}のサムネイル`}
           loading="lazy"

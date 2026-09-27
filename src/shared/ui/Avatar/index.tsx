@@ -1,5 +1,7 @@
 import styles from "./index.module.css";
 
+import LoadingImage from "@/shared/ui/LoadingImage";
+
 import type { SyntheticEvent } from "react";
 
 type AvatarProps = {
@@ -24,7 +26,7 @@ const Avatar = ({
 
   return (
     <div className={styles["avatar-wrapper"]} data-size={size}>
-      <img
+      <LoadingImage
         alt={alt}
         src={avatarURL || DEFAULT_AVATAR_URL}
         loading="lazy"

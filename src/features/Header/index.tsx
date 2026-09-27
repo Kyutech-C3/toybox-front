@@ -1,4 +1,4 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
@@ -17,6 +17,7 @@ import useToast from "@/shared/ui/Toast/hook/useToast";
 import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 
 const Header = () => {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
   const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
@@ -27,17 +28,29 @@ const Header = () => {
   };
 
   const handleLogin = async () => {
-    const url = await getLoginUrl();
+    if (isLoggingIn) return;
+    setIsLoggingIn(true);
+    try {
+      const url = await getLoginUrl();
 
-    if (url.startsWith("http://") || url.startsWith("https://")) {
-      window.location.href = url;
-      return;
+      if (url.startsWith("http://") || url.startsWith("https://")) {
+        window.location.href = url;
+        return;
+      }
+
+      navigate(url);
+    } catch {
+      showToast({
+        message: "ログイン画面を開けませんでした",
+        severity: "error",
+      });
+    } finally {
+      setIsLoggingIn(false);
     }
-
-    navigate(url);
   };
   const { accessToken } = useAuthStore();
-  const { user, setUser, setUserLoadFailed, clearUser } = useUserStore();
+  const { user, hasLoadFailed, setUser, setUserLoadFailed, clearUser } =
+    useUserStore();
 
   useEffect(() => {
     if (!accessToken) {
@@ -114,6 +127,7 @@ const Header = () => {
           <Button
             variant="primary"
             onClick={handleLogin}
+            isLoading={isLoggingIn || (!!accessToken && !hasLoadFailed)}
             icon={<LoginRoundedIcon />}
             ariaLabel="ログイン"
           >

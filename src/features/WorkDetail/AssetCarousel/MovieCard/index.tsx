@@ -5,6 +5,8 @@ import useAutoHideControls from "../MediaPlayer/hook/useAutoHideControls";
 import useMediaPlayer from "../MediaPlayer/hook/useMediaPlayer";
 import styles from "./index.module.css";
 
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
 type MovieCardProps = {
   src: string;
   extension: string;
@@ -41,6 +43,7 @@ const MovieCard = ({
 }: MovieCardProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const {
+    isLoading,
     isPlaying,
     currentTime,
     duration,
@@ -77,6 +80,11 @@ const MovieCard = ({
         ))}
         <track kind="captions" />
       </video>
+      {isActive && isLoading && (
+        <div className={styles["loading-state"]}>
+          <LoadingSpinner />
+        </div>
+      )}
       <div
         className={styles["movie-controls"]}
         onPointerEnter={pinControls}

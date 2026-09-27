@@ -8,6 +8,7 @@ import {
 } from "../auth";
 import { useAuthStore } from "../store/useAuthStore";
 
+import PageLoading from "@/shared/ui/PageLoading";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 
 import type { ReactNode } from "react";
@@ -58,7 +59,7 @@ const AuthSessionProvider = ({ children }: AuthSessionProviderProps) => {
   }, [isInitialized, location.search, navigate, setInitialized, showToast]);
 
   if (!isInitialized) {
-    return null;
+    return <PageLoading />;
   }
 
   return children;

@@ -8,6 +8,8 @@ import useSeekDrag from "../MediaPlayer/hook/useSeekDrag";
 import useAudioWaveform from "./hook/useAudioWaveform";
 import styles from "./index.module.css";
 
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
 type AudioCardProps = {
   src: string;
   isActive: boolean;
@@ -40,12 +42,17 @@ const AudioCard = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const clipID = useId();
   const [shouldLoad, setShouldLoad] = useState(isActive);
-  const { peaks, playbackURL } = useAudioWaveform({
+  const {
+    peaks,
+    playbackURL,
+    isLoading: isWaveformLoading,
+  } = useAudioWaveform({
     src,
     barCount: WAVEFORM_BAR_COUNT,
     isEnabled: shouldLoad,
   });
   const {
+    isLoading,
     isPlaying,
     currentTime,
     duration,
@@ -117,6 +124,11 @@ const AudioCard = ({
               className={styles["waveform-fallback-played"]}
               style={{ width: `${playedRatio * 100}%` }}
             />
+          </div>
+        )}
+        {isActive && (isWaveformLoading || isLoading) && (
+          <div className={styles["loading-state"]}>
+            <LoadingSpinner />
           </div>
         )}
         <div

@@ -7,6 +7,7 @@ import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
 import FieldError from "@/shared/ui/FieldError";
+import LoadingImage from "@/shared/ui/LoadingImage";
 
 type AssetStatusSource = {
   kind: string;
@@ -45,7 +46,7 @@ const AssetUpload = () => {
             onRetry={() => handleRetry(asset.key)}
           >
             {asset.kind === "画像" && asset.previewURL && (
-              <img src={asset.previewURL} alt="" />
+              <LoadingImage src={asset.previewURL} alt="" />
             )}
             {asset.kind === "動画" && asset.previewURL && (
               <video src={asset.previewURL} muted aria-label="動画プレビュー" />

@@ -7,6 +7,8 @@ import ViewInArRoundedIcon from "@mui/icons-material/ViewInArRounded";
 import { getSafeAssetURL } from "../assetUrl";
 import styles from "./index.module.css";
 
+import LoadingImage from "@/shared/ui/LoadingImage";
+
 import type { Asset } from "@/shared/types/work";
 
 type AssetNavigatorProps = {
@@ -53,7 +55,7 @@ const AssetNavigator = ({
                 onClick={() => onSelect(assetIndex)}
               >
                 {isImage ? (
-                  <img
+                  <LoadingImage
                     src={safeURL}
                     alt=""
                     className={styles["asset-thumbnail-image"]}

@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import styles from "./index.module.css";
 
 import Avatar from "@/shared/ui/Avatar";
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import Popover, {
   PopoverButton,
   PopoverLabel,
@@ -71,8 +72,10 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
         <PopoverButton
           isDestructive
           disabled={isLoggingOut}
+          aria-busy={isLoggingOut}
           onClick={() => void handleLogout()}
         >
+          {isLoggingOut && <LoadingSpinner size="small" isDecorative />}
           {isLoggingOut ? "ログアウト中..." : "ログアウト"}
         </PopoverButton>
       </Popover>

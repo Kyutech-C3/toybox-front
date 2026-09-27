@@ -12,6 +12,7 @@ type PageErrorButtonAction = {
   icon?: ReactNode;
   onClick: () => void;
   isDisabled?: boolean;
+  isLoading?: boolean;
   type: "button";
 };
 
@@ -85,9 +86,10 @@ const PageErrorState = ({
               key={action.id}
               onClick={action.onClick}
               isDisabled={action.isDisabled}
+              isLoading={action.isLoading}
             >
               <span className={styles["action-label"]}>
-                {action.icon}
+                {!action.isLoading && action.icon}
                 {action.label}
               </span>
             </Button>

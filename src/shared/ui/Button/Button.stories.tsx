@@ -100,6 +100,7 @@ export const Loading: Story = {
     });
     await expect(button).toBeDisabled();
     await expect(button).toHaveAttribute("aria-busy", "true");
+    await expect(button.querySelector("output")).toBeVisible();
     await userEvent.click(button);
     await expect(args.onClick).not.toHaveBeenCalled();
   },
