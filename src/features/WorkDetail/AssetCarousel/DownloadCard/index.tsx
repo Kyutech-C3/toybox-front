@@ -1,5 +1,6 @@
 import DownloadRoundedIcon from "@mui/icons-material/DownloadRounded";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 
 import { getSafeAssetURL } from "../assetUrl";
@@ -31,7 +32,11 @@ const DownloadCard = ({
   const safeURL = getSafeAssetURL(url);
   const extensionLabel = getExtensionLabel(extension);
   const isZip = assetType === "zip";
-  const FileIcon = isZip ? FolderZipRoundedIcon : InsertDriveFileRoundedIcon;
+  const FileIcon = isZip
+    ? FolderZipRoundedIcon
+    : assetType === "image"
+      ? ImageOutlinedIcon
+      : InsertDriveFileRoundedIcon;
 
   const description = isLoadError
     ? "プレビューを読み込めませんでした。ファイルをダウンロードして確認できます。"

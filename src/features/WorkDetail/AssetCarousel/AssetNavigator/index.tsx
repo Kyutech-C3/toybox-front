@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import InsertDriveFileRoundedIcon from "@mui/icons-material/InsertDriveFileRounded";
 import MovieRoundedIcon from "@mui/icons-material/MovieRounded";
 import MusicNoteRoundedIcon from "@mui/icons-material/MusicNoteRounded";
@@ -20,6 +21,7 @@ type AssetNavigatorProps = {
 };
 
 const getFileIcon = (assetType: string) => {
+  if (assetType === "image") return ImageOutlinedIcon;
   if (assetType === "video") return MovieRoundedIcon;
   if (assetType === "music") return MusicNoteRoundedIcon;
   if (assetType === "model") return ViewInArRoundedIcon;

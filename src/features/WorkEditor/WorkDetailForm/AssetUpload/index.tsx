@@ -1,5 +1,6 @@
 import AudiotrackRoundedIcon from "@mui/icons-material/AudiotrackRounded";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 
 import useAssetUpload, { ASSET_ACCEPT } from "../hook/useAssetUpload";
 import UploadArea from "../UploadArea";
@@ -47,6 +48,9 @@ const AssetUpload = () => {
           >
             {asset.kind === "画像" && asset.previewURL && (
               <LoadingImage src={asset.previewURL} alt="" />
+            )}
+            {asset.kind === "画像" && !asset.previewURL && (
+              <ImageOutlinedIcon />
             )}
             {asset.kind === "動画" && asset.previewURL && (
               <video src={asset.previewURL} muted aria-label="動画プレビュー" />

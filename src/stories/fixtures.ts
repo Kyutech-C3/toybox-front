@@ -17,3 +17,7 @@ export const createWork = (overrides: Partial<Work> = {}): Work => ({
   updated_at: "2026-01-01T00:00:00Z",
   ...overrides,
 });
+
+// A transparent pixel keeps image loading tests independent of sample artwork.
+export const TEST_IMAGE_URL =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";

@@ -2,8 +2,6 @@ import { expect, waitFor, within } from "storybook/test";
 
 import Avatar from "./index";
 
-import SAMPLE_AVATAR_URL from "@/stories/assets/sampleAvatar.svg?no-inline";
-
 import type { Meta, StoryObj } from "@storybook/react";
 
 const META: Meta<typeof Avatar> = {
@@ -33,12 +31,6 @@ export const Default: Story = {
   },
   args: {
     avatarURL: "",
-  },
-};
-
-export const CustomImage: Story = {
-  args: {
-    avatarURL: SAMPLE_AVATAR_URL,
   },
 };
 

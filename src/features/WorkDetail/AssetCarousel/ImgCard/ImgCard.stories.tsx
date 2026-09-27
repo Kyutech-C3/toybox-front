@@ -1,8 +1,9 @@
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { expect, within } from "storybook/test";
 
 import ImgCard from "./index";
 
-import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
+import { TEST_IMAGE_URL } from "@/stories/fixtures";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -15,7 +16,23 @@ const META: Meta<typeof ImgCard> = {
   tags: ["autodocs"],
   decorators: [
     (Story) => (
-      <div style={{ height: 320 }}>
+      <div
+        style={{
+          height: 320,
+          position: "relative",
+          color: "var(--asset-font-color)",
+        }}
+      >
+        <ImageOutlinedIcon
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            zIndex: 1,
+            inset: 0,
+            margin: "auto",
+            fontSize: 48,
+          }}
+        />
         <Story />
       </div>
     ),
@@ -28,7 +45,7 @@ type Story = StoryObj<typeof META>;
 export const Default: Story = {
   args: {
     alt: "作品のアセット画像",
-    src: SAMPLE_IMAGE_URL,
+    src: TEST_IMAGE_URL,
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

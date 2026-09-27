@@ -1,19 +1,36 @@
 import { useState } from "react";
+import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import LoadingImage from "./index";
 
-import SAMPLE_IMAGE_URL from "@/stories/assets/sampleImage.svg?no-inline";
+import { TEST_IMAGE_URL } from "@/stories/fixtures";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
 const META = {
   title: "UI/LoadingImage",
   component: LoadingImage,
-  args: { src: SAMPLE_IMAGE_URL, alt: "プレビュー" },
+  args: { src: TEST_IMAGE_URL, alt: "プレビュー" },
   decorators: [
     (Story) => (
-      <div style={{ width: 160, height: 120 }}>
+      <div
+        style={{
+          width: 160,
+          height: 120,
+          position: "relative",
+          color: "var(--font-muted-color)",
+        }}
+      >
+        <ImageOutlinedIcon
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            margin: "auto",
+            fontSize: 48,
+          }}
+        />
         <Story />
       </div>
     ),
