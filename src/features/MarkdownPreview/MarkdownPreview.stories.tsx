@@ -127,7 +127,7 @@ export const ParagraphSpacing: Story = {
 export const ImageFullscreen: Story = {
   args: {
     content:
-      "![拡大する画像](/favicon-192.png)\n\n[![リンク付き画像](/favicon-192.png)](https://example.com)",
+      "![拡大する画像](/toyboxtech.drawio.png)\n\n[![リンク付き画像](/favicon-192.png)](https://example.com)",
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -153,13 +153,31 @@ export const ImageFullscreen: Story = {
       "rgba(0, 0, 0, 0.3)",
     );
     const fullscreenImage = within(dialog).getByAltText("拡大する画像");
-    await expect(fullscreenImage).toHaveAttribute("src", "/favicon-192.png");
+    if (!(fullscreenImage instanceof HTMLImageElement))
+      throw new Error("全画面画像が見つかりません");
+    await expect(fullscreenImage).toHaveAttribute(
+      "src",
+      "/toyboxtech.drawio.png",
+    );
+    await waitFor(() =>
+      expect(fullscreenImage.naturalWidth).toBeGreaterThan(0),
+    );
     const bounds = dialog.getBoundingClientRect();
+    dialog.dispatchEvent(
+      new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        deltaY: 1000,
+      }),
+    );
+    await expect(fullscreenImage.style.transform).toContain(
+      "translate3d(0px, 0px, 0px)",
+    );
     const zoom = new WheelEvent("wheel", {
       bubbles: true,
       cancelable: true,
       ctrlKey: true,
-      deltaY: -100,
+      deltaY: -800,
       clientX: bounds.left + bounds.width / 2,
       clientY: bounds.top + bounds.height / 2,
     });
@@ -177,6 +195,33 @@ export const ImageFullscreen: Story = {
     await expect(pan.defaultPrevented).toBe(true);
     await waitFor(() =>
       expect(fullscreenImage.style.transform).toContain("-80px"),
+    );
+    dialog.dispatchEvent(
+      new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        deltaY: 100000,
+      }),
+    );
+    await waitFor(() =>
+      expect(fullscreenImage.style.transform).not.toContain("-80px"),
+    );
+    await waitFor(() =>
+      expect(
+        fullscreenImage.getBoundingClientRect().bottom,
+      ).toBeGreaterThanOrEqual(bounds.bottom - 1),
+    );
+    dialog.dispatchEvent(
+      new WheelEvent("wheel", {
+        bubbles: true,
+        cancelable: true,
+        deltaY: -100000,
+      }),
+    );
+    await waitFor(() =>
+      expect(fullscreenImage.getBoundingClientRect().top).toBeLessThanOrEqual(
+        bounds.top + 1,
+      ),
     );
     await expect(dialog.getBoundingClientRect().width).toBeGreaterThanOrEqual(
       window.innerWidth - 1,

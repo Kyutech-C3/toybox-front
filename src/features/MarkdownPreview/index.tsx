@@ -198,6 +198,7 @@ const MarkdownImage = ({
 
 function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
   const [fullscreenImage, setFullscreenImage] = useState<PreviewImage | null>(
     null,
   );
@@ -217,6 +218,8 @@ function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
     if (!dialog) return;
     const handleWheel = (event: WheelEvent) => {
       event.preventDefault();
+      const image = imageRef.current;
+      if (!image) return;
       const unit =
         event.deltaMode === WheelEvent.DOM_DELTA_LINE
           ? 16
@@ -224,25 +227,42 @@ function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
             ? dialog.clientHeight
             : 1;
       setImageView((current) => {
+        const scale = event.ctrlKey
+          ? Math.min(
+              MAX_IMAGE_SCALE,
+              Math.max(
+                1,
+                current.scale * Math.exp(-event.deltaY * unit * 0.002),
+              ),
+            )
+          : current.scale;
+        const maxX = Math.max(
+          0,
+          (image.clientWidth * scale - dialog.clientWidth) / 2,
+        );
+        const maxY = Math.max(
+          0,
+          (image.clientHeight * scale - dialog.clientHeight) / 2,
+        );
+        const clampX = (value: number) =>
+          Math.max(-maxX, Math.min(maxX, value));
+        const clampY = (value: number) =>
+          Math.max(-maxY, Math.min(maxY, value));
         if (!event.ctrlKey) {
           return {
             ...current,
-            x: current.x - event.deltaX * unit,
-            y: current.y - event.deltaY * unit,
+            x: clampX(current.x - event.deltaX * unit),
+            y: clampY(current.y - event.deltaY * unit),
           };
         }
-        const scale = Math.min(
-          MAX_IMAGE_SCALE,
-          Math.max(1, current.scale * Math.exp(-event.deltaY * unit * 0.002)),
-        );
         const bounds = dialog.getBoundingClientRect();
         const pointerX = event.clientX - (bounds.left + bounds.width / 2);
         const pointerY = event.clientY - (bounds.top + bounds.height / 2);
         const ratio = scale / current.scale;
         return {
           scale,
-          x: current.x + (pointerX - current.x) * (1 - ratio),
-          y: current.y + (pointerY - current.y) * (1 - ratio),
+          x: clampX(current.x + (pointerX - current.x) * (1 - ratio)),
+          y: clampY(current.y + (pointerY - current.y) * (1 - ratio)),
         };
       });
     };
@@ -284,6 +304,7 @@ function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
       />
       {fullscreenImage && (
         <img
+          ref={imageRef}
           src={fullscreenImage.src}
           alt={fullscreenImage.alt}
           style={{
