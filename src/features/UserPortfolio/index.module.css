@@ -8,7 +8,7 @@
 
 .profile-card {
   box-sizing: border-box;
-  width: min(100%, var(--content-panel-width));
+  width: min(100%, var(--content-read-width));
   padding: var(--space-16) var(--space-24);
   border-radius: 24px;
   display: grid;
@@ -80,6 +80,8 @@
 }
 
 .works-section {
+  box-sizing: border-box;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;

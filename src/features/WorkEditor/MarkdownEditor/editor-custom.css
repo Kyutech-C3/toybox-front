@@ -26,19 +26,9 @@
   background-color: var(--paper-color);
 }
 
-/* ライブモードはペイン側が枠とスクロールを持つので、エディタ本体の枠は外す */
-[data-markdown-editor][data-mode="live"] .w-md-editor {
-  border: none;
-}
-
-[data-markdown-editor][data-mode="live"] .w-md-editor,
-[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar,
-[data-markdown-editor][data-mode="live"] .w-md-editor-content {
-  border-radius: 0;
-}
-
 /* スクロールしてもツールバーは触れる位置に残す */
-[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar {
+[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar,
+[data-markdown-editor][data-mode="split"] .w-md-editor-toolbar {
   position: sticky;
   top: 0;
   z-index: 2;
@@ -110,7 +100,8 @@
 /* 入力量に応じてエディタ自体が伸びる。初期表示は既定行数ぶんを確保する */
 [data-markdown-editor] .w-md-editor-text {
   min-height: var(--editor-min-height) !important;
-  padding: var(--editor-text-padding) 16px;
+  padding: var(--editor-text-padding) 16px var(--editor-text-padding)
+    var(--line-number-gutter-width);
   font-size: 16px !important;
   line-height: var(--editor-line-height) !important;
 }
@@ -118,6 +109,12 @@
 [data-markdown-editor] .w-md-editor-text-pre > code {
   font-size: 16px !important;
   line-height: var(--editor-line-height) !important;
+}
+
+/* nohighlight 版の textarea に付く inline overflow:auto を上書きし、
+   行番号を含む外側の入力エリアだけをスクロールさせる。 */
+[data-markdown-editor] .w-md-editor-text-input {
+  overflow: clip !important;
 }
 
 [data-markdown-editor] .w-md-editor-text-input::placeholder {

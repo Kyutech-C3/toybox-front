@@ -15,8 +15,11 @@ type LiveModeDialogProps = {
   panelID: string;
   source: ReactNode;
   preview: ReactNode;
+  scrollSyncButton: ReactNode;
   sourceRef: RefObject<HTMLDivElement | null>;
   previewRef: RefObject<HTMLDivElement | null>;
+  imagePicker: ReactNode;
+  imageActions: ReactNode;
   onModeChange: (mode: EditorMode) => void;
   onClose: () => void;
 };
@@ -26,8 +29,11 @@ const LiveModeDialog = ({
   panelID,
   source,
   preview,
+  scrollSyncButton,
   sourceRef,
   previewRef,
+  imagePicker,
+  imageActions,
   onModeChange,
   onClose,
 }: LiveModeDialogProps) => {
@@ -89,11 +95,14 @@ const LiveModeDialog = ({
             <VerticalSplitRoundedIcon fontSize="small" />
             ライブモード
           </p>
-          <EditorModeTabs
-            mode={mode}
-            panelID={livePanelID}
-            onChange={handleModeChange}
-          />
+          <div className={styles["live-dialog-controls"]}>
+            <EditorModeTabs
+              mode={mode}
+              panelID={livePanelID}
+              onChange={handleModeChange}
+            />
+            {imageActions}
+          </div>
           <Button
             isIconOnly
             icon={<CloseRoundedIcon />}
@@ -102,6 +111,9 @@ const LiveModeDialog = ({
             onClick={handleCloseClick}
           />
         </header>
+        {imagePicker && (
+          <div className={styles["live-dialog-picker"]}>{imagePicker}</div>
+        )}
         <div
           id={livePanelID}
           role="tabpanel"
@@ -111,8 +123,11 @@ const LiveModeDialog = ({
           <div className={styles["live-source"]} ref={sourceRef}>
             {source}
           </div>
-          <div className={styles["live-preview"]} ref={previewRef}>
-            {preview}
+          <div className={styles["live-preview"]}>
+            <div className={styles["live-preview-content"]} ref={previewRef}>
+              {preview}
+            </div>
+            {scrollSyncButton}
           </div>
         </div>
       </div>

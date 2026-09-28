@@ -9,6 +9,7 @@ export type AssetUploadStatus = "uploading" | "success" | "error";
 export type EditorAsset = {
   key: string;
   assetID: string | null;
+  assetURL: string | null;
   previewURL: string | null;
   fileName: string;
   kind: AssetKind;

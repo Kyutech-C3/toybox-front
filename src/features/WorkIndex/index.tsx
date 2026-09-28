@@ -15,11 +15,8 @@ import { Pagination } from "@/shared/ui/Pagination";
 import TagSelector from "@/shared/ui/TagSelector";
 import WorkCardGrid, {
   PageSizeSelect,
-  useWorkGridColumns,
   useWorkPageSize,
 } from "@/shared/ui/WorkCardGrid";
-
-import type { CSSProperties } from "react";
 
 const WorkIndex = () => {
   const paginationRef = useRef<HTMLDivElement>(null);
@@ -31,10 +28,6 @@ const WorkIndex = () => {
   const viewerUserID = useUserStore((state) => state.user?.id);
   const accessToken = useAuthStore((state) => state.accessToken);
   const { itemsPerPage } = useWorkPageSize();
-  const { columns } = useWorkGridColumns();
-  const controlsStyle = {
-    "--work-card-columns": String(columns),
-  } as CSSProperties;
 
   const { data, totalCount } = useWorks({
     page: currentPage,
@@ -112,7 +105,7 @@ const WorkIndex = () => {
 
   return (
     <>
-      <div className={styles["work-index-header"]} style={controlsStyle}>
+      <div className={styles["work-index-header"]}>
         <TagSelector
           layout="top-page"
           allTags={searchableTags}

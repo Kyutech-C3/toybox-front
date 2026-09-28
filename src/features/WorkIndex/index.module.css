@@ -1,17 +1,6 @@
 .work-index-header {
-  --work-grid-width: min(
-    100%,
-    var(--content-max-width),
-    calc(
-      var(--card-max-width) *
-      var(--work-card-columns, 3) +
-      var(--grid-gap) *
-      (var(--work-card-columns, 3) - 1)
-    )
-  );
-
   box-sizing: border-box;
-  width: var(--work-grid-width);
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: var(--space-8);

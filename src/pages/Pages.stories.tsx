@@ -1,7 +1,14 @@
-import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { expect, within } from "storybook/test";
+import {
+  createMemoryRouter,
+  MemoryRouter,
+  Route,
+  RouterProvider,
+  Routes,
+} from "react-router-dom";
+import { expect, userEvent, within } from "storybook/test";
 import { SWRConfig, unstable_serialize } from "swr";
 
+import EditPage from "./EditPage";
 import NotFoundPage from "./NotFoundPage";
 import TopPage from "./TopPage";
 import UserPage from "./UserPage";
@@ -128,6 +135,50 @@ export const WorkDetail: Story = {
       canvas.getByRole("heading", { name: "Storybookで確認する作品" }),
     ).toBeVisible();
     await expect(canvas.getByText("まだコメントはありません。")).toBeVisible();
+  },
+};
+
+export const WorkEdit: Story = {
+  render: () => {
+    const router = createMemoryRouter(
+      [
+        {
+          path: "/edit/new",
+          element: (
+            <ToastProvider>
+              <SWRConfig
+                value={{
+                  fallback: {
+                    [unstable_serialize(["/tags", "storybook-token"])]: {
+                      tags: [],
+                    },
+                  },
+                  provider: () => new Map(),
+                }}
+              >
+                <EditPage isNewWork />
+              </SWRConfig>
+            </ToastProvider>
+          ),
+        },
+      ],
+      { initialEntries: ["/edit/new"] },
+    );
+    return <RouterProvider router={router} />;
+  },
+  beforeEach: () => {
+    useAuthStore.setState({ accessToken: "storybook-token" });
+    useUserStore.setState({
+      user: { id: "owner", display_name: "作者", icon_url: "" },
+      hasLoadFailed: false,
+    });
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByRole("heading", { name: "タイトル" }),
+    ).toBeVisible();
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
   },
 };
 

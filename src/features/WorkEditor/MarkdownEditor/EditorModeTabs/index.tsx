@@ -1,4 +1,5 @@
 import VerticalSplitRoundedIcon from "@mui/icons-material/VerticalSplitRounded";
+import ViewColumnRoundedIcon from "@mui/icons-material/ViewColumnRounded";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
 
 import styles from "./index.module.css";
@@ -29,6 +30,11 @@ const EDITOR_MODE_OPTIONS: SegmentedControlOption<EditorMode>[] = [
     value: "preview",
     label: "プレビュー",
     icon: <VisibilityRoundedIcon fontSize="small" />,
+  },
+  {
+    value: "split",
+    label: "分割",
+    icon: <ViewColumnRoundedIcon fontSize="small" />,
   },
   {
     value: "live",

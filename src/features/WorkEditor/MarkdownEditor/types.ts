@@ -1,1 +1,1 @@
-export type EditorMode = "edit" | "preview" | "live";
+export type EditorMode = "edit" | "preview" | "split" | "live";

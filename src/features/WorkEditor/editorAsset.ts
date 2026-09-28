@@ -53,9 +53,10 @@ const toEditorAssetFromAsset = (asset: Asset): EditorAsset => {
   return {
     key: `asset:${asset.id}`,
     assetID: asset.id,
+    assetURL: asset.url,
     previewURL: asset.url,
     fileName,
-    kind: getAssetKind(fileName),
+    kind: asset.asset_type === "image" ? "画像" : getAssetKind(fileName),
     status: "success",
     file: null,
     errorMessage: "",
@@ -65,6 +66,7 @@ const toEditorAssetFromAsset = (asset: Asset): EditorAsset => {
 export const createUploadingAsset = (file: File): EditorAsset => ({
   key: getFileAssetKey(file),
   assetID: null,
+  assetURL: null,
   previewURL: canPreviewAsset(getAssetKind(file.name))
     ? URL.createObjectURL(file)
     : null,
@@ -84,6 +86,7 @@ const toThumbnailAsset = (work: Work): EditorAsset | null => {
   return {
     key: `asset:${work.thumbnail_asset_id}`,
     assetID: work.thumbnail_asset_id,
+    assetURL: work.thumbnail_url,
     previewURL: work.thumbnail_url,
     fileName,
     kind: "画像",

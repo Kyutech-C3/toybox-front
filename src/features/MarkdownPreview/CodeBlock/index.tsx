@@ -14,11 +14,12 @@ import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 import { getCurrentTheme, subscribeTheme } from "@/util/theme";
 
 type CodeBlockProps = {
-  language: string;
+  language?: string;
+  fileName?: string;
   children: string;
 };
 
-const CodeBlock = ({ language, children }: CodeBlockProps) => {
+const CodeBlock = ({ language, fileName, children }: CodeBlockProps) => {
   const [isCopied, setCopied] = useState(false);
   const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
 
@@ -32,6 +33,7 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
 
   return (
     <div className={styles["code-block-container"]}>
+      {fileName && <div className={styles["file-name"]}>{fileName}</div>}
       <Button
         size="compact"
         isIconOnly
@@ -40,31 +42,42 @@ const CodeBlock = ({ language, children }: CodeBlockProps) => {
         aria-label="コードをコピー"
         icon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
       />
-      <SyntaxHighlighter
-        PreTag="div"
-        language={language}
-        style={theme === "dark" ? vscDarkPlus : coldarkCold}
-        codeTagProps={{
-          style: {
+      {language ? (
+        <SyntaxHighlighter
+          language={language}
+          style={theme === "dark" ? vscDarkPlus : coldarkCold}
+          codeTagProps={{
+            style: {
+              fontFamily: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+            },
+          }}
+          customStyle={{
             fontFamily: "inherit",
             fontSize: "inherit",
             lineHeight: "inherit",
-          },
-        }}
-        customStyle={{
-          fontFamily: "inherit",
-          fontSize: "inherit",
-          lineHeight: "inherit",
-          background: "var(--code-block-background-color)",
-          backgroundColor: "var(--code-block-background-color)",
-          border: "none",
-          padding: 0,
-          margin: 0,
-          overflow: "visible",
-        }}
-      >
-        {children}
-      </SyntaxHighlighter>
+            background: "var(--code-block-background-color)",
+            backgroundColor: "var(--code-block-background-color)",
+            padding: "0.5rem 2.75rem 0.5rem 0.5rem",
+            margin: 0,
+          }}
+        >
+          {children}
+        </SyntaxHighlighter>
+      ) : (
+        <pre style={{ paddingInlineEnd: "2.75rem", margin: 0 }}>
+          <code
+            style={{
+              fontFamily: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+            }}
+          >
+            {children}
+          </code>
+        </pre>
+      )}
     </div>
   );
 };

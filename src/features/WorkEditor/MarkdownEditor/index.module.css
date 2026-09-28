@@ -18,11 +18,60 @@
 
 .markdown-editor-header {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-start;
+  gap: var(--space-12);
+}
+
+.line-numbers {
+  position: relative;
+  z-index: 1;
+  width: calc(100% + var(--line-number-gutter-width));
+  margin-left: calc(-1 * var(--line-number-gutter-width));
+  pointer-events: none;
+  font-family: var(--md-editor-font-family);
+  font-size: 16px;
+  font-feature-settings: "liga", "clig";
+  font-variant-ligatures: common-ligatures;
+  line-height: var(--editor-line-height);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.line-number-row {
+  display: grid;
+  grid-template-columns: var(--line-number-gutter-width) minmax(0, 1fr);
+  min-height: var(--editor-line-height);
+}
+
+.line-number {
+  padding-right: 16px;
+  color: var(--font-muted-color);
+  font-size: 12px;
+  line-height: var(--editor-line-height);
+  text-align: right;
+}
+
+.line-measure {
+  visibility: hidden;
+}
+
+.image-insert-notice {
+  margin: 0;
+  color: var(--font-muted-color);
+  font-size: 14px;
 }
 
 .markdown-editor-panel {
   width: 100%;
+}
+
+.markdown-editor[data-mode="split"] .markdown-editor-panel {
+  flex: none;
+  grid-template-rows: minmax(var(--editor-min-height), 1fr);
+  max-height: 100dvh;
 }
 
 .edit-pane {
@@ -37,6 +86,7 @@
 }
 
 .preview-empty {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,5 +118,16 @@
 
   .preview-empty {
     font-size: 13px;
+  }
+
+  .markdown-editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+
+  .markdown-editor[data-mode="split"] .markdown-editor-panel {
+    grid-template-rows: repeat(2, minmax(var(--editor-min-height), 1fr));
+    max-height: calc(200dvh + var(--space-24));
   }
 }
