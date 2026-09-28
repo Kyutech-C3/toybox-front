@@ -25,8 +25,6 @@ npm run dev
 
 ## 技術構成
 
-作品説明の対応記法は [Markdown ガイド](./docs/markdown.md) を参照してください。
-
 - フレームワーク:Vite + React
 - ルーティング:react router dom
 - グローバル状態管理:Zustand

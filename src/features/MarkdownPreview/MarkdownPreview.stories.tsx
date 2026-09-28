@@ -104,7 +104,7 @@ export const MarkdownSyntaxSample: Story = {
       canvas.getByRole("heading", { name: "Markdown 記法テストドキュメント" }),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByRole("heading", { name: "最後の確認" }),
+      canvas.getByRole("heading", { name: "収録項目" }),
     ).toBeInTheDocument();
     const heading = canvas.getByRole("heading", {
       name: "入れ子を組み合わせた複雑な例",
@@ -116,6 +116,11 @@ export const MarkdownSyntaxSample: Story = {
       "href",
       `#${encodeURIComponent("入れ子を組み合わせた複雑な例")}`,
     );
+    const duplicateHeadings = canvas.getAllByRole("heading", {
+      name: "重複見出しの例",
+    });
+    await expect(duplicateHeadings).toHaveLength(2);
+    await expect(duplicateHeadings[1].id).toBe(`${duplicateHeadings[0].id}-1`);
     await expect(
       heading.firstElementChild?.getBoundingClientRect().left,
     ).toBeCloseTo(heading.getBoundingClientRect().left);
@@ -126,15 +131,20 @@ export const MarkdownSyntaxSample: Story = {
     const underline = canvas.getByText("下線を付けたい文字");
     const highlight = canvas.getByText("注目してほしい文字");
     const subscript = canvas.getByText("2", { selector: "sub" });
+    const superscript = canvas.getByText("10", { selector: "sup" });
     await expect(underline.tagName).toBe("U");
     await expect(highlight.tagName).toBe("MARK");
     await expect(subscript.tagName).toBe("SUB");
+    await expect(superscript.tagName).toBe("SUP");
+    await expect(
+      canvas.getByText("波線 1 個でも取り消し線", { selector: "del" }),
+    ).toBeVisible();
     await expect(getComputedStyle(highlight).color).toBe(
       getComputedStyle(canvasElement).color,
     );
     const inlineMath = canvasElement.querySelector("p .katex");
     const displayMath = canvasElement.querySelector(".katex-display .katex");
-    await expect(canvasElement.querySelectorAll(".katex")).toHaveLength(3);
+    await expect(canvasElement.querySelectorAll(".katex")).toHaveLength(5);
     await expect(inlineMath).not.toBeNull();
     await expect(displayMath).not.toBeNull();
     await expect(
@@ -144,7 +154,11 @@ export const MarkdownSyntaxSample: Story = {
       displayMath?.querySelector(".katex-mathml math"),
     ).not.toBeNull();
     await expect(canvasElement.querySelector(".katex-error")).toBeNull();
-    await expect(canvasElement.querySelector("script, iframe, dl")).toBeNull();
+    await expect(
+      canvasElement.querySelector(
+        "script, iframe, dl, font, video, audio, kbd, ruby",
+      ),
+    ).toBeNull();
     const securityDetails = canvas
       .getByText("属性を除去する折りたたみ", { selector: "summary" })
       .closest("details");
@@ -168,6 +182,11 @@ export const MarkdownSyntaxSample: Story = {
       await expect(image).toHaveAttribute("width", example.width);
       await expect(image).toHaveStyle({ width: `${example.width}px` });
       await expect(getComputedStyle(image).width).toBe(`${example.width}px`);
+    }
+    for (const name of ["幅が上限を超える画像", "幅と色を一緒に指定した画像"]) {
+      const image = canvas.getByAltText(name);
+      await expect(image).not.toHaveAttribute("width");
+      await expect(image).not.toHaveAttribute("style");
     }
     await expect(
       Reflect.get(window, "__toyboxMarkdownSampleExecuted"),
