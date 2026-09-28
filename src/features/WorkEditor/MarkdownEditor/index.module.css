@@ -24,6 +24,41 @@
   gap: var(--space-12);
 }
 
+.line-numbers {
+  position: absolute;
+  z-index: 1;
+  top: var(--editor-text-padding);
+  right: 16px;
+  left: 0;
+  pointer-events: none;
+  font-family: var(--md-editor-font-family);
+  font-size: 16px;
+  font-feature-settings: "liga", "clig";
+  font-variant-ligatures: common-ligatures;
+  line-height: var(--editor-line-height);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.line-number-row {
+  display: grid;
+  grid-template-columns: var(--line-number-gutter-width) minmax(0, 1fr);
+  min-height: var(--editor-line-height);
+}
+
+.line-number {
+  padding-right: 16px;
+  color: var(--font-muted-color);
+  font-size: 12px;
+  line-height: var(--editor-line-height);
+  text-align: right;
+}
+
+.line-measure {
+  visibility: hidden;
+}
+
 .image-insert-notice {
   margin: 0;
   color: var(--font-muted-color);

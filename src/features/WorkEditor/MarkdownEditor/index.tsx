@@ -1,4 +1,5 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 import SyncDisabledRoundedIcon from "@mui/icons-material/SyncDisabledRounded";
 import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
@@ -41,6 +42,7 @@ import type { ICommand } from "@uiw/react-md-editor";
 import type {
   ChangeEvent,
   ClipboardEvent,
+  CSSProperties,
   KeyboardEvent,
   SyntheticEvent,
 } from "react";
@@ -94,6 +96,9 @@ const MarkdownEditor = () => {
   const [isScrollSyncEnabled, setIsScrollSyncEnabled] = useState(true);
   const [selectedImageKey, setSelectedImageKey] = useState("");
   const [imageInsertNotice, setImageInsertNotice] = useState("");
+  const [lineNumberTarget, setLineNumberTarget] = useState<HTMLElement | null>(
+    null,
+  );
   const history = useMarkdownHistory({ description, sessionVersion });
   const panelID = useId();
   const editorRef = useRef<HTMLDivElement>(null);
@@ -115,6 +120,22 @@ const MarkdownEditor = () => {
   const images = assets.filter(isInsertableImage);
   const selectedImage =
     images.find((asset) => asset.key === selectedImageKey) ?? images[0];
+  const markdownLines = description.split("\n");
+  const lineNumberWidth = Math.max(
+    56,
+    String(markdownLines.length).length * 8 + 16,
+  );
+
+  useLayoutEffect(() => {
+    if (mode === "preview") {
+      setLineNumberTarget(null);
+      return;
+    }
+    setLineNumberTarget(
+      editorRef.current?.querySelector<HTMLElement>(".w-md-editor-text") ??
+        null,
+    );
+  }, [mode]);
 
   useLayoutEffect(() => {
     const pending = pendingInsertionRef.current;
@@ -478,7 +499,31 @@ const MarkdownEditor = () => {
         className={styles["markdown-editor"]}
         data-markdown-editor="true"
         data-mode={mode}
+        style={
+          {
+            "--line-number-gutter-width": `${lineNumberWidth}px`,
+          } as CSSProperties
+        }
       >
+        {lineNumberTarget &&
+          createPortal(
+            <div
+              className={styles["line-numbers"]}
+              data-testid="markdown-line-numbers"
+              aria-hidden="true"
+            >
+              {markdownLines.map((line, index) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: 行番号は行の位置を表し、行ごとの状態を持たない
+                <div className={styles["line-number-row"]} key={index}>
+                  <span className={styles["line-number"]}>{index + 1}</span>
+                  <span className={styles["line-measure"]}>
+                    {line || "\u200b"}
+                  </span>
+                </div>
+              ))}
+            </div>,
+            lineNumberTarget,
+          )}
         <div className={styles["markdown-editor-header"]}>
           <EditorModeTabs mode={mode} panelID={panelID} onChange={setMode} />
           {mode !== "preview" && mode !== "live" && markdownImageActions}

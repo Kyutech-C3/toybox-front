@@ -100,7 +100,8 @@
 /* 入力量に応じてエディタ自体が伸びる。初期表示は既定行数ぶんを確保する */
 [data-markdown-editor] .w-md-editor-text {
   min-height: var(--editor-min-height) !important;
-  padding: var(--editor-text-padding) 16px;
+  padding: var(--editor-text-padding) 16px var(--editor-text-padding)
+    var(--line-number-gutter-width);
   font-size: 16px !important;
   line-height: var(--editor-line-height) !important;
 }

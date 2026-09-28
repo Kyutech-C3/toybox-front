@@ -5,6 +5,7 @@ import {
   fn,
   spyOn,
   userEvent,
+  waitFor,
   within,
 } from "storybook/test";
 
@@ -151,6 +152,101 @@ export const ImageInsertion: Story = {
     await expect(
       canvas.queryByRole("region", { name: "説明に画像を入れる" }),
     ).not.toBeInTheDocument();
+  },
+};
+
+const LINE_NUMBER_DESCRIPTION = [
+  "1 行目",
+  "2 行目",
+  "3 行目",
+  "長い行 ".repeat(90),
+  "5 行目",
+].join("\n");
+
+export const LineNumbers: Story = {
+  render: () => <ImageInsertionExample description={LINE_NUMBER_DESCRIPTION} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const numbers = await canvas.findByTestId("markdown-line-numbers");
+    const rows = [...numbers.children] as HTMLElement[];
+    await expect(rows).toHaveLength(5);
+    await expect(rows.map((row) => row.firstElementChild?.textContent)).toEqual(
+      ["1", "2", "3", "4", "5"],
+    );
+    await expect(rows[3].getBoundingClientRect().height).toBeGreaterThan(24);
+    await expect(rows[4].getBoundingClientRect().top).toBeCloseTo(
+      rows[3].getBoundingClientRect().bottom,
+      0,
+    );
+    const highlightedText = canvasElement.querySelector(
+      ".w-md-editor-text-pre > code",
+    );
+    if (!highlightedText)
+      throw new Error("Markdown の入力表示が見つかりません");
+    const getTextRect = (text: string) => {
+      const textWalker = document.createTreeWalker(
+        highlightedText,
+        NodeFilter.SHOW_TEXT,
+      );
+      for (
+        let textNode = textWalker.nextNode();
+        textNode;
+        textNode = textWalker.nextNode()
+      ) {
+        const offset = textNode.textContent?.indexOf(text) ?? -1;
+        if (offset < 0) continue;
+        const range = document.createRange();
+        range.setStart(textNode, offset);
+        range.setEnd(textNode, offset + 1);
+        return range.getBoundingClientRect();
+      }
+      throw new Error(`${text} の入力表示が見つかりません`);
+    };
+    await expect(
+      Math.abs(
+        getTextRect("5 行目").top -
+          getTextRect("1 行目").top -
+          (rows[4].getBoundingClientRect().top -
+            rows[0].getBoundingClientRect().top),
+      ),
+    ).toBeLessThan(2);
+    const firstNumber = rows[0].firstElementChild;
+    if (!(firstNumber instanceof HTMLElement))
+      throw new Error("1 行目の行番号が見つかりません");
+    await expect(getComputedStyle(firstNumber).fontSize).toBe("12px");
+    const numberRange = document.createRange();
+    numberRange.selectNodeContents(firstNumber);
+    const numberGap =
+      getTextRect("1 行目").left - numberRange.getBoundingClientRect().right;
+    await expect(numberGap).toBeGreaterThanOrEqual(14);
+    await expect(numberGap).toBeLessThan(18);
+
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    if (!(input instanceof HTMLTextAreaElement))
+      throw new Error("説明の入力欄が見つかりません");
+    await userEvent.click(input);
+    input.setSelectionRange(input.value.length, input.value.length);
+    await userEvent.type(input, "{Enter}6 行目");
+    await expect(numbers.children).toHaveLength(6);
+    await expect(numbers.lastElementChild?.firstElementChild).toHaveTextContent(
+      "6",
+    );
+
+    await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
+    await waitFor(() =>
+      expect(canvas.getByTestId("markdown-line-numbers")).toBeVisible(),
+    );
+    await userEvent.click(canvas.getByRole("tab", { name: "ライブ" }));
+    await waitFor(() =>
+      expect(canvas.getByTestId("markdown-line-numbers")).toBeVisible(),
+    );
+    await userEvent.click(
+      within(
+        canvas.getByRole("dialog", { name: "ライブモードの全画面表示" }),
+      ).getByRole("tab", {
+        name: "プレビュー",
+      }),
+    );
   },
 };
 
