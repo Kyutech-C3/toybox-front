@@ -45,9 +45,32 @@ const MarkdownImagePicker = ({
 }: MarkdownImagePickerProps) => {
   const listRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLButtonElement>(null);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const copyResetTimerRef = useRef<number | null>(null);
   const selectedImage =
     images.find((asset) => asset.key === selectedKey) ?? images[0];
   const activeImageKey = selectedImage?.key;
+
+  useEffect(
+    () => () => {
+      if (copyResetTimerRef.current !== null) {
+        window.clearTimeout(copyResetTimerRef.current);
+      }
+    },
+    [],
+  );
+
+  const handleCopy = async (asset: EditorAsset) => {
+    if (!(await copyTextToClipboard(getAssetImageMarkdown(asset)))) return;
+    if (copyResetTimerRef.current !== null) {
+      window.clearTimeout(copyResetTimerRef.current);
+    }
+    setCopiedKey(asset.key);
+    copyResetTimerRef.current = window.setTimeout(
+      () => setCopiedKey(null),
+      2000,
+    );
+  };
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -76,23 +99,50 @@ const MarkdownImagePicker = ({
     <section className={styles["image-picker"]} aria-label="説明に画像を入れる">
       <div ref={listRef} className={styles["image-list"]}>
         {images.map((asset) => (
-          <button
-            key={asset.key}
-            ref={selectedImage.key === asset.key ? activeButtonRef : undefined}
-            type="button"
-            className={styles["image-button"]}
-            data-active={selectedImage.key === asset.key}
-            aria-pressed={selectedImage.key === asset.key}
-            aria-label={`${asset.fileName}を選択`}
-            title={asset.fileName}
-            onClick={() => onSelect(asset)}
-          >
-            {asset.previewURL ? (
-              <LoadingImage src={asset.previewURL} alt="" loading="lazy" />
-            ) : (
-              <ImageOutlinedIcon aria-hidden="true" />
-            )}
-          </button>
+          <div key={asset.key} className={styles["image-item"]}>
+            <button
+              ref={
+                selectedImage.key === asset.key ? activeButtonRef : undefined
+              }
+              type="button"
+              className={styles["image-button"]}
+              data-active={selectedImage.key === asset.key}
+              aria-pressed={selectedImage.key === asset.key}
+              aria-label={`${asset.fileName}を選択`}
+              title={asset.fileName}
+              onClick={() => onSelect(asset)}
+            >
+              {asset.previewURL ? (
+                <LoadingImage src={asset.previewURL} alt="" loading="lazy" />
+              ) : (
+                <ImageOutlinedIcon aria-hidden="true" />
+              )}
+            </button>
+            <Button
+              className={styles["image-copy-button"]}
+              size="compact"
+              variant="secondary"
+              isIconOnly
+              icon={
+                copiedKey === asset.key ? (
+                  <CheckRoundedIcon />
+                ) : (
+                  <ContentCopyRoundedIcon />
+                )
+              }
+              aria-label={
+                copiedKey === asset.key
+                  ? `${asset.fileName}をコピーしました`
+                  : `${asset.fileName}の Markdown をコピー`
+              }
+              title={
+                copiedKey === asset.key
+                  ? "コピーしました"
+                  : "画像の Markdown をコピー"
+              }
+              onClick={() => void handleCopy(asset)}
+            />
+          </div>
         ))}
       </div>
     </section>
@@ -103,16 +153,11 @@ export const MarkdownImageActions = ({
   selectedImage,
   onInsert,
 }: MarkdownImageActionsProps) => {
-  const [isCopied, setCopied] = useState(false);
   const [isInserted, setInserted] = useState(false);
-  const copyResetTimerRef = useRef<number | null>(null);
   const insertResetTimerRef = useRef<number | null>(null);
 
   useEffect(
     () => () => {
-      if (copyResetTimerRef.current !== null) {
-        window.clearTimeout(copyResetTimerRef.current);
-      }
       if (insertResetTimerRef.current !== null) {
         window.clearTimeout(insertResetTimerRef.current);
       }
@@ -132,15 +177,6 @@ export const MarkdownImageActions = ({
       2000,
     );
   };
-  const handleCopy = async () => {
-    const didCopy = await copyTextToClipboard(markdown);
-    if (!didCopy) return;
-    if (copyResetTimerRef.current !== null) {
-      window.clearTimeout(copyResetTimerRef.current);
-    }
-    setCopied(true);
-    copyResetTimerRef.current = window.setTimeout(() => setCopied(false), 2000);
-  };
 
   return (
     <div className={styles["action-row"]}>
@@ -154,15 +190,6 @@ export const MarkdownImageActions = ({
       >
         カーソル位置に挿入
       </Button>
-      <Button
-        size="small"
-        variant="secondary"
-        isIconOnly
-        icon={isCopied ? <CheckRoundedIcon /> : <ContentCopyRoundedIcon />}
-        aria-label={isCopied ? "コピーしました" : "画像の Markdown をコピー"}
-        title={isCopied ? "コピーしました" : "画像の Markdown をコピー"}
-        onClick={() => void handleCopy()}
-      />
     </div>
   );
 };

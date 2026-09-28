@@ -1,5 +1,14 @@
-import { createContext, useContext, useEffect, useId, useRef } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import Markdown from "react-markdown";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import { toString as getText } from "hast-util-to-string";
 import rehypeKatex from "rehype-katex";
@@ -20,16 +29,22 @@ import rehypeMarkdownFeatures, {
   HEADING_ID_PREFIX,
   PROTECTED_HEADING_ID_PREFIX,
 } from "./rehypeMarkdownFeatures";
-import remarkPlainUrls from "./remarkPlainUrls";
+import remarkSoftBreaks from "./remarkSoftBreaks";
 
+import Button from "@/shared/ui/Button";
 import LoadingImage from "@/shared/ui/LoadingImage";
 import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 
-import type { ComponentProps, MouseEvent } from "react";
+import type { ComponentProps, MouseEvent, Ref } from "react";
 import type { ExtraProps } from "react-markdown";
 
 const TASK_LABEL_CONTEXT = createContext<string | undefined>(undefined);
+const IMAGE_LINK_CONTEXT = createContext(false);
 const MAX_IMAGE_WIDTH = 2000;
+
+type PreviewImage = { src: string; alt: string };
+type MarkdownImageDialogHandle = { open: (image: PreviewImage) => void };
+type MarkdownImageDialogProps = { ref: Ref<MarkdownImageDialogHandle> };
 
 const getImagePixelWidth = (value: unknown): number | undefined => {
   if (typeof value !== "string" && typeof value !== "number") return;
@@ -138,13 +153,139 @@ const MarkdownInput = ({ node, ...props }: MarkdownInputProps) => {
   return <input {...props} aria-labelledby={labelID} />;
 };
 
+type MarkdownImageProps = ComponentProps<"img"> &
+  ExtraProps & { onOpen: (image: PreviewImage) => void };
+
+const MarkdownImage = ({
+  node,
+  width,
+  style,
+  src,
+  alt = "",
+  onOpen,
+  ...props
+}: MarkdownImageProps) => {
+  const isLinked = useContext(IMAGE_LINK_CONTEXT);
+  const displayWidth =
+    getImagePixelWidth(style?.width) ?? getImagePixelWidth(width);
+  const image = (
+    <LoadingImage
+      {...props}
+      src={src}
+      alt={alt}
+      width={displayWidth}
+      style={displayWidth ? { width: displayWidth } : undefined}
+      isIntrinsic
+    />
+  );
+
+  if (isLinked || !src) return image;
+
+  return (
+    <button
+      type="button"
+      className={styles["image-open-button"]}
+      aria-label={alt ? `${alt}を全画面表示` : "画像を全画面表示"}
+      onClick={() => onOpen({ src, alt })}
+    >
+      {image}
+    </button>
+  );
+};
+
+function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const isNativeFullscreenRef = useRef(false);
+  const [fullscreenImage, setFullscreenImage] = useState<PreviewImage | null>(
+    null,
+  );
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!isNativeFullscreenRef.current) return;
+      if (document.fullscreenElement === dialogRef.current) return;
+      isNativeFullscreenRef.current = false;
+      if (dialogRef.current?.open) dialogRef.current.close();
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  const handleClose = () => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (document.fullscreenElement === dialog) {
+      void document
+        .exitFullscreen()
+        .catch(() => {})
+        .finally(() => {
+          if (dialog.open) dialog.close();
+        });
+      return;
+    }
+    dialog.close();
+  };
+
+  useImperativeHandle(ref, () => ({
+    open(image) {
+      setFullscreenImage(image);
+      const dialog = dialogRef.current;
+      if (!dialog || dialog.open) return;
+      dialog.showModal();
+      if (dialog.requestFullscreen) {
+        void dialog
+          .requestFullscreen()
+          .then(() => {
+            isNativeFullscreenRef.current =
+              document.fullscreenElement === dialog;
+          })
+          .catch(() => {});
+      }
+    },
+  }));
+
+  return (
+    <dialog
+      ref={dialogRef}
+      className={styles["image-dialog"]}
+      aria-label="画像の全画面表示"
+      onClose={() => {
+        if (!dialogRef.current?.open) setFullscreenImage(null);
+      }}
+      onKeyDown={(event) => {
+        if (event.key !== "Escape") return;
+        event.preventDefault();
+        handleClose();
+      }}
+    >
+      <Button
+        className={styles["image-dialog-close"]}
+        variant="secondary"
+        isIconOnly
+        icon={<CloseRoundedIcon />}
+        aria-label="全画面表示を閉じる"
+        onClick={handleClose}
+      />
+      {fullscreenImage && (
+        <img src={fullscreenImage.src} alt={fullscreenImage.alt} />
+      )}
+    </dialog>
+  );
+}
+
 interface MarkdownPreviewProps {
   content: string;
 }
 
 const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const imageDialogRef = useRef<MarkdownImageDialogHandle>(null);
   const restoredHashRef = useRef<string | undefined>(undefined);
+
+  const handleOpenImage = (image: PreviewImage) => {
+    imageDialogRef.current?.open(image);
+  };
 
   useEffect(() => {
     // 本文が非同期で読み込まれたときも共有 URL の見出しへ移動する。
@@ -199,7 +340,7 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
   return (
     <div className={styles["markdown-preview"]} ref={containerRef}>
       <Markdown
-        remarkPlugins={[remarkGfm, remarkMath, remarkPlainUrls]}
+        remarkPlugins={[remarkGfm, remarkMath, remarkSoftBreaks]}
         remarkRehypeOptions={{
           footnoteLabel: "脚注",
           footnoteBackLabel: "本文へ戻る",
@@ -228,17 +369,8 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
             );
           },
           li: MarkdownListItem,
-          img({ node, width, style, ...props }) {
-            const displayWidth =
-              getImagePixelWidth(style?.width) ?? getImagePixelWidth(width);
-            return (
-              <LoadingImage
-                {...props}
-                width={displayWidth}
-                style={displayWidth ? { width: displayWidth } : undefined}
-                isIntrinsic
-              />
-            );
+          img(props) {
+            return <MarkdownImage {...props} onOpen={handleOpenImage} />;
           },
           input: MarkdownInput,
           a({ node, href, ...props }) {
@@ -264,14 +396,16 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
                 ? image.properties.alt
                 : undefined;
             return (
-              <a
-                {...props}
-                href={href}
-                aria-label={props["aria-label"] ?? imageLabel}
-                onClick={href ? handleLinkClick : undefined}
-                target={isExternal ? "_blank" : undefined}
-                rel={isExternal ? "noopener noreferrer" : undefined}
-              />
+              <IMAGE_LINK_CONTEXT.Provider value={!!image}>
+                <a
+                  {...props}
+                  href={href}
+                  aria-label={props["aria-label"] ?? imageLabel}
+                  onClick={href ? handleLinkClick : undefined}
+                  target={isExternal ? "_blank" : undefined}
+                  rel={isExternal ? "noopener noreferrer" : undefined}
+                />
+              </IMAGE_LINK_CONTEXT.Provider>
             );
           },
           pre({ node, children, ...props }) {
@@ -305,6 +439,7 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
       >
         {content}
       </Markdown>
+      <MarkdownImageDialog ref={imageDialogRef} />
     </div>
   );
 };

@@ -96,7 +96,7 @@ const ImageInsertionExample = ({
 };
 
 export const ImageInsertion: Story = {
-  render: () => <ImageInsertionExample />,
+  render: () => <ImageInsertionExample hasSecondImage />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByRole("textbox", { name: "説明" });
@@ -112,8 +112,23 @@ export const ImageInsertion: Story = {
       name: "Markdown の表示モード",
     }).parentElement;
     await expect(modeHeader).toContainElement(insertButton);
-    await expect(modeHeader).toContainElement(
-      canvas.getByRole("button", { name: "画像の Markdown をコピー" }),
+    const sampleButton = canvas.getByRole("button", {
+      name: "sample.pngを選択",
+    });
+    const secondCopyButton = canvas.getByRole("button", {
+      name: "second.pngの Markdown をコピー",
+    });
+    await expect(modeHeader).not.toContainElement(secondCopyButton);
+    const secondButton = canvas.getByRole("button", {
+      name: "second.pngを選択",
+    });
+    const imageBounds = secondButton.getBoundingClientRect();
+    const copyBounds = secondCopyButton.getBoundingClientRect();
+    await expect(imageBounds.width).toBeGreaterThanOrEqual(64);
+    await expect(copyBounds.top).toBeGreaterThanOrEqual(imageBounds.top);
+    await expect(copyBounds.right).toBeLessThanOrEqual(imageBounds.right);
+    await expect(copyBounds.left).toBeGreaterThan(
+      imageBounds.left + imageBounds.width / 2,
     );
     await userEvent.click(insertButton);
     await expect(input).toHaveValue(
@@ -133,13 +148,15 @@ export const ImageInsertion: Story = {
       value: { writeText },
     });
     try {
-      await userEvent.click(
-        canvas.getByRole("button", { name: "画像の Markdown をコピー" }),
-      );
+      await userEvent.click(secondCopyButton);
       await expect(writeText).toHaveBeenCalledWith(
-        "![sample](https://example.com/sample.png)",
+        "![second](https://example.com/second.png)",
       );
-      const copyButton = canvas.getByRole("button", { name: "コピーしました" });
+      await expect(sampleButton).toHaveAttribute("aria-pressed", "true");
+      await expect(secondButton).toHaveAttribute("aria-pressed", "false");
+      const copyButton = canvas.getByRole("button", {
+        name: "second.pngをコピーしました",
+      });
       await expect(copyButton).toContainElement(
         within(copyButton).getByTestId("CheckRoundedIcon"),
       );

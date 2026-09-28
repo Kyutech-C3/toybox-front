@@ -84,27 +84,83 @@ export const LinksAndLineBreaks: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const paragraphs = canvasElement.querySelectorAll("p");
-    await expect(paragraphs[0].querySelector("br")).toBeNull();
+    await expect(paragraphs[0].querySelectorAll("br")).toHaveLength(1);
     await expect(paragraphs[1].querySelector("br")).not.toBeNull();
     await expect(paragraphs[2].textContent).toBe(
       "https://example.com www.example.com a@example.com",
     );
-    await expect(paragraphs[2].querySelector("a")).toBeNull();
+    const rawLinks = paragraphs[2].querySelectorAll("a");
+    await expect(rawLinks).toHaveLength(3);
+    await expect(rawLinks[0]).toHaveAttribute("href", "https://example.com");
+    await expect(rawLinks[0]).toHaveAttribute("target", "_blank");
+    await expect(rawLinks[1]).toHaveAttribute("target", "_blank");
+    await expect(rawLinks[2]).toHaveAttribute("href", "mailto:a@example.com");
     for (const name of ["外部", "https://example.com"]) {
-      await expect(canvas.getByRole("link", { name })).toHaveAttribute(
-        "target",
-        "_blank",
-      );
-      await expect(canvas.getByRole("link", { name })).toHaveAttribute(
-        "rel",
-        "noopener noreferrer",
-      );
+      for (const link of canvas.getAllByRole("link", { name })) {
+        await expect(link).toHaveAttribute("target", "_blank");
+        await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+      }
     }
     for (const name of ["内部", "ページ内"]) {
       await expect(canvas.getByRole("link", { name })).not.toHaveAttribute(
         "target",
+        "_blank",
       );
     }
+  },
+};
+
+export const ImageFullscreen: Story = {
+  args: {
+    content:
+      "![拡大する画像](/favicon-192.png)\n\n[![リンク付き画像](/favicon-192.png)](https://example.com)",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const imageButton = canvas.getByRole("button", {
+      name: "拡大する画像を全画面表示",
+    });
+    await expect(canvasElement.querySelector("a button")).toBeNull();
+    await expect(
+      canvas.getByRole("link", { name: "リンク付き画像" }),
+    ).toHaveAttribute("href", "https://example.com");
+    await userEvent.click(imageButton);
+    const dialog = canvas.getByRole("dialog", { name: "画像の全画面表示" });
+    await expect(dialog).toBeVisible();
+    await expect(within(dialog).getByAltText("拡大する画像")).toHaveAttribute(
+      "src",
+      "/favicon-192.png",
+    );
+    await expect(dialog.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+      window.innerWidth - 1,
+    );
+    await expect(
+      within(dialog).queryByRole("button", { name: /次の画像|前の画像/ }),
+    ).toBeNull();
+    await userEvent.click(
+      within(dialog).getByRole("button", { name: "全画面表示を閉じる" }),
+    );
+    await expect(dialog).not.toBeVisible();
+    await userEvent.click(imageButton);
+    await expect(dialog).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await expect(dialog).not.toBeVisible();
+  },
+};
+
+export const ImageFullscreenKeyboard: Story = {
+  args: { content: "![キーボードで拡大](/favicon-192.png)" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const imageButton = canvas.getByRole("button", {
+      name: "キーボードで拡大を全画面表示",
+    });
+    imageButton.focus();
+    await userEvent.keyboard("{Enter}");
+    const dialog = canvas.getByRole("dialog", { name: "画像の全画面表示" });
+    await expect(dialog).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await expect(dialog).not.toBeVisible();
   },
 };
 
