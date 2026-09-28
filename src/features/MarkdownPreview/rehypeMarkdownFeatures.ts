@@ -3,6 +3,12 @@ import { visit } from "unist-util-visit";
 import type { Root } from "hast";
 
 export const HEADING_ID_PREFIX = "markdown-heading-";
+export const PROTECTED_HEADING_ID_PREFIX = `user-content-${HEADING_ID_PREFIX}`;
+
+export const getHeadingSlug = (id: string): string | undefined =>
+  id.startsWith(PROTECTED_HEADING_ID_PREFIX)
+    ? id.slice(PROTECTED_HEADING_ID_PREFIX.length)
+    : undefined;
 
 const ALERT_TYPES = new Set(["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"]);
 
@@ -60,7 +66,9 @@ const rehypeMarkdownFeatures = () => (tree: Root) => {
       return;
     }
     const target = targets.get(fragment);
-    if (target) node.properties.href = `#${encodeURIComponent(target)}`;
+    if (target) {
+      node.properties.href = `#${encodeURIComponent(getHeadingSlug(target) ?? target)}`;
+    }
   });
 };
 

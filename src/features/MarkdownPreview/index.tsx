@@ -12,11 +12,14 @@ import styles from "./index.module.css";
 import MarkdownAlert from "./MarkdownAlert";
 import { MARKDOWN_SCHEMA } from "./markdownSchema";
 import rehypeMarkdownFeatures, {
+  getHeadingSlug,
   HEADING_ID_PREFIX,
+  PROTECTED_HEADING_ID_PREFIX,
 } from "./rehypeMarkdownFeatures";
 import remarkPlainUrls from "./remarkPlainUrls";
 
 import LoadingImage from "@/shared/ui/LoadingImage";
+import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 
 import type { ComponentProps, MouseEvent } from "react";
 import type { ExtraProps } from "react-markdown";
@@ -29,6 +32,20 @@ const openContainingDetails = (target: HTMLElement) => {
     details.open = true;
     details = details.parentElement?.closest("details") ?? null;
   }
+};
+
+const findMarkdownTarget = (container: HTMLElement, fragment: string) => {
+  const directTarget = document.getElementById(fragment);
+  if (directTarget && container.contains(directTarget)) return directTarget;
+
+  const heading = document.getElementById(
+    `${PROTECTED_HEADING_ID_PREFIX}${fragment}`,
+  );
+  return heading &&
+    /^H[1-6]$/.test(heading.tagName) &&
+    container.contains(heading)
+    ? heading
+    : null;
 };
 
 type MarkdownListItemProps = ComponentProps<"li"> & ExtraProps;
@@ -52,6 +69,7 @@ const MarkdownHeading = ({
   ...props
 }: MarkdownHeadingProps) => {
   const titleID = useId();
+  const headingSlug = id ? getHeadingSlug(id) : undefined;
   const name = node?.tagName;
   const Tag =
     name === "h1" ||
@@ -65,12 +83,29 @@ const MarkdownHeading = ({
   // 脚注の見出しは参照用 ID を保持し、本文の見出しリンクとは分ける。
   return (
     <Tag {...props} id={id} aria-labelledby={titleID}>
-      <span id={titleID}>{children}</span>
-      {id?.startsWith(`user-content-${HEADING_ID_PREFIX}`) ? (
+      {headingSlug !== undefined ? (
         <a
           className={styles["heading-link"]}
-          href={`#${encodeURIComponent(id)}`}
-          aria-label={`「${node ? getText(node) : "見出し"}」へのリンク`}
+          href={`#${encodeURIComponent(headingSlug)}`}
+          aria-label={`「${node ? getText(node) : "見出し"}」へのリンクをコピー`}
+          onClick={(event) => {
+            if (
+              event.ctrlKey ||
+              event.metaKey ||
+              event.shiftKey ||
+              event.altKey
+            )
+              return;
+            event.preventDefault();
+            const href = event.currentTarget.href;
+            const target = event.currentTarget.parentElement;
+            if (target) {
+              openContainingDetails(target);
+              window.location.hash = `#${encodeURIComponent(headingSlug)}`;
+              target.scrollIntoView();
+            }
+            void copyTextToClipboard(href);
+          }}
         >
           <LinkRoundedIcon
             className={styles["heading-link-icon"]}
@@ -78,6 +113,7 @@ const MarkdownHeading = ({
           />
         </a>
       ) : null}
+      <span id={titleID}>{children}</span>
     </Tag>
   );
 };
@@ -100,19 +136,29 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
   useEffect(() => {
     // 本文が非同期で読み込まれたときも共有 URL の見出しへ移動する。
     if (!content.trim()) return;
-    let fragment = "";
-    try {
-      fragment = decodeURIComponent(window.location.hash.slice(1));
-    } catch {
-      return;
-    }
-    if (!fragment || restoredHashRef.current === fragment) return;
-    const target = document.getElementById(fragment);
-    if (target && containerRef.current?.contains(target)) {
-      openContainingDetails(target);
-      target.scrollIntoView();
-      restoredHashRef.current = fragment;
-    }
+    const restoreHash = () => {
+      let fragment = "";
+      try {
+        fragment = decodeURIComponent(window.location.hash.slice(1));
+      } catch {
+        return;
+      }
+      if (!fragment || restoredHashRef.current === fragment) return;
+      const container = containerRef.current;
+      const target = container && findMarkdownTarget(container, fragment);
+      if (target) {
+        openContainingDetails(target);
+        target.scrollIntoView();
+        restoredHashRef.current = fragment;
+      }
+    };
+    restoreHash();
+    const handleHashChange = () => {
+      restoredHashRef.current = undefined;
+      restoreHash();
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
   }, [content]);
 
   const handleLinkClick = (event: MouseEvent<HTMLAnchorElement>) => {
@@ -126,9 +172,14 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
     } catch {
       return;
     }
-    const target = document.getElementById(fragment);
-    if (target && containerRef.current?.contains(target)) {
-      openContainingDetails(target);
+    const container = containerRef.current;
+    const target = container && findMarkdownTarget(container, fragment);
+    if (!target) return;
+    openContainingDetails(target);
+    if (target.id !== fragment) {
+      event.preventDefault();
+      window.location.hash = href;
+      target.scrollIntoView();
     }
   };
 

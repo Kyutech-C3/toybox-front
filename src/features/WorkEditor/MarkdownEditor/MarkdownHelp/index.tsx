@@ -4,7 +4,7 @@ const EXAMPLES = [
   {
     name: "見出し",
     syntax: "## 使い方",
-    description: "見出し横のリンクをクリックできます。同名の見出しも使えます。",
+    description: "左側のアイコンから見出しへのリンクをコピーできます。",
   },
   {
     name: "文字の装飾",

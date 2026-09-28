@@ -14,9 +14,20 @@
     scroll-margin-top: calc(var(--header-height) + 1rem);
   }
 
+  :is(h1, h2, h3, h4, h5, h6) {
+    position: relative;
+  }
+
   a.heading-link {
-    margin-left: 0.35rem;
-    color: var(--link-color);
+    position: absolute;
+    top: 0;
+    right: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 0.75em;
+    height: 1.7em;
+    color: var(--font-muted-color);
     border-bottom: none;
 
     &:hover .heading-link-icon,
@@ -169,6 +180,7 @@
   /* Emphasis */
   em {
     font-style: italic;
+    font-synthesis: style;
   }
 
   u {

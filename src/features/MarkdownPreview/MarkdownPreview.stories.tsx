@@ -99,6 +99,23 @@ export const MarkdownSyntaxSample: Story = {
     await expect(
       canvas.getByRole("heading", { name: "最後の確認" }),
     ).toBeInTheDocument();
+    const heading = canvas.getByRole("heading", {
+      name: "入れ子を組み合わせた複雑な例",
+    });
+    await expect(heading.id).toBe(
+      "user-content-markdown-heading-入れ子を組み合わせた複雑な例",
+    );
+    await expect(heading.firstElementChild).toHaveAttribute(
+      "href",
+      `#${encodeURIComponent("入れ子を組み合わせた複雑な例")}`,
+    );
+    await expect(
+      heading.lastElementChild?.getBoundingClientRect().left,
+    ).toBeCloseTo(heading.getBoundingClientRect().left);
+    const italic = canvas.getByText("アスタリスク1個による斜体");
+    await expect(italic.tagName).toBe("EM");
+    await expect(getComputedStyle(italic).fontStyle).toBe("italic");
+    await expect(getComputedStyle(italic).fontSynthesis).toBe("style");
   },
 };
 
@@ -121,12 +138,36 @@ export const HeadingLinksAndFootnotes: Story = {
       canvas.getByRole("link", { name: "公式サイト" }),
     ).toHaveAttribute("href", "https://example.com");
     await expect(headings[0].id).not.toBe(headings[1].id);
+    const headingLink = canvas.getAllByRole("link", {
+      name: "「概要」へのリンクをコピー",
+    })[0];
+    await expect(headings[0].firstElementChild).toBe(headingLink);
+    const icon = headingLink.querySelector("svg");
+    if (icon && window.matchMedia("(hover: hover)").matches) {
+      await expect(getComputedStyle(icon).opacity).toBe("0");
+      headingLink.focus();
+      await expect(getComputedStyle(icon).opacity).toBe("1");
+      headingLink.blur();
+    }
+    const originalURL = window.location.href;
+    const copy = spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+    try {
+      await userEvent.click(headingLink);
+      await expect(copy).toHaveBeenCalledWith(
+        new URL(headingLink.getAttribute("href") ?? "", window.location.href)
+          .href,
+      );
+      await expect(decodeURIComponent(window.location.hash)).toBe("#概要");
+    } finally {
+      copy.mockRestore();
+      window.history.replaceState(null, "", originalURL);
+    }
     await expect(
       canvas.getByRole("link", { name: "最初の概要" }),
-    ).toHaveAttribute("href", `#${encodeURIComponent(headings[0].id)}`);
+    ).toHaveAttribute("href", `#${encodeURIComponent("概要")}`);
     await expect(
       canvas.getByRole("link", { name: "次の概要" }),
-    ).toHaveAttribute("href", `#${encodeURIComponent(headings[1].id)}`);
+    ).toHaveAttribute("href", `#${encodeURIComponent("概要-1")}`);
     for (const reference of canvasElement.querySelectorAll<HTMLAnchorElement>(
       "[data-footnote-ref]",
     )) {
