@@ -16,6 +16,10 @@ type MarkdownImagePickerProps = {
   images: EditorAsset[];
   selectedKey: string;
   onSelect: (asset: EditorAsset) => void;
+};
+
+type MarkdownImageActionsProps = {
+  selectedImage: EditorAsset;
   onInsert: (markdown: string) => boolean;
 };
 
@@ -38,29 +42,12 @@ const MarkdownImagePicker = ({
   images,
   selectedKey,
   onSelect,
-  onInsert,
 }: MarkdownImagePickerProps) => {
-  const [isCopied, setCopied] = useState(false);
-  const [isInserted, setInserted] = useState(false);
-  const copyResetTimerRef = useRef<number | null>(null);
-  const insertResetTimerRef = useRef<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLButtonElement>(null);
   const selectedImage =
     images.find((asset) => asset.key === selectedKey) ?? images[0];
   const activeImageKey = selectedImage?.key;
-
-  useEffect(
-    () => () => {
-      if (copyResetTimerRef.current !== null) {
-        window.clearTimeout(copyResetTimerRef.current);
-      }
-      if (insertResetTimerRef.current !== null) {
-        window.clearTimeout(insertResetTimerRef.current);
-      }
-    },
-    [],
-  );
 
   useLayoutEffect(() => {
     const list = listRef.current;
@@ -85,6 +72,54 @@ const MarkdownImagePicker = ({
 
   if (!selectedImage?.assetURL) return null;
 
+  return (
+    <section className={styles["image-picker"]} aria-label="説明に画像を入れる">
+      <div ref={listRef} className={styles["image-list"]}>
+        {images.map((asset) => (
+          <button
+            key={asset.key}
+            ref={selectedImage.key === asset.key ? activeButtonRef : undefined}
+            type="button"
+            className={styles["image-button"]}
+            data-active={selectedImage.key === asset.key}
+            aria-pressed={selectedImage.key === asset.key}
+            aria-label={`${asset.fileName}を選択`}
+            title={asset.fileName}
+            onClick={() => onSelect(asset)}
+          >
+            {asset.previewURL ? (
+              <LoadingImage src={asset.previewURL} alt="" loading="lazy" />
+            ) : (
+              <ImageOutlinedIcon aria-hidden="true" />
+            )}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+export const MarkdownImageActions = ({
+  selectedImage,
+  onInsert,
+}: MarkdownImageActionsProps) => {
+  const [isCopied, setCopied] = useState(false);
+  const [isInserted, setInserted] = useState(false);
+  const copyResetTimerRef = useRef<number | null>(null);
+  const insertResetTimerRef = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (copyResetTimerRef.current !== null) {
+        window.clearTimeout(copyResetTimerRef.current);
+      }
+      if (insertResetTimerRef.current !== null) {
+        window.clearTimeout(insertResetTimerRef.current);
+      }
+    },
+    [],
+  );
+
   const markdown = getAssetImageMarkdown(selectedImage);
   const handleInsert = () => {
     if (!onInsert(markdown)) return;
@@ -108,54 +143,27 @@ const MarkdownImagePicker = ({
   };
 
   return (
-    <section className={styles["image-picker"]} aria-label="説明に画像を入れる">
-      <div ref={listRef} className={styles["image-list"]}>
-        {images.map((asset) => (
-          <button
-            key={asset.key}
-            ref={selectedImage.key === asset.key ? activeButtonRef : undefined}
-            type="button"
-            className={styles["image-button"]}
-            data-active={selectedImage.key === asset.key}
-            aria-pressed={selectedImage.key === asset.key}
-            aria-label={`${asset.fileName}を選択`}
-            title={asset.fileName}
-            onClick={() => {
-              setCopied(false);
-              setInserted(false);
-              onSelect(asset);
-            }}
-          >
-            {asset.previewURL ? (
-              <LoadingImage src={asset.previewURL} alt="" loading="lazy" />
-            ) : (
-              <ImageOutlinedIcon aria-hidden="true" />
-            )}
-          </button>
-        ))}
-      </div>
-      <div className={styles["action-row"]}>
-        <Button
-          size="small"
-          icon={
-            isInserted ? <CheckRoundedIcon /> : <AddPhotoAlternateRoundedIcon />
-          }
-          aria-label={isInserted ? "画像を挿入しました" : undefined}
-          onClick={handleInsert}
-        >
-          カーソル位置に挿入
-        </Button>
-        <Button
-          size="small"
-          variant="secondary"
-          isIconOnly
-          icon={isCopied ? <CheckRoundedIcon /> : <ContentCopyRoundedIcon />}
-          aria-label={isCopied ? "コピーしました" : "画像の Markdown をコピー"}
-          title={isCopied ? "コピーしました" : "画像の Markdown をコピー"}
-          onClick={() => void handleCopy()}
-        />
-      </div>
-    </section>
+    <div className={styles["action-row"]}>
+      <Button
+        size="small"
+        icon={
+          isInserted ? <CheckRoundedIcon /> : <AddPhotoAlternateRoundedIcon />
+        }
+        aria-label={isInserted ? "画像を挿入しました" : undefined}
+        onClick={handleInsert}
+      >
+        カーソル位置に挿入
+      </Button>
+      <Button
+        size="small"
+        variant="secondary"
+        isIconOnly
+        icon={isCopied ? <CheckRoundedIcon /> : <ContentCopyRoundedIcon />}
+        aria-label={isCopied ? "コピーしました" : "画像の Markdown をコピー"}
+        title={isCopied ? "コピーしました" : "画像の Markdown をコピー"}
+        onClick={() => void handleCopy()}
+      />
+    </div>
   );
 };
 

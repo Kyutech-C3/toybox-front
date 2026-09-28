@@ -27,7 +27,8 @@
 }
 
 /* スクロールしてもツールバーは触れる位置に残す */
-[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar {
+[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar,
+[data-markdown-editor][data-mode="split"] .w-md-editor-toolbar {
   position: sticky;
   top: 0;
   z-index: 2;

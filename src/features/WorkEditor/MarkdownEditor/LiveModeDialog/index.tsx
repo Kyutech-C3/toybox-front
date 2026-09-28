@@ -18,6 +18,7 @@ type LiveModeDialogProps = {
   sourceRef: RefObject<HTMLDivElement | null>;
   previewRef: RefObject<HTMLDivElement | null>;
   imagePicker: ReactNode;
+  imageActions: ReactNode;
   onModeChange: (mode: EditorMode) => void;
   onClose: () => void;
 };
@@ -30,6 +31,7 @@ const LiveModeDialog = ({
   sourceRef,
   previewRef,
   imagePicker,
+  imageActions,
   onModeChange,
   onClose,
 }: LiveModeDialogProps) => {
@@ -91,11 +93,14 @@ const LiveModeDialog = ({
             <VerticalSplitRoundedIcon fontSize="small" />
             ライブモード
           </p>
-          <EditorModeTabs
-            mode={mode}
-            panelID={livePanelID}
-            onChange={handleModeChange}
-          />
+          <div className={styles["live-dialog-controls"]}>
+            <EditorModeTabs
+              mode={mode}
+              panelID={livePanelID}
+              onChange={handleModeChange}
+            />
+            {imageActions}
+          </div>
           <Button
             isIconOnly
             icon={<CloseRoundedIcon />}

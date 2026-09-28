@@ -96,6 +96,13 @@ export const ImageInsertion: Story = {
     const insertButton = await canvas.findByRole("button", {
       name: "カーソル位置に挿入",
     });
+    const modeHeader = canvas.getByRole("tablist", {
+      name: "Markdown の表示モード",
+    }).parentElement;
+    await expect(modeHeader).toContainElement(insertButton);
+    await expect(modeHeader).toContainElement(
+      canvas.getByRole("button", { name: "画像の Markdown をコピー" }),
+    );
     await userEvent.click(insertButton);
     await expect(input).toHaveValue(
       "前![sample](https://example.com/sample.png)後",
@@ -288,15 +295,34 @@ export const LiveImageInsertion: Story = {
       name: "ライブモードの全画面表示",
     });
     const live = within(dialog);
-    await expect(
-      live.getByRole("tablist", { name: "Markdown の表示モード" }).parentElement
-        ?.nextElementSibling,
-    ).toContainElement(
+    const liveHeader = live
+      .getByRole("tablist", {
+        name: "Markdown の表示モード",
+      })
+      .closest("header");
+    await expect(liveHeader).toContainElement(
+      live.getByRole("button", { name: "カーソル位置に挿入" }),
+    );
+    await expect(liveHeader?.nextElementSibling).toContainElement(
       live.getByRole("region", { name: "説明に画像を入れる" }),
+    );
+    const emptyPreview = live.getByText("プレビューする内容がありません");
+    if (!(emptyPreview.parentElement instanceof HTMLElement))
+      throw new Error("ライブモードのプレビューが見つかりません");
+    await expect(emptyPreview.parentElement.scrollWidth).toBeLessThanOrEqual(
+      emptyPreview.parentElement.clientWidth,
     );
     const input = live.getByRole("textbox", { name: "説明" });
     if (!(input instanceof HTMLTextAreaElement))
       throw new Error("説明の入力欄が見つかりません");
+    const source = input.closest(".w-md-editor")?.parentElement?.parentElement;
+    const content = source?.lastElementChild;
+    if (!(source instanceof HTMLElement) || !(content instanceof HTMLElement))
+      throw new Error("ライブモードの編集ペインが見つかりません");
+    await expect(
+      source.getBoundingClientRect().bottom -
+        content.getBoundingClientRect().bottom,
+    ).toBeLessThan(16);
     await userEvent.type(input, "前後");
     input.setSelectionRange(1, 1);
     fireEvent.select(input);
@@ -438,13 +464,45 @@ export const SplitModeStaysOnPage: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
     await expect(canvas.queryByRole("dialog")).not.toBeInTheDocument();
-    const input = canvas.getByRole("textbox", { name: "説明" });
-    await userEvent.type(input, "# 分割表示");
-    await expect(
-      canvas.getByRole("heading", { name: "分割表示" }),
-    ).toBeVisible();
     const panel = canvas.getByRole("tabpanel");
+    const [source, preview] = Array.from(panel.children);
+    await expect(preview.scrollWidth).toBeLessThanOrEqual(preview.clientWidth);
+    const initialHeight = source.getBoundingClientRect().height;
+    await expect(preview.getBoundingClientRect().height).toBe(initialHeight);
+    await expect(initialHeight).toBeLessThan(window.innerHeight);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    await fireEvent.change(input, {
+      target: {
+        value: Array.from(
+          { length: 3 },
+          (_, index) => `# 分割表示 ${index + 1}\n\n本文です。`,
+        ).join("\n\n"),
+      },
+    });
+    await expect(
+      canvas.getByRole("heading", { name: "分割表示 1" }),
+    ).toBeVisible();
     await expect(panel.children).toHaveLength(2);
+    await expect(source.getBoundingClientRect().height).toBeGreaterThan(
+      initialHeight,
+    );
+    await expect(preview.getBoundingClientRect().height).toBe(
+      source.getBoundingClientRect().height,
+    );
+    await fireEvent.change(input, {
+      target: {
+        value: Array.from(
+          { length: 35 },
+          (_, index) => `# 分割表示 ${index + 1}\n\n本文です。`,
+        ).join("\n\n"),
+      },
+    });
+    await expect(source.getBoundingClientRect().height).toBe(
+      window.innerHeight,
+    );
+    await expect(preview.getBoundingClientRect().height).toBe(
+      window.innerHeight,
+    );
     await expect(
       canvasElement.querySelector('[data-markdown-editor="true"]'),
     ).toHaveAttribute("data-mode", "split");

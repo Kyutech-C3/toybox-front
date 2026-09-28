@@ -18,6 +18,7 @@ import LiveModeDialog from "./LiveModeDialog";
 import liveStyles from "./LiveModeDialog/index.module.css";
 import MarkdownImagePicker, {
   getAssetImageMarkdown,
+  MarkdownImageActions,
 } from "./MarkdownImagePicker";
 
 import CharacterCount from "@/shared/ui/CharacterCount";
@@ -214,11 +215,17 @@ const MarkdownEditor = () => {
     };
   };
 
-  const markdownImagePicker = mode !== "preview" && selectedImage && (
+  const markdownImagePicker = selectedImage && (
     <MarkdownImagePicker
       images={images}
       selectedKey={selectedImage.key}
       onSelect={(asset) => setSelectedImageKey(asset.key)}
+    />
+  );
+  const markdownImageActions = selectedImage && (
+    <MarkdownImageActions
+      key={selectedImage.key}
+      selectedImage={selectedImage}
       onInsert={handleInsertImage}
     />
   );
@@ -279,8 +286,9 @@ const MarkdownEditor = () => {
       >
         <div className={styles["markdown-editor-header"]}>
           <EditorModeTabs mode={mode} panelID={panelID} onChange={setMode} />
+          {mode !== "preview" && mode !== "live" && markdownImageActions}
         </div>
-        {markdownImagePicker}
+        {mode !== "preview" && mode !== "live" && markdownImagePicker}
         {(mode === "edit" || mode === "split") && imageUploadError && (
           <FieldError role="alert">{imageUploadError}</FieldError>
         )}
@@ -335,6 +343,7 @@ const MarkdownEditor = () => {
                 )}
               </>
             }
+            imageActions={markdownImageActions}
             onModeChange={setMode}
             onClose={handleLiveModeClose}
           />

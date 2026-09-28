@@ -18,20 +18,20 @@
 
 .markdown-editor-header {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: flex-start;
+  gap: var(--space-12);
 }
 
 .markdown-editor-panel {
   width: 100%;
 }
 
-.markdown-editor[data-mode="split"] {
-  height: 100dvh;
-}
-
 .markdown-editor[data-mode="split"] .markdown-editor-panel {
-  flex: 1;
-  min-height: 0;
+  flex: none;
+  grid-template-rows: minmax(var(--editor-min-height), 1fr);
+  max-height: 100dvh;
 }
 
 .edit-pane {
@@ -46,6 +46,7 @@
 }
 
 .preview-empty {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -77,5 +78,16 @@
 
   .preview-empty {
     font-size: 13px;
+  }
+
+  .markdown-editor-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+
+  .markdown-editor[data-mode="split"] .markdown-editor-panel {
+    grid-template-rows: repeat(2, minmax(var(--editor-min-height), 1fr));
+    max-height: calc(200dvh + var(--space-24));
   }
 }
