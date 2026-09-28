@@ -3,7 +3,10 @@
   font-style: normal;
   border-left-color: var(--link-color);
 
-  &[data-markdown-alert="WARNING"],
+  &[data-markdown-alert="WARNING"] {
+    border-left-color: var(--primary-color);
+  }
+
   &[data-markdown-alert="CAUTION"] {
     border-left-color: var(--error-color);
   }
