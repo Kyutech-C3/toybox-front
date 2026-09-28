@@ -466,6 +466,15 @@ export const SplitModeStaysOnPage: Story = {
     await expect(canvas.queryByRole("dialog")).not.toBeInTheDocument();
     const panel = canvas.getByRole("tabpanel");
     const [source, preview] = Array.from(panel.children);
+    const scrollSyncButton = canvas.getByRole("button", {
+      name: "スクロール同期",
+    });
+    await expect(preview).toContainElement(scrollSyncButton);
+    await expect(scrollSyncButton).toHaveAttribute("aria-pressed", "true");
+    const previewBounds = preview.getBoundingClientRect();
+    const buttonBounds = scrollSyncButton.getBoundingClientRect();
+    await expect(buttonBounds.top).toBeGreaterThanOrEqual(previewBounds.top);
+    await expect(buttonBounds.right).toBeLessThanOrEqual(previewBounds.right);
     await expect(preview.scrollWidth).toBeLessThanOrEqual(preview.clientWidth);
     const initialHeight = source.getBoundingClientRect().height;
     await expect(preview.getBoundingClientRect().height).toBe(initialHeight);
@@ -503,10 +512,27 @@ export const SplitModeStaysOnPage: Story = {
     await expect(preview.getBoundingClientRect().height).toBe(
       window.innerHeight,
     );
+    await userEvent.click(scrollSyncButton);
+    await expect(scrollSyncButton).toHaveAttribute("aria-pressed", "false");
+    await expect(scrollSyncButton).toHaveAttribute(
+      "title",
+      "スクロール同期を有効にする",
+    );
+    await userEvent.click(canvas.getByRole("tab", { name: "ライブ" }));
+    const dialog = await canvas.findByRole("dialog", {
+      name: "ライブモードの全画面表示",
+    });
+    const live = within(dialog);
+    const liveScrollSyncButton = live.getByRole("button", {
+      name: "スクロール同期",
+    });
+    await expect(liveScrollSyncButton).toHaveAttribute("aria-pressed", "false");
+    await userEvent.click(liveScrollSyncButton);
+    await expect(liveScrollSyncButton).toHaveAttribute("aria-pressed", "true");
     await expect(
       canvasElement.querySelector('[data-markdown-editor="true"]'),
-    ).toHaveAttribute("data-mode", "split");
-    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    ).toHaveAttribute("data-mode", "live");
+    await userEvent.click(live.getByRole("tab", { name: "プレビュー" }));
   },
 };
 

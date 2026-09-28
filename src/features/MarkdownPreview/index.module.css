@@ -187,6 +187,12 @@
     color: var(--font-color);
   }
 
+  :global(.katex-display) {
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
   /* Lists */
   ul,
   ol {

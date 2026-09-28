@@ -2,10 +2,14 @@ import { createContext, useContext, useEffect, useId, useRef } from "react";
 import Markdown from "react-markdown";
 import LinkRoundedIcon from "@mui/icons-material/LinkRounded";
 import { toString as getText } from "hast-util-to-string";
+import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+
+import "katex/dist/katex.min.css";
 
 import CodeBlock from "./CodeBlock";
 import styles from "./index.module.css";
@@ -186,7 +190,7 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
   return (
     <div className={styles["markdown-preview"]} ref={containerRef}>
       <Markdown
-        remarkPlugins={[remarkGfm, remarkPlainUrls]}
+        remarkPlugins={[remarkGfm, remarkMath, remarkPlainUrls]}
         remarkRehypeOptions={{
           footnoteLabel: "脚注",
           footnoteBackLabel: "本文へ戻る",
@@ -195,6 +199,8 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
           rehypeRaw,
           [rehypeSlug, { prefix: HEADING_ID_PREFIX }],
           [rehypeSanitize, MARKDOWN_SCHEMA],
+          // 入力を検査してから、KaTeX が必要とする MathML と装飾を生成する。
+          [rehypeKatex, { trust: false, errorColor: "var(--error-color)" }],
           rehypeMarkdownFeatures,
         ]}
         components={{

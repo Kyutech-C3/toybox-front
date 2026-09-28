@@ -1,4 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
+import SyncDisabledRoundedIcon from "@mui/icons-material/SyncDisabledRounded";
+import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
 import MDEditor from "@uiw/react-md-editor";
 import rehypeSanitize from "rehype-sanitize";
 
@@ -28,6 +30,7 @@ import inputStyles from "@/shared/ui/Input/index.module.css";
 import "./editor-custom.css";
 
 import MarkdownPreview from "@/features/MarkdownPreview";
+import Button from "@/shared/ui/Button";
 import Paper from "@/shared/ui/Paper";
 
 import type { ICommand } from "@uiw/react-md-editor";
@@ -69,6 +72,7 @@ const MarkdownEditor = () => {
   const { handleAddImageFile, validationError: imageUploadError } =
     useAssetUpload();
   const [mode, setMode] = useState<EditorMode>("edit");
+  const [isScrollSyncEnabled, setIsScrollSyncEnabled] = useState(true);
   const [selectedImageKey, setSelectedImageKey] = useState("");
   const panelID = useId();
   const editorRef = useRef<HTMLDivElement>(null);
@@ -84,7 +88,7 @@ const MarkdownEditor = () => {
     textareaScrollTop: number | null;
   } | null>(null);
   const { sourceRef, previewRef } = useLiveScrollSync({
-    isEnabled: mode === "live" || mode === "split",
+    isEnabled: (mode === "live" || mode === "split") && isScrollSyncEnabled,
   });
   const images = assets.filter(isInsertableImage);
   const selectedImage =
@@ -275,6 +279,26 @@ const MarkdownEditor = () => {
   ) : (
     <p className={styles["preview-empty"]}>プレビューする内容がありません</p>
   );
+  const scrollSyncButton = (
+    <Button
+      isIconOnly
+      size="small"
+      variant="secondary"
+      isActive={isScrollSyncEnabled}
+      icon={
+        isScrollSyncEnabled ? <SyncRoundedIcon /> : <SyncDisabledRoundedIcon />
+      }
+      className={liveStyles["scroll-sync-button"]}
+      aria-label="スクロール同期"
+      aria-pressed={isScrollSyncEnabled}
+      title={
+        isScrollSyncEnabled
+          ? "スクロール同期を解除"
+          : "スクロール同期を有効にする"
+      }
+      onClick={() => setIsScrollSyncEnabled((current) => !current)}
+    />
+  );
 
   return (
     <Paper>
@@ -315,8 +339,14 @@ const MarkdownEditor = () => {
               <div className={liveStyles["live-source"]} ref={sourceRef}>
                 {markdownInput}
               </div>
-              <div className={liveStyles["live-preview"]} ref={previewRef}>
-                {markdownPreview}
+              <div className={liveStyles["live-preview"]}>
+                <div
+                  className={liveStyles["live-preview-content"]}
+                  ref={previewRef}
+                >
+                  {markdownPreview}
+                </div>
+                {scrollSyncButton}
               </div>
             </>
           )}
@@ -333,6 +363,7 @@ const MarkdownEditor = () => {
             panelID={panelID}
             source={markdownInput}
             preview={markdownPreview}
+            scrollSyncButton={scrollSyncButton}
             sourceRef={sourceRef}
             previewRef={previewRef}
             imagePicker={

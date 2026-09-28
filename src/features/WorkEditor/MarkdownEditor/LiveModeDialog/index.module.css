@@ -79,7 +79,7 @@
 }
 
 .live-source,
-.live-preview {
+.live-preview-content {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -106,22 +106,39 @@
 }
 
 .live-preview {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
   border: 1px solid var(--border-color);
   border-radius: var(--editor-radius);
   background-color: var(--paper-color);
   box-shadow: 0 4px 16px var(--shadow-soft-color);
 }
 
-/* 本文の幅を本番（Paper 1024px の内側）に合わせる。
-   ペインが狭いときは収まる幅まで縮む */
-.live-preview {
+.live-preview-content {
+  box-sizing: border-box;
+  flex: 1;
   padding: var(--paper-padding);
 }
 
-.live-preview > * {
+/* 本文の幅を本番（Paper 1024px の内側）に合わせる。
+   ペインが狭いときは収まる幅まで縮む */
+.live-preview-content > * {
   width: 100%;
   max-width: calc(var(--content-read-width) - var(--paper-padding) * 2);
   margin: 0 auto;
+}
+
+.scroll-sync-button {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-8);
+  right: var(--space-16);
+  box-shadow: 0 2px 8px var(--shadow-soft-color);
 }
 
 @media (max-width: 767px) {
@@ -145,8 +162,9 @@
     grid-row: 1;
   }
 
-  .live-preview {
+  .live-preview-content {
     padding: var(--space-16);
+    padding-top: calc(var(--space-16) + 32px);
   }
 
   .live-dialog-title {

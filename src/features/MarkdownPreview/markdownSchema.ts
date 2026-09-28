@@ -44,7 +44,11 @@ export const MARKDOWN_SCHEMA: Options = {
   ],
   attributes: {
     a: defaultSchema.attributes?.a ?? [],
-    code: defaultSchema.attributes?.code ?? [],
+    code: [
+      ...(defaultSchema.attributes?.code ?? []),
+      // remark-math の数式マーカーだけを通し、KaTeX の描画より前に入力を検査する。
+      ["className", "math-inline", "math-display"],
+    ],
     details: ["open"],
     h2: defaultSchema.attributes?.h2 ?? [],
     img: ["src", "alt"],

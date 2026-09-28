@@ -15,6 +15,7 @@ type LiveModeDialogProps = {
   panelID: string;
   source: ReactNode;
   preview: ReactNode;
+  scrollSyncButton: ReactNode;
   sourceRef: RefObject<HTMLDivElement | null>;
   previewRef: RefObject<HTMLDivElement | null>;
   imagePicker: ReactNode;
@@ -28,6 +29,7 @@ const LiveModeDialog = ({
   panelID,
   source,
   preview,
+  scrollSyncButton,
   sourceRef,
   previewRef,
   imagePicker,
@@ -121,8 +123,11 @@ const LiveModeDialog = ({
           <div className={styles["live-source"]} ref={sourceRef}>
             {source}
           </div>
-          <div className={styles["live-preview"]} ref={previewRef}>
-            {preview}
+          <div className={styles["live-preview"]}>
+            <div className={styles["live-preview-content"]} ref={previewRef}>
+              {preview}
+            </div>
+            {scrollSyncButton}
           </div>
         </div>
       </div>

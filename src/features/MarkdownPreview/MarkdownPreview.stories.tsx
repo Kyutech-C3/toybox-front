@@ -132,9 +132,19 @@ export const MarkdownSyntaxSample: Story = {
     await expect(getComputedStyle(highlight).color).toBe(
       getComputedStyle(canvasElement).color,
     );
+    const inlineMath = canvasElement.querySelector("p .katex");
+    const displayMath = canvasElement.querySelector(".katex-display .katex");
+    await expect(canvasElement.querySelectorAll(".katex")).toHaveLength(3);
+    await expect(inlineMath).not.toBeNull();
+    await expect(displayMath).not.toBeNull();
     await expect(
-      canvasElement.querySelector("script, iframe, dl, math"),
-    ).toBeNull();
+      inlineMath?.querySelector(".katex-mathml math"),
+    ).not.toBeNull();
+    await expect(
+      displayMath?.querySelector(".katex-mathml math"),
+    ).not.toBeNull();
+    await expect(canvasElement.querySelector(".katex-error")).toBeNull();
+    await expect(canvasElement.querySelector("script, iframe, dl")).toBeNull();
     const securityDetails = canvas
       .getByText("属性を除去する折りたたみ", { selector: "summary" })
       .closest("details");
