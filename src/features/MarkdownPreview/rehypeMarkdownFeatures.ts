@@ -31,9 +31,10 @@ const rehypeMarkdownFeatures = () => (tree: Root) => {
     if (paragraph?.type !== "element" || paragraph.tagName !== "p") return;
     const marker = paragraph.children[0];
     if (marker?.type !== "text") return;
-    const match = /^\[!([A-Z]+)\]$/.exec(marker.value);
+    const match = /^\[!([A-Z]+)\](?:\n|$)/.exec(marker.value);
     if (!match || !ALERT_TYPES.has(match[1])) return;
-    paragraph.children.shift();
+    marker.value = marker.value.slice(match[0].length);
+    if (!marker.value) paragraph.children.shift();
     if (
       paragraph.children[0]?.type === "element" &&
       paragraph.children[0].tagName === "br"

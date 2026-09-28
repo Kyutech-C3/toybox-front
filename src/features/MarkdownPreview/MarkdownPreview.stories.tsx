@@ -57,6 +57,38 @@ export const TableAndTaskList: Story = {
 
 export const Empty: Story = { args: { content: "" } };
 
+export const LinksAndLineBreaks: Story = {
+  args: {
+    content:
+      "普通の改行\n続き\n\n行末に空白を入れる  \n明示的な改行\n\nhttps://example.com www.example.com a@example.com\n\n[外部](https://example.com) <https://example.com> [内部](/works) [ページ内](#section)",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const paragraphs = canvasElement.querySelectorAll("p");
+    await expect(paragraphs[0].querySelector("br")).toBeNull();
+    await expect(paragraphs[1].querySelector("br")).not.toBeNull();
+    await expect(paragraphs[2].textContent).toBe(
+      "https://example.com www.example.com a@example.com",
+    );
+    await expect(paragraphs[2].querySelector("a")).toBeNull();
+    for (const name of ["外部", "https://example.com"]) {
+      await expect(canvas.getByRole("link", { name })).toHaveAttribute(
+        "target",
+        "_blank",
+      );
+      await expect(canvas.getByRole("link", { name })).toHaveAttribute(
+        "rel",
+        "noopener noreferrer",
+      );
+    }
+    for (const name of ["内部", "ページ内"]) {
+      await expect(canvas.getByRole("link", { name })).not.toHaveAttribute(
+        "target",
+      );
+    }
+  },
+};
+
 export const MarkdownSyntaxSample: Story = {
   args: { content: markdownSyntaxSample },
   play: async ({ canvasElement }) => {

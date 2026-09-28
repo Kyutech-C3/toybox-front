@@ -9,7 +9,7 @@ const EXAMPLES = [
   {
     name: "文字の装飾",
     syntax: "**太字** / *斜体* / ~~取り消し線~~ / `コード`",
-    description: "通常の改行も表示に反映されます。",
+    description: "段落内で改行するには行末に半角スペースを2個入れます。",
   },
   {
     name: "リスト・引用",
@@ -25,7 +25,8 @@ const EXAMPLES = [
     name: "リンク・画像",
     syntax:
       "[サイト](https://example.com)\n![画像の説明](https://example.com/image.png)",
-    description: "URL の自動リンク、参照形式にも対応しています。",
+    description:
+      "URL だけを書いてもリンクになりません。参照形式にも対応しています。",
   },
   {
     name: "コードブロック",

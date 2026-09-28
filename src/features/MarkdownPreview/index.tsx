@@ -5,7 +5,6 @@ import { toString as getText } from "hast-util-to-string";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeSlug from "rehype-slug";
-import remarkBreaks from "remark-breaks";
 import remarkGfm from "remark-gfm";
 
 import CodeBlock from "./CodeBlock";
@@ -15,6 +14,7 @@ import { MARKDOWN_SCHEMA } from "./markdownSchema";
 import rehypeMarkdownFeatures, {
   HEADING_ID_PREFIX,
 } from "./rehypeMarkdownFeatures";
+import remarkPlainUrls from "./remarkPlainUrls";
 
 import LoadingImage from "@/shared/ui/LoadingImage";
 
@@ -135,7 +135,7 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
   return (
     <div className={styles["markdown-preview"]} ref={containerRef}>
       <Markdown
-        remarkPlugins={[remarkGfm, remarkBreaks]}
+        remarkPlugins={[remarkGfm, remarkPlainUrls]}
         remarkRehypeOptions={{
           footnoteLabel: "脚注",
           footnoteBackLabel: "本文へ戻る",
@@ -160,6 +160,17 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
           },
           input: MarkdownInput,
           a({ node, href, ...props }) {
+            let isExternal = false;
+            if (href) {
+              try {
+                const url = new URL(href, window.location.href);
+                isExternal =
+                  (url.protocol === "http:" || url.protocol === "https:") &&
+                  url.origin !== window.location.origin;
+              } catch {
+                // 不正な URL は現在のタブで扱う。
+              }
+            }
             const image = node?.children.find(
               (child) => child.type === "element" && child.tagName === "img",
             );
@@ -176,6 +187,8 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
                 href={href}
                 aria-label={props["aria-label"] ?? imageLabel}
                 onClick={href ? handleLinkClick : undefined}
+                target={isExternal ? "_blank" : undefined}
+                rel={isExternal ? "noopener noreferrer" : undefined}
               />
             );
           },
