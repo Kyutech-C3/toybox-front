@@ -123,8 +123,17 @@ export const MarkdownSyntaxSample: Story = {
     await expect(italic.tagName).toBe("EM");
     await expect(getComputedStyle(italic).fontStyle).toBe("italic");
     await expect(getComputedStyle(italic).fontSynthesis).toBe("style");
+    const underline = canvas.getByText("下線を付けたい文字");
+    const highlight = canvas.getByText("注目してほしい文字");
+    const subscript = canvas.getByText("2", { selector: "sub" });
+    await expect(underline.tagName).toBe("U");
+    await expect(highlight.tagName).toBe("MARK");
+    await expect(subscript.tagName).toBe("SUB");
+    await expect(getComputedStyle(highlight).color).toBe(
+      getComputedStyle(canvasElement).color,
+    );
     await expect(
-      canvasElement.querySelector("script, iframe, u, dl, math"),
+      canvasElement.querySelector("script, iframe, dl, math"),
     ).toBeNull();
     const securityDetails = canvas
       .getByText("属性を除去する折りたたみ", { selector: "summary" })
