@@ -34,11 +34,18 @@ import Button from "@/shared/ui/Button";
 import Paper from "@/shared/ui/Paper";
 
 import type { ICommand } from "@uiw/react-md-editor";
-import type { ChangeEvent, SyntheticEvent } from "react";
+import type { ChangeEvent, ClipboardEvent, SyntheticEvent } from "react";
 import type { EditorAsset } from "../types";
 import type { EditorMode } from "./types";
 
 const EDITOR_PLACEHOLDER = "Markdown で作品の説明を書けます";
+const CLIPBOARD_IMAGE_EXTENSIONS: Record<string, string[]> = {
+  "image/png": [".png"],
+  "image/jpeg": [".jpg", ".jpeg"],
+  "image/bmp": [".bmp"],
+  "image/gif": [".gif"],
+  "image/webp": [".webp"],
+};
 type ImageInsertionSelection = {
   textarea: HTMLTextAreaElement;
   start: number;
@@ -172,31 +179,28 @@ const MarkdownEditor = () => {
 
   const insertImageRef = useRef(handleInsertImage);
   insertImageRef.current = handleInsertImage;
+  const captureImageSelection = (textarea: HTMLTextAreaElement) => ({
+    textarea,
+    start: textarea.selectionStart,
+    end: textarea.selectionEnd,
+    description: editorStore.getState().current.description,
+    sessionVersion: editorStore.getState().sessionVersion,
+  });
   const handleOpenImagePicker = () => {
     const textarea = editorRef.current?.querySelector<HTMLTextAreaElement>(
       ".w-md-editor-text-input",
     );
     if (!textarea) return;
     setImageInsertNotice("");
-    uploadSelectionRef.current = {
-      textarea,
-      start: textarea.selectionStart,
-      end: textarea.selectionEnd,
-      description: editorStore.getState().current.description,
-      sessionVersion: editorStore.getState().sessionVersion,
-    };
+    uploadSelectionRef.current = captureImageSelection(textarea);
     fileInputRef.current?.click();
   };
   const openImagePickerRef = useRef(handleOpenImagePicker);
   openImagePickerRef.current = handleOpenImagePicker;
-  const handleImageFileChange = async (
-    event: ChangeEvent<HTMLInputElement>,
+  const uploadAndInsertImage = async (
+    file: File,
+    selection: ImageInsertionSelection,
   ) => {
-    const file = event.currentTarget.files?.[0];
-    event.currentTarget.value = "";
-    const selection = uploadSelectionRef.current;
-    uploadSelectionRef.current = null;
-    if (!file || !selection) return;
     const uploaded = await handleAddImageFile(file);
     if (!uploaded?.assetURL) return;
     if (selection.sessionVersion !== editorStore.getState().sessionVersion)
@@ -212,6 +216,51 @@ const MarkdownEditor = () => {
       return;
     }
     insertImageRef.current(getAssetImageMarkdown(uploaded), selection);
+  };
+  const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+    const selection = uploadSelectionRef.current;
+    uploadSelectionRef.current = null;
+    if (file && selection) void uploadAndInsertImage(file, selection);
+  };
+  const handleImagePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const clipboard = event.clipboardData;
+    if (
+      clipboard.getData("text/plain") ||
+      Array.from(clipboard.items).some(
+        (item) => item.kind === "string" && item.type === "text/plain",
+      )
+    )
+      return;
+    const image =
+      Array.from(clipboard.items)
+        .find((item) => item.kind === "file" && item.type.startsWith("image/"))
+        ?.getAsFile() ??
+      Array.from(clipboard.files).find((file) =>
+        file.type.startsWith("image/"),
+      );
+    if (!image) return;
+    event.preventDefault();
+
+    const extensions = CLIPBOARD_IMAGE_EXTENSIONS[image.type];
+    if (!extensions) {
+      setImageInsertNotice("この画像形式には対応していません。");
+      return;
+    }
+    const extension = image.name
+      .slice(image.name.lastIndexOf("."))
+      .toLowerCase();
+    const uploadFile = extensions.includes(extension)
+      ? image
+      : new File([image], `clipboard-${Date.now()}${extensions[0]}`, {
+          type: image.type,
+        });
+    setImageInsertNotice("");
+    void uploadAndInsertImage(
+      uploadFile,
+      captureImageSelection(event.currentTarget),
+    );
   };
   const handleCommandFilter = (
     command: ICommand,
@@ -256,7 +305,7 @@ const MarkdownEditor = () => {
         accept={`${IMAGE_ASSET_ACCEPT},image/png,image/jpeg,image/bmp,image/gif,image/webp`}
         aria-label="説明に挿入する画像を選択"
         hidden
-        onChange={(event) => void handleImageFileChange(event)}
+        onChange={handleImageFileChange}
       />
       <MDEditor
         className={inputStyles["input-surface"]}
@@ -281,6 +330,7 @@ const MarkdownEditor = () => {
           onFocus: handleTextSelection,
           onKeyUp: handleTextSelection,
           onClick: handleTextSelection,
+          onPaste: handleImagePaste,
         }}
       />
     </CharacterCount>

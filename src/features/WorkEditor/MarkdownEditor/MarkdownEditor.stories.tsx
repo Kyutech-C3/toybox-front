@@ -309,6 +309,83 @@ export const ToolbarImageUploadAfterTextChange: Story = {
   },
 };
 
+export const ClipboardImagePaste: Story = {
+  render: () => <ImageInsertionExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    if (!(input instanceof HTMLTextAreaElement))
+      throw new Error("説明の入力欄が見つかりません");
+    await userEvent.type(input, "前後");
+    input.setSelectionRange(1, 1);
+    fireEvent.select(input);
+
+    const originalFetch = globalThis.fetch;
+    const originalAuth = useAuthStore.getState();
+    const uploadRequest = fn((file: FormDataEntryValue | null) => {
+      if (!(file instanceof File) || !file.name.endsWith(".png"))
+        throw new Error("貼り付け画像のファイル名が正しくありません");
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            id: "pasted",
+            url: "https://example.com/pasted.png",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    });
+    globalThis.fetch = (resource, init) =>
+      String(resource).endsWith("/auth/works/asset") &&
+      init?.body instanceof FormData
+        ? uploadRequest(init.body.get("file"))
+        : originalFetch(resource, init);
+    useAuthStore.getState().startSession("storybook-token");
+    try {
+      const clipboard = new DataTransfer();
+      clipboard.items.add(new File(["image"], "", { type: "image/png" }));
+      await userEvent.paste(clipboard);
+      await canvas.findByRole("button", { name: /clipboard-.*\.pngを選択/ });
+      await expect(uploadRequest).toHaveBeenCalledTimes(1);
+      await expect(input.value).toMatch(
+        /^前!\[clipboard-\d+\]\(https:\/\/example\.com\/pasted\.png\)後$/,
+      );
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    } finally {
+      globalThis.fetch = originalFetch;
+      useAuthStore.setState(originalAuth);
+    }
+  },
+};
+
+export const ClipboardTextAndImagePastesText: Story = {
+  render: () => <ImageInsertionExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    const originalFetch = globalThis.fetch;
+    const uploadRequest = fn();
+    globalThis.fetch = (resource, init) => {
+      if (String(resource).endsWith("/auth/works/asset")) uploadRequest();
+      return originalFetch(resource, init);
+    };
+    try {
+      await userEvent.click(input);
+      const clipboard = new DataTransfer();
+      clipboard.items.add(
+        new File(["image"], "photo.png", { type: "image/png" }),
+      );
+      clipboard.setData("text/plain", "貼り付けた文章");
+      await userEvent.paste(clipboard);
+      await expect(input).toHaveValue("貼り付けた文章");
+      await expect(uploadRequest).not.toHaveBeenCalled();
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  },
+};
+
 export const ToolbarImageUploadFailure: Story = {
   render: () => <ImageInsertionExample isUploadVisible />,
   play: async ({ canvasElement }) => {
