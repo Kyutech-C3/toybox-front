@@ -727,9 +727,13 @@ Zenn のカード指定も埋め込みにはなりません：@[card](https://ex
 
 下線：<u>下線を付けたい文字</u>。ハイライト：<mark>注目してほしい文字</mark>。下付き文字：H<sub>2</sub>O。
 
-画像の `width` や `style` は反映されません。画像自体は通常の画像として表示されます。
+画像の `width` と `style="width:40px"` は、1～2000px の幅だけ反映されます。画像は表示枠より大きくなりません。その他の `style` は反映されません。
 
 <img src="https://placehold.co/200x60/png" alt="サイズ指定の確認用画像" width="40" style="width:40px">
+
+<img src="https://placehold.co/200x60/png" alt="width 属性の確認用画像" width="80">
+
+<img src="https://placehold.co/200x60/png" alt="style 属性の確認用画像" style="width:60px">
 
 ### 危険な入力の確認
 

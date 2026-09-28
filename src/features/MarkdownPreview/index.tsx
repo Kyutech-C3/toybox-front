@@ -29,6 +29,15 @@ import type { ComponentProps, MouseEvent } from "react";
 import type { ExtraProps } from "react-markdown";
 
 const TASK_LABEL_CONTEXT = createContext<string | undefined>(undefined);
+const MAX_IMAGE_WIDTH = 2000;
+
+const getImagePixelWidth = (value: unknown): number | undefined => {
+  if (typeof value !== "string" && typeof value !== "number") return;
+  const match = /^([1-9]\d{0,3})(?:px)?$/.exec(String(value).trim());
+  if (!match) return;
+  const width = Number(match[1]);
+  return width <= MAX_IMAGE_WIDTH ? width : undefined;
+};
 
 const openContainingDetails = (target: HTMLElement) => {
   let details = target.closest("details");
@@ -219,8 +228,17 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
             );
           },
           li: MarkdownListItem,
-          img({ node, ...props }) {
-            return <LoadingImage {...props} isIntrinsic />;
+          img({ node, width, style, ...props }) {
+            const displayWidth =
+              getImagePixelWidth(style?.width) ?? getImagePixelWidth(width);
+            return (
+              <LoadingImage
+                {...props}
+                width={displayWidth}
+                style={displayWidth ? { width: displayWidth } : undefined}
+                isIntrinsic
+              />
+            );
           },
           input: MarkdownInput,
           a({ node, href, ...props }) {

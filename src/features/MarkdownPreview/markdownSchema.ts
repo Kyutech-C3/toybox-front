@@ -51,7 +51,12 @@ export const MARKDOWN_SCHEMA: Options = {
     ],
     details: ["open"],
     h2: defaultSchema.attributes?.h2 ?? [],
-    img: ["src", "alt"],
+    img: [
+      "src",
+      "alt",
+      ["width", /^[1-9]\d{0,3}$/],
+      ["style", /^\s*width\s*:\s*[1-9]\d{0,3}px\s*;?\s*$/i],
+    ],
     input: ["checked", ["disabled", true], ["type", "checkbox"]],
     li: defaultSchema.attributes?.li ?? [],
     ol: ["start", ...(defaultSchema.attributes?.ol ?? [])],

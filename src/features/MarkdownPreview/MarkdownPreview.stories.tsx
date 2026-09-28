@@ -159,9 +159,16 @@ export const MarkdownSyntaxSample: Story = {
         canvas.getByText(name, { selector: "a" }),
       ).not.toHaveAttribute("href");
     }
-    await expect(
-      canvas.getByAltText("サイズ指定の確認用画像"),
-    ).not.toHaveAttribute("width");
+    for (const example of [
+      { name: "サイズ指定の確認用画像", width: "40" },
+      { name: "width 属性の確認用画像", width: "80" },
+      { name: "style 属性の確認用画像", width: "60" },
+    ]) {
+      const image = canvas.getByAltText(example.name);
+      await expect(image).toHaveAttribute("width", example.width);
+      await expect(image).toHaveStyle({ width: `${example.width}px` });
+      await expect(getComputedStyle(image).width).toBe(`${example.width}px`);
+    }
     await expect(
       Reflect.get(window, "__toyboxMarkdownSampleExecuted"),
     ).toBeUndefined();
@@ -321,7 +328,7 @@ export const CodeFilesAndCopy: Story = {
 export const SanitizedHtml: Story = {
   args: {
     content:
-      '<details open ontoggle="alert(1)" style="color:red"><summary onclick="alert(1)">安全な折りたたみ</summary>\n\n本文\n\n<script>window.markdownInjected = true</script>\n<style>body { display: none }</style>\n<iframe src="https://example.com"></iframe>\n<svg onload="alert(1)"></svg>\n\n[危険なリンク](javascript:alert%281%29)\n\n<a id="current" href="javascript:alert(1)" onmouseover="alert(1)">HTML リンク</a>\n\n</details>',
+      '<details open ontoggle="alert(1)" style="color:red"><summary onclick="alert(1)">安全な折りたたみ</summary>\n\n本文\n\n<script>window.markdownInjected = true</script>\n<style>body { display: none }</style>\n<iframe src="https://example.com"></iframe>\n<svg onload="alert(1)"></svg>\n\n<img src="https://example.com/image.png" alt="危険な画像属性" width="3000" style="width:40px;color:red" onerror="alert(1)">\n\n[危険なリンク](javascript:alert%281%29)\n\n<a id="current" href="javascript:alert(1)" onmouseover="alert(1)">HTML リンク</a>\n\n</details>',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -330,7 +337,7 @@ export const SanitizedHtml: Story = {
       canvasElement
         .querySelector("details")
         ?.querySelector(
-          "script, style, iframe, svg, [onclick], [ontoggle], [onmouseover], [style]",
+          "script, style, iframe, svg, [onclick], [ontoggle], [onmouseover], [onerror], [style]",
         ),
     ).toBeNull();
     await expect(canvasElement.querySelector("details")).not.toHaveAttribute(
@@ -348,5 +355,8 @@ export const SanitizedHtml: Story = {
       "user-content-current",
     );
     await expect(canvasElement.querySelector("#current")).toBeNull();
+    const image = canvas.getByAltText("危険な画像属性");
+    await expect(image).not.toHaveAttribute("width");
+    await expect(image).not.toHaveAttribute("style");
   },
 };
