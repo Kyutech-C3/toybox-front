@@ -25,7 +25,6 @@ const MAX_ASSET_SIZE = 2000 * 1024 * 1024;
 
 type UseAssetUploadReturn = {
   assets: EditorAsset[];
-  description: string;
   validationError: string;
   handleAddFiles: (files: File[]) => void;
   handleAddImageFile: (file: File) => Promise<EditorAsset | null>;
@@ -35,7 +34,6 @@ type UseAssetUploadReturn = {
 
 const useAssetUpload = (): UseAssetUploadReturn => {
   const assets = useWorkEditorStore((state) => state.current.assets);
-  const description = useWorkEditorStore((state) => state.current.description);
   const addAssets = useWorkEditorStore((state) => state.addAssets);
   const updateAsset = useWorkEditorStore((state) => state.updateAsset);
   const removeAsset = useWorkEditorStore((state) => state.removeAsset);
@@ -201,7 +199,6 @@ const useAssetUpload = (): UseAssetUploadReturn => {
 
   return {
     assets,
-    description,
     validationError,
     handleAddFiles,
     handleAddImageFile,

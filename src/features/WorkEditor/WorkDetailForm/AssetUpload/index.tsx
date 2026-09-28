@@ -1,9 +1,11 @@
+import { memo, useEffect, useState } from "react";
 import AudiotrackRoundedIcon from "@mui/icons-material/AudiotrackRounded";
 import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 
+import { useWorkEditorStoreApi } from "../../store/useWorkEditorStore";
 import useAssetUpload, { ASSET_ACCEPT } from "../hook/useAssetUpload";
-import { removeAssetImageMarkdown } from "../removeAssetImageMarkdown";
+import { getReferencedAssetURLs } from "../removeAssetImageMarkdown";
 import UploadArea from "../UploadArea";
 import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
@@ -17,6 +19,8 @@ type AssetStatusSource = {
   file?: unknown;
   errorMessage?: string;
 };
+
+const REFERENCE_STATUS_DELAY_MS = 500;
 
 /** 説明欄は 4:1 に収まる 2 行なので、種類と状態を 1 行にまとめる */
 const getStatusText = ({
@@ -32,14 +36,45 @@ const getStatusText = ({
 };
 
 const AssetUpload = () => {
-  const {
-    assets,
-    description,
-    validationError,
-    handleAddFiles,
-    handleRetry,
-    handleRemove,
-  } = useAssetUpload();
+  const { assets, validationError, handleAddFiles, handleRetry, handleRemove } =
+    useAssetUpload();
+  const store = useWorkEditorStoreApi();
+  const [referencedAssetURLs, setReferencedAssetURLs] = useState(() => {
+    const current = store.getState().current;
+    return getReferencedAssetURLs(
+      current.description,
+      current.assets.flatMap((asset) =>
+        asset.assetURL ? [asset.assetURL] : [],
+      ),
+    );
+  });
+
+  useEffect(() => {
+    let timer: number | undefined;
+    const unsubscribe = store.subscribe((state, previousState) => {
+      if (
+        state.current.description === previousState.current.description &&
+        state.current.assets === previousState.current.assets
+      )
+        return;
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        const current = store.getState().current;
+        setReferencedAssetURLs(
+          getReferencedAssetURLs(
+            current.description,
+            current.assets.flatMap((asset) =>
+              asset.assetURL ? [asset.assetURL] : [],
+            ),
+          ),
+        );
+      }, REFERENCE_STATUS_DELAY_MS);
+    });
+    return () => {
+      unsubscribe();
+      window.clearTimeout(timer);
+    };
+  }, [store]);
   return (
     <section className={styles["asset-upload"]}>
       <h3 className={styles["heading"]}>アセット</h3>
@@ -50,9 +85,7 @@ const AssetUpload = () => {
             asset={asset}
             previewClassName={styles["preview"]}
             statusText={
-              asset.assetURL &&
-              removeAssetImageMarkdown(description, asset.assetURL)
-                .hasImageReferences
+              asset.assetURL && referencedAssetURLs.has(asset.assetURL)
                 ? "説明文でも使用中"
                 : getStatusText(asset)
             }
@@ -90,4 +123,4 @@ const AssetUpload = () => {
   );
 };
 
-export default AssetUpload;
+export default memo(AssetUpload);

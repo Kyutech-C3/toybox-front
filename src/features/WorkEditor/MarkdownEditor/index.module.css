@@ -25,11 +25,10 @@
 }
 
 .line-numbers {
-  position: absolute;
+  position: relative;
   z-index: 1;
-  top: var(--editor-text-padding);
-  right: 16px;
-  left: 0;
+  width: calc(100% + var(--line-number-gutter-width));
+  margin-left: calc(-1 * var(--line-number-gutter-width));
   pointer-events: none;
   font-family: var(--md-editor-font-family);
   font-size: 16px;
@@ -38,7 +37,7 @@
   line-height: var(--editor-line-height);
   white-space: pre-wrap;
   overflow-wrap: break-word;
-  word-break: normal;
+  word-break: break-word;
 }
 
 .line-number-row {

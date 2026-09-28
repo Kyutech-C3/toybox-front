@@ -41,12 +41,14 @@ type ImageInsertionExampleProps = {
   description?: string;
   isUploadVisible?: boolean;
   hasSecondImage?: boolean;
+  additionalImages?: number;
 };
 
 const ImageInsertionExample = ({
   description = "",
   isUploadVisible = false,
   hasSecondImage = false,
+  additionalImages = 0,
 }: ImageInsertionExampleProps) => {
   const store = useWorkEditorStoreApi();
   useEffect(() => {
@@ -73,9 +75,18 @@ const ImageInsertionExample = ({
         fileName: "second.png",
       });
     }
+    for (let index = 0; index < additionalImages; index += 1) {
+      sampleAssets.push({
+        ...sampleAssets[0],
+        key: `asset:extra-${index}`,
+        assetID: `extra-${index}`,
+        assetURL: `https://example.com/extra-${index}.png`,
+        fileName: `extra-${index}.png`,
+      });
+    }
     store.getState().addAssets(sampleAssets);
     if (description) store.getState().setDescription(description);
-  }, [store, description, hasSecondImage]);
+  }, [store, description, hasSecondImage, additionalImages]);
   return (
     <>
       {isUploadVisible && <AssetUpload />}
@@ -178,52 +189,27 @@ export const LineNumbers: Story = {
       rows[3].getBoundingClientRect().bottom,
       0,
     );
-    const highlightedText = canvasElement.querySelector(
-      ".w-md-editor-text-pre > code",
-    );
-    if (!highlightedText)
-      throw new Error("Markdown の入力表示が見つかりません");
-    const getTextRect = (text: string) => {
-      const textWalker = document.createTreeWalker(
-        highlightedText,
-        NodeFilter.SHOW_TEXT,
-      );
-      for (
-        let textNode = textWalker.nextNode();
-        textNode;
-        textNode = textWalker.nextNode()
-      ) {
-        const offset = textNode.textContent?.indexOf(text) ?? -1;
-        if (offset < 0) continue;
-        const range = document.createRange();
-        range.setStart(textNode, offset);
-        range.setEnd(textNode, offset + 1);
-        return range.getBoundingClientRect();
-      }
-      throw new Error(`${text} の入力表示が見つかりません`);
-    };
     await expect(
-      Math.abs(
-        getTextRect("5 行目").top -
-          getTextRect("1 行目").top -
-          (rows[4].getBoundingClientRect().top -
-            rows[0].getBoundingClientRect().top),
-      ),
-    ).toBeLessThan(2);
+      canvasElement.querySelector(".w-md-editor-text-pre"),
+    ).not.toBeInTheDocument();
     const firstNumber = rows[0].firstElementChild;
     if (!(firstNumber instanceof HTMLElement))
       throw new Error("1 行目の行番号が見つかりません");
     await expect(getComputedStyle(firstNumber).fontSize).toBe("12px");
     const numberRange = document.createRange();
     numberRange.selectNodeContents(firstNumber);
-    const numberGap =
-      getTextRect("1 行目").left - numberRange.getBoundingClientRect().right;
-    await expect(numberGap).toBeGreaterThanOrEqual(14);
-    await expect(numberGap).toBeLessThan(18);
-
     const input = canvas.getByRole("textbox", { name: "説明" });
     if (!(input instanceof HTMLTextAreaElement))
       throw new Error("説明の入力欄が見つかりません");
+    const numberGap =
+      input.getBoundingClientRect().left +
+      Number.parseFloat(getComputedStyle(input).paddingLeft) -
+      numberRange.getBoundingClientRect().right;
+    await expect(numberGap).toBeGreaterThanOrEqual(14);
+    await expect(numberGap).toBeLessThan(18);
+    await expect(input.scrollHeight).toBeLessThanOrEqual(
+      input.clientHeight + 1,
+    );
     await userEvent.click(input);
     input.setSelectionRange(input.value.length, input.value.length);
     await userEvent.type(input, "{Enter}6 行目");
@@ -247,6 +233,86 @@ export const LineNumbers: Story = {
         name: "プレビュー",
       }),
     );
+  },
+};
+
+const LONG_DOCUMENT_DESCRIPTION = Array.from(
+  { length: 500 },
+  (_, index) =>
+    `**行 ${index + 1}** ${"作品の内容と制作過程について説明する文章です。".repeat(3)}`,
+).join("\n");
+
+export const LongDocument: Story = {
+  render: () => (
+    <ImageInsertionExample description={LONG_DOCUMENT_DESCRIPTION} />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    if (!(input instanceof HTMLTextAreaElement))
+      throw new Error("説明の入力欄が見つかりません");
+    const numbers = await canvas.findByTestId("markdown-line-numbers");
+    await expect(numbers.children).toHaveLength(500);
+    await expect(
+      canvasElement.querySelector(".w-md-editor-text-pre"),
+    ).not.toBeInTheDocument();
+    await userEvent.click(input);
+    input.setSelectionRange(input.value.length, input.value.length);
+    const startedAt = performance.now();
+    await userEvent.type(input, "追記");
+    await expect(performance.now() - startedAt).toBeLessThan(500);
+    await expect(input).toHaveValue(`${LONG_DOCUMENT_DESCRIPTION}追記`);
+    await expect(input.scrollHeight).toBeLessThanOrEqual(
+      input.clientHeight + 1,
+    );
+    await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
+    const splitInput = canvas.getByRole("textbox", { name: "説明" });
+    if (!(splitInput instanceof HTMLTextAreaElement))
+      throw new Error("分割モードの入力欄が見つかりません");
+    await userEvent.click(splitInput);
+    splitInput.setSelectionRange(
+      splitInput.value.length,
+      splitInput.value.length,
+    );
+    const splitStartedAt = performance.now();
+    await userEvent.type(splitInput, "追記");
+    await expect(performance.now() - splitStartedAt).toBeLessThan(500);
+    await expect(splitInput).toHaveValue(
+      `${LONG_DOCUMENT_DESCRIPTION}追記追記`,
+    );
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+const ASSET_DOCUMENT_DESCRIPTION = `${LONG_DOCUMENT_DESCRIPTION}\n\n![sample](https://example.com/sample.png "タイトル")\n\n![参照][extra]\n\n[extra]: https://example.com/extra-0.png\n\n<img src="https://example.com/extra-1.png">\n\n[リンク](https://example.com/extra-2.png)`;
+
+export const LongDocumentWithAssets: Story = {
+  render: () => (
+    <ImageInsertionExample
+      description={ASSET_DOCUMENT_DESCRIPTION}
+      isUploadVisible
+      additionalImages={9}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    if (!(input instanceof HTMLTextAreaElement))
+      throw new Error("説明の入力欄が見つかりません");
+    await waitFor(() =>
+      expect(canvas.getAllByText("説明文でも使用中")).toHaveLength(3),
+    );
+    await userEvent.click(input);
+    input.setSelectionRange(input.value.length, input.value.length);
+    const startedAt = performance.now();
+    await userEvent.type(input, "追記");
+    await expect(performance.now() - startedAt).toBeLessThan(500);
+    await expect(canvas.getAllByText("説明文でも使用中")).toHaveLength(3);
+    fireEvent.change(input, { target: { value: LONG_DOCUMENT_DESCRIPTION } });
+    await waitFor(() =>
+      expect(canvas.queryAllByText("説明文でも使用中")).toHaveLength(0),
+    );
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
   },
 };
 
@@ -727,7 +793,7 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
     const removeButton = await canvas.findByRole("button", {
       name: "sample.pngを削除",
     });
-    await expect(canvas.getByText(/説明文でも使用中/)).toBeVisible();
+    await expect(await canvas.findByText(/説明文でも使用中/)).toBeVisible();
     const confirm = spyOn(window, "confirm")
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(true);
@@ -825,7 +891,7 @@ export const SplitModeStaysOnPage: Story = {
       },
     });
     await expect(
-      canvas.getByRole("heading", { name: "分割表示 1" }),
+      await canvas.findByRole("heading", { name: "分割表示 1" }),
     ).toBeVisible();
     await expect(panel.children).toHaveLength(2);
     await expect(source.getBoundingClientRect().height).toBeGreaterThan(
@@ -869,6 +935,54 @@ export const SplitModeStaysOnPage: Story = {
       canvasElement.querySelector('[data-markdown-editor="true"]'),
     ).toHaveAttribute("data-mode", "live");
     await userEvent.click(live.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+export const PreviewUpdatesAfterPause: Story = {
+  render: () => <ImageInsertionExample description="開始" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const longWord = "a".repeat(1200);
+    await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    const preview = canvas.getByRole("tabpanel").children[1];
+    if (
+      !(input instanceof HTMLTextAreaElement) ||
+      !(preview instanceof HTMLElement)
+    )
+      throw new Error("分割モードのペインが見つかりません");
+
+    fireEvent.change(input, { target: { value: `分割${longWord}` } });
+    await expect(preview).toHaveTextContent("開始");
+    await expect(preview).not.toHaveTextContent(longWord);
+    await waitFor(() => expect(preview).toHaveTextContent(`分割${longWord}`));
+    await expect(preview.scrollWidth).toBeLessThanOrEqual(preview.clientWidth);
+
+    await userEvent.click(canvas.getByRole("tab", { name: "ライブ" }));
+    const dialog = await canvas.findByRole("dialog", {
+      name: "ライブモードの全画面表示",
+    });
+    const live = within(dialog);
+    const liveInput = live.getByRole("textbox", { name: "説明" });
+    const livePreview =
+      dialog.querySelector('[role="tabpanel"]')?.children[1]?.firstElementChild;
+    if (
+      !(liveInput instanceof HTMLTextAreaElement) ||
+      !(livePreview instanceof HTMLElement)
+    )
+      throw new Error("ライブモードのペインが見つかりません");
+    await expect(livePreview).toHaveTextContent(`分割${longWord}`);
+    fireEvent.change(liveInput, { target: { value: `ライブ${longWord}` } });
+    await expect(livePreview).toHaveTextContent(`分割${longWord}`);
+    await waitFor(() =>
+      expect(livePreview).toHaveTextContent(`ライブ${longWord}`),
+    );
+    await expect(livePreview.scrollWidth).toBeLessThanOrEqual(
+      livePreview.clientWidth,
+    );
+    fireEvent.change(liveInput, { target: { value: "最新の本文" } });
+    await userEvent.click(live.getByRole("tab", { name: "プレビュー" }));
+    await expect(canvas.getByText("最新の本文")).toBeVisible();
   },
 };
 

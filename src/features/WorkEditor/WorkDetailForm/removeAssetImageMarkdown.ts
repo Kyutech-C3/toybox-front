@@ -17,6 +17,53 @@ const matchesAssetURL = (candidate: string, assetURL: string) =>
   candidate === assetURL ||
   candidate === assetURL.replaceAll("(", "%28").replaceAll(")", "%29");
 
+export const getReferencedAssetURLs = (
+  description: string,
+  assetURLs: string[],
+): Set<string> => {
+  const referencedURLs = new Set<string>();
+  if (assetURLs.length === 0) return referencedURLs;
+
+  const candidates = new Map<string, Set<string>>();
+  for (const assetURL of assetURLs) {
+    for (const candidate of [
+      assetURL,
+      assetURL.replaceAll("(", "%28").replaceAll(")", "%29"),
+    ]) {
+      const matchingURLs = candidates.get(candidate) ?? new Set<string>();
+      matchingURLs.add(assetURL);
+      candidates.set(candidate, matchingURLs);
+    }
+  }
+
+  const addReference = (candidate: string) => {
+    for (const assetURL of candidates.get(candidate) ?? []) {
+      referencedURLs.add(assetURL);
+    }
+  };
+
+  const tree = MARKDOWN_PARSER.parse(description) as Root;
+  const definitions = new Map<string, string>();
+  visit(tree, "definition", (node) => {
+    definitions.set(node.identifier, node.url);
+  });
+  visit(tree, (node) => {
+    if (node.type === "image" || node.type === "imageReference") {
+      const url =
+        node.type === "image" ? node.url : definitions.get(node.identifier);
+      if (url) addReference(url);
+    } else if (node.type === "html" && typeof document !== "undefined") {
+      const template = document.createElement("template");
+      template.innerHTML = node.value;
+      for (const image of template.content.querySelectorAll("img")) {
+        addReference(image.getAttribute("src") ?? "");
+      }
+    }
+  });
+
+  return referencedURLs;
+};
+
 export const removeAssetImageMarkdown = (
   description: string,
   assetURL: string,

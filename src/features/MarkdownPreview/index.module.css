@@ -2,6 +2,7 @@
   box-sizing: border-box;
   width: 100%;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 
   h1,
   h2,

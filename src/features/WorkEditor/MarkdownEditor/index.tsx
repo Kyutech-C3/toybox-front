@@ -1,11 +1,18 @@
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 import SyncDisabledRoundedIcon from "@mui/icons-material/SyncDisabledRounded";
 import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
 import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
-import MDEditor from "@uiw/react-md-editor";
 import { divider, getCommands } from "@uiw/react-md-editor/commands";
+import MDEditor from "@uiw/react-md-editor/nohighlight";
 import rehypeSanitize from "rehype-sanitize";
 
 import {
@@ -50,6 +57,7 @@ import type { EditorAsset } from "../types";
 import type { EditorMode } from "./types";
 
 const EDITOR_PLACEHOLDER = "Markdown で作品の説明を書けます";
+const PREVIEW_UPDATE_DELAY_MS = 500;
 const DEFAULT_MARKDOWN_COMMANDS = getCommands();
 const CLIPBOARD_IMAGE_EXTENSIONS: Record<string, string[]> = {
   "image/png": [".png"],
@@ -64,6 +72,36 @@ type ImageInsertionSelection = {
   end: number;
   description: string;
   sessionVersion: number;
+};
+
+type DelayedMarkdownPreviewProps = {
+  description: string;
+};
+
+const DelayedMarkdownPreview = ({
+  description,
+}: DelayedMarkdownPreviewProps) => {
+  const [content, setContent] = useState(description);
+
+  useEffect(() => {
+    const timer = window.setTimeout(
+      () => setContent(description),
+      PREVIEW_UPDATE_DELAY_MS,
+    );
+    return () => window.clearTimeout(timer);
+  }, [description]);
+
+  return useMemo(
+    () =>
+      content.trim() ? (
+        <MarkdownPreview content={content} />
+      ) : (
+        <p className={styles["preview-empty"]}>
+          プレビューする内容がありません
+        </p>
+      ),
+    [content],
+  );
 };
 
 const isInsertableImage = (asset: EditorAsset) => {
@@ -565,7 +603,7 @@ const MarkdownEditor = () => {
                   className={liveStyles["live-preview-content"]}
                   ref={previewRef}
                 >
-                  {markdownPreview}
+                  <DelayedMarkdownPreview description={description} />
                 </div>
                 {scrollSyncButton}
               </div>
@@ -583,7 +621,7 @@ const MarkdownEditor = () => {
             mode={mode}
             panelID={panelID}
             source={markdownInput}
-            preview={markdownPreview}
+            preview={<DelayedMarkdownPreview description={description} />}
             scrollSyncButton={scrollSyncButton}
             sourceRef={sourceRef}
             previewRef={previewRef}

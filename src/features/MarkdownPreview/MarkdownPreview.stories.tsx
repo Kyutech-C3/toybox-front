@@ -64,6 +64,18 @@ export const WideTable: Story = {
 
 export const Empty: Story = { args: { content: "" } };
 
+export const LongUnbrokenText: Story = {
+  args: { content: "a".repeat(2000) },
+  play: async ({ canvasElement }) => {
+    const paragraph = canvasElement.querySelector("p");
+    if (!(paragraph?.parentElement instanceof HTMLElement))
+      throw new Error("プレビューが見つかりません");
+    await expect(paragraph.parentElement.scrollWidth).toBeLessThanOrEqual(
+      paragraph.parentElement.clientWidth,
+    );
+  },
+};
+
 export const LinksAndLineBreaks: Story = {
   args: {
     content:
