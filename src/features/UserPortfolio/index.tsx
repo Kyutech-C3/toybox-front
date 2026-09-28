@@ -71,7 +71,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
                 <h1 className={styles["display-name"]}>
                   {userProfile.display_name}
                 </h1>
-                {(userProfile.github_id || userProfile.twitter_id) && (
+                {(userProfile.github_id || userProfile.x_username) && (
                   <nav
                     className={styles["social-links"]}
                     aria-label="ソーシャルアカウント"
@@ -87,15 +87,15 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
                         <span>{userProfile.github_id}</span>
                       </a>
                     )}
-                    {userProfile.twitter_id && (
+                    {userProfile.x_username && (
                       <a
                         className={styles["social-link"]}
-                        href={`https://x.com/${encodeURIComponent(userProfile.twitter_id)}`}
+                        href={`https://x.com/${encodeURIComponent(userProfile.x_username)}`}
                         target="_blank"
                         rel="noreferrer"
                       >
                         <XIcon fontSize="small" />
-                        <span>{userProfile.twitter_id}</span>
+                        <span>{userProfile.x_username}</span>
                       </a>
                     )}
                   </nav>

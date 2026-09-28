@@ -28,15 +28,22 @@ const TopPage = () => {
     const tagResponse = cache.get(unstable_serialize(tagKey))?.data as
       | TagListResponse
       | undefined;
-    const { currentPage, selectedTags } = getWorkIndexSelection({
-      searchParams,
-      allTags: tagResponse?.tags ?? [],
-    });
+    const { currentPage, selectedTags, sortOrder, visibility } =
+      getWorkIndexSelection({
+        searchParams,
+        allTags: tagResponse?.tags ?? [],
+      });
     await Promise.all([
       mutate(tagKey, undefined, { revalidate: true }),
       mutate(
         getWorksSWRKey(
-          { page: currentPage, limit: itemsPerPage, tags: selectedTags },
+          {
+            page: currentPage,
+            limit: itemsPerPage,
+            tags: selectedTags,
+            sortOrder,
+            visibility: accessToken ? visibility : null,
+          },
           accessToken,
         ),
         undefined,

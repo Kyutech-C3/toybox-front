@@ -12,7 +12,7 @@ const PROFILE = {
   profile: "電子工作とWeb開発をしています。",
   avatar_url: "",
   github_id: "toybox-user",
-  twitter_id: "toybox_user",
+  x_username: "toybox_user",
 };
 
 const META = {

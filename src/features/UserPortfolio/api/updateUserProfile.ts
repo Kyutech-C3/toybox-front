@@ -22,7 +22,7 @@ export const updateUserProfile = async ({
     JSON.stringify({
       display_name: displayName,
       profile,
-      twitter_id: xUsername,
+      x_username: xUsername,
       github_id: githubID,
     }),
     accessToken,

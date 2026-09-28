@@ -1,14 +1,15 @@
-import { useState } from "react";
-
 import SegmentedControl from "@/shared/ui/SegmentedControl";
 import VisibilityIcon from "@/shared/ui/VisibilityIcon";
 
-import type { WorkVisibility } from "@/shared/types/work";
 import type { SegmentedControlOption } from "@/shared/ui/SegmentedControl";
+import type { VisibilityFilterValue } from "../getWorkIndexSelection";
 
-type VisibilityOption = Extract<WorkVisibility, "public" | "private">;
+type VisibilityFilterProps = {
+  value: VisibilityFilterValue | null;
+  onChange: (value: VisibilityFilterValue | null) => void;
+};
 
-const VISIBILITY_OPTIONS: SegmentedControlOption<VisibilityOption>[] = [
+const VISIBILITY_OPTIONS: SegmentedControlOption<VisibilityFilterValue>[] = [
   {
     value: "public",
     label: "全体公開",
@@ -23,19 +24,14 @@ const VISIBILITY_OPTIONS: SegmentedControlOption<VisibilityOption>[] = [
   },
 ];
 
-const VisibilityFilter = () => {
-  const [selectedVisibility, setSelectedVisibility] =
-    useState<VisibilityOption | null>(null);
-
-  return (
-    <SegmentedControl
-      options={VISIBILITY_OPTIONS}
-      value={selectedVisibility}
-      onChange={setSelectedVisibility}
-      onDeselect={() => setSelectedVisibility(null)}
-      ariaLabel="公開範囲"
-    />
-  );
-};
+const VisibilityFilter = ({ value, onChange }: VisibilityFilterProps) => (
+  <SegmentedControl
+    options={VISIBILITY_OPTIONS}
+    value={value}
+    onChange={onChange}
+    onDeselect={() => onChange(null)}
+    ariaLabel="公開範囲"
+  />
+);
 
 export default VisibilityFilter;
