@@ -1,27 +1,30 @@
 .site-favicon {
   --site-favicon-size: 24px;
 
-  position: relative;
   width: var(--site-favicon-size);
   height: var(--site-favicon-size);
   flex: none;
-  display: inline-block;
+  display: grid;
+  place-items: center;
   border-radius: 4px;
   color: var(--font-muted-color);
+  line-height: 0;
 }
 
 .small {
   --site-favicon-size: 18px;
 }
 
-.site-favicon svg,
-.site-favicon img {
-  position: absolute;
-  inset: 0;
-  width: var(--site-favicon-size);
-  height: var(--site-favicon-size);
+.site-favicon > svg,
+.site-favicon > span {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .site-favicon img {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }

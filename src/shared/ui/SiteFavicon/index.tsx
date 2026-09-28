@@ -42,11 +42,8 @@ const SiteFavicon = ({ url, size = "default" }: SiteFaviconProps) => {
         <LoadingImage
           src={getFaviconUrl(url)}
           alt=""
-          width="24"
-          height="24"
           referrerPolicy="no-referrer"
           onLoad={(event) => {
-            // Google's generic globe is returned as a 16px image even when 64px is requested.
             if (
               event.currentTarget.naturalWidth === 16 &&
               event.currentTarget.naturalHeight === 16
