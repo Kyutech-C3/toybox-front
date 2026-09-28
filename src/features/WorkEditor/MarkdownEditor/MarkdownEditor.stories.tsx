@@ -47,19 +47,12 @@ export const EmptyPreview: Story = {
   },
 };
 
-export const MarkdownGuideAndExtendedPreview: Story = {
+export const ExtendedPreview: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const guide = canvas.getByText("Markdown の書き方", {
-      selector: "summary",
-    });
-    await userEvent.click(guide);
-    await expect(canvas.getByRole("table")).toBeVisible();
     await expect(
-      canvas.getByText("数式、Mermaid", { exact: false }),
-    ).toBeVisible();
-    await userEvent.click(guide);
-    await expect(guide.closest("details")).not.toHaveAttribute("open");
+      canvas.queryByText("Markdown の書き方", { selector: "summary" }),
+    ).not.toBeInTheDocument();
     const input = canvas.getByRole("textbox", { name: "説明" });
     await fireEvent.change(input, {
       target: {
