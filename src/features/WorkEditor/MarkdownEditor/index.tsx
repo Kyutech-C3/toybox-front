@@ -43,6 +43,7 @@ type ImageInsertionSelection = {
   textarea: HTMLTextAreaElement;
   start: number;
   end: number;
+  description: string;
   sessionVersion: number;
 };
 
@@ -74,6 +75,7 @@ const MarkdownEditor = () => {
   const [mode, setMode] = useState<EditorMode>("edit");
   const [isScrollSyncEnabled, setIsScrollSyncEnabled] = useState(true);
   const [selectedImageKey, setSelectedImageKey] = useState("");
+  const [imageInsertNotice, setImageInsertNotice] = useState("");
   const panelID = useId();
   const editorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -175,10 +177,12 @@ const MarkdownEditor = () => {
       ".w-md-editor-text-input",
     );
     if (!textarea) return;
+    setImageInsertNotice("");
     uploadSelectionRef.current = {
       textarea,
       start: textarea.selectionStart,
       end: textarea.selectionEnd,
+      description: editorStore.getState().current.description,
       sessionVersion: editorStore.getState().sessionVersion,
     };
     fileInputRef.current?.click();
@@ -195,12 +199,18 @@ const MarkdownEditor = () => {
     if (!file || !selection) return;
     const uploaded = await handleAddImageFile(file);
     if (!uploaded?.assetURL) return;
-    if (
-      selection.sessionVersion !== editorStore.getState().sessionVersion ||
-      !selection.textarea.isConnected
-    )
+    if (selection.sessionVersion !== editorStore.getState().sessionVersion)
       return;
     setSelectedImageKey(uploaded.key);
+    if (
+      selection.description !== editorStore.getState().current.description ||
+      !selection.textarea.isConnected
+    ) {
+      setImageInsertNotice(
+        "画像をアップロードしました。説明文または編集画面が変わったため、自動挿入せず、挿入ボタンから追加できます。",
+      );
+      return;
+    }
     insertImageRef.current(getAssetImageMarkdown(uploaded), selection);
   };
   const handleCommandFilter = (
@@ -230,7 +240,11 @@ const MarkdownEditor = () => {
     <MarkdownImageActions
       key={selectedImage.key}
       selectedImage={selectedImage}
-      onInsert={handleInsertImage}
+      onInsert={(markdown) => {
+        const didInsert = handleInsertImage(markdown);
+        if (didInsert) setImageInsertNotice("");
+        return didInsert;
+      }}
     />
   );
 
@@ -313,6 +327,11 @@ const MarkdownEditor = () => {
           {mode !== "preview" && mode !== "live" && markdownImageActions}
         </div>
         {mode !== "preview" && mode !== "live" && markdownImagePicker}
+        {mode !== "preview" && mode !== "live" && imageInsertNotice && (
+          <p className={styles["image-insert-notice"]} role="status">
+            {imageInsertNotice}
+          </p>
+        )}
         {(mode === "edit" || mode === "split") && imageUploadError && (
           <FieldError role="alert">{imageUploadError}</FieldError>
         )}
@@ -369,6 +388,11 @@ const MarkdownEditor = () => {
             imagePicker={
               <>
                 {markdownImagePicker}
+                {imageInsertNotice && (
+                  <p className={styles["image-insert-notice"]} role="status">
+                    {imageInsertNotice}
+                  </p>
+                )}
                 {imageUploadError && (
                   <FieldError role="alert">{imageUploadError}</FieldError>
                 )}

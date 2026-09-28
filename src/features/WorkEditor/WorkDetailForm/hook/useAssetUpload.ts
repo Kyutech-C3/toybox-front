@@ -177,17 +177,23 @@ const useAssetUpload = (): UseAssetUploadReturn => {
     const current = store.getState().current;
     const target = current.assets.find((asset) => asset.key === key);
     if (!target || target.status === "uploading") return;
-    const nextDescription = target.assetURL
+    const imageUsage = target.assetURL
       ? removeAssetImageMarkdown(current.description, target.assetURL)
-      : current.description;
-    if (nextDescription !== current.description) {
+      : null;
+    if (imageUsage?.hasUnsupportedReferences) {
+      setValidationError(
+        `${target.fileName} は説明文の HTML 画像で使用されています。説明文から画像を削除してからアセットを削除してください。`,
+      );
+      return;
+    }
+    if (imageUsage?.hasImageReferences) {
       if (
         !window.confirm(
           `${target.fileName} は下の説明文でも使用されています。削除すると説明文からも画像を削除します。`,
         )
       )
         return;
-      setDescription(nextDescription);
+      setDescription(imageUsage.nextDescription);
     }
     setValidationError("");
     removeAsset(key);

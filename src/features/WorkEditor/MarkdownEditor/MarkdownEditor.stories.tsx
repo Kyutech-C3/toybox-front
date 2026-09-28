@@ -247,6 +247,68 @@ export const ToolbarImageInsertion: Story = {
   },
 };
 
+export const ToolbarImageUploadAfterTextChange: Story = {
+  render: () => <ImageInsertionExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    const fileInput = canvas.getByLabelText("説明に挿入する画像を選択");
+    if (
+      !(input instanceof HTMLTextAreaElement) ||
+      !(fileInput instanceof HTMLInputElement)
+    )
+      throw new Error("画像入力欄が見つかりません");
+    await userEvent.type(input, "前後");
+    input.setSelectionRange(1, 2);
+    fireEvent.select(input);
+
+    const originalFetch = globalThis.fetch;
+    const originalAuth = useAuthStore.getState();
+    const uploadGate: { resolve?: (response: Response) => void } = {};
+    globalThis.fetch = (resource, init) =>
+      String(resource).endsWith("/auth/works/asset")
+        ? new Promise<Response>((resolve) => {
+            uploadGate.resolve = resolve;
+          })
+        : originalFetch(resource, init);
+    useAuthStore.getState().startSession("storybook-token");
+    try {
+      await userEvent.click(
+        canvas.getByRole("button", { name: "画像を選んで挿入" }),
+      );
+      await userEvent.upload(
+        fileInput,
+        new File(["image"], "later.png", { type: "image/png" }),
+      );
+      await userEvent.type(input, "追加");
+      const editedDescription = input.value;
+      if (!uploadGate.resolve)
+        throw new Error("画像のアップロードが開始されませんでした");
+      uploadGate.resolve(
+        new Response(
+          JSON.stringify({ id: "later", url: "https://example.com/later.png" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+      await canvas.findByRole("button", { name: "later.pngを選択" });
+      await expect(input).toHaveValue(editedDescription);
+      await expect(canvas.getByRole("status")).toHaveTextContent(
+        "自動挿入せず",
+      );
+      await userEvent.click(
+        canvas.getByRole("button", { name: "カーソル位置に挿入" }),
+      );
+      await expect(input.value).toContain(
+        "![later](https://example.com/later.png)",
+      );
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    } finally {
+      globalThis.fetch = originalFetch;
+      useAuthStore.setState(originalAuth);
+    }
+  },
+};
+
 export const ToolbarImageUploadFailure: Story = {
   render: () => <ImageInsertionExample isUploadVisible />,
   play: async ({ canvasElement }) => {
@@ -417,7 +479,9 @@ export const ImageInsertionKeepsScroll: Story = {
 export const ReferencedImageRemovalUpdatesDescription: Story = {
   render: () => (
     <ImageInsertionExample
-      description="前\n\n![sample](https://example.com/sample.png)\n\n![別の説明](https://example.com/sample.png)\n\n[リンク](https://example.com/sample.png)\n\n後"
+      description={
+        '前\n\n![sample](https://example.com/sample.png)\n\n![別の説明](https://example.com/sample.png "タイトル")\n\n![参照][sample-ref]\n\n[sample-ref]: https://example.com/sample.png\n\n<img src="https://example.com/sample.png" alt="HTML 画像">\n\n[リンク](https://example.com/sample.png)\n\n後'
+      }
       isUploadVisible
     />
   ),
@@ -447,7 +511,12 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
         "![sample](https://example.com/sample.png)",
       );
       await expect(input.value).not.toContain(
-        "![別の説明](https://example.com/sample.png)",
+        "![別の説明](https://example.com/sample.png",
+      );
+      await expect(input.value).not.toContain("![参照][sample-ref]");
+      await expect(input.value).not.toContain("<img src=");
+      await expect(input.value).toContain(
+        "[sample-ref]: https://example.com/sample.png",
       );
       await expect(input.value).toContain(
         "[リンク](https://example.com/sample.png)",
@@ -455,6 +524,33 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
     } finally {
       confirm.mockRestore();
     }
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+export const ComplexHtmlImageBlocksAssetRemoval: Story = {
+  render: () => (
+    <ImageInsertionExample
+      description={
+        '<div><img src="https://example.com/sample.png" alt="画像"><span>説明</span></div>'
+      }
+      isUploadVisible
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const removeButton = await canvas.findByRole("button", {
+      name: "sample.pngを削除",
+    });
+    await userEvent.click(removeButton);
+    await expect(removeButton).toBeInTheDocument();
+    await expect(canvas.getByRole("alert")).toHaveTextContent(
+      "説明文から画像を削除してから",
+    );
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    await expect(input).toHaveValue(
+      '<div><img src="https://example.com/sample.png" alt="画像"><span>説明</span></div>',
+    );
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
   },
 };

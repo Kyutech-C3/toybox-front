@@ -51,8 +51,8 @@ const AssetUpload = () => {
             previewClassName={styles["preview"]}
             statusText={
               asset.assetURL &&
-              removeAssetImageMarkdown(description, asset.assetURL) !==
-                description
+              removeAssetImageMarkdown(description, asset.assetURL)
+                .hasImageReferences
                 ? "説明文でも使用中"
                 : getStatusText(asset)
             }

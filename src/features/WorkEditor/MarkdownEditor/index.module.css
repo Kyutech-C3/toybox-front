@@ -24,6 +24,12 @@
   gap: var(--space-12);
 }
 
+.image-insert-notice {
+  margin: 0;
+  color: var(--font-muted-color);
+  font-size: 14px;
+}
+
 .markdown-editor-panel {
   width: 100%;
 }
