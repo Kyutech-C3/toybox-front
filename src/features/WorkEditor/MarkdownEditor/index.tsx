@@ -15,6 +15,7 @@ import EditorModeTabs, { getEditorTabID } from "./EditorModeTabs";
 import useLiveScrollSync from "./hook/useLiveScrollSync";
 import styles from "./index.module.css";
 import LiveModeDialog from "./LiveModeDialog";
+import liveStyles from "./LiveModeDialog/index.module.css";
 import MarkdownImagePicker, {
   getAssetImageMarkdown,
 } from "./MarkdownImagePicker";
@@ -82,7 +83,7 @@ const MarkdownEditor = () => {
     textareaScrollTop: number | null;
   } | null>(null);
   const { sourceRef, previewRef } = useLiveScrollSync({
-    isEnabled: mode === "live",
+    isEnabled: mode === "live" || mode === "split",
   });
   const images = assets.filter(isInsertableImage);
   const selectedImage =
@@ -280,14 +281,19 @@ const MarkdownEditor = () => {
           <EditorModeTabs mode={mode} panelID={panelID} onChange={setMode} />
         </div>
         {markdownImagePicker}
-        {mode === "edit" && imageUploadError && (
+        {(mode === "edit" || mode === "split") && imageUploadError && (
           <FieldError role="alert">{imageUploadError}</FieldError>
         )}
         <div
           id={panelID}
           role="tabpanel"
           aria-labelledby={getEditorTabID(panelID, mode)}
-          className={styles["markdown-editor-panel"]}
+          className={[
+            styles["markdown-editor-panel"],
+            mode === "split" ? liveStyles["live-dialog-body"] : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           tabIndex={mode === "preview" ? 0 : -1}
         >
           {mode === "edit" && (
@@ -295,6 +301,16 @@ const MarkdownEditor = () => {
           )}
           {mode === "preview" && (
             <div className={styles["preview-pane"]}>{markdownPreview}</div>
+          )}
+          {mode === "split" && (
+            <>
+              <div className={liveStyles["live-source"]} ref={sourceRef}>
+                {markdownInput}
+              </div>
+              <div className={liveStyles["live-preview"]} ref={previewRef}>
+                {markdownPreview}
+              </div>
+            </>
           )}
           {mode === "live" && (
             <p className={styles["live-placeholder"]}>

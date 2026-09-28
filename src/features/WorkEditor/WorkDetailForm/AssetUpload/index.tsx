@@ -3,6 +3,7 @@ import FolderZipRoundedIcon from "@mui/icons-material/FolderZipRounded";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 
 import useAssetUpload, { ASSET_ACCEPT } from "../hook/useAssetUpload";
+import { removeAssetImageMarkdown } from "../removeAssetImageMarkdown";
 import UploadArea from "../UploadArea";
 import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
@@ -31,8 +32,14 @@ const getStatusText = ({
 };
 
 const AssetUpload = () => {
-  const { assets, validationError, handleAddFiles, handleRetry, handleRemove } =
-    useAssetUpload();
+  const {
+    assets,
+    description,
+    validationError,
+    handleAddFiles,
+    handleRetry,
+    handleRemove,
+  } = useAssetUpload();
   return (
     <section className={styles["asset-upload"]}>
       <h3 className={styles["heading"]}>アセット</h3>
@@ -42,7 +49,13 @@ const AssetUpload = () => {
             key={asset.key}
             asset={asset}
             previewClassName={styles["preview"]}
-            statusText={getStatusText(asset)}
+            statusText={
+              asset.assetURL &&
+              removeAssetImageMarkdown(description, asset.assetURL) !==
+                description
+                ? "説明文でも使用中"
+                : getStatusText(asset)
+            }
             onRemove={() => handleRemove(asset.key)}
             onRetry={() => handleRetry(asset.key)}
           >

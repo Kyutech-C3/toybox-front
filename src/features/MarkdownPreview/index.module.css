@@ -325,9 +325,8 @@
     }
 
     table {
-      display: block;
-      width: 100%;
-      overflow-x: auto;
+      width: max-content;
+      margin-inline: auto;
       white-space: nowrap;
     }
 
@@ -335,5 +334,10 @@
     td {
       padding: 0.5rem 0.75rem;
     }
+  }
+
+  .table-scroll {
+    max-width: 100%;
+    overflow-x: auto;
   }
 }

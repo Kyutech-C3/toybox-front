@@ -205,6 +205,13 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
           h5: MarkdownHeading,
           h6: MarkdownHeading,
           blockquote: MarkdownAlert,
+          table({ node, ...props }) {
+            return (
+              <div className={styles["table-scroll"]}>
+                <table {...props} />
+              </div>
+            );
+          },
           li: MarkdownListItem,
           img({ node, ...props }) {
             return <LoadingImage {...props} isIntrinsic />;

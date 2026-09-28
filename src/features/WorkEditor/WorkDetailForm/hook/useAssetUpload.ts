@@ -12,6 +12,7 @@ import {
   useWorkEditorStore,
   useWorkEditorStoreApi,
 } from "../../store/useWorkEditorStore";
+import { removeAssetImageMarkdown } from "../removeAssetImageMarkdown";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 
@@ -24,6 +25,7 @@ const MAX_ASSET_SIZE = 2000 * 1024 * 1024;
 
 type UseAssetUploadReturn = {
   assets: EditorAsset[];
+  description: string;
   validationError: string;
   handleAddFiles: (files: File[]) => void;
   handleAddImageFile: (file: File) => Promise<EditorAsset | null>;
@@ -37,6 +39,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
   const addAssets = useWorkEditorStore((state) => state.addAssets);
   const updateAsset = useWorkEditorStore((state) => state.updateAsset);
   const removeAsset = useWorkEditorStore((state) => state.removeAsset);
+  const setDescription = useWorkEditorStore((state) => state.setDescription);
   const addUploadedAssetID = useWorkEditorStore(
     (state) => state.addUploadedAssetID,
   );
@@ -171,20 +174,20 @@ const useAssetUpload = (): UseAssetUploadReturn => {
   };
 
   const handleRemove = (key: string) => {
-    const target = assets.find((asset) => asset.key === key);
+    const current = store.getState().current;
+    const target = current.assets.find((asset) => asset.key === key);
     if (!target || target.status === "uploading") return;
-    const markdownURL = target.assetURL
-      ?.replaceAll("(", "%28")
-      .replaceAll(")", "%29");
-    if (
-      target.assetURL &&
-      (description.includes(target.assetURL) ||
-        (markdownURL !== undefined && description.includes(markdownURL)))
-    ) {
-      setValidationError(
-        `${target.fileName} は説明欄で使用中です。説明欄から画像を外してから削除してください`,
-      );
-      return;
+    const nextDescription = target.assetURL
+      ? removeAssetImageMarkdown(current.description, target.assetURL)
+      : current.description;
+    if (nextDescription !== current.description) {
+      if (
+        !window.confirm(
+          `${target.fileName} は下の説明文でも使用されています。削除すると説明文からも画像を削除します。`,
+        )
+      )
+        return;
+      setDescription(nextDescription);
     }
     setValidationError("");
     removeAsset(key);
@@ -192,6 +195,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
 
   return {
     assets,
+    description,
     validationError,
     handleAddFiles,
     handleAddImageFile,

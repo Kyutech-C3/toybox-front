@@ -25,6 +25,15 @@
   width: 100%;
 }
 
+.markdown-editor[data-mode="split"] {
+  height: 100dvh;
+}
+
+.markdown-editor[data-mode="split"] .markdown-editor-panel {
+  flex: 1;
+  min-height: 0;
+}
+
 .edit-pane {
   width: 100%;
 }

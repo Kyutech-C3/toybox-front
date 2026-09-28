@@ -55,6 +55,13 @@ export const TableAndTaskList: Story = {
   },
 };
 
+export const WideTable: Story = {
+  args: {
+    content:
+      "| 長い見出しの一列目 | 長い見出しの二列目 | 長い見出しの三列目 | 長い見出しの四列目 |\n| --- | --- | --- | --- |\n| 内容一 | 内容二 | 内容三 | 内容四 |",
+  },
+};
+
 export const Empty: Story = { args: { content: "" } };
 
 export const LinksAndLineBreaks: Story = {

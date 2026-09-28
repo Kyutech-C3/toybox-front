@@ -1,5 +1,12 @@
 import { useEffect } from "react";
-import { expect, fireEvent, fn, userEvent, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  fn,
+  spyOn,
+  userEvent,
+  within,
+} from "storybook/test";
 
 import { useWorkEditorStoreApi } from "../store/useWorkEditorStore";
 import WorkEditorStoreProvider from "../store/WorkEditorStoreProvider";
@@ -381,24 +388,66 @@ export const ImageInsertionKeepsScroll: Story = {
   },
 };
 
-export const ReferencedImageCannotBeRemoved: Story = {
+export const ReferencedImageRemovalUpdatesDescription: Story = {
   render: () => (
     <ImageInsertionExample
-      description="![sample](https://example.com/sample.png)"
+      description="前\n\n![sample](https://example.com/sample.png)\n\n![別の説明](https://example.com/sample.png)\n\n[リンク](https://example.com/sample.png)\n\n後"
       isUploadVisible
     />
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      await canvas.findByRole("button", { name: "sample.pngを削除" }),
-    );
+    const removeButton = await canvas.findByRole("button", {
+      name: "sample.pngを削除",
+    });
+    await expect(canvas.getByText(/説明文でも使用中/)).toBeVisible();
+    const confirm = spyOn(window, "confirm")
+      .mockReturnValueOnce(false)
+      .mockReturnValueOnce(true);
+    try {
+      await userEvent.click(removeButton);
+      await expect(removeButton).toBeInTheDocument();
+      await userEvent.click(removeButton);
+      await expect(confirm).toHaveBeenCalledWith(
+        "sample.png は下の説明文でも使用されています。削除すると説明文からも画像を削除します。",
+      );
+      await expect(
+        canvas.queryByRole("button", { name: "sample.pngを削除" }),
+      ).not.toBeInTheDocument();
+      const input = canvas.getByRole("textbox", { name: "説明" });
+      if (!(input instanceof HTMLTextAreaElement))
+        throw new Error("説明の入力欄が見つかりません");
+      await expect(input.value).not.toContain(
+        "![sample](https://example.com/sample.png)",
+      );
+      await expect(input.value).not.toContain(
+        "![別の説明](https://example.com/sample.png)",
+      );
+      await expect(input.value).toContain(
+        "[リンク](https://example.com/sample.png)",
+      );
+    } finally {
+      confirm.mockRestore();
+    }
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+export const SplitModeStaysOnPage: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
+    await expect(canvas.queryByRole("dialog")).not.toBeInTheDocument();
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    await userEvent.type(input, "# 分割表示");
     await expect(
-      canvas.getByText(/説明欄から画像を外してから削除してください/),
+      canvas.getByRole("heading", { name: "分割表示" }),
     ).toBeVisible();
+    const panel = canvas.getByRole("tabpanel");
+    await expect(panel.children).toHaveLength(2);
     await expect(
-      canvas.getByRole("button", { name: "sample.pngを選択" }),
-    ).toBeInTheDocument();
+      canvasElement.querySelector('[data-markdown-editor="true"]'),
+    ).toHaveAttribute("data-mode", "split");
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
   },
 };
