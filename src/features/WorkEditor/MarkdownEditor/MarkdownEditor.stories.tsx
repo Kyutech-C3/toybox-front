@@ -346,10 +346,11 @@ export const NativeHistorySurvivesModeChanges: Story = {
     await userEvent.click(canvas.getByRole("tab", { name: "エディタ" }));
     const restoredInput = canvas.getByRole("textbox", { name: "説明" });
     await expect(restoredInput).toBe(input);
-    input.focus();
-    document.execCommand("undo");
+    const undoButton = canvas.getByRole("button", { name: "元に戻す" });
+    const redoButton = canvas.getByRole("button", { name: "やり直す" });
+    await userEvent.click(undoButton);
     await expect(restoredInput).toHaveValue("");
-    document.execCommand("redo");
+    await userEvent.click(redoButton);
     await expect(restoredInput).toHaveValue("ABC");
 
     await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
@@ -378,6 +379,39 @@ export const NativeHistorySurvivesModeChanges: Story = {
     document.execCommand("undo");
     await expect(liveInput).toHaveValue("ABC");
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+export const ModeChangeClearsHeadingHash: Story = {
+  render: () => <ImageInsertionExample description="# 見出し" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const originalURL = window.location.href;
+    const originalState = window.history.state;
+    const copy = spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+    try {
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+      await userEvent.click(
+        canvas.getByRole("link", { name: "「見出し」へのリンクをコピー" }),
+      );
+      await expect(decodeURIComponent(window.location.hash)).toBe("#見出し");
+      await userEvent.click(canvas.getByRole("tab", { name: "エディタ" }));
+      await expect(window.location.hash).toBe("");
+
+      await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
+      await userEvent.click(
+        await canvas.findByRole("link", {
+          name: "「見出し」へのリンクをコピー",
+        }),
+      );
+      await expect(decodeURIComponent(window.location.hash)).toBe("#見出し");
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+      await expect(window.location.hash).toBe("");
+      await expect(copy).toHaveBeenCalledTimes(2);
+    } finally {
+      copy.mockRestore();
+      window.history.replaceState(originalState, "", originalURL);
+    }
   },
 };
 

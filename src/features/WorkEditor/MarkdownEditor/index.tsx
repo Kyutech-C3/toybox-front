@@ -7,9 +7,11 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 import SyncDisabledRoundedIcon from "@mui/icons-material/SyncDisabledRounded";
 import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
-import { getCommands } from "@uiw/react-md-editor/commands";
+import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
+import { divider, getCommands } from "@uiw/react-md-editor/commands";
 import MDEditor from "@uiw/react-md-editor/nohighlight";
 import rehypeSanitize from "rehype-sanitize";
 
@@ -344,6 +346,51 @@ const MarkdownEditor = () => {
     };
   };
 
+  const handleHistoryCommand = (
+    textarea: HTMLTextAreaElement,
+    direction: "undo" | "redo",
+  ) => {
+    textarea.focus({ preventScroll: true });
+    document.execCommand(direction);
+  };
+
+  const markdownCommands: ICommand[] = [
+    {
+      name: "undo",
+      keyCommand: "undo",
+      icon: <UndoRoundedIcon aria-hidden="true" />,
+      buttonProps: {
+        "aria-label": "元に戻す",
+        title: "元に戻す (Ctrl/Cmd+Z)",
+      },
+      execute: (_state, api) => handleHistoryCommand(api.textArea, "undo"),
+    },
+    {
+      name: "redo",
+      keyCommand: "redo",
+      icon: <RedoRoundedIcon aria-hidden="true" />,
+      buttonProps: {
+        "aria-label": "やり直す",
+        title: "やり直す (Ctrl/Cmd+Shift+Z / Ctrl+Y)",
+      },
+      execute: (_state, api) => handleHistoryCommand(api.textArea, "redo"),
+    },
+    divider,
+    ...DEFAULT_MARKDOWN_COMMANDS,
+  ];
+
+  const handleModeChange = (nextMode: EditorMode) => {
+    if (nextMode === mode) return;
+    if (window.location.hash) {
+      window.history.replaceState(
+        window.history.state,
+        "",
+        `${window.location.pathname}${window.location.search}`,
+      );
+    }
+    setMode(nextMode);
+  };
+
   const markdownImagePicker = selectedImage && (
     <MarkdownImagePicker
       images={images}
@@ -382,7 +429,7 @@ const MarkdownEditor = () => {
         }}
         preview="edit"
         extraCommands={[]}
-        commands={DEFAULT_MARKDOWN_COMMANDS}
+        commands={markdownCommands}
         commandsFilter={handleCommandFilter}
         visibleDragbar={false}
         height="auto"
@@ -463,7 +510,11 @@ const MarkdownEditor = () => {
               lineNumberTarget,
             )}
           <div className={styles["markdown-editor-header"]}>
-            <EditorModeTabs mode={mode} panelID={panelID} onChange={setMode} />
+            <EditorModeTabs
+              mode={mode}
+              panelID={panelID}
+              onChange={handleModeChange}
+            />
             {mode !== "preview" && markdownImageActions}
           </div>
           {mode !== "preview" && markdownImagePicker}
