@@ -1,0 +1,64 @@
+.image-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.image-list {
+  display: flex;
+  gap: var(--space-8);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 2px;
+}
+
+.image-button {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--asset-background);
+  color: var(--asset-font-color);
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.image-button[data-active="true"],
+.image-button:hover {
+  border-color: var(--primary-color);
+  opacity: 1;
+}
+
+.image-button:focus-visible {
+  outline: 2px solid var(--font-color);
+}
+
+.image-button > span {
+  width: 100%;
+  height: 100%;
+}
+
+.image-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-8);
+}
+
+@media (max-width: 767px) {
+  .image-button {
+    width: 48px;
+  }
+}

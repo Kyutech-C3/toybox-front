@@ -24,6 +24,7 @@ const META = {
       kind: "画像",
       status: "success",
       assetID: "image",
+      assetURL: "https://example.com/image.png",
       previewURL: "",
       file: null,
       errorMessage: "",

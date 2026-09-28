@@ -34,7 +34,12 @@ const useThumbnailUpload = (): UseThumbnailUploadReturn => {
   const requestSequenceRef = useRef(0);
 
   const upload = async (file: File) => {
-    updateThumbnail({ status: "uploading", assetID: null, errorMessage: "" });
+    updateThumbnail({
+      status: "uploading",
+      assetID: null,
+      assetURL: null,
+      errorMessage: "",
+    });
     const isCurrentSession = createRequestGuard();
     const requestSequence = ++requestSequenceRef.current;
     const isCurrentRequest = () =>
@@ -54,7 +59,11 @@ const useThumbnailUpload = (): UseThumbnailUploadReturn => {
         );
         return;
       }
-      updateThumbnail({ status: "success", assetID: response.id });
+      updateThumbnail({
+        status: "success",
+        assetID: response.id,
+        assetURL: response.url,
+      });
       addUploadedAssetID(response.id);
     } catch {
       if (!isCurrentRequest()) return;

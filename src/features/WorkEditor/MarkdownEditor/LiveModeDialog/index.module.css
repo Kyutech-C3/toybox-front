@@ -35,6 +35,12 @@
   margin: 0 auto;
 }
 
+.live-dialog-picker {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
 .live-dialog-title {
   display: inline-flex;
   align-items: center;

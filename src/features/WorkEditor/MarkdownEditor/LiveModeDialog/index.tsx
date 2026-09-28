@@ -17,6 +17,7 @@ type LiveModeDialogProps = {
   preview: ReactNode;
   sourceRef: RefObject<HTMLDivElement | null>;
   previewRef: RefObject<HTMLDivElement | null>;
+  imagePicker: ReactNode;
   onModeChange: (mode: EditorMode) => void;
   onClose: () => void;
 };
@@ -28,6 +29,7 @@ const LiveModeDialog = ({
   preview,
   sourceRef,
   previewRef,
+  imagePicker,
   onModeChange,
   onClose,
 }: LiveModeDialogProps) => {
@@ -102,6 +104,9 @@ const LiveModeDialog = ({
             onClick={handleCloseClick}
           />
         </header>
+        {imagePicker && (
+          <div className={styles["live-dialog-picker"]}>{imagePicker}</div>
+        )}
         <div
           id={livePanelID}
           role="tabpanel"
