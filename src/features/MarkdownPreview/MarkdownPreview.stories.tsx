@@ -105,12 +105,12 @@ export const MarkdownSyntaxSample: Story = {
     await expect(heading.id).toBe(
       "user-content-markdown-heading-入れ子を組み合わせた複雑な例",
     );
-    await expect(heading.firstElementChild).toHaveAttribute(
+    await expect(heading.lastElementChild).toHaveAttribute(
       "href",
       `#${encodeURIComponent("入れ子を組み合わせた複雑な例")}`,
     );
     await expect(
-      heading.lastElementChild?.getBoundingClientRect().left,
+      heading.firstElementChild?.getBoundingClientRect().left,
     ).toBeCloseTo(heading.getBoundingClientRect().left);
     const italic = canvas.getByText("アスタリスク1個による斜体");
     await expect(italic.tagName).toBe("EM");
@@ -141,7 +141,10 @@ export const HeadingLinksAndFootnotes: Story = {
     const headingLink = canvas.getAllByRole("link", {
       name: "「概要」へのリンクをコピー",
     })[0];
-    await expect(headings[0].firstElementChild).toBe(headingLink);
+    await expect(headings[0].lastElementChild).toBe(headingLink);
+    await expect(headingLink.getBoundingClientRect().left).toBeGreaterThan(
+      headings[0].firstElementChild?.getBoundingClientRect().right ?? 0,
+    );
     const icon = headingLink.querySelector("svg");
     if (icon && window.matchMedia("(hover: hover)").matches) {
       await expect(getComputedStyle(icon).opacity).toBe("0");

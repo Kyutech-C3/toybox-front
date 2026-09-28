@@ -83,6 +83,7 @@ const MarkdownHeading = ({
   // 脚注の見出しは参照用 ID を保持し、本文の見出しリンクとは分ける。
   return (
     <Tag {...props} id={id} aria-labelledby={titleID}>
+      <span id={titleID}>{children}</span>
       {headingSlug !== undefined ? (
         <a
           className={styles["heading-link"]}
@@ -113,7 +114,6 @@ const MarkdownHeading = ({
           />
         </a>
       ) : null}
-      <span id={titleID}>{children}</span>
     </Tag>
   );
 };

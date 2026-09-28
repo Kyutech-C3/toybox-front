@@ -14,19 +14,14 @@
     scroll-margin-top: calc(var(--header-height) + 1rem);
   }
 
-  :is(h1, h2, h3, h4, h5, h6) {
-    position: relative;
-  }
-
   a.heading-link {
-    position: absolute;
-    top: 0;
-    right: 100%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 0.75em;
-    height: 1.7em;
+    height: 1em;
+    margin-left: 0.25em;
+    vertical-align: middle;
     color: var(--font-muted-color);
     border-bottom: none;
 
