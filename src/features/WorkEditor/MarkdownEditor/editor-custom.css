@@ -26,17 +26,6 @@
   background-color: var(--paper-color);
 }
 
-/* ライブモードはペイン側が枠とスクロールを持つので、エディタ本体の枠は外す */
-[data-markdown-editor][data-mode="live"] .w-md-editor {
-  border: none;
-}
-
-[data-markdown-editor][data-mode="live"] .w-md-editor,
-[data-markdown-editor][data-mode="live"] .w-md-editor-toolbar,
-[data-markdown-editor][data-mode="live"] .w-md-editor-content {
-  border-radius: 0;
-}
-
 /* スクロールしてもツールバーは触れる位置に残す */
 [data-markdown-editor][data-mode="live"] .w-md-editor-toolbar {
   position: sticky;

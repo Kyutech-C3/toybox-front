@@ -17,6 +17,7 @@
 }
 
 .live-dialog-inner {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -70,6 +71,13 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.live-source {
+  padding: 4px;
+}
+
+.live-preview {
   border: 1px solid var(--border-color);
   border-radius: var(--editor-radius);
   background-color: var(--paper-color);
