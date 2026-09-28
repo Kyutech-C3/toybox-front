@@ -154,6 +154,65 @@ export const ImageInsertion: Story = {
   },
 };
 
+export const HistorySurvivesModeChanges: Story = {
+  render: () => <ImageInsertionExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const undoButton = canvas.getByRole("button", { name: "元に戻す" });
+    const redoButton = canvas.getByRole("button", { name: "やり直す" });
+    const toolbarButtons = undoButton
+      .closest(".w-md-editor-toolbar")
+      ?.querySelectorAll("button");
+    await expect(toolbarButtons?.[0]).toBe(undoButton);
+    await expect(toolbarButtons?.[1]).toBe(redoButton);
+    await expect(undoButton).toBeDisabled();
+    await expect(redoButton).toBeDisabled();
+
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    await userEvent.type(input, "ABC");
+    await expect(undoButton).toBeEnabled();
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    await userEvent.click(canvas.getByRole("tab", { name: "エディタ" }));
+    const restoredInput = canvas.getByRole("textbox", { name: "説明" });
+    await userEvent.click(canvas.getByRole("button", { name: "元に戻す" }));
+    await expect(restoredInput).toHaveValue("");
+    await expect(
+      canvas.getByRole("button", { name: "やり直す" }),
+    ).toBeEnabled();
+    await userEvent.click(canvas.getByRole("button", { name: "やり直す" }));
+    await expect(restoredInput).toHaveValue("ABC");
+
+    await userEvent.click(canvas.getByRole("tab", { name: "分割" }));
+    const splitInput = canvas.getByRole("textbox", { name: "説明" });
+    await userEvent.click(splitInput);
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await expect(splitInput).toHaveValue("");
+    await userEvent.keyboard("{Control>}{Shift>}z{/Shift}{/Control}");
+    await expect(splitInput).toHaveValue("ABC");
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await userEvent.type(splitInput, "B");
+    await expect(
+      canvas.getByRole("button", { name: "やり直す" }),
+    ).toBeDisabled();
+    await expect(splitInput).toHaveValue("B");
+    await userEvent.click(canvas.getByRole("tab", { name: "ライブ" }));
+    const live = within(
+      await canvas.findByRole("dialog", {
+        name: "ライブモードの全画面表示",
+      }),
+    );
+    const liveInput = live.getByRole("textbox", { name: "説明" });
+    await userEvent.click(liveInput);
+    await userEvent.keyboard("{Control>}z{/Control}");
+    await expect(liveInput).toHaveValue("");
+    await userEvent.click(live.getByRole("tab", { name: "エディタ" }));
+    await expect(
+      canvas.getByRole("button", { name: "やり直す" }),
+    ).toBeEnabled();
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
 export const UndoImageInsertion: Story = {
   render: () => <ImageInsertionExample />,
   play: async ({ canvasElement }) => {
@@ -350,6 +409,11 @@ export const ClipboardImagePaste: Story = {
       await expect(input.value).toMatch(
         /^前!\[clipboard-\d+\]\(https:\/\/example\.com\/pasted\.png\)後$/,
       );
+      const insertedDescription = input.value;
+      await userEvent.click(canvas.getByRole("button", { name: "元に戻す" }));
+      await expect(input).toHaveValue("前後");
+      await userEvent.click(canvas.getByRole("button", { name: "やり直す" }));
+      await expect(input).toHaveValue(insertedDescription);
       await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
     } finally {
       globalThis.fetch = originalFetch;
@@ -598,6 +662,9 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
       await expect(input.value).toContain(
         "[リンク](https://example.com/sample.png)",
       );
+      await expect(
+        canvas.getByRole("button", { name: "元に戻す" }),
+      ).toBeDisabled();
     } finally {
       confirm.mockRestore();
     }

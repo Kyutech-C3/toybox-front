@@ -1,7 +1,10 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
+import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 import SyncDisabledRoundedIcon from "@mui/icons-material/SyncDisabledRounded";
 import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
+import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
 import MDEditor from "@uiw/react-md-editor";
+import { divider, getCommands } from "@uiw/react-md-editor/commands";
 import rehypeSanitize from "rehype-sanitize";
 
 import {
@@ -15,6 +18,7 @@ import useAssetUpload, {
 } from "../WorkDetailForm/hook/useAssetUpload";
 import EditorModeTabs, { getEditorTabID } from "./EditorModeTabs";
 import useLiveScrollSync from "./hook/useLiveScrollSync";
+import useMarkdownHistory from "./hook/useMarkdownHistory";
 import styles from "./index.module.css";
 import LiveModeDialog from "./LiveModeDialog";
 import liveStyles from "./LiveModeDialog/index.module.css";
@@ -34,11 +38,17 @@ import Button from "@/shared/ui/Button";
 import Paper from "@/shared/ui/Paper";
 
 import type { ICommand } from "@uiw/react-md-editor";
-import type { ChangeEvent, ClipboardEvent, SyntheticEvent } from "react";
+import type {
+  ChangeEvent,
+  ClipboardEvent,
+  KeyboardEvent,
+  SyntheticEvent,
+} from "react";
 import type { EditorAsset } from "../types";
 import type { EditorMode } from "./types";
 
 const EDITOR_PLACEHOLDER = "Markdown で作品の説明を書けます";
+const DEFAULT_MARKDOWN_COMMANDS = getCommands();
 const CLIPBOARD_IMAGE_EXTENSIONS: Record<string, string[]> = {
   "image/png": [".png"],
   "image/jpeg": [".jpg", ".jpeg"],
@@ -74,6 +84,7 @@ const MarkdownEditor = () => {
     ? validateWork(current).description
     : undefined;
   const description = useWorkEditorStore((state) => state.current.description);
+  const sessionVersion = useWorkEditorStore((state) => state.sessionVersion);
   const assets = useWorkEditorStore((state) => state.current.assets);
   const setDescription = useWorkEditorStore((state) => state.setDescription);
   const editorStore = useWorkEditorStoreApi();
@@ -83,13 +94,15 @@ const MarkdownEditor = () => {
   const [isScrollSyncEnabled, setIsScrollSyncEnabled] = useState(true);
   const [selectedImageKey, setSelectedImageKey] = useState("");
   const [imageInsertNotice, setImageInsertNotice] = useState("");
+  const history = useMarkdownHistory({ description, sessionVersion });
   const panelID = useId();
   const editorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadSelectionRef = useRef<ImageInsertionSelection | null>(null);
   const pendingInsertionRef = useRef<{
-    caret: number;
+    selectionStart: number;
+    selectionEnd: number;
     pageX: number;
     pageY: number;
     sourceScrollTop: number | null;
@@ -110,7 +123,7 @@ const MarkdownEditor = () => {
       ".w-md-editor-text-input",
     );
     if (!textarea) return;
-    textarea.setSelectionRange(pending.caret, pending.caret);
+    textarea.setSelectionRange(pending.selectionStart, pending.selectionEnd);
     textarea.focus({ preventScroll: true });
     if (pending.textareaScrollTop !== null) {
       textarea.scrollTop = pending.textareaScrollTop;
@@ -128,6 +141,62 @@ const MarkdownEditor = () => {
 
   const handleTextSelection = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     textareaRef.current = event.currentTarget;
+    history.updateSelection(
+      event.currentTarget.selectionStart,
+      event.currentTarget.selectionEnd,
+    );
+  };
+
+  const handleMarkdownChange = (
+    value: string | undefined,
+    event?: ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    const nextDescription = value ?? "";
+    const textarea = event?.currentTarget;
+    history.record(
+      {
+        value: nextDescription,
+        selectionStart: textarea?.selectionStart ?? nextDescription.length,
+        selectionEnd: textarea?.selectionEnd ?? nextDescription.length,
+      },
+      (event?.nativeEvent as InputEvent | undefined)?.inputType ?? "",
+    );
+    setDescription(nextDescription);
+  };
+
+  const handleHistoryMove = (direction: "undo" | "redo") => {
+    const entry = direction === "undo" ? history.undo() : history.redo();
+    if (!entry) return;
+    const textarea = editorRef.current?.querySelector<HTMLTextAreaElement>(
+      ".w-md-editor-text-input",
+    );
+    pendingInsertionRef.current = {
+      selectionStart: entry.selectionStart,
+      selectionEnd: entry.selectionEnd,
+      pageX: window.scrollX,
+      pageY: window.scrollY,
+      sourceScrollTop: sourceRef.current?.scrollTop ?? null,
+      previewScrollTop: previewRef.current?.scrollTop ?? null,
+      textareaScrollTop: textarea?.scrollTop ?? null,
+    };
+    setDescription(entry.value);
+  };
+
+  const handleHistoryKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (
+      event.nativeEvent.isComposing ||
+      !(event.ctrlKey || event.metaKey) ||
+      event.altKey
+    )
+      return;
+    const key = event.key.toLowerCase();
+    if (key === "z") {
+      event.preventDefault();
+      handleHistoryMove(event.shiftKey ? "redo" : "undo");
+    } else if (key === "y" && event.ctrlKey && !event.shiftKey) {
+      event.preventDefault();
+      handleHistoryMove("redo");
+    }
   };
 
   const handleInsertImage = (
@@ -154,7 +223,8 @@ const MarkdownEditor = () => {
     const end = Math.min(selection.end, currentDescription.length);
     const nextCaretPosition = start + markdown.length;
     pendingInsertionRef.current = {
-      caret: nextCaretPosition,
+      selectionStart: nextCaretPosition,
+      selectionEnd: nextCaretPosition,
       pageX: window.scrollX,
       pageY: window.scrollY,
       sourceScrollTop: sourceRef.current?.scrollTop ?? null,
@@ -171,6 +241,14 @@ const MarkdownEditor = () => {
     }
     if (!didInsert) textarea.setRangeText(markdown, start, end, "end");
     if (editorStore.getState().current.description !== textarea.value) {
+      history.record(
+        {
+          value: textarea.value,
+          selectionStart: textarea.selectionStart,
+          selectionEnd: textarea.selectionEnd,
+        },
+        "insertFromImagePicker",
+      );
       setDescription(textarea.value);
     }
     textareaRef.current = textarea;
@@ -278,6 +356,33 @@ const MarkdownEditor = () => {
     };
   };
 
+  const markdownCommands: ICommand[] = [
+    {
+      name: "undo",
+      keyCommand: "undo",
+      icon: <UndoRoundedIcon aria-hidden="true" />,
+      buttonProps: {
+        "aria-label": "元に戻す",
+        title: "元に戻す (Ctrl/Cmd+Z)",
+        disabled: !history.canUndo,
+      },
+      execute: () => handleHistoryMove("undo"),
+    },
+    {
+      name: "redo",
+      keyCommand: "redo",
+      icon: <RedoRoundedIcon aria-hidden="true" />,
+      buttonProps: {
+        "aria-label": "やり直す",
+        title: "やり直す (Ctrl/Cmd+Shift+Z / Ctrl+Y)",
+        disabled: !history.canRedo,
+      },
+      execute: () => handleHistoryMove("redo"),
+    },
+    divider,
+    ...DEFAULT_MARKDOWN_COMMANDS,
+  ];
+
   const markdownImagePicker = selectedImage && (
     <MarkdownImagePicker
       images={images}
@@ -310,12 +415,13 @@ const MarkdownEditor = () => {
       <MDEditor
         className={inputStyles["input-surface"]}
         value={description}
-        onChange={(value) => setDescription(value || "")}
+        onChange={handleMarkdownChange}
         previewOptions={{
           rehypePlugins: [[rehypeSanitize]],
         }}
         preview="edit"
         extraCommands={[]}
+        commands={markdownCommands}
         commandsFilter={handleCommandFilter}
         visibleDragbar={false}
         height="auto"
@@ -331,6 +437,7 @@ const MarkdownEditor = () => {
           onKeyUp: handleTextSelection,
           onClick: handleTextSelection,
           onPaste: handleImagePaste,
+          onKeyDown: handleHistoryKeyDown,
         }}
       />
     </CharacterCount>
