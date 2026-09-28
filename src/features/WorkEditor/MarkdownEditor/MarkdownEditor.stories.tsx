@@ -86,11 +86,16 @@ export const ImageInsertion: Story = {
     await userEvent.type(input, "前後");
     input.setSelectionRange(1, 1);
     fireEvent.select(input);
-    await userEvent.click(
-      await canvas.findByRole("button", { name: "カーソル位置に挿入" }),
-    );
+    const insertButton = await canvas.findByRole("button", {
+      name: "カーソル位置に挿入",
+    });
+    await userEvent.click(insertButton);
     await expect(input).toHaveValue(
       "前![sample](https://example.com/sample.png)後",
+    );
+    await expect(insertButton).toHaveAccessibleName("画像を挿入しました");
+    await expect(insertButton).toContainElement(
+      within(insertButton).getByTestId("CheckRoundedIcon"),
     );
     const clipboardDescriptor = Object.getOwnPropertyDescriptor(
       navigator,
@@ -108,9 +113,10 @@ export const ImageInsertion: Story = {
       await expect(writeText).toHaveBeenCalledWith(
         "![sample](https://example.com/sample.png)",
       );
-      await expect(
-        canvas.getByRole("button", { name: "コピーしました" }),
-      ).toContainElement(canvas.getByTestId("CheckRoundedIcon"));
+      const copyButton = canvas.getByRole("button", { name: "コピーしました" });
+      await expect(copyButton).toContainElement(
+        within(copyButton).getByTestId("CheckRoundedIcon"),
+      );
     } finally {
       if (clipboardDescriptor) {
         Object.defineProperty(navigator, "clipboard", clipboardDescriptor);
@@ -118,6 +124,11 @@ export const ImageInsertion: Story = {
         Reflect.deleteProperty(navigator, "clipboard");
       }
     }
+    await new Promise((resolve) => window.setTimeout(resolve, 2100));
+    await expect(insertButton).toHaveAccessibleName("カーソル位置に挿入");
+    await expect(insertButton).toContainElement(
+      within(insertButton).getByTestId("AddPhotoAlternateRoundedIcon"),
+    );
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
     await expect(canvas.getByAltText("sample")).toHaveAttribute(
       "src",

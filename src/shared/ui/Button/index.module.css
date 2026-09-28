@@ -115,22 +115,6 @@
   }
 }
 
-@media (max-width: 767px) {
-  .button,
-  .button[data-size="small"] {
-    height: max(48px, var(--touch-target-min));
-    min-width: max(48px, var(--touch-target-min));
-    padding-inline: var(--space-12);
-    font-size: 14px;
-  }
-
-  .button[data-icon-only="true"],
-  .button[data-icon-only="true"][data-size="small"] {
-    width: max(48px, var(--touch-target-min));
-    padding: 0;
-  }
-}
-
 /* タグとコード内の補助操作は、本文と同じ密度で表示する。 */
 .button[data-size="compact"] {
   height: 25px;

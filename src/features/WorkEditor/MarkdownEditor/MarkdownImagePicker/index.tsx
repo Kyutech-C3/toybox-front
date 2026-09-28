@@ -16,7 +16,7 @@ type MarkdownImagePickerProps = {
   images: EditorAsset[];
   selectedKey: string;
   onSelect: (asset: EditorAsset) => void;
-  onInsert: (markdown: string) => void;
+  onInsert: (markdown: string) => boolean;
 };
 
 const getDefaultAltText = (fileName: string) =>
@@ -41,7 +41,9 @@ const MarkdownImagePicker = ({
   onInsert,
 }: MarkdownImagePickerProps) => {
   const [isCopied, setCopied] = useState(false);
+  const [isInserted, setInserted] = useState(false);
   const copyResetTimerRef = useRef<number | null>(null);
+  const insertResetTimerRef = useRef<number | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLButtonElement>(null);
   const selectedImage =
@@ -52,6 +54,9 @@ const MarkdownImagePicker = ({
     () => () => {
       if (copyResetTimerRef.current !== null) {
         window.clearTimeout(copyResetTimerRef.current);
+      }
+      if (insertResetTimerRef.current !== null) {
+        window.clearTimeout(insertResetTimerRef.current);
       }
     },
     [],
@@ -81,6 +86,17 @@ const MarkdownImagePicker = ({
   if (!selectedImage?.assetURL) return null;
 
   const markdown = getAssetImageMarkdown(selectedImage);
+  const handleInsert = () => {
+    if (!onInsert(markdown)) return;
+    if (insertResetTimerRef.current !== null) {
+      window.clearTimeout(insertResetTimerRef.current);
+    }
+    setInserted(true);
+    insertResetTimerRef.current = window.setTimeout(
+      () => setInserted(false),
+      2000,
+    );
+  };
   const handleCopy = async () => {
     const didCopy = await copyTextToClipboard(markdown);
     if (!didCopy) return;
@@ -106,6 +122,7 @@ const MarkdownImagePicker = ({
             title={asset.fileName}
             onClick={() => {
               setCopied(false);
+              setInserted(false);
               onSelect(asset);
             }}
           >
@@ -120,8 +137,11 @@ const MarkdownImagePicker = ({
       <div className={styles["action-row"]}>
         <Button
           size="small"
-          icon={<AddPhotoAlternateRoundedIcon />}
-          onClick={() => onInsert(markdown)}
+          icon={
+            isInserted ? <CheckRoundedIcon /> : <AddPhotoAlternateRoundedIcon />
+          }
+          aria-label={isInserted ? "画像を挿入しました" : undefined}
+          onClick={handleInsert}
         >
           カーソル位置に挿入
         </Button>

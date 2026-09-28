@@ -127,7 +127,8 @@ const MarkdownEditor = () => {
         : editorRef.current?.querySelector<HTMLTextAreaElement>(
             ".w-md-editor-text-input",
           );
-    if (!textarea) return;
+    if (!textarea) return false;
+    const previousValue = textarea.value;
     const currentDescription = editorStore.getState().current.description;
     const selection = savedSelection
       ? { start: savedSelection.start, end: savedSelection.end }
@@ -158,6 +159,7 @@ const MarkdownEditor = () => {
       setDescription(textarea.value);
     }
     textareaRef.current = textarea;
+    return textarea.value !== previousValue;
   };
 
   const insertImageRef = useRef(handleInsertImage);
