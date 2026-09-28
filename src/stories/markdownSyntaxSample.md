@@ -1,6 +1,6 @@
 # Markdown 記法テストドキュメント
 
-この文書は、Toybox が対応する Markdown、GitHub Flavored Markdown（GFM）、見出しリンク、アラート、折りたたみの表示を確認するためのサンプルです。未対応の記法は末尾で区別しています。
+この文書は、Toybox が対応する Markdown、GitHub Flavored Markdown（GFM）、見出しリンク、アラート、折りたたみの表示を確認するためのサンプルです。末尾には、他のサイトで使われる記法と、安全性の確認用入力も実際の Markdown として載せています。
 
 ---
 
@@ -671,18 +671,78 @@ export function WorkCard({
 
 ## 未対応の記法
 
-数式、Mermaid、定義リスト、外部サービスの埋め込み、Zenn/Qiita 独自のコンテナ記法、HTML による追加装飾や画像サイズ指定は対応範囲外です。以下は書式例をコードとして示しています。
+ここからは**記法を囲って隠さずに入力**しています。Toybox のプレビューと、[GitHub の数式](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/writing-mathematical-expressions)・[図表](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams)、[Zenn の記法](https://zenn.dev/zenn/articles/markdown-guide)、[Qiita の記法](https://qiita.com/Qiita/items/c686397e4a0f4f11683d)を比較できます。他のサイトが対応していても、Toybox で同じ表示になるとは限りません。
 
-```text
-$E = mc^2$
+### 数式
+
+GitHub ではドル記号で囲んだ式を数式として表示できます。Toybox では文字として表示されます。インライン式：$E = mc^2$。
+
+$$
+E = mc^2
+$$
+
+### Mermaid の図
+
+GitHub と Qiita では `mermaid` を指定したコードブロックを図にできます。Toybox ではコードとして表示され、図には変換されません。フェンス自体が Mermaid 記法の一部です。
+
+```mermaid
+flowchart LR
+  A[入力] --> B[表示]
+```
+
+### 定義リスト
+
+次の `用語` と `: 定義` は定義リストには変換されません。
 
 用語
 : 定義
 
+### Zenn と Qiita のコンテナ
+
+Zenn のメッセージと折りたたみ、Qiita の補足は Toybox では専用の枠になりません。Toybox のアラートは上記の `> [!NOTE]` 形式、折りたたみは `<details>` 形式です。
+
 :::message
-Zenn 独自の記法
+Zenn のメッセージ
 :::
 
-<img src="https://example.com/image.png" width="200">
-<u>下線</u>
-```
+:::details Zenn の折りたたみ
+中身は Toybox では折りたたまれません。
+:::
+
+:::note info
+Qiita の補足
+:::
+
+### 外部サービスの埋め込み
+
+Zenn や Qiita では URL 単独行をカードや投稿の埋め込みとして扱う場合があります。Toybox では通常の文字列です。
+
+https://qiita.com/Qiita/items/c686397e4a0f4f11683d
+
+Zenn のカード指定も埋め込みにはなりません：@[card](https://example.com)。通常のリンクを作る場合は [Example Domain](https://example.com) と書きます。
+
+### HTML による装飾と画像サイズ
+
+下線のタグは除去され、文字だけが残ります：<u>下線を付けたい文字</u>。
+
+画像の `width` や `style` は反映されません。画像自体は通常の画像として表示されます。
+
+<img src="https://placehold.co/200x60/png" alt="サイズ指定の確認用画像" width="40" style="width:40px">
+
+### 危険な入力の確認
+
+以下は安全性を確認するための入力です。スクリプト、埋め込み、SVG は表示されず、イベント属性、CSS、危険な URL は使えない状態になる想定です。この段落の文字は残ります。
+
+<script>window.__toyboxMarkdownSampleExecuted = true</script>
+<iframe src="https://example.com" onload="window.__toyboxMarkdownSampleExecuted = true"></iframe>
+<svg onload="window.__toyboxMarkdownSampleExecuted = true"><circle r="5" /></svg>
+
+<details open ontoggle="window.__toyboxMarkdownSampleExecuted = true" style="display:none"><summary onclick="window.__toyboxMarkdownSampleExecuted = true">属性を除去する折りたたみ</summary>
+
+安全性を確認する本文です。
+
+</details>
+
+[危険なスキームのリンク](javascript:window.__toyboxMarkdownSampleExecuted=true)
+
+<a href="javascript:window.__toyboxMarkdownSampleExecuted=true" onmouseover="window.__toyboxMarkdownSampleExecuted = true">HTML の危険なリンク</a>

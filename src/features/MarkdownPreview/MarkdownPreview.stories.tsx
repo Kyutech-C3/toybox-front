@@ -116,6 +116,29 @@ export const MarkdownSyntaxSample: Story = {
     await expect(italic.tagName).toBe("EM");
     await expect(getComputedStyle(italic).fontStyle).toBe("italic");
     await expect(getComputedStyle(italic).fontSynthesis).toBe("style");
+    await expect(
+      canvasElement.querySelector("script, iframe, u, dl, math"),
+    ).toBeNull();
+    const securityDetails = canvas
+      .getByText("属性を除去する折りたたみ", { selector: "summary" })
+      .closest("details");
+    await expect(securityDetails).toHaveAttribute("open");
+    await expect(securityDetails).not.toHaveAttribute("ontoggle");
+    await expect(securityDetails).not.toHaveAttribute("style");
+    await expect(securityDetails?.querySelector("summary")).not.toHaveAttribute(
+      "onclick",
+    );
+    for (const name of ["危険なスキームのリンク", "HTML の危険なリンク"]) {
+      await expect(
+        canvas.getByText(name, { selector: "a" }),
+      ).not.toHaveAttribute("href");
+    }
+    await expect(
+      canvas.getByAltText("サイズ指定の確認用画像"),
+    ).not.toHaveAttribute("width");
+    await expect(
+      Reflect.get(window, "__toyboxMarkdownSampleExecuted"),
+    ).toBeUndefined();
   },
 };
 
