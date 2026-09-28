@@ -4,6 +4,10 @@
   line-height: 1.7;
   overflow-wrap: anywhere;
 
+  p + p {
+    margin-top: 1em;
+  }
+
   h1,
   h2,
   h3,
@@ -128,14 +132,14 @@
     max-height: 400px;
     height: auto;
     display: block;
-    margin: 1.5rem auto;
+    margin: 1.5rem 0;
     box-shadow: 0 2px 8px var(--shadow-soft-color);
   }
 
   .image-open-button {
     display: block;
     max-width: 100%;
-    margin: 1.5rem auto;
+    margin: 1.5rem 0;
     padding: 0;
     border: 0;
     background: transparent;
@@ -162,7 +166,9 @@
     padding: env(safe-area-inset-top) env(safe-area-inset-right)
       env(safe-area-inset-bottom) env(safe-area-inset-left);
     border: 0;
-    background: var(--asset-background);
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: var(--overlay-dark-color);
     color: var(--asset-font-color);
   }
 
@@ -173,7 +179,7 @@
   }
 
   .image-dialog::backdrop {
-    background: var(--overlay-dark-color);
+    background: transparent;
   }
 
   .image-dialog img {
@@ -184,6 +190,7 @@
     margin: 0;
     object-fit: contain;
     box-shadow: none;
+    will-change: transform;
   }
 
   .image-dialog-close {

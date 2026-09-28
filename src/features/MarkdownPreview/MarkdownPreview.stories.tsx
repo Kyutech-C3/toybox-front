@@ -1,4 +1,4 @@
-import { expect, spyOn, userEvent, within } from "storybook/test";
+import { expect, spyOn, userEvent, waitFor, within } from "storybook/test";
 
 import MarkdownPreview from "./index";
 
@@ -110,6 +110,20 @@ export const LinksAndLineBreaks: Story = {
   },
 };
 
+export const ParagraphSpacing: Story = {
+  args: {
+    content: "段落を分けるには、間に空行を入れます。 &#x20;\n\n次の段落です。",
+  },
+  play: async ({ canvasElement }) => {
+    const paragraphs = canvasElement.querySelectorAll("p");
+    await expect(paragraphs).toHaveLength(2);
+    await expect(
+      paragraphs[1].getBoundingClientRect().top -
+        paragraphs[0].getBoundingClientRect().bottom,
+    ).toBeGreaterThan(8);
+  },
+};
+
 export const ImageFullscreen: Story = {
   args: {
     content:
@@ -120,16 +134,49 @@ export const ImageFullscreen: Story = {
     const imageButton = canvas.getByRole("button", {
       name: "拡大する画像を全画面表示",
     });
+    const paragraph = imageButton.closest("p");
+    if (!paragraph) throw new Error("画像の段落が見つかりません");
+    await expect(imageButton.getBoundingClientRect().left).toBeCloseTo(
+      paragraph.getBoundingClientRect().left,
+      0,
+    );
     await expect(canvasElement.querySelector("a button")).toBeNull();
     await expect(
       canvas.getByRole("link", { name: "リンク付き画像" }),
     ).toHaveAttribute("href", "https://example.com");
+    const previousOverflow = document.body.style.overflow;
     await userEvent.click(imageButton);
     const dialog = canvas.getByRole("dialog", { name: "画像の全画面表示" });
     await expect(dialog).toBeVisible();
-    await expect(within(dialog).getByAltText("拡大する画像")).toHaveAttribute(
-      "src",
-      "/favicon-192.png",
+    await expect(document.body.style.overflow).toBe("hidden");
+    await expect(getComputedStyle(dialog).backgroundColor).toBe(
+      "rgba(0, 0, 0, 0.3)",
+    );
+    const fullscreenImage = within(dialog).getByAltText("拡大する画像");
+    await expect(fullscreenImage).toHaveAttribute("src", "/favicon-192.png");
+    const bounds = dialog.getBoundingClientRect();
+    const zoom = new WheelEvent("wheel", {
+      bubbles: true,
+      cancelable: true,
+      ctrlKey: true,
+      deltaY: -100,
+      clientX: bounds.left + bounds.width / 2,
+      clientY: bounds.top + bounds.height / 2,
+    });
+    dialog.dispatchEvent(zoom);
+    await expect(zoom.defaultPrevented).toBe(true);
+    await waitFor(() =>
+      expect(fullscreenImage.style.transform).not.toContain("scale(1)"),
+    );
+    const pan = new WheelEvent("wheel", {
+      bubbles: true,
+      cancelable: true,
+      deltaY: 80,
+    });
+    dialog.dispatchEvent(pan);
+    await expect(pan.defaultPrevented).toBe(true);
+    await waitFor(() =>
+      expect(fullscreenImage.style.transform).toContain("-80px"),
     );
     await expect(dialog.getBoundingClientRect().width).toBeGreaterThanOrEqual(
       window.innerWidth - 1,
@@ -141,6 +188,9 @@ export const ImageFullscreen: Story = {
       within(dialog).getByRole("button", { name: "全画面表示を閉じる" }),
     );
     await expect(dialog).not.toBeVisible();
+    await waitFor(() =>
+      expect(document.body.style.overflow).toBe(previousOverflow),
+    );
     await userEvent.click(imageButton);
     await expect(dialog).toBeVisible();
     await userEvent.keyboard("{Escape}");

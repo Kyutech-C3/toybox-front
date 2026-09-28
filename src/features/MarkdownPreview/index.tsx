@@ -43,8 +43,11 @@ const IMAGE_LINK_CONTEXT = createContext(false);
 const MAX_IMAGE_WIDTH = 2000;
 
 type PreviewImage = { src: string; alt: string };
+type ImageView = { scale: number; x: number; y: number };
 type MarkdownImageDialogHandle = { open: (image: PreviewImage) => void };
 type MarkdownImageDialogProps = { ref: Ref<MarkdownImageDialogHandle> };
+const INITIAL_IMAGE_VIEW: ImageView = { scale: 1, x: 0, y: 0 };
+const MAX_IMAGE_SCALE = 5;
 
 const getImagePixelWidth = (value: unknown): number | undefined => {
   if (typeof value !== "string" && typeof value !== "number") return;
@@ -195,53 +198,65 @@ const MarkdownImage = ({
 
 function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const isNativeFullscreenRef = useRef(false);
   const [fullscreenImage, setFullscreenImage] = useState<PreviewImage | null>(
     null,
   );
+  const [imageView, setImageView] = useState<ImageView>(INITIAL_IMAGE_VIEW);
 
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      if (!isNativeFullscreenRef.current) return;
-      if (document.fullscreenElement === dialogRef.current) return;
-      isNativeFullscreenRef.current = false;
-      if (dialogRef.current?.open) dialogRef.current.close();
+    if (!fullscreenImage) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
     };
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () =>
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-  }, []);
+  }, [fullscreenImage]);
 
-  const handleClose = () => {
+  useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
-    if (document.fullscreenElement === dialog) {
-      void document
-        .exitFullscreen()
-        .catch(() => {})
-        .finally(() => {
-          if (dialog.open) dialog.close();
-        });
-      return;
-    }
-    dialog.close();
-  };
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const unit =
+        event.deltaMode === WheelEvent.DOM_DELTA_LINE
+          ? 16
+          : event.deltaMode === WheelEvent.DOM_DELTA_PAGE
+            ? dialog.clientHeight
+            : 1;
+      setImageView((current) => {
+        if (!event.ctrlKey) {
+          return {
+            ...current,
+            x: current.x - event.deltaX * unit,
+            y: current.y - event.deltaY * unit,
+          };
+        }
+        const scale = Math.min(
+          MAX_IMAGE_SCALE,
+          Math.max(1, current.scale * Math.exp(-event.deltaY * unit * 0.002)),
+        );
+        const bounds = dialog.getBoundingClientRect();
+        const pointerX = event.clientX - (bounds.left + bounds.width / 2);
+        const pointerY = event.clientY - (bounds.top + bounds.height / 2);
+        const ratio = scale / current.scale;
+        return {
+          scale,
+          x: current.x + (pointerX - current.x) * (1 - ratio),
+          y: current.y + (pointerY - current.y) * (1 - ratio),
+        };
+      });
+    };
+    dialog.addEventListener("wheel", handleWheel, { passive: false });
+    return () => dialog.removeEventListener("wheel", handleWheel);
+  }, []);
 
   useImperativeHandle(ref, () => ({
     open(image) {
+      setImageView(INITIAL_IMAGE_VIEW);
       setFullscreenImage(image);
       const dialog = dialogRef.current;
       if (!dialog || dialog.open) return;
       dialog.showModal();
-      if (dialog.requestFullscreen) {
-        void dialog
-          .requestFullscreen()
-          .then(() => {
-            isNativeFullscreenRef.current =
-              document.fullscreenElement === dialog;
-          })
-          .catch(() => {});
-      }
     },
   }));
 
@@ -256,7 +271,7 @@ function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
       onKeyDown={(event) => {
         if (event.key !== "Escape") return;
         event.preventDefault();
-        handleClose();
+        dialogRef.current?.close();
       }}
     >
       <Button
@@ -265,10 +280,16 @@ function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
         isIconOnly
         icon={<CloseRoundedIcon />}
         aria-label="全画面表示を閉じる"
-        onClick={handleClose}
+        onClick={() => dialogRef.current?.close()}
       />
       {fullscreenImage && (
-        <img src={fullscreenImage.src} alt={fullscreenImage.alt} />
+        <img
+          src={fullscreenImage.src}
+          alt={fullscreenImage.alt}
+          style={{
+            transform: `translate3d(${imageView.x}px, ${imageView.y}px, 0) scale(${imageView.scale})`,
+          }}
+        />
       )}
     </dialog>
   );
