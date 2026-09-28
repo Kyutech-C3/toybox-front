@@ -22,10 +22,10 @@
   .work-editor-wrapper {
     box-sizing: border-box;
     gap: var(--space-16);
-    padding: var(--space-12) var(--page-margin) var(--space-16);
+    padding: var(--space-12) 0 var(--space-16);
   }
 
   .editor-status {
-    padding: 0 var(--page-margin);
+    padding: 0;
   }
 }

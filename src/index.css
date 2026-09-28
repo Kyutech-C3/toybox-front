@@ -48,14 +48,10 @@
   --touch-target-min: 44px;
   --fab-clearance: 0px;
 
-  --content-width-ratio: 0.9;
-  --content-max-width: calc(var(--content-width-ratio) * 100vw);
-  --content-read-width: 1024px;
-  --content-panel-width: 60vw;
+  --content-read-width: 1300px;
 
   --card-columns: 0;
   --card-min-width: 248px;
-  --card-max-width: 320px;
   --card-max-columns: 7;
 
   --hover-transition: 0.2s ease;
@@ -103,10 +99,7 @@
     --grid-gap: 16px;
     --section-gap: 24px;
     --fab-clearance: 88px;
-    --content-width-ratio: 1;
-    --content-panel-width: var(--content-max-width);
     --card-columns: 1;
-    --card-max-width: 640px;
   }
 }
 

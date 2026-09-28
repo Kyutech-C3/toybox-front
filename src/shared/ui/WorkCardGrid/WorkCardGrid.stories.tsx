@@ -21,7 +21,9 @@ const META = {
   decorators: [
     (Story) => (
       <MemoryRouter>
-        <Story />
+        <div style={{ marginInline: "var(--page-margin)" }}>
+          <Story />
+        </div>
       </MemoryRouter>
     ),
   ],

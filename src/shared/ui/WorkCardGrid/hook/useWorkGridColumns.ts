@@ -31,11 +31,7 @@ const readColumnCount = (): number => {
   const pageMargin = readNumber("--page-margin", 0);
   const gridGap = readNumber("--grid-gap", 0);
   const maxColumns = readNumber("--card-max-columns", FALLBACK_COLUMN_COUNT);
-  const contentWidthRatio = readNumber("--content-width-ratio", 1);
-  const availableWidth = Math.min(
-    document.documentElement.clientWidth - pageMargin * 2,
-    window.innerWidth * contentWidthRatio,
-  );
+  const availableWidth = document.documentElement.clientWidth - pageMargin * 2;
   const columns = Math.floor(
     (availableWidth + gridGap) / (cardMinWidth + gridGap),
   );
