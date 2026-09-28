@@ -1,3 +1,14 @@
+.markdown-editor-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.markdown-editor-container[data-mode="live"] {
+  --content-read-width: calc(100vw - var(--space-16) * 2);
+  --paper-padding: var(--space-16);
+}
+
 .markdown-editor {
   --editor-line-height: 24px;
   --editor-initial-lines: 7;
@@ -74,8 +85,33 @@
   max-height: 100dvh;
 }
 
+.markdown-editor[data-mode="live"] .markdown-editor-panel {
+  height: calc(100dvh - var(--header-height) - var(--space-16) * 4);
+  min-height: 0;
+}
+
+.markdown-editor[data-mode="live"] .edit-pane,
+.markdown-editor[data-mode="live"] .edit-pane > div,
+.markdown-editor[data-mode="live"] :global(.w-md-editor-content),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-area) {
+  display: flex;
+  flex-direction: column;
+}
+
+.markdown-editor[data-mode="live"] .edit-pane > div,
+.markdown-editor[data-mode="live"] :global(.w-md-editor),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-content),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-area),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-text) {
+  flex: 1;
+}
+
 .edit-pane {
   width: 100%;
+}
+
+.markdown-editor[data-mode="preview"] .edit-pane {
+  display: none;
 }
 
 /* 本番（WorkPage）は Paper 1024px の内側余白の中に本文が入る。
@@ -96,17 +132,6 @@
   color: var(--font-muted-color);
   font-size: 14px;
   text-align: center;
-}
-
-.live-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: var(--editor-min-height);
-  border: 1px dashed var(--border-color);
-  border-radius: var(--editor-radius);
-  color: var(--font-muted-color);
-  font-size: 14px;
 }
 
 @media (max-width: 767px) {

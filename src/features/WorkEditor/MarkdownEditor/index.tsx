@@ -7,11 +7,9 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 import SyncDisabledRoundedIcon from "@mui/icons-material/SyncDisabledRounded";
 import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
-import UndoRoundedIcon from "@mui/icons-material/UndoRounded";
-import { divider, getCommands } from "@uiw/react-md-editor/commands";
+import { getCommands } from "@uiw/react-md-editor/commands";
 import MDEditor from "@uiw/react-md-editor/nohighlight";
 import rehypeSanitize from "rehype-sanitize";
 
@@ -26,10 +24,8 @@ import useAssetUpload, {
 } from "../WorkDetailForm/hook/useAssetUpload";
 import EditorModeTabs, { getEditorTabID } from "./EditorModeTabs";
 import useLiveScrollSync from "./hook/useLiveScrollSync";
-import useMarkdownHistory from "./hook/useMarkdownHistory";
 import styles from "./index.module.css";
-import LiveModeDialog from "./LiveModeDialog";
-import liveStyles from "./LiveModeDialog/index.module.css";
+import liveStyles from "./liveMode.module.css";
 import MarkdownImagePicker, {
   getAssetImageMarkdown,
   MarkdownImageActions,
@@ -50,7 +46,6 @@ import type {
   ChangeEvent,
   ClipboardEvent,
   CSSProperties,
-  KeyboardEvent,
   SyntheticEvent,
 } from "react";
 import type { EditorAsset } from "../types";
@@ -124,7 +119,6 @@ const MarkdownEditor = () => {
     ? validateWork(current).description
     : undefined;
   const description = useWorkEditorStore((state) => state.current.description);
-  const sessionVersion = useWorkEditorStore((state) => state.sessionVersion);
   const assets = useWorkEditorStore((state) => state.current.assets);
   const setDescription = useWorkEditorStore((state) => state.setDescription);
   const editorStore = useWorkEditorStoreApi();
@@ -137,7 +131,6 @@ const MarkdownEditor = () => {
   const [lineNumberTarget, setLineNumberTarget] = useState<HTMLElement | null>(
     null,
   );
-  const history = useMarkdownHistory({ description, sessionVersion });
   const panelID = useId();
   const editorRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -200,62 +193,6 @@ const MarkdownEditor = () => {
 
   const handleTextSelection = (event: SyntheticEvent<HTMLTextAreaElement>) => {
     textareaRef.current = event.currentTarget;
-    history.updateSelection(
-      event.currentTarget.selectionStart,
-      event.currentTarget.selectionEnd,
-    );
-  };
-
-  const handleMarkdownChange = (
-    value: string | undefined,
-    event?: ChangeEvent<HTMLTextAreaElement>,
-  ) => {
-    const nextDescription = value ?? "";
-    const textarea = event?.currentTarget;
-    history.record(
-      {
-        value: nextDescription,
-        selectionStart: textarea?.selectionStart ?? nextDescription.length,
-        selectionEnd: textarea?.selectionEnd ?? nextDescription.length,
-      },
-      (event?.nativeEvent as InputEvent | undefined)?.inputType ?? "",
-    );
-    setDescription(nextDescription);
-  };
-
-  const handleHistoryMove = (direction: "undo" | "redo") => {
-    const entry = direction === "undo" ? history.undo() : history.redo();
-    if (!entry) return;
-    const textarea = editorRef.current?.querySelector<HTMLTextAreaElement>(
-      ".w-md-editor-text-input",
-    );
-    pendingInsertionRef.current = {
-      selectionStart: entry.selectionStart,
-      selectionEnd: entry.selectionEnd,
-      pageX: window.scrollX,
-      pageY: window.scrollY,
-      sourceScrollTop: sourceRef.current?.scrollTop ?? null,
-      previewScrollTop: previewRef.current?.scrollTop ?? null,
-      textareaScrollTop: textarea?.scrollTop ?? null,
-    };
-    setDescription(entry.value);
-  };
-
-  const handleHistoryKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (
-      event.nativeEvent.isComposing ||
-      !(event.ctrlKey || event.metaKey) ||
-      event.altKey
-    )
-      return;
-    const key = event.key.toLowerCase();
-    if (key === "z") {
-      event.preventDefault();
-      handleHistoryMove(event.shiftKey ? "redo" : "undo");
-    } else if (key === "y" && event.ctrlKey && !event.shiftKey) {
-      event.preventDefault();
-      handleHistoryMove("redo");
-    }
   };
 
   const handleInsertImage = (
@@ -300,14 +237,6 @@ const MarkdownEditor = () => {
     }
     if (!didInsert) textarea.setRangeText(markdown, start, end, "end");
     if (editorStore.getState().current.description !== textarea.value) {
-      history.record(
-        {
-          value: textarea.value,
-          selectionStart: textarea.selectionStart,
-          selectionEnd: textarea.selectionEnd,
-        },
-        "insertFromImagePicker",
-      );
       setDescription(textarea.value);
     }
     textareaRef.current = textarea;
@@ -415,33 +344,6 @@ const MarkdownEditor = () => {
     };
   };
 
-  const markdownCommands: ICommand[] = [
-    {
-      name: "undo",
-      keyCommand: "undo",
-      icon: <UndoRoundedIcon aria-hidden="true" />,
-      buttonProps: {
-        "aria-label": "元に戻す",
-        title: "元に戻す (Ctrl/Cmd+Z)",
-        disabled: !history.canUndo,
-      },
-      execute: () => handleHistoryMove("undo"),
-    },
-    {
-      name: "redo",
-      keyCommand: "redo",
-      icon: <RedoRoundedIcon aria-hidden="true" />,
-      buttonProps: {
-        "aria-label": "やり直す",
-        title: "やり直す (Ctrl/Cmd+Shift+Z / Ctrl+Y)",
-        disabled: !history.canRedo,
-      },
-      execute: () => handleHistoryMove("redo"),
-    },
-    divider,
-    ...DEFAULT_MARKDOWN_COMMANDS,
-  ];
-
   const markdownImagePicker = selectedImage && (
     <MarkdownImagePicker
       images={images}
@@ -474,13 +376,13 @@ const MarkdownEditor = () => {
       <MDEditor
         className={inputStyles["input-surface"]}
         value={description}
-        onChange={handleMarkdownChange}
+        onChange={(value) => setDescription(value ?? "")}
         previewOptions={{
           rehypePlugins: [[rehypeSanitize]],
         }}
         preview="edit"
         extraCommands={[]}
-        commands={markdownCommands}
+        commands={DEFAULT_MARKDOWN_COMMANDS}
         commandsFilter={handleCommandFilter}
         visibleDragbar={false}
         height="auto"
@@ -496,13 +398,10 @@ const MarkdownEditor = () => {
           onKeyUp: handleTextSelection,
           onClick: handleTextSelection,
           onPaste: handleImagePaste,
-          onKeyDown: handleHistoryKeyDown,
         }}
       />
     </CharacterCount>
   );
-
-  const handleLiveModeClose = () => setMode("edit");
 
   const markdownPreview = description.trim() ? (
     <MarkdownPreview content={description} />
@@ -531,73 +430,82 @@ const MarkdownEditor = () => {
   );
 
   return (
-    <Paper>
-      <div
-        ref={editorRef}
-        className={styles["markdown-editor"]}
-        data-markdown-editor="true"
-        data-mode={mode}
-        style={
-          {
-            "--line-number-gutter-width": `${lineNumberWidth}px`,
-          } as CSSProperties
-        }
-      >
-        {lineNumberTarget &&
-          createPortal(
-            <div
-              className={styles["line-numbers"]}
-              data-testid="markdown-line-numbers"
-              aria-hidden="true"
-            >
-              {markdownLines.map((line, index) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: 行番号は行の位置を表し、行ごとの状態を持たない
-                <div className={styles["line-number-row"]} key={index}>
-                  <span className={styles["line-number"]}>{index + 1}</span>
-                  <span className={styles["line-measure"]}>
-                    {line || "\u200b"}
-                  </span>
-                </div>
-              ))}
-            </div>,
-            lineNumberTarget,
-          )}
-        <div className={styles["markdown-editor-header"]}>
-          <EditorModeTabs mode={mode} panelID={panelID} onChange={setMode} />
-          {mode !== "preview" && mode !== "live" && markdownImageActions}
-        </div>
-        {mode !== "preview" && mode !== "live" && markdownImagePicker}
-        {mode !== "preview" && mode !== "live" && imageInsertNotice && (
-          <p className={styles["image-insert-notice"]} role="status">
-            {imageInsertNotice}
-          </p>
-        )}
-        {(mode === "edit" || mode === "split") && imageUploadError && (
-          <FieldError role="alert">{imageUploadError}</FieldError>
-        )}
+    <div className={styles["markdown-editor-container"]} data-mode={mode}>
+      <Paper>
         <div
-          id={panelID}
-          role="tabpanel"
-          aria-labelledby={getEditorTabID(panelID, mode)}
-          className={[
-            styles["markdown-editor-panel"],
-            mode === "split" ? liveStyles["live-dialog-body"] : "",
-          ]
-            .filter(Boolean)
-            .join(" ")}
-          tabIndex={mode === "preview" ? 0 : -1}
+          ref={editorRef}
+          className={styles["markdown-editor"]}
+          data-markdown-editor="true"
+          data-mode={mode}
+          style={
+            {
+              "--line-number-gutter-width": `${lineNumberWidth}px`,
+            } as CSSProperties
+          }
         >
-          {mode === "edit" && (
-            <div className={styles["edit-pane"]}>{markdownInput}</div>
+          {lineNumberTarget &&
+            createPortal(
+              <div
+                className={styles["line-numbers"]}
+                data-testid="markdown-line-numbers"
+                aria-hidden="true"
+              >
+                {markdownLines.map((line, index) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: 行番号は行の位置を表し、行ごとの状態を持たない
+                  <div className={styles["line-number-row"]} key={index}>
+                    <span className={styles["line-number"]}>{index + 1}</span>
+                    <span className={styles["line-measure"]}>
+                      {line || "\u200b"}
+                    </span>
+                  </div>
+                ))}
+              </div>,
+              lineNumberTarget,
+            )}
+          <div className={styles["markdown-editor-header"]}>
+            <EditorModeTabs mode={mode} panelID={panelID} onChange={setMode} />
+            {mode !== "preview" && markdownImageActions}
+          </div>
+          {mode !== "preview" && markdownImagePicker}
+          {mode !== "preview" && imageInsertNotice && (
+            <p className={styles["image-insert-notice"]} role="status">
+              {imageInsertNotice}
+            </p>
           )}
-          {mode === "preview" && (
-            <div className={styles["preview-pane"]}>{markdownPreview}</div>
+          {mode !== "preview" && imageUploadError && (
+            <FieldError role="alert">{imageUploadError}</FieldError>
           )}
-          {mode === "split" && (
-            <>
-              <div className={liveStyles["live-source"]} ref={sourceRef}>
-                {markdownInput}
-              </div>
+          <div
+            id={panelID}
+            role="tabpanel"
+            aria-labelledby={getEditorTabID(panelID, mode)}
+            className={[
+              styles["markdown-editor-panel"],
+              mode === "split" || mode === "live"
+                ? liveStyles["live-body"]
+                : "",
+            ]
+              .filter(Boolean)
+              .join(" ")}
+            tabIndex={mode === "preview" ? 0 : -1}
+          >
+            <div
+              className={[
+                styles["edit-pane"],
+                mode === "split" || mode === "live"
+                  ? liveStyles["live-source"]
+                  : "",
+              ]
+                .filter(Boolean)
+                .join(" ")}
+              ref={sourceRef}
+            >
+              {markdownInput}
+            </div>
+            {mode === "preview" && (
+              <div className={styles["preview-pane"]}>{markdownPreview}</div>
+            )}
+            {(mode === "split" || mode === "live") && (
               <div className={liveStyles["live-preview"]}>
                 <div
                   className={liveStyles["live-preview-content"]}
@@ -607,44 +515,12 @@ const MarkdownEditor = () => {
                 </div>
                 {scrollSyncButton}
               </div>
-            </>
-          )}
-          {mode === "live" && (
-            <p className={styles["live-placeholder"]}>
-              ライブモードを全画面で表示しています
-            </p>
-          )}
+            )}
+          </div>
+          <ValidationMessage field="description" />
         </div>
-        <ValidationMessage field="description" />
-        {mode === "live" && (
-          <LiveModeDialog
-            mode={mode}
-            panelID={panelID}
-            source={markdownInput}
-            preview={<DelayedMarkdownPreview description={description} />}
-            scrollSyncButton={scrollSyncButton}
-            sourceRef={sourceRef}
-            previewRef={previewRef}
-            imagePicker={
-              <>
-                {markdownImagePicker}
-                {imageInsertNotice && (
-                  <p className={styles["image-insert-notice"]} role="status">
-                    {imageInsertNotice}
-                  </p>
-                )}
-                {imageUploadError && (
-                  <FieldError role="alert">{imageUploadError}</FieldError>
-                )}
-              </>
-            }
-            imageActions={markdownImageActions}
-            onModeChange={setMode}
-            onClose={handleLiveModeClose}
-          />
-        )}
-      </div>
-    </Paper>
+      </Paper>
+    </div>
   );
 };
 
