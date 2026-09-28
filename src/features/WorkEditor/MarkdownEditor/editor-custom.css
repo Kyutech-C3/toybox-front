@@ -111,6 +111,12 @@
   line-height: var(--editor-line-height) !important;
 }
 
+/* nohighlight 版の textarea に付く inline overflow:auto を上書きし、
+   行番号を含む外側の入力エリアだけをスクロールさせる。 */
+[data-markdown-editor] .w-md-editor-text-input {
+  overflow: clip !important;
+}
+
 [data-markdown-editor] .w-md-editor-text-input::placeholder {
   color: var(--font-muted-color);
   -webkit-text-fill-color: var(--font-muted-color);

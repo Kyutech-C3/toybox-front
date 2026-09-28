@@ -227,6 +227,10 @@ export const LineNumbers: Story = {
     await expect(input.scrollHeight).toBeLessThanOrEqual(
       input.clientHeight + 1,
     );
+    input.style.height = "48px";
+    input.scrollTop = 100;
+    await expect(input.scrollTop).toBe(0);
+    input.style.removeProperty("height");
     await userEvent.click(input);
     input.setSelectionRange(input.value.length, input.value.length);
     await userEvent.type(input, "{Enter}6 行目");
