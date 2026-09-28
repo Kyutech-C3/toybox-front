@@ -12,6 +12,14 @@
   align-items: center;
 }
 
+.public-icon {
+  color: var(--link-color);
+}
+
+.private-icon {
+  color: var(--error-color);
+}
+
 .visibility-label {
   white-space: nowrap;
 }
