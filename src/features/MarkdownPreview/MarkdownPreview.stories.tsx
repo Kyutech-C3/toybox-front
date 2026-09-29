@@ -259,6 +259,37 @@ export const ImageFullscreenKeyboard: Story = {
   },
 };
 
+export const ImageLineSpacing: Story = {
+  args: {
+    content:
+      "![一枚目](/favicon-192.png)\n![二枚目](/favicon-192.png)\n次の文字",
+  },
+  play: async ({ canvasElement }) => {
+    const buttons = canvasElement.querySelectorAll("p > button");
+    await expect(buttons).toHaveLength(2);
+    const image = buttons[0].querySelector("img");
+    if (!image) throw new Error("画像が見つかりません");
+    await waitFor(() => expect(image.naturalWidth).toBeGreaterThan(0));
+    const imageGap =
+      buttons[1].getBoundingClientRect().top -
+      buttons[0].getBoundingClientRect().bottom;
+    await expect(imageGap).toBeGreaterThanOrEqual(12);
+    await expect(imageGap).toBeLessThan(20);
+
+    const paragraph = buttons[1].parentElement;
+    const text = paragraph?.lastChild;
+    if (!text || text.nodeType !== Node.TEXT_NODE)
+      throw new Error("画像の次の文字が見つかりません");
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const textGap =
+      range.getBoundingClientRect().top -
+      buttons[1].getBoundingClientRect().bottom;
+    await expect(textGap).toBeGreaterThanOrEqual(6);
+    await expect(textGap).toBeLessThan(20);
+  },
+};
+
 export const MarkdownSyntaxSample: Story = {
   args: { content: markdownSyntaxSample },
   play: async ({ canvasElement }) => {

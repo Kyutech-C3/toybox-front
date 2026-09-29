@@ -11,6 +11,7 @@ import {
 } from "../editorAsset";
 
 import type { Work, WorkVisibility } from "@/shared/types/work";
+import type { EditorMode } from "../MarkdownEditor/types";
 import type {
   EditorAsset,
   EditorTag,
@@ -21,6 +22,7 @@ import type {
 export type WorkEditorStore = {
   sessionVersion: number;
   mode: WorkEditorMode;
+  markdownMode: EditorMode;
   workID: string | null;
   ownerID: string | null;
   initializedKey: string | null;
@@ -28,6 +30,7 @@ export type WorkEditorStore = {
   baseline: WorkEditorValues;
   creatingTagNames: string[];
   failedTagNames: string[];
+  assetUploadError: string;
   uploadedAssetIDs: string[];
   createdTagIDs: string[];
   hasInvalidUrls: boolean;
@@ -41,6 +44,8 @@ export type WorkEditorStore = {
 
   setTitle: (title: string) => void;
   setDescription: (description: string) => void;
+  setMarkdownMode: (mode: EditorMode) => void;
+  setAssetUploadError: (message: string) => void;
   setVisibility: (visibility: WorkVisibility) => void;
   addTag: (tag: EditorTag) => void;
   removeTag: (tagID: string) => void;
@@ -74,6 +79,7 @@ export const createWorkEditorStore = () =>
   createStore<WorkEditorStore>((set) => ({
     sessionVersion: 0,
     mode: "new",
+    markdownMode: "edit",
     workID: null,
     ownerID: null,
     initializedKey: null,
@@ -81,6 +87,7 @@ export const createWorkEditorStore = () =>
     baseline: EMPTY_WORK_EDITOR_VALUES,
     creatingTagNames: [],
     failedTagNames: [],
+    assetUploadError: "",
     uploadedAssetIDs: [],
     createdTagIDs: [],
     hasInvalidUrls: false,
@@ -94,6 +101,7 @@ export const createWorkEditorStore = () =>
         return {
           sessionVersion: state.sessionVersion + 1,
           mode: "new",
+          markdownMode: "edit",
           workID: null,
           ownerID: null,
           initializedKey: "new",
@@ -101,6 +109,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -118,6 +127,7 @@ export const createWorkEditorStore = () =>
         return {
           sessionVersion: state.sessionVersion + 1,
           mode: "edit",
+          markdownMode: "edit",
           workID: work.id,
           ownerID: work.user.id,
           initializedKey: work.id,
@@ -125,6 +135,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(values),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -150,6 +161,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(current),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -165,6 +177,7 @@ export const createWorkEditorStore = () =>
         return {
           sessionVersion: state.sessionVersion + 1,
           mode: "new",
+          markdownMode: "edit",
           workID: null,
           ownerID: null,
           initializedKey: null,
@@ -172,6 +185,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -187,6 +201,14 @@ export const createWorkEditorStore = () =>
 
     setDescription: (description: string) => {
       set((state) => updateCurrent(state, { description }));
+    },
+
+    setMarkdownMode: (markdownMode: EditorMode) => {
+      set({ markdownMode });
+    },
+
+    setAssetUploadError: (assetUploadError: string) => {
+      set({ assetUploadError });
     },
 
     setVisibility: (visibility: WorkVisibility) => {

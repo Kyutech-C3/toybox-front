@@ -1,16 +1,21 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 
+import { getExtension } from "../../editorAsset";
 import {
   useWorkEditorStore,
   useWorkEditorStoreApi,
 } from "../../store/useWorkEditorStore";
-import useAssetUpload from "../../WorkDetailForm/hook/useAssetUpload";
+import useAssetUpload, {
+  IMAGE_ASSET_ACCEPT,
+} from "../../WorkDetailForm/hook/useAssetUpload";
 import { getAssetImageMarkdown } from "../MarkdownImagePicker";
 
 import type { ICommand } from "@uiw/react-md-editor";
 import type {
   ChangeEvent,
   ClipboardEvent,
+  DragEvent,
   RefObject,
   SyntheticEvent,
 } from "react";
@@ -55,11 +60,12 @@ type UseMarkdownImageInsertionReturn = {
   setSelectedImageKey: (key: string) => void;
   imageInsertNotice: string;
   clearImageInsertNotice: () => void;
-  imageUploadError: string;
   handleTextSelection: (event: SyntheticEvent<HTMLTextAreaElement>) => void;
   handleInsertImage: (markdown: string) => boolean;
   handleImageFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleImagePaste: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
+  handleImageDragOver: (event: DragEvent<HTMLTextAreaElement>) => void;
+  handleImageDrop: (event: DragEvent<HTMLTextAreaElement>) => void;
   handleCommandFilter: (command: ICommand, isExtra: boolean) => ICommand;
 };
 
@@ -82,8 +88,7 @@ const useMarkdownImageInsertion = ({
   const assets = useWorkEditorStore((state) => state.current.assets);
   const setDescription = useWorkEditorStore((state) => state.setDescription);
   const editorStore = useWorkEditorStoreApi();
-  const { handleAddImageFile, validationError: imageUploadError } =
-    useAssetUpload();
+  const { handleAddImageFile } = useAssetUpload();
   const [selectedImageKey, setSelectedImageKey] = useState("");
   const [imageInsertNotice, setImageInsertNotice] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -162,9 +167,7 @@ const useMarkdownImageInsertion = ({
       // 入力コマンドを使えない環境でも挿入は続ける
     }
     if (!didInsert) textarea.setRangeText(markdown, start, end, "end");
-    if (editorStore.getState().current.description !== textarea.value) {
-      setDescription(textarea.value);
-    }
+    flushSync(() => setDescription(textarea.value));
     textareaRef.current = textarea;
     return textarea.value !== previousValue;
   };
@@ -189,32 +192,34 @@ const useMarkdownImageInsertion = ({
   };
   const openImagePickerRef = useRef(handleOpenImagePicker);
   openImagePickerRef.current = handleOpenImagePicker;
-  const uploadAndInsertImage = async (
-    file: File,
+  const uploadAndInsertImages = async (
+    files: File[],
     selection: ImageInsertionSelection,
   ) => {
-    const uploaded = await handleAddImageFile(file);
-    if (!uploaded?.assetURL) return;
+    if (files.length === 0) return;
     if (selection.sessionVersion !== editorStore.getState().sessionVersion)
       return;
-    setSelectedImageKey(uploaded.key);
-    if (
-      selection.description !== editorStore.getState().current.description ||
-      !selection.textarea.isConnected
-    ) {
-      setImageInsertNotice(
-        "画像をアップロードしました。説明文または編集画面が変わったため、自動挿入せず、挿入ボタンから追加できます。",
-      );
+    setImageInsertNotice("");
+    const uploaded = await Promise.all(files.map(handleAddImageFile));
+    if (selection.sessionVersion !== editorStore.getState().sessionVersion)
       return;
-    }
-    insertImageRef.current(getAssetImageMarkdown(uploaded), selection);
+    const images = uploaded.filter((asset): asset is EditorAsset =>
+      Boolean(asset?.assetURL),
+    );
+    if (images.length === 0) return;
+    setSelectedImageKey(images[images.length - 1].key);
+    const markdown = images.map(getAssetImageMarkdown).join("\n");
+    const isDescriptionUnchanged =
+      editorStore.getState().current.description === selection.description;
+    insertImage(markdown, isDescriptionUnchanged ? selection : undefined);
   };
   const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0];
+    const files = Array.from(event.currentTarget.files ?? []);
     event.currentTarget.value = "";
     const selection = uploadSelectionRef.current;
     uploadSelectionRef.current = null;
-    if (file && selection) void uploadAndInsertImage(file, selection);
+    if (selection)
+      queueMicrotask(() => uploadAndInsertImages(files, selection));
   };
   const handleImagePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
     const clipboard = event.clipboardData;
@@ -225,34 +230,50 @@ const useMarkdownImageInsertion = ({
       )
     )
       return;
-    const image =
-      Array.from(clipboard.items)
-        .find((item) => item.kind === "file" && item.type.startsWith("image/"))
-        ?.getAsFile() ??
-      Array.from(clipboard.files).find((file) =>
-        file.type.startsWith("image/"),
-      );
-    if (!image) return;
+    const itemImages = Array.from(clipboard.items)
+      .filter((item) => item.kind === "file" && item.type.startsWith("image/"))
+      .flatMap((item) => {
+        const file = item.getAsFile();
+        return file ? [file] : [];
+      });
+    const images = itemImages.length
+      ? itemImages
+      : Array.from(clipboard.files).filter((file) =>
+          file.type.startsWith("image/"),
+        );
+    if (images.length === 0) return;
     event.preventDefault();
-
-    const extensions = CLIPBOARD_IMAGE_EXTENSIONS[image.type];
-    if (!extensions) {
-      setImageInsertNotice("この画像形式には対応していません。");
+    const files = images.map((image, index) => {
+      const extensions = CLIPBOARD_IMAGE_EXTENSIONS[image.type];
+      if (!extensions || extensions.includes(getExtension(image.name)))
+        return image;
+      return new File(
+        [image],
+        `clipboard-${Date.now()}-${index + 1}${extensions[0]}`,
+        { type: image.type },
+      );
+    });
+    const selection = captureImageSelection(event.currentTarget);
+    queueMicrotask(() => uploadAndInsertImages(files, selection));
+  };
+  const handleImageDragOver = (event: DragEvent<HTMLTextAreaElement>) => {
+    if (Array.from(event.dataTransfer.types).includes("Files"))
+      event.preventDefault();
+  };
+  const handleImageDrop = (event: DragEvent<HTMLTextAreaElement>) => {
+    if (
+      !Array.from(event.dataTransfer.types).includes("Files") &&
+      event.dataTransfer.files.length === 0
+    )
       return;
-    }
-    const extension = image.name
-      .slice(image.name.lastIndexOf("."))
-      .toLowerCase();
-    const uploadFile = extensions.includes(extension)
-      ? image
-      : new File([image], `clipboard-${Date.now()}${extensions[0]}`, {
-          type: image.type,
-        });
-    setImageInsertNotice("");
-    void uploadAndInsertImage(
-      uploadFile,
-      captureImageSelection(event.currentTarget),
+    event.preventDefault();
+    const files = Array.from(event.dataTransfer.files).filter(
+      (file) =>
+        file.type.startsWith("image/") ||
+        IMAGE_ASSET_ACCEPT.split(",").includes(getExtension(file.name)),
     );
+    const selection = captureImageSelection(event.currentTarget);
+    queueMicrotask(() => uploadAndInsertImages(files, selection));
   };
   const handleCommandFilter = (
     command: ICommand,
@@ -277,11 +298,12 @@ const useMarkdownImageInsertion = ({
     setSelectedImageKey,
     imageInsertNotice,
     clearImageInsertNotice: () => setImageInsertNotice(""),
-    imageUploadError,
     handleTextSelection,
     handleInsertImage: (markdown) => insertImage(markdown),
     handleImageFileChange,
     handleImagePaste,
+    handleImageDragOver,
+    handleImageDrop,
     handleCommandFilter,
   };
 };

@@ -132,18 +132,19 @@
     max-height: 400px;
     height: auto;
     display: block;
-    margin: 1.5rem 0;
+    margin: 0;
     box-shadow: 0 2px 8px var(--shadow-soft-color);
   }
 
   .image-open-button {
-    display: block;
+    display: inline-block;
     max-width: 100%;
-    margin: 1.5rem 0;
+    margin: 0.5rem 0;
     padding: 0;
     border: 0;
     background: transparent;
     cursor: zoom-in;
+    vertical-align: bottom;
 
     &:focus-visible {
       outline: 2px solid var(--link-color);
@@ -390,7 +391,6 @@
 
     img {
       max-height: 260px;
-      margin: 1rem auto;
     }
 
     pre {

@@ -86,7 +86,7 @@ const AssetUpload = () => {
             previewClassName={styles["preview"]}
             statusText={
               asset.assetURL && referencedAssetURLs.has(asset.assetURL)
-                ? "説明文でも使用中"
+                ? "説明文使用中"
                 : getStatusText(asset)
             }
             onRemove={() => handleRemove(asset.key)}
