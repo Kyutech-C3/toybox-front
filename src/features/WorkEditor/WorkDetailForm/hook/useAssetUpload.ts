@@ -1,3 +1,5 @@
+import { flushSync } from "react-dom";
+
 import { deletePendingResources } from "../../api/deletePendingResources";
 import { uploadAsset } from "../../api/uploadAsset";
 import {
@@ -188,7 +190,43 @@ const useAssetUpload = (): UseAssetUploadReturn => {
         )
       )
         return;
-      setDescription(imageUsage.nextDescription);
+      if (store.getState().markdownMode === "preview") {
+        flushSync(() => store.getState().setMarkdownMode("edit"));
+      }
+      const textarea = document.querySelector<HTMLTextAreaElement>(
+        "[data-markdown-editor] .w-md-editor-text-input",
+      );
+      if (!textarea || textarea.value !== current.description) {
+        setValidationError("説明文から画像を削除できませんでした");
+        return;
+      }
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
+      const selectionStart = textarea.selectionStart;
+      const selectionEnd = textarea.selectionEnd;
+      textarea.focus({ preventScroll: true });
+      textarea.setSelectionRange(0, textarea.value.length);
+      const command = imageUsage.nextDescription ? "insertText" : "delete";
+      let didReplace = false;
+      try {
+        didReplace = document.execCommand(
+          command,
+          false,
+          imageUsage.nextDescription,
+        );
+      } catch {
+        // 入力履歴を保持できない場合はアセットも削除しない
+      }
+      if (!didReplace) {
+        setValidationError("説明文から画像を削除できませんでした");
+        return;
+      }
+      flushSync(() => setDescription(textarea.value));
+      textarea.setSelectionRange(
+        Math.min(selectionStart, textarea.value.length),
+        Math.min(selectionEnd, textarea.value.length),
+      );
+      window.scrollTo(scrollX, scrollY);
     }
     setValidationError("");
     removeAsset(key);

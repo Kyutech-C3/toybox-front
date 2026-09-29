@@ -85,7 +85,8 @@ const MarkdownEditor = () => {
     : undefined;
   const description = useWorkEditorStore((state) => state.current.description);
   const setDescription = useWorkEditorStore((state) => state.setDescription);
-  const [mode, setMode] = useState<EditorMode>("edit");
+  const mode = useWorkEditorStore((state) => state.markdownMode);
+  const setMode = useWorkEditorStore((state) => state.setMarkdownMode);
   const [isScrollSyncEnabled, setIsScrollSyncEnabled] = useState(true);
   const [lineNumberTarget, setLineNumberTarget] = useState<HTMLElement | null>(
     null,

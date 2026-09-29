@@ -964,6 +964,14 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
     const removeButton = await canvas.findByRole("button", {
       name: "sample.pngを削除",
     });
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    if (!(input instanceof HTMLTextAreaElement))
+      throw new Error("説明の入力欄が見つかりません");
+    const originalDescription = input.value;
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+    document.execCommand("insertText", false, "\n追記");
+    await expect(input).toHaveValue(`${originalDescription}\n追記`);
     await expect(await canvas.findByText(/説明文でも使用中/)).toBeVisible();
     const confirm = spyOn(window, "confirm")
       .mockReturnValueOnce(false)
@@ -971,6 +979,7 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
     try {
       await userEvent.click(removeButton);
       await expect(removeButton).toBeInTheDocument();
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
       await userEvent.click(removeButton);
       await expect(confirm).toHaveBeenCalledWith(
         "sample.png は下の説明文でも使用されています。削除すると説明文からも画像を削除します。",
@@ -978,9 +987,6 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
       await expect(
         canvas.queryByRole("button", { name: "sample.pngを削除" }),
       ).not.toBeInTheDocument();
-      const input = canvas.getByRole("textbox", { name: "説明" });
-      if (!(input instanceof HTMLTextAreaElement))
-        throw new Error("説明の入力欄が見つかりません");
       await expect(input.value).not.toContain(
         "![sample](https://example.com/sample.png)",
       );
@@ -995,11 +1001,58 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
       await expect(input.value).toContain(
         "[リンク](https://example.com/sample.png)",
       );
+      await userEvent.click(canvas.getByRole("tab", { name: "エディタ" }));
       input.focus();
       document.execCommand("undo");
+      await expect(input).toHaveValue(`${originalDescription}\n追記`);
+      await expect(
+        canvas.queryByRole("button", { name: "sample.pngを削除" }),
+      ).not.toBeInTheDocument();
+      document.execCommand("undo");
+      await expect(input).toHaveValue(originalDescription);
+      document.execCommand("redo");
+      await expect(input).toHaveValue(`${originalDescription}\n追記`);
+      document.execCommand("redo");
       await expect(input.value).not.toContain(
         "![sample](https://example.com/sample.png)",
       );
+      input.setSelectionRange(input.value.length, input.value.length);
+      await userEvent.type(input, "後続");
+      await expect(input.value).toContain("後続");
+      await expect(input.value).not.toContain(
+        "![sample](https://example.com/sample.png)",
+      );
+    } finally {
+      confirm.mockRestore();
+    }
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+export const ReferencedOnlyImageRemoval: Story = {
+  render: () => (
+    <ImageInsertionExample
+      description="![sample](https://example.com/sample.png)"
+      isUploadVisible
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    const removeButton = await canvas.findByRole("button", {
+      name: "sample.pngを削除",
+    });
+    const confirm = spyOn(window, "confirm").mockReturnValue(true);
+    try {
+      await userEvent.click(removeButton);
+      await expect(input).toHaveValue("");
+      input.focus();
+      document.execCommand("undo");
+      await expect(input).toHaveValue(
+        "![sample](https://example.com/sample.png)",
+      );
+      document.execCommand("redo");
+      await expect(input).toHaveValue("");
     } finally {
       confirm.mockRestore();
     }
