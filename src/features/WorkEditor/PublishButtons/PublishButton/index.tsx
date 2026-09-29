@@ -61,7 +61,11 @@ const VISIBILITY_CONFIRM_MESSAGES: Partial<Record<WorkVisibility, string>> = {
   private: "C3の全ユーザがこのToyを閲覧できます。本当に限定公開しますか？",
 };
 
-const getSubmitErrorMessage = (error: unknown, isEditMode: boolean) => {
+const getSubmitErrorMessage = (
+  error: unknown,
+  isUpdatingPost: boolean,
+  visibility: WorkVisibility,
+) => {
   if (error instanceof ApiError) {
     if (error.status === 401) return "ログインの有効期限が切れました";
     if (error.status === 403) return "この作品を編集する権限がありません";
@@ -73,7 +77,10 @@ const getSubmitErrorMessage = (error: unknown, isEditMode: boolean) => {
     return error.displayMessage;
   }
 
-  return isEditMode ? "作品の保存に失敗しました" : "作品の投稿に失敗しました";
+  if (visibility === "draft") return "下書きの保存に失敗しました";
+  return isUpdatingPost
+    ? "投稿の更新に失敗しました"
+    : "作品の投稿に失敗しました";
 };
 
 const PublishButton = () => {
@@ -108,6 +115,7 @@ const PublishButton = () => {
 
   const { visibility } = current;
   const isEditMode = mode === "edit";
+  const isUpdatingPost = isEditMode && baseline.visibility !== "draft";
   const isSubmitDisabled =
     hasUnsettledBackendWork || hasInvalidUrls || isSubmitting;
   const deleteOrphanedResources = () => {
@@ -164,17 +172,31 @@ const PublishButton = () => {
 
         deleteOrphanedResources();
         markSaved();
-        showToast({ message: "作品を保存しました", severity: "success" });
+        showToast({
+          message:
+            visibility === "draft"
+              ? "下書きを保存しました"
+              : isUpdatingPost
+                ? "投稿を更新しました"
+                : "作品を投稿しました",
+          severity: "success",
+        });
         navigate(`/works/${workID}`);
         return;
       }
       await postWork(payload, accessToken);
       deleteOrphanedResources();
       markSaved();
-      showToast({ message: "作品を投稿しました", severity: "success" });
+      showToast({
+        message:
+          visibility === "draft"
+            ? "下書きを保存しました"
+            : "作品を投稿しました",
+        severity: "success",
+      });
       navigate("/");
     } catch (error) {
-      setSubmitError(getSubmitErrorMessage(error, isEditMode));
+      setSubmitError(getSubmitErrorMessage(error, isUpdatingPost, visibility));
     } finally {
       setIsSubmitting(false);
     }
