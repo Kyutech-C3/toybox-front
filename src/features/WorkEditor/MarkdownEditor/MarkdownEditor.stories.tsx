@@ -443,7 +443,9 @@ export const ToolbarImageInsertion: Story = {
     const input = canvas.getByRole("textbox", { name: "説明" });
     if (!(input instanceof HTMLTextAreaElement))
       throw new Error("説明の入力欄が見つかりません");
-    await userEvent.type(input, "前後");
+    input.focus();
+    document.execCommand("insertText", false, "前後");
+    await expect(input).toHaveValue("前後");
     input.setSelectionRange(1, 1);
     fireEvent.select(input);
     const fileInput = canvas.getByLabelText("説明に挿入する画像を選択");
@@ -474,7 +476,7 @@ export const ToolbarImageInsertion: Story = {
         fileInput,
         new File(["image"], "new.png", { type: "image/png" }),
       );
-      await expect(input.value).toMatch(/アップロード中: new\.png/);
+      await expect(input).toHaveValue("前後");
       await expect(
         canvas.getByRole("button", { name: "new.pngを削除" }),
       ).toBeDisabled();
@@ -498,7 +500,11 @@ export const ToolbarImageInsertion: Story = {
       );
       input.focus();
       document.execCommand("undo");
-      await expect(input.value).toMatch(/アップロード中: new\.png/);
+      await expect(input).toHaveValue("前後");
+      document.execCommand("undo");
+      await expect(input).toHaveValue("");
+      document.execCommand("redo");
+      await expect(input).toHaveValue("前後");
       document.execCommand("redo");
       await expect(input).toHaveValue(
         "前![new](https://example.com/new.png)後",
@@ -545,7 +551,7 @@ export const ToolbarImageUploadAfterTextChange: Story = {
         fileInput,
         new File(["image"], "later.png", { type: "image/png" }),
       );
-      await expect(input.value).toMatch(/アップロード中: later\.png/);
+      await expect(input).toHaveValue("前後");
       await expect(canvas.getByRole("textbox", { name: "説明" })).toBe(input);
       await userEvent.type(input, "追加");
       if (!uploadGate.resolve)
@@ -786,7 +792,7 @@ export const MultipleImageDrop: Story = {
       const drop = new DragEvent("drop", { bubbles: true, cancelable: true });
       Object.defineProperty(drop, "dataTransfer", { value: dataTransfer });
       await expect(input.dispatchEvent(drop)).toBe(false);
-      await expect(input.value.match(/アップロード中:/g)).toHaveLength(3);
+      await expect(input).toHaveValue("前後");
       await waitFor(() => expect(uploadGates.size).toBe(3));
       await expect(canvas.queryByText("movie.mp4")).not.toBeInTheDocument();
 

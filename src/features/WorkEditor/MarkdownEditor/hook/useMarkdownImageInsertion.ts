@@ -33,6 +33,7 @@ type ImageInsertionSelection = {
   textarea: HTMLTextAreaElement;
   start: number;
   end: number;
+  description: string;
   sessionVersion: number;
 };
 
@@ -94,7 +95,6 @@ const useMarkdownImageInsertion = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadSelectionRef = useRef<ImageInsertionSelection | null>(null);
   const pendingInsertionRef = useRef<PendingInsertion | null>(null);
-  const placeholderSequenceRef = useRef(0);
   const images = assets.filter(isInsertableImage);
   const selectedImage =
     images.find((asset) => asset.key === selectedImageKey) ?? images[0];
@@ -178,6 +178,7 @@ const useMarkdownImageInsertion = ({
     textarea,
     start: textarea.selectionStart,
     end: textarea.selectionEnd,
+    description: editorStore.getState().current.description,
     sessionVersion: editorStore.getState().sessionVersion,
   });
   const handleOpenImagePicker = () => {
@@ -191,100 +192,26 @@ const useMarkdownImageInsertion = ({
   };
   const openImagePickerRef = useRef(handleOpenImagePicker);
   openImagePickerRef.current = handleOpenImagePicker;
-  const replacePlaceholder = (placeholder: string, markdown: string) => {
-    const description = editorStore.getState().current.description;
-    const index = description.indexOf(placeholder);
-    if (index < 0) return;
-    let start = index;
-    let end = index + placeholder.length;
-    if (!markdown) {
-      if (description[end] === "\n") end += 1;
-      else if (description[start - 1] === "\n") start -= 1;
-    }
-    const textarea = editorRef.current?.querySelector<HTMLTextAreaElement>(
-      ".w-md-editor-text-input",
-    );
-    if (!textarea) {
-      setDescription(
-        description.slice(0, start) + markdown + description.slice(end),
-      );
-      return;
-    }
-    const activeElement = document.activeElement;
-    const isTextFocused = activeElement === textarea;
-    const selectionStart = textarea.selectionStart;
-    const selectionEnd = textarea.selectionEnd;
-    const difference = markdown.length - (end - start);
-    const adjustSelection = (position: number) =>
-      position <= start
-        ? position
-        : position >= end
-          ? position + difference
-          : start + markdown.length;
-    textarea.focus({ preventScroll: true });
-    textarea.setSelectionRange(start, end);
-    let didInsert = false;
-    try {
-      didInsert = document.execCommand("insertText", false, markdown);
-    } catch {
-      // 入力コマンドを使えない環境でも置換は続ける
-    }
-    if (!didInsert) textarea.setRangeText(markdown, start, end, "end");
-    flushSync(() => setDescription(textarea.value));
-    if (isTextFocused) {
-      textarea.setSelectionRange(
-        adjustSelection(selectionStart),
-        adjustSelection(selectionEnd),
-      );
-    } else if (activeElement instanceof HTMLElement) {
-      activeElement.focus({ preventScroll: true });
-    }
-  };
-  const uploadAndInsertImages = (
+  const uploadAndInsertImages = async (
     files: File[],
     selection: ImageInsertionSelection,
   ) => {
     if (files.length === 0) return;
     if (selection.sessionVersion !== editorStore.getState().sessionVersion)
       return;
-    const placeholders = files.map((file) => {
-      placeholderSequenceRef.current += 1;
-      const label = file.name.replaceAll("\\", "\\\\").replaceAll("]", "\\]");
-      return `![アップロード中: ${label}](#upload-${Date.now()}-${placeholderSequenceRef.current})`;
-    });
-    const description = editorStore.getState().current.description;
-    const start = Math.min(selection.start, description.length);
-    const end = Math.min(selection.end, description.length);
-    const insertedText = placeholders.join("\n");
-    pendingInsertionRef.current = {
-      selectionStart: start + insertedText.length,
-      selectionEnd: start + insertedText.length,
-      pageX: window.scrollX,
-      pageY: window.scrollY,
-      sourceScrollTop: sourceRef.current?.scrollTop ?? null,
-      previewScrollTop: previewRef.current?.scrollTop ?? null,
-      textareaScrollTop: selection.textarea.scrollTop,
-    };
-    flushSync(() =>
-      setDescription(
-        description.slice(0, start) + insertedText + description.slice(end),
-      ),
-    );
     setImageInsertNotice("");
-    for (let index = 0; index < files.length; index += 1) {
-      const file = files[index];
-      const placeholder = placeholders[index];
-      void handleAddImageFile(file).then((uploaded) => {
-        if (selection.sessionVersion !== editorStore.getState().sessionVersion)
-          return;
-        if (uploaded?.assetURL) {
-          setSelectedImageKey(uploaded.key);
-          replacePlaceholder(placeholder, getAssetImageMarkdown(uploaded));
-        } else {
-          replacePlaceholder(placeholder, "");
-        }
-      });
-    }
+    const uploaded = await Promise.all(files.map(handleAddImageFile));
+    if (selection.sessionVersion !== editorStore.getState().sessionVersion)
+      return;
+    const images = uploaded.filter((asset): asset is EditorAsset =>
+      Boolean(asset?.assetURL),
+    );
+    if (images.length === 0) return;
+    setSelectedImageKey(images[images.length - 1].key);
+    const markdown = images.map(getAssetImageMarkdown).join("\n");
+    const isDescriptionUnchanged =
+      editorStore.getState().current.description === selection.description;
+    insertImage(markdown, isDescriptionUnchanged ? selection : undefined);
   };
   const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.currentTarget.files ?? []);
