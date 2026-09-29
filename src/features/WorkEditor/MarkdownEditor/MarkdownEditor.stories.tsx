@@ -496,6 +496,13 @@ export const ToolbarImageInsertion: Story = {
       await expect(input).toHaveValue(
         "前![new](https://example.com/new.png)後",
       );
+      input.focus();
+      document.execCommand("undo");
+      await expect(input.value).toMatch(/アップロード中: new\.png/);
+      document.execCommand("redo");
+      await expect(input).toHaveValue(
+        "前![new](https://example.com/new.png)後",
+      );
     } finally {
       globalThis.fetch = originalFetch;
       useAuthStore.setState(originalAuth);

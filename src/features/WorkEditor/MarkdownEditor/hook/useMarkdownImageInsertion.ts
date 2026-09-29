@@ -33,7 +33,6 @@ type ImageInsertionSelection = {
   textarea: HTMLTextAreaElement;
   start: number;
   end: number;
-  description: string;
   sessionVersion: number;
 };
 
@@ -179,7 +178,6 @@ const useMarkdownImageInsertion = ({
     textarea,
     start: textarea.selectionStart,
     end: textarea.selectionEnd,
-    description: editorStore.getState().current.description,
     sessionVersion: editorStore.getState().sessionVersion,
   });
   const handleOpenImagePicker = () => {
@@ -225,7 +223,13 @@ const useMarkdownImageInsertion = ({
           : start + markdown.length;
     textarea.focus({ preventScroll: true });
     textarea.setSelectionRange(start, end);
-    textarea.setRangeText(markdown, start, end, "end");
+    let didInsert = false;
+    try {
+      didInsert = document.execCommand("insertText", false, markdown);
+    } catch {
+      // 入力コマンドを使えない環境でも置換は続ける
+    }
+    if (!didInsert) textarea.setRangeText(markdown, start, end, "end");
     flushSync(() => setDescription(textarea.value));
     if (isTextFocused) {
       textarea.setSelectionRange(
