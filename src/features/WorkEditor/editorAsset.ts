@@ -103,9 +103,7 @@ export const toWorkEditorValues = (work: Work): WorkEditorValues => ({
   tags: work.tags.map((tag) => ({ id: tag.id, name: tag.name })),
   urls: [...(work.urls ?? [])],
   thumbnail: toThumbnailAsset(work),
-  assets: (work.assets ?? [])
-    .filter((asset) => asset.id !== work.thumbnail_asset_id)
-    .map(toEditorAssetFromAsset),
+  assets: (work.assets ?? []).map(toEditorAssetFromAsset),
 });
 
 export const cloneWorkEditorValues = (

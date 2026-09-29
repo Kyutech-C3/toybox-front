@@ -29,9 +29,19 @@ const VisibilityIcon = ({
     .join(" ");
   const icon = (
     <>
-      {visibility === "private" && <LockRoundedIcon fontSize="inherit" />}
+      {visibility === "private" && (
+        <LockRoundedIcon
+          className={styles["private-icon"]}
+          fontSize="inherit"
+        />
+      )}
       {visibility === "draft" && <EditNoteRoundedIcon fontSize="inherit" />}
-      {visibility === "public" && <LanguageRoundedIcon fontSize="inherit" />}
+      {visibility === "public" && (
+        <LanguageRoundedIcon
+          className={styles["public-icon"]}
+          fontSize="inherit"
+        />
+      )}
     </>
   );
 

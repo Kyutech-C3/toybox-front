@@ -1,5 +1,8 @@
 import type { TagDetail } from "@/shared/types/work";
 
+export type SortOrder = "newest" | "oldest";
+export type VisibilityFilterValue = "public" | "private";
+
 type GetWorkIndexSelectionParams = {
   searchParams: URLSearchParams;
   allTags: TagDetail[];
@@ -24,6 +27,20 @@ export const getWorkIndexSelection = ({
     Number.isSafeInteger(requestedPage) && requestedPage > 0
       ? requestedPage
       : 1;
+  const sortOrder: SortOrder =
+    searchParams.get("sort") === "oldest" ? "oldest" : "newest";
+  const requestedVisibility = searchParams.get("visibility");
+  const visibility: VisibilityFilterValue | null =
+    requestedVisibility === "public" || requestedVisibility === "private"
+      ? requestedVisibility
+      : null;
 
-  return { searchableTags, selectedTagIDs, selectedTags, currentPage };
+  return {
+    searchableTags,
+    selectedTagIDs,
+    selectedTags,
+    currentPage,
+    sortOrder,
+    visibility,
+  };
 };

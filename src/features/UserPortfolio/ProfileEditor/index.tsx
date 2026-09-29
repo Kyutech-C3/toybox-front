@@ -77,7 +77,7 @@ const ProfileEditor = ({
   const [displayName, setDisplayName] = useState(userProfile.display_name);
   const [profile, setProfile] = useState(userProfile.profile);
   const [github, setGithub] = useState(userProfile.github_id);
-  const [xUsername, setXUsername] = useState(userProfile.twitter_id);
+  const [xUsername, setXUsername] = useState(userProfile.x_username);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const trimmedDisplayName = displayName.trim();
@@ -97,7 +97,7 @@ const ProfileEditor = ({
     trimmedDisplayName !== userProfile.display_name ||
     profile !== userProfile.profile ||
     normalizedGithubUsername !== userProfile.github_id ||
-    normalizedXUsername !== userProfile.twitter_id;
+    normalizedXUsername !== userProfile.x_username;
 
   const handleCancel = () => {
     if (hasUnsavedChanges && !window.confirm(DISCARD_CONFIRM_MESSAGE)) return;

@@ -22,8 +22,14 @@ const WorkIndex = () => {
   const paginationRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: allTags } = useTagOptions();
-  const { searchableTags, selectedTagIDs, selectedTags, currentPage } =
-    getWorkIndexSelection({ searchParams, allTags });
+  const {
+    searchableTags,
+    selectedTagIDs,
+    selectedTags,
+    currentPage,
+    sortOrder,
+    visibility,
+  } = getWorkIndexSelection({ searchParams, allTags });
   const normalizedTags = selectedTagIDs.join(",");
   const viewerUserID = useUserStore((state) => state.user?.id);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -33,6 +39,8 @@ const WorkIndex = () => {
     page: currentPage,
     limit: itemsPerPage,
     tags: selectedTags,
+    sortOrder,
+    visibility: accessToken ? visibility : null,
   });
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -87,6 +95,26 @@ const WorkIndex = () => {
     updateTags(selectedTagIDs.filter((selectedID) => selectedID !== tagID));
   };
 
+  const handleSortChange = (value: typeof sortOrder) => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (value === "oldest") next.set("sort", value);
+      else next.delete("sort");
+      next.delete("page");
+      return next;
+    });
+  };
+
+  const handleVisibilityChange = (value: typeof visibility) => {
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (value) next.set("visibility", value);
+      else next.delete("visibility");
+      next.delete("page");
+      return next;
+    });
+  };
+
   const handlePageChange = (page: number) => {
     setSearchParams((current) => {
       const next = new URLSearchParams(current);
@@ -115,8 +143,13 @@ const WorkIndex = () => {
           onClearTags={() => updateTags([])}
           leadingControls={
             <>
-              {accessToken && <VisibilityFilter />}
-              <SortOrderSwitch />
+              {accessToken && (
+                <VisibilityFilter
+                  value={visibility}
+                  onChange={handleVisibilityChange}
+                />
+              )}
+              <SortOrderSwitch value={sortOrder} onChange={handleSortChange} />
             </>
           }
           trailingControls={<PageSizeSelect />}

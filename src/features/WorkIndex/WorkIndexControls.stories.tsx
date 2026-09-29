@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
 
 import SortOrderSwitch from "./SortOrderSwitch";
@@ -5,12 +6,18 @@ import VisibilityFilter from "./VisibilityFilter";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
-const Controls = () => (
-  <div style={{ display: "grid", gap: 24 }}>
-    <SortOrderSwitch />
-    <VisibilityFilter />
-  </div>
-);
+const Controls = () => {
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
+  const [visibility, setVisibility] = useState<"public" | "private" | null>(
+    null,
+  );
+  return (
+    <div style={{ display: "grid", gap: 24 }}>
+      <SortOrderSwitch value={sortOrder} onChange={setSortOrder} />
+      <VisibilityFilter value={visibility} onChange={setVisibility} />
+    </div>
+  );
+};
 
 const META = {
   title: "Features/WorkIndex/Controls",
