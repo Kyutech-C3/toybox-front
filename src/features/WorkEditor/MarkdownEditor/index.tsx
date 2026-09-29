@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import RedoRoundedIcon from "@mui/icons-material/RedoRounded";
 import SyncDisabledRoundedIcon from "@mui/icons-material/SyncDisabledRounded";
 import SyncRoundedIcon from "@mui/icons-material/SyncRounded";
@@ -528,6 +529,18 @@ const MarkdownEditor = () => {
               onChange={handleModeChange}
             />
             {mode !== "preview" && markdownImageActions}
+            {mode === "live" && (
+              <Button
+                isIconOnly
+                size="small"
+                variant="secondary"
+                icon={<CloseRoundedIcon />}
+                className={styles["live-close-button"]}
+                aria-label="ライブモードを終了"
+                title="ライブモードを終了"
+                onClick={() => handleModeChange("edit")}
+              />
+            )}
           </div>
           {mode !== "preview" && markdownImagePicker}
           {mode !== "preview" && imageInsertNotice && (

@@ -39,6 +39,7 @@
   );
   --editor-radius: 12px;
 
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -51,6 +52,16 @@
   align-items: center;
   justify-content: flex-start;
   gap: var(--space-12);
+}
+
+.markdown-editor[data-mode="live"] .markdown-editor-header {
+  padding-right: 44px;
+}
+
+.live-close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
 .line-numbers {

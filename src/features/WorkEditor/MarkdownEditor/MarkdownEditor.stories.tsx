@@ -1008,7 +1008,24 @@ export const LiveModeFitsViewport: Story = {
     source.scrollTop = source.scrollHeight;
     await expect(source.scrollTop).toBeGreaterThan(0);
 
-    await userEvent.click(canvas.getByRole("tab", { name: "エディタ" }));
+    const closeButton = canvas.getByRole("button", {
+      name: "ライブモードを終了",
+    });
+    await expect(
+      closeButton.getBoundingClientRect().top,
+    ).toBeGreaterThanOrEqual(paper.getBoundingClientRect().top);
+    await expect(closeButton.getBoundingClientRect().top).toBeLessThanOrEqual(
+      paper.getBoundingClientRect().top + 64,
+    );
+    await expect(
+      closeButton.getBoundingClientRect().right,
+    ).toBeGreaterThanOrEqual(paper.getBoundingClientRect().right - 64);
+    await expect(closeButton.getBoundingClientRect().right).toBeLessThanOrEqual(
+      paper.getBoundingClientRect().right,
+    );
+    await userEvent.click(closeButton);
+    await expect(editor).toHaveAttribute("data-mode", "edit");
+    await expect(closeButton).not.toBeInTheDocument();
     await expect(document.documentElement.style.overflow).toBe(
       originalHtmlOverflow,
     );
