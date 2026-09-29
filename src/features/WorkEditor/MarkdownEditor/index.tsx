@@ -16,21 +16,16 @@ import { divider, getCommands } from "@uiw/react-md-editor/commands";
 import MDEditor from "@uiw/react-md-editor/nohighlight";
 import rehypeSanitize from "rehype-sanitize";
 
-import {
-  useWorkEditorStore,
-  useWorkEditorStoreApi,
-} from "../store/useWorkEditorStore";
+import { useWorkEditorStore } from "../store/useWorkEditorStore";
 import ValidationMessage from "../ValidationMessage";
 import { validateWork } from "../validateWork";
-import useAssetUpload, {
-  IMAGE_ASSET_ACCEPT,
-} from "../WorkDetailForm/hook/useAssetUpload";
+import { IMAGE_ASSET_ACCEPT } from "../WorkDetailForm/hook/useAssetUpload";
 import EditorModeTabs, { getEditorTabID } from "./EditorModeTabs";
 import useLiveScrollSync from "./hook/useLiveScrollSync";
+import useMarkdownImageInsertion from "./hook/useMarkdownImageInsertion";
 import styles from "./index.module.css";
 import liveStyles from "./liveMode.module.css";
 import MarkdownImagePicker, {
-  getAssetImageMarkdown,
   MarkdownImageActions,
 } from "./MarkdownImagePicker";
 
@@ -45,33 +40,12 @@ import Button from "@/shared/ui/Button";
 import Paper from "@/shared/ui/Paper";
 
 import type { ICommand } from "@uiw/react-md-editor";
-import type {
-  ChangeEvent,
-  ClipboardEvent,
-  CSSProperties,
-  SyntheticEvent,
-} from "react";
-import type { EditorAsset } from "../types";
+import type { CSSProperties } from "react";
 import type { EditorMode } from "./types";
 
 const EDITOR_PLACEHOLDER = "Markdown で作品の説明を書けます";
 const PREVIEW_UPDATE_DELAY_MS = 500;
 const DEFAULT_MARKDOWN_COMMANDS = getCommands();
-const CLIPBOARD_IMAGE_EXTENSIONS: Record<string, string[]> = {
-  "image/png": [".png"],
-  "image/jpeg": [".jpg", ".jpeg"],
-  "image/bmp": [".bmp"],
-  "image/gif": [".gif"],
-  "image/webp": [".webp"],
-};
-type ImageInsertionSelection = {
-  textarea: HTMLTextAreaElement;
-  start: number;
-  end: number;
-  description: string;
-  sessionVersion: number;
-};
-
 type DelayedMarkdownPreviewProps = {
   description: string;
 };
@@ -102,17 +76,6 @@ const DelayedMarkdownPreview = ({
   );
 };
 
-const isInsertableImage = (asset: EditorAsset) => {
-  if (asset.kind !== "画像" || asset.status !== "success" || !asset.assetURL)
-    return false;
-  try {
-    const protocol = new URL(asset.assetURL).protocol;
-    return protocol === "https:" || protocol === "http:";
-  } catch {
-    return false;
-  }
-};
-
 const MarkdownEditor = () => {
   const current = useWorkEditorStore((state) => state.current);
   const hasAttemptedSubmit = useWorkEditorStore(
@@ -122,38 +85,31 @@ const MarkdownEditor = () => {
     ? validateWork(current).description
     : undefined;
   const description = useWorkEditorStore((state) => state.current.description);
-  const assets = useWorkEditorStore((state) => state.current.assets);
   const setDescription = useWorkEditorStore((state) => state.setDescription);
-  const editorStore = useWorkEditorStoreApi();
-  const { handleAddImageFile, validationError: imageUploadError } =
-    useAssetUpload();
   const [mode, setMode] = useState<EditorMode>("edit");
   const [isScrollSyncEnabled, setIsScrollSyncEnabled] = useState(true);
-  const [selectedImageKey, setSelectedImageKey] = useState("");
-  const [imageInsertNotice, setImageInsertNotice] = useState("");
   const [lineNumberTarget, setLineNumberTarget] = useState<HTMLElement | null>(
     null,
   );
   const panelID = useId();
   const editorRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadSelectionRef = useRef<ImageInsertionSelection | null>(null);
-  const pendingInsertionRef = useRef<{
-    selectionStart: number;
-    selectionEnd: number;
-    pageX: number;
-    pageY: number;
-    sourceScrollTop: number | null;
-    previewScrollTop: number | null;
-    textareaScrollTop: number | null;
-  } | null>(null);
   const { sourceRef, previewRef } = useLiveScrollSync({
     isEnabled: (mode === "live" || mode === "split") && isScrollSyncEnabled,
   });
-  const images = assets.filter(isInsertableImage);
-  const selectedImage =
-    images.find((asset) => asset.key === selectedImageKey) ?? images[0];
+  const {
+    fileInputRef,
+    images,
+    selectedImage,
+    setSelectedImageKey,
+    imageInsertNotice,
+    clearImageInsertNotice,
+    imageUploadError,
+    handleTextSelection,
+    handleInsertImage,
+    handleImageFileChange,
+    handleImagePaste,
+    handleCommandFilter,
+  } = useMarkdownImageInsertion({ editorRef, sourceRef, previewRef });
   const markdownLines = description.split("\n");
   const lineNumberWidth = Math.max(
     56,
@@ -182,182 +138,6 @@ const MarkdownEditor = () => {
         null,
     );
   }, [mode]);
-
-  useLayoutEffect(() => {
-    const pending = pendingInsertionRef.current;
-    if (!pending) return;
-    const textarea = editorRef.current?.querySelector<HTMLTextAreaElement>(
-      ".w-md-editor-text-input",
-    );
-    if (!textarea) return;
-    textarea.setSelectionRange(pending.selectionStart, pending.selectionEnd);
-    textarea.focus({ preventScroll: true });
-    if (pending.textareaScrollTop !== null) {
-      textarea.scrollTop = pending.textareaScrollTop;
-    }
-    if (pending.sourceScrollTop !== null && sourceRef.current) {
-      sourceRef.current.scrollTop = pending.sourceScrollTop;
-    }
-    if (pending.previewScrollTop !== null && previewRef.current) {
-      previewRef.current.scrollTop = pending.previewScrollTop;
-    }
-    window.scrollTo(pending.pageX, pending.pageY);
-    textareaRef.current = textarea;
-    pendingInsertionRef.current = null;
-  });
-
-  const handleTextSelection = (event: SyntheticEvent<HTMLTextAreaElement>) => {
-    textareaRef.current = event.currentTarget;
-  };
-
-  const handleInsertImage = (
-    markdown: string,
-    savedSelection?: ImageInsertionSelection,
-  ) => {
-    const hasActiveTextarea = textareaRef.current?.isConnected ?? false;
-    const textarea = savedSelection?.textarea?.isConnected
-      ? savedSelection.textarea
-      : hasActiveTextarea
-        ? textareaRef.current
-        : editorRef.current?.querySelector<HTMLTextAreaElement>(
-            ".w-md-editor-text-input",
-          );
-    if (!textarea) return false;
-    const previousValue = textarea.value;
-    const currentDescription = editorStore.getState().current.description;
-    const selection = savedSelection
-      ? { start: savedSelection.start, end: savedSelection.end }
-      : hasActiveTextarea
-        ? { start: textarea.selectionStart, end: textarea.selectionEnd }
-        : { start: currentDescription.length, end: currentDescription.length };
-    const start = Math.min(selection.start, currentDescription.length);
-    const end = Math.min(selection.end, currentDescription.length);
-    const nextCaretPosition = start + markdown.length;
-    pendingInsertionRef.current = {
-      selectionStart: nextCaretPosition,
-      selectionEnd: nextCaretPosition,
-      pageX: window.scrollX,
-      pageY: window.scrollY,
-      sourceScrollTop: sourceRef.current?.scrollTop ?? null,
-      previewScrollTop: previewRef.current?.scrollTop ?? null,
-      textareaScrollTop: textarea.scrollTop,
-    };
-    textarea.focus({ preventScroll: true });
-    textarea.setSelectionRange(start, end);
-    let didInsert = false;
-    try {
-      didInsert = document.execCommand("insertText", false, markdown);
-    } catch {
-      // 入力コマンドを使えない環境でも挿入は続ける
-    }
-    if (!didInsert) textarea.setRangeText(markdown, start, end, "end");
-    if (editorStore.getState().current.description !== textarea.value) {
-      setDescription(textarea.value);
-    }
-    textareaRef.current = textarea;
-    return textarea.value !== previousValue;
-  };
-
-  const insertImageRef = useRef(handleInsertImage);
-  insertImageRef.current = handleInsertImage;
-  const captureImageSelection = (textarea: HTMLTextAreaElement) => ({
-    textarea,
-    start: textarea.selectionStart,
-    end: textarea.selectionEnd,
-    description: editorStore.getState().current.description,
-    sessionVersion: editorStore.getState().sessionVersion,
-  });
-  const handleOpenImagePicker = () => {
-    const textarea = editorRef.current?.querySelector<HTMLTextAreaElement>(
-      ".w-md-editor-text-input",
-    );
-    if (!textarea) return;
-    setImageInsertNotice("");
-    uploadSelectionRef.current = captureImageSelection(textarea);
-    fileInputRef.current?.click();
-  };
-  const openImagePickerRef = useRef(handleOpenImagePicker);
-  openImagePickerRef.current = handleOpenImagePicker;
-  const uploadAndInsertImage = async (
-    file: File,
-    selection: ImageInsertionSelection,
-  ) => {
-    const uploaded = await handleAddImageFile(file);
-    if (!uploaded?.assetURL) return;
-    if (selection.sessionVersion !== editorStore.getState().sessionVersion)
-      return;
-    setSelectedImageKey(uploaded.key);
-    if (
-      selection.description !== editorStore.getState().current.description ||
-      !selection.textarea.isConnected
-    ) {
-      setImageInsertNotice(
-        "画像をアップロードしました。説明文または編集画面が変わったため、自動挿入せず、挿入ボタンから追加できます。",
-      );
-      return;
-    }
-    insertImageRef.current(getAssetImageMarkdown(uploaded), selection);
-  };
-  const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files?.[0];
-    event.currentTarget.value = "";
-    const selection = uploadSelectionRef.current;
-    uploadSelectionRef.current = null;
-    if (file && selection) void uploadAndInsertImage(file, selection);
-  };
-  const handleImagePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
-    const clipboard = event.clipboardData;
-    if (
-      clipboard.getData("text/plain") ||
-      Array.from(clipboard.items).some(
-        (item) => item.kind === "string" && item.type === "text/plain",
-      )
-    )
-      return;
-    const image =
-      Array.from(clipboard.items)
-        .find((item) => item.kind === "file" && item.type.startsWith("image/"))
-        ?.getAsFile() ??
-      Array.from(clipboard.files).find((file) =>
-        file.type.startsWith("image/"),
-      );
-    if (!image) return;
-    event.preventDefault();
-
-    const extensions = CLIPBOARD_IMAGE_EXTENSIONS[image.type];
-    if (!extensions) {
-      setImageInsertNotice("この画像形式には対応していません。");
-      return;
-    }
-    const extension = image.name
-      .slice(image.name.lastIndexOf("."))
-      .toLowerCase();
-    const uploadFile = extensions.includes(extension)
-      ? image
-      : new File([image], `clipboard-${Date.now()}${extensions[0]}`, {
-          type: image.type,
-        });
-    setImageInsertNotice("");
-    void uploadAndInsertImage(
-      uploadFile,
-      captureImageSelection(event.currentTarget),
-    );
-  };
-  const handleCommandFilter = (
-    command: ICommand,
-    isExtra: boolean,
-  ): ICommand => {
-    if (isExtra || command.name !== "image") return command;
-    return {
-      ...command,
-      buttonProps: {
-        ...command.buttonProps,
-        "aria-label": "画像を選んで挿入",
-        title: "画像を選んで挿入",
-      },
-      execute: () => openImagePickerRef.current(),
-    };
-  };
 
   const handleHistoryCommand = (
     textarea: HTMLTextAreaElement,
@@ -417,7 +197,7 @@ const MarkdownEditor = () => {
       selectedImage={selectedImage}
       onInsert={(markdown) => {
         const didInsert = handleInsertImage(markdown);
-        if (didInsert) setImageInsertNotice("");
+        if (didInsert) clearImageInsertNotice();
         return didInsert;
       }}
     />
