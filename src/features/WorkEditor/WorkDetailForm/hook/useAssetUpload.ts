@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { deletePendingResources } from "../../api/deletePendingResources";
 import { uploadAsset } from "../../api/uploadAsset";
 import {
@@ -42,7 +40,10 @@ const useAssetUpload = (): UseAssetUploadReturn => {
     (state) => state.addUploadedAssetID,
   );
   const store = useWorkEditorStoreApi();
-  const [validationError, setValidationError] = useState("");
+  const validationError = useWorkEditorStore((state) => state.assetUploadError);
+  const setValidationError = useWorkEditorStore(
+    (state) => state.setAssetUploadError,
+  );
   const { createRequestGuard } = useEditorRequestGuard();
 
   const upload = async (
@@ -125,11 +126,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
 
     setValidationError("");
     addAssets([createUploadingAsset(file)]);
-    const isCurrentSession = createRequestGuard();
-    const uploaded = await upload(key, file);
-    if (!uploaded && isCurrentSession())
-      setValidationError("画像のアップロードに失敗しました");
-    return uploaded;
+    return upload(key, file);
   };
 
   const handleAddFiles = (files: File[]) => {

@@ -28,6 +28,7 @@ export type WorkEditorStore = {
   baseline: WorkEditorValues;
   creatingTagNames: string[];
   failedTagNames: string[];
+  assetUploadError: string;
   uploadedAssetIDs: string[];
   createdTagIDs: string[];
   hasInvalidUrls: boolean;
@@ -41,6 +42,7 @@ export type WorkEditorStore = {
 
   setTitle: (title: string) => void;
   setDescription: (description: string) => void;
+  setAssetUploadError: (message: string) => void;
   setVisibility: (visibility: WorkVisibility) => void;
   addTag: (tag: EditorTag) => void;
   removeTag: (tagID: string) => void;
@@ -81,6 +83,7 @@ export const createWorkEditorStore = () =>
     baseline: EMPTY_WORK_EDITOR_VALUES,
     creatingTagNames: [],
     failedTagNames: [],
+    assetUploadError: "",
     uploadedAssetIDs: [],
     createdTagIDs: [],
     hasInvalidUrls: false,
@@ -101,6 +104,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -125,6 +129,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(values),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -150,6 +155,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(current),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -172,6 +178,7 @@ export const createWorkEditorStore = () =>
           baseline: cloneWorkEditorValues(EMPTY_WORK_EDITOR_VALUES),
           creatingTagNames: [],
           failedTagNames: [],
+          assetUploadError: "",
           uploadedAssetIDs: [],
           createdTagIDs: [],
           hasInvalidUrls: false,
@@ -187,6 +194,10 @@ export const createWorkEditorStore = () =>
 
     setDescription: (description: string) => {
       set((state) => updateCurrent(state, { description }));
+    },
+
+    setAssetUploadError: (assetUploadError: string) => {
+      set({ assetUploadError });
     },
 
     setVisibility: (visibility: WorkVisibility) => {

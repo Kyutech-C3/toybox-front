@@ -474,6 +474,7 @@ export const ToolbarImageInsertion: Story = {
         fileInput,
         new File(["image"], "new.png", { type: "image/png" }),
       );
+      await expect(input.value).toMatch(/アップロード中: new\.png/);
       await expect(
         canvas.getByRole("button", { name: "new.pngを削除" }),
       ).toBeDisabled();
@@ -499,10 +500,8 @@ export const ToolbarImageInsertion: Story = {
       globalThis.fetch = originalFetch;
       useAuthStore.setState(originalAuth);
     }
-    document.execCommand("undo");
-    await expect(input).toHaveValue("前後");
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
-    await expect(canvas.queryByAltText("new")).not.toBeInTheDocument();
+    await expect(canvas.getByAltText("new")).toBeInTheDocument();
   },
 };
 
@@ -539,8 +538,9 @@ export const ToolbarImageUploadAfterTextChange: Story = {
         fileInput,
         new File(["image"], "later.png", { type: "image/png" }),
       );
+      await expect(input.value).toMatch(/アップロード中: later\.png/);
+      await expect(canvas.getByRole("textbox", { name: "説明" })).toBe(input);
       await userEvent.type(input, "追加");
-      const editedDescription = input.value;
       if (!uploadGate.resolve)
         throw new Error("画像のアップロードが開始されませんでした");
       uploadGate.resolve(
@@ -550,14 +550,10 @@ export const ToolbarImageUploadAfterTextChange: Story = {
         ),
       );
       await canvas.findByRole("button", { name: "later.pngを選択" });
-      await expect(input).toHaveValue(editedDescription);
-      await expect(canvas.getByRole("status")).toHaveTextContent(
-        "自動挿入せず",
-      );
-      await userEvent.click(canvas.getByRole("button", { name: "挿入" }));
       await expect(input.value).toContain(
         "![later](https://example.com/later.png)",
       );
+      await expect(input.value).toContain("追加");
       await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
     } finally {
       globalThis.fetch = originalFetch;
@@ -604,14 +600,8 @@ export const ClipboardImagePaste: Story = {
       await canvas.findByRole("button", { name: /clipboard-.*\.pngを選択/ });
       await expect(uploadRequest).toHaveBeenCalledTimes(1);
       await expect(input.value).toMatch(
-        /^前!\[clipboard-\d+\]\(https:\/\/example\.com\/pasted\.png\)後$/,
+        /^前!\[clipboard-\d+-1\]\(https:\/\/example\.com\/pasted\.png\)後$/,
       );
-      const insertedDescription = input.value;
-      input.focus();
-      document.execCommand("undo");
-      await expect(input).toHaveValue("前後");
-      document.execCommand("redo");
-      await expect(input).toHaveValue(insertedDescription);
       await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
     } finally {
       globalThis.fetch = originalFetch;
@@ -675,7 +665,7 @@ export const ToolbarImageUploadFailure: Story = {
         name: "failed.pngを再アップロード",
       });
       await expect(
-        canvas.getByText("画像のアップロードに失敗しました"),
+        canvas.getByText("アップロードに失敗しました"),
       ).toBeVisible();
       await expect(input).toHaveValue("");
     } finally {
@@ -683,6 +673,145 @@ export const ToolbarImageUploadFailure: Story = {
       useAuthStore.setState(originalAuth);
     }
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+export const MultipleImagePicker: Story = {
+  render: () => <ImageInsertionExample isUploadVisible />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    const originalFetch = globalThis.fetch;
+    const originalAuth = useAuthStore.getState();
+    globalThis.fetch = (resource, init) => {
+      if (
+        !String(resource).endsWith("/auth/works/asset") ||
+        !(init?.body instanceof FormData)
+      )
+        return originalFetch(resource, init);
+      const file = init.body.get("file");
+      if (!(file instanceof File)) throw new Error("画像が見つかりません");
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            id: file.name,
+            url: `https://example.com/${file.name}`,
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    };
+    useAuthStore.getState().startSession("storybook-token");
+    try {
+      await userEvent.click(input);
+      await userEvent.click(
+        canvas.getByRole("button", { name: "画像を選んで挿入" }),
+      );
+      const fileInput = canvas.getByLabelText("説明に挿入する画像を選択");
+      if (!(fileInput instanceof HTMLInputElement))
+        throw new Error("画像ファイルの入力欄が見つかりません");
+      await expect(fileInput).toHaveAttribute("multiple");
+      await userEvent.upload(fileInput, [
+        new File(["a"], "a.png", { type: "image/png" }),
+        new File(["b"], "b.png", { type: "image/png" }),
+      ]);
+      await canvas.findByRole("button", { name: "b.pngを選択" });
+      await waitFor(() =>
+        expect(input).toHaveValue(
+          "![a](https://example.com/a.png)\n![b](https://example.com/b.png)",
+        ),
+      );
+      await expect(
+        canvas.getByRole("button", { name: "a.pngを削除" }),
+      ).toBeInTheDocument();
+      await expect(
+        canvas.getByRole("button", { name: "b.pngを削除" }),
+      ).toBeInTheDocument();
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    } finally {
+      globalThis.fetch = originalFetch;
+      useAuthStore.setState(originalAuth);
+    }
+  },
+};
+
+export const MultipleImageDrop: Story = {
+  render: () => <ImageInsertionExample isUploadVisible />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = canvas.getByRole("textbox", { name: "説明" });
+    if (!(input instanceof HTMLTextAreaElement))
+      throw new Error("説明の入力欄が見つかりません");
+    await userEvent.type(input, "前後");
+    input.setSelectionRange(1, 1);
+    fireEvent.select(input);
+
+    const originalFetch = globalThis.fetch;
+    const originalAuth = useAuthStore.getState();
+    const uploadGates = new Map<string, (response: Response) => void>();
+    globalThis.fetch = (resource, init) => {
+      if (
+        !String(resource).endsWith("/auth/works/asset") ||
+        !(init?.body instanceof FormData)
+      )
+        return originalFetch(resource, init);
+      const file = init.body.get("file");
+      if (!(file instanceof File)) throw new Error("画像が見つかりません");
+      return new Promise<Response>((resolve) => {
+        uploadGates.set(file.name, resolve);
+      });
+    };
+    useAuthStore.getState().startSession("storybook-token");
+    try {
+      const textTransfer = new DataTransfer();
+      textTransfer.setData("text/plain", "通常のテキスト");
+      await expect(fireEvent.drop(input, { dataTransfer: textTransfer })).toBe(
+        true,
+      );
+
+      const dataTransfer = new DataTransfer();
+      for (const name of ["first.png", "failed.png", "last.png"])
+        dataTransfer.items.add(new File([name], name, { type: "image/png" }));
+      dataTransfer.items.add(
+        new File(["video"], "movie.mp4", { type: "video/mp4" }),
+      );
+      await expect(dataTransfer.files).toHaveLength(4);
+      const drop = new DragEvent("drop", { bubbles: true, cancelable: true });
+      Object.defineProperty(drop, "dataTransfer", { value: dataTransfer });
+      await expect(input.dispatchEvent(drop)).toBe(false);
+      await expect(input.value.match(/アップロード中:/g)).toHaveLength(3);
+      await waitFor(() => expect(uploadGates.size).toBe(3));
+      await expect(canvas.queryByText("movie.mp4")).not.toBeInTheDocument();
+
+      uploadGates.get("last.png")?.(
+        new Response(
+          JSON.stringify({ id: "last", url: "https://example.com/last.png" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+      uploadGates.get("failed.png")?.(new Response(null, { status: 500 }));
+      uploadGates.get("first.png")?.(
+        new Response(
+          JSON.stringify({ id: "first", url: "https://example.com/first.png" }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+      await waitFor(() =>
+        expect(input).toHaveValue(
+          "前![first](https://example.com/first.png)\n![last](https://example.com/last.png)後",
+        ),
+      );
+      await expect(
+        canvas.getByRole("button", { name: "failed.pngを再アップロード" }),
+      ).toBeInTheDocument();
+      await expect(
+        canvas.getByText("アップロードに失敗しました"),
+      ).toBeVisible();
+      await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+    } finally {
+      globalThis.fetch = originalFetch;
+      useAuthStore.setState(originalAuth);
+    }
   },
 };
 

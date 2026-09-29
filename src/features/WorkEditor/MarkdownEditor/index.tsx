@@ -30,7 +30,6 @@ import MarkdownImagePicker, {
 } from "./MarkdownImagePicker";
 
 import CharacterCount from "@/shared/ui/CharacterCount";
-import FieldError from "@/shared/ui/FieldError";
 import inputStyles from "@/shared/ui/Input/index.module.css";
 
 import "./editor-custom.css";
@@ -103,11 +102,12 @@ const MarkdownEditor = () => {
     setSelectedImageKey,
     imageInsertNotice,
     clearImageInsertNotice,
-    imageUploadError,
     handleTextSelection,
     handleInsertImage,
     handleImageFileChange,
     handleImagePaste,
+    handleImageDragOver,
+    handleImageDrop,
     handleCommandFilter,
   } = useMarkdownImageInsertion({ editorRef, sourceRef, previewRef });
   const markdownLines = description.split("\n");
@@ -209,6 +209,7 @@ const MarkdownEditor = () => {
         ref={fileInputRef}
         type="file"
         accept={`${IMAGE_ASSET_ACCEPT},image/png,image/jpeg,image/bmp,image/gif,image/webp`}
+        multiple
         aria-label="説明に挿入する画像を選択"
         hidden
         onChange={handleImageFileChange}
@@ -238,6 +239,8 @@ const MarkdownEditor = () => {
           onKeyUp: handleTextSelection,
           onClick: handleTextSelection,
           onPaste: handleImagePaste,
+          onDragOver: handleImageDragOver,
+          onDrop: handleImageDrop,
         }}
       />
     </CharacterCount>
@@ -327,9 +330,6 @@ const MarkdownEditor = () => {
             <p className={styles["image-insert-notice"]} role="status">
               {imageInsertNotice}
             </p>
-          )}
-          {mode !== "preview" && imageUploadError && (
-            <FieldError role="alert">{imageUploadError}</FieldError>
           )}
           <div
             id={panelID}
