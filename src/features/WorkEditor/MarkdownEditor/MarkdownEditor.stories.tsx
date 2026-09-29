@@ -579,17 +579,16 @@ export const ClipboardImagePaste: Story = {
 
     const originalFetch = globalThis.fetch;
     const originalAuth = useAuthStore.getState();
-    const uploadRequest = fn((file: FormDataEntryValue | null) => {
+    const uploadRequest = fn(async (file: FormDataEntryValue | null) => {
       if (!(file instanceof File) || !file.name.endsWith(".png"))
         throw new Error("貼り付け画像のファイル名が正しくありません");
-      return Promise.resolve(
-        new Response(
-          JSON.stringify({
-            id: "pasted",
-            url: "https://example.com/pasted.png",
-          }),
-          { status: 200, headers: { "Content-Type": "application/json" } },
-        ),
+      await expect(file.text()).resolves.toBe("image");
+      return new Response(
+        JSON.stringify({
+          id: "pasted",
+          url: "https://example.com/pasted.png",
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
       );
     });
     globalThis.fetch = (resource, init) =>
