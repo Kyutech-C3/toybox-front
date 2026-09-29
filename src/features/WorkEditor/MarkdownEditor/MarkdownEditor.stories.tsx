@@ -940,11 +940,13 @@ export const SplitModeStaysOnPage: Story = {
         ).join("\n\n"),
       },
     });
-    await expect(source.getBoundingClientRect().height).toBe(
-      window.innerHeight,
+    const maximumHeight = Math.min(window.innerHeight * 0.7, 640);
+    await expect(source.getBoundingClientRect().height).toBeCloseTo(
+      maximumHeight,
+      0,
     );
     await expect(preview.getBoundingClientRect().height).toBe(
-      window.innerHeight,
+      source.getBoundingClientRect().height,
     );
     await userEvent.click(scrollSyncButton);
     await expect(scrollSyncButton).toHaveAttribute("aria-pressed", "false");

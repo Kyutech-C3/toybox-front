@@ -111,7 +111,7 @@
 .markdown-editor[data-mode="split"] .markdown-editor-panel {
   flex: none;
   grid-template-rows: minmax(var(--editor-min-height), 1fr);
-  max-height: 100dvh;
+  max-height: 70dvh;
 }
 
 .markdown-editor[data-mode="live"] .markdown-editor-panel {
