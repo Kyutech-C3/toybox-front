@@ -7,6 +7,24 @@
 .markdown-editor-container[data-mode="live"] {
   --content-read-width: calc(100vw - var(--space-16) * 2);
   --paper-padding: var(--space-16);
+
+  height: calc(100dvh - var(--space-16) * 2);
+}
+
+.markdown-editor-container[data-mode="live"]::before {
+  position: fixed;
+  z-index: 41;
+  inset: 0;
+  background: var(--background-color);
+  content: "";
+}
+
+.markdown-editor-container[data-mode="live"] > div {
+  position: fixed;
+  z-index: 42;
+  inset: var(--space-16);
+  width: auto;
+  overflow: hidden;
 }
 
 .markdown-editor {
@@ -86,8 +104,15 @@
 }
 
 .markdown-editor[data-mode="live"] .markdown-editor-panel {
-  height: calc(100dvh - var(--header-height) - var(--space-16) * 4);
+  flex: 1;
   min-height: 0;
+  overflow: hidden;
+}
+
+.markdown-editor[data-mode="live"] {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .markdown-editor[data-mode="live"] .edit-pane,
@@ -146,9 +171,8 @@
   }
 
   .markdown-editor-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-8);
+    flex-wrap: nowrap;
+    gap: var(--space-4);
   }
 
   .markdown-editor[data-mode="split"] .markdown-editor-panel {

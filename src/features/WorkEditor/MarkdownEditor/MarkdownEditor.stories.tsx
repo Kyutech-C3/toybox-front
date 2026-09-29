@@ -106,7 +106,7 @@ export const ImageInsertion: Story = {
     input.setSelectionRange(1, 1);
     fireEvent.select(input);
     const insertButton = await canvas.findByRole("button", {
-      name: "カーソル位置に挿入",
+      name: "挿入",
     });
     const modeHeader = canvas.getByRole("tablist", {
       name: "Markdown の表示モード",
@@ -168,7 +168,7 @@ export const ImageInsertion: Story = {
       }
     }
     await new Promise((resolve) => window.setTimeout(resolve, 2100));
-    await expect(insertButton).toHaveAccessibleName("カーソル位置に挿入");
+    await expect(insertButton).toHaveAccessibleName("挿入");
     await expect(insertButton).toContainElement(
       within(insertButton).getByTestId("AddPhotoAlternateRoundedIcon"),
     );
@@ -425,9 +425,7 @@ export const UndoImageInsertion: Story = {
     await userEvent.type(input, "前後");
     input.setSelectionRange(1, 1);
     fireEvent.select(input);
-    await userEvent.click(
-      await canvas.findByRole("button", { name: "カーソル位置に挿入" }),
-    );
+    await userEvent.click(await canvas.findByRole("button", { name: "挿入" }));
     await expect(input).toHaveValue(
       "前![sample](https://example.com/sample.png)後",
     );
@@ -556,9 +554,7 @@ export const ToolbarImageUploadAfterTextChange: Story = {
       await expect(canvas.getByRole("status")).toHaveTextContent(
         "自動挿入せず",
       );
-      await userEvent.click(
-        canvas.getByRole("button", { name: "カーソル位置に挿入" }),
-      );
+      await userEvent.click(canvas.getByRole("button", { name: "挿入" }));
       await expect(input.value).toContain(
         "![later](https://example.com/later.png)",
       );
@@ -702,7 +698,7 @@ export const LiveImageInsertion: Story = {
       name: "Markdown の表示モード",
     }).parentElement;
     await expect(liveHeader).toContainElement(
-      live.getByRole("button", { name: "カーソル位置に挿入" }),
+      live.getByRole("button", { name: "挿入" }),
     );
     await expect(liveHeader?.nextElementSibling).toContainElement(
       live.getByRole("region", { name: "説明に画像を入れる" }),
@@ -727,9 +723,7 @@ export const LiveImageInsertion: Story = {
     await userEvent.type(input, "前後");
     input.setSelectionRange(1, 1);
     fireEvent.select(input);
-    await userEvent.click(
-      live.getByRole("button", { name: "カーソル位置に挿入" }),
-    );
+    await userEvent.click(live.getByRole("button", { name: "挿入" }));
     await expect(input).toHaveValue(
       "前![sample](https://example.com/sample.png)後",
     );
@@ -798,7 +792,7 @@ export const ImageInsertionKeepsScroll: Story = {
     if (!(input instanceof HTMLTextAreaElement))
       throw new Error("説明の入力欄が見つかりません");
     const insertButton = await canvas.findByRole("button", {
-      name: "カーソル位置に挿入",
+      name: "挿入",
     });
     await expect(document.documentElement.scrollHeight).toBeGreaterThan(
       window.innerHeight,
@@ -968,6 +962,57 @@ export const SplitModeStaysOnPage: Story = {
     await expect(
       canvasElement.querySelector('[data-markdown-editor="true"]'),
     ).toHaveAttribute("data-mode", "live");
+    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
+  },
+};
+
+export const LiveModeFitsViewport: Story = {
+  render: () => (
+    <ImageInsertionExample description={LONG_DESCRIPTION} hasSecondImage />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalBodyOverflow = document.body.style.overflow;
+    await userEvent.click(canvas.getByRole("tab", { name: "ライブ" }));
+
+    const editor = canvasElement.querySelector<HTMLElement>(
+      '[data-markdown-editor="true"]',
+    );
+    const paper = editor?.parentElement;
+    const panel = canvas.getByRole("tabpanel");
+    const [source, preview] = Array.from(panel.children);
+    if (
+      !(paper instanceof HTMLElement) ||
+      !(source instanceof HTMLElement) ||
+      !(preview instanceof HTMLElement)
+    )
+      throw new Error("ライブモードのペインが見つかりません");
+
+    await expect(document.documentElement.style.overflow).toBe("hidden");
+    await expect(document.body.style.overflow).toBe("hidden");
+    const liveMargin = Number.parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--space-16"),
+    );
+    await expect(paper.getBoundingClientRect().top).toBe(liveMargin);
+    await expect(paper.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      window.innerHeight,
+    );
+    await expect(source.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      paper.getBoundingClientRect().bottom,
+    );
+    await expect(preview.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      paper.getBoundingClientRect().bottom,
+    );
+    await expect(source.scrollHeight).toBeGreaterThan(source.clientHeight);
+    source.scrollTop = source.scrollHeight;
+    await expect(source.scrollTop).toBeGreaterThan(0);
+
+    await userEvent.click(canvas.getByRole("tab", { name: "エディタ" }));
+    await expect(document.documentElement.style.overflow).toBe(
+      originalHtmlOverflow,
+    );
+    await expect(document.body.style.overflow).toBe(originalBodyOverflow);
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
   },
 };

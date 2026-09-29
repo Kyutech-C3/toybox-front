@@ -160,6 +160,18 @@ const MarkdownEditor = () => {
   );
 
   useLayoutEffect(() => {
+    if (mode !== "live") return;
+    const { overflow: htmlOverflow } = document.documentElement.style;
+    const { overflow: bodyOverflow } = document.body.style;
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = htmlOverflow;
+      document.body.style.overflow = bodyOverflow;
+    };
+  }, [mode]);
+
+  useLayoutEffect(() => {
     if (mode === "preview") {
       setLineNumberTarget(null);
       return;
