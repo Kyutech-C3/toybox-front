@@ -188,7 +188,7 @@ export const MarkdownImageActions = ({
         aria-label={isInserted ? "画像を挿入しました" : undefined}
         onClick={handleInsert}
       >
-        カーソル位置に挿入
+        挿入
       </Button>
     </div>
   );

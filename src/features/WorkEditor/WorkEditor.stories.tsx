@@ -110,6 +110,8 @@ export const ValidationErrors: Story = {
       canvas.queryByText("説明を入力してください"),
     ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
-    await expect(canvas.getByText("作品の説明")).toBeVisible();
+    await expect(
+      canvas.getByText("作品の説明", { selector: "p" }),
+    ).toBeVisible();
   },
 };

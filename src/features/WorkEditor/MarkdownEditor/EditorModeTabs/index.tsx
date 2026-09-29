@@ -1,3 +1,4 @@
+import { useEffect, useSyncExternalStore } from "react";
 import VerticalSplitRoundedIcon from "@mui/icons-material/VerticalSplitRounded";
 import ViewColumnRoundedIcon from "@mui/icons-material/ViewColumnRounded";
 import VisibilityRoundedIcon from "@mui/icons-material/VisibilityRounded";
@@ -43,13 +44,39 @@ const EDITOR_MODE_OPTIONS: SegmentedControlOption<EditorMode>[] = [
   },
 ];
 
+const MOBILE_QUERY = "(max-width: 767px)";
+
+const subscribeMobile = (onChange: () => void) => {
+  const mediaQuery = window.matchMedia(MOBILE_QUERY);
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
+};
+
+const getIsMobile = () => window.matchMedia(MOBILE_QUERY).matches;
+
 export const getEditorTabID = (panelID: string, mode: EditorMode) =>
   `${panelID}-tab-${mode}`;
 
 const EditorModeTabs = ({ mode, panelID, onChange }: EditorModeTabsProps) => {
+  const isMobile = useSyncExternalStore(
+    subscribeMobile,
+    getIsMobile,
+    () => false,
+  );
+
+  useEffect(() => {
+    if (isMobile && (mode === "split" || mode === "live")) onChange("edit");
+  }, [isMobile, mode, onChange]);
+
   return (
     <SegmentedControl
-      options={EDITOR_MODE_OPTIONS}
+      options={
+        isMobile
+          ? EDITOR_MODE_OPTIONS.filter(
+              (option) => option.value === "edit" || option.value === "preview",
+            )
+          : EDITOR_MODE_OPTIONS
+      }
       value={mode}
       onChange={onChange}
       ariaLabel="Markdown の表示モード"
