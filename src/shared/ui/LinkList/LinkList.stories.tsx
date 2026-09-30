@@ -1,12 +1,12 @@
 import { expect, within } from "storybook/test";
 
-import WorkLinks from "./index";
+import LinkList from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
 const META = {
-  title: "Features/WorkDetail/WorkLinks",
-  component: WorkLinks,
+  title: "UI/LinkList",
+  component: LinkList,
   args: {
     urls: [
       "https://github.com/Kyutech-C3/toybox-front",
@@ -20,7 +20,7 @@ const META = {
       </div>
     ),
   ],
-} satisfies Meta<typeof WorkLinks>;
+} satisfies Meta<typeof LinkList>;
 
 export default META;
 type Story = StoryObj<typeof META>;

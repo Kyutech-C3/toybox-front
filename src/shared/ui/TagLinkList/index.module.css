@@ -1,0 +1,29 @@
+.tag-link-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  font-size: 0.875rem;
+}
+
+.tag-link {
+  display: inline-flex;
+  border-radius: 0.4em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tag-link:focus-visible {
+  outline: 2px solid var(--font-color);
+  outline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .tag-link-list {
+    gap: var(--space-4) var(--space-8);
+    font-size: 0.8125rem;
+  }
+
+  .tag-link-list .tag-link > [data-clickable] {
+    padding: 3px var(--space-8);
+  }
+}

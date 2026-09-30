@@ -1,0 +1,65 @@
+.work-meta-bar {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4) var(--space-16);
+  color: var(--font-muted-color);
+  font-size: 0.875rem;
+}
+
+.visibility {
+  color: var(--font-muted-color);
+  font-size: inherit;
+  font-weight: 700;
+}
+
+.dates {
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-16);
+}
+
+.date {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
+  dt {
+    display: flex;
+    align-items: center;
+  }
+
+  dd {
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+.date-icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+@media (max-width: 767px) {
+  .work-meta-bar,
+  .dates {
+    column-gap: var(--space-8);
+  }
+
+  .work-meta-bar {
+    font-size: 0.75rem;
+  }
+
+  .date {
+    gap: 2px;
+  }
+
+  .date-icon {
+    font-size: 14px;
+  }
+}
