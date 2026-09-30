@@ -11,7 +11,7 @@
   padding: 32px 24px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .page-loading {
     min-height: calc(100vh - var(--header-height) - 96px);
     padding: 32px 16px;

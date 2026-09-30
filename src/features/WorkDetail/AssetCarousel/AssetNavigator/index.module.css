@@ -62,7 +62,7 @@
   font-size: 22px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .asset-thumbnail {
     width: 48px;
     border-radius: 6px;

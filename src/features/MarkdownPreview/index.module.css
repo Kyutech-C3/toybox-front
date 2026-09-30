@@ -368,7 +368,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .markdown-preview {
     padding: 0.5rem 0;
 

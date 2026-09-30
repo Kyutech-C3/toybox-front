@@ -44,7 +44,7 @@ const EDITOR_MODE_OPTIONS: SegmentedControlOption<EditorMode>[] = [
   },
 ];
 
-const MOBILE_QUERY = "(max-width: 767px)";
+const MOBILE_QUERY = "(max-width: 599px)";
 
 const subscribeMobile = (onChange: () => void) => {
   const mediaQuery = window.matchMedia(MOBILE_QUERY);

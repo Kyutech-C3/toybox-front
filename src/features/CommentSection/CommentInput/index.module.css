@@ -38,7 +38,7 @@
   font-size: 0.875rem;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .input-row {
     gap: var(--space-8);
   }

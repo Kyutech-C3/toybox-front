@@ -52,7 +52,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .user-button {
     height: 40px;
     gap: var(--space-8);

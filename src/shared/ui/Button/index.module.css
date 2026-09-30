@@ -152,7 +152,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .button[data-size="default"] {
     height: 40px;
     min-width: 40px;

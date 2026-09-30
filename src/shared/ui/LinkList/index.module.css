@@ -61,7 +61,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .link-list {
     padding-bottom: var(--space-12);
     margin-bottom: var(--space-12);

@@ -45,7 +45,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .login-wrapper {
     gap: var(--space-8);
   }

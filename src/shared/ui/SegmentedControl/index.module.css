@@ -117,7 +117,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .segment {
     padding-inline: var(--space-8);
   }
@@ -139,7 +139,7 @@
   display: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .segmented-control[data-has-toggle="true"] {
     display: none;
   }
@@ -209,7 +209,7 @@
   }
 }
 
-@media (max-width: 767px) and (pointer: coarse) {
+@media (max-width: 599px) and (pointer: coarse) {
   .toggle-thumb {
     min-height: 34px;
   }

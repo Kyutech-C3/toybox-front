@@ -170,7 +170,7 @@
   text-align: center;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .markdown-editor {
     --editor-initial-lines: 5;
 

@@ -23,7 +23,7 @@
   left: var(--space-16);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .movie-controls {
     right: var(--space-8);
     bottom: var(--space-8);

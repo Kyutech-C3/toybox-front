@@ -63,7 +63,7 @@
   text-align: right;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .split-button .main-button[data-size] {
     min-width: 0;
     padding-inline: var(--space-16) var(--space-12);

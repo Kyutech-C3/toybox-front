@@ -17,7 +17,7 @@
   outline-offset: 2px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .tag-link-list {
     gap: var(--space-4) var(--space-8);
     font-size: 0.8125rem;

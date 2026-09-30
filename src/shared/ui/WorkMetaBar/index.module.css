@@ -45,7 +45,7 @@
   font-size: 16px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .work-meta-bar,
   .dates {
     column-gap: var(--space-8);

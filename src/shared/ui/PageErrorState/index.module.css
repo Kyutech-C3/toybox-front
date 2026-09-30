@@ -60,7 +60,7 @@
   outline-offset: 2px;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .page-error {
     min-height: calc(100vh - var(--header-height) - 96px);
     padding: 32px 16px;

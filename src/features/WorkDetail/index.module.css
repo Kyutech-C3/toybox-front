@@ -34,7 +34,7 @@
   border-top: 1px solid var(--border-color);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .work-detail-assets {
     --asset-carousel-radius: 12px 12px 0 0;
 

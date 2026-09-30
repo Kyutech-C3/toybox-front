@@ -21,7 +21,7 @@
   max-width: calc(100vw - 32px);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .account-menu-trigger {
     min-width: var(--touch-target-min);
     min-height: var(--touch-target-min);

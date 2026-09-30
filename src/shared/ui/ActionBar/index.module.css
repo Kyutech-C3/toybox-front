@@ -22,7 +22,7 @@
   pointer-events: auto;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .action-bar {
     position: static;
     z-index: auto;

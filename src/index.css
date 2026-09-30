@@ -93,7 +93,7 @@
   --press-filter: brightness(1.25);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   :root {
     --header-height: 52px;
     --header-logo-height: 30px;

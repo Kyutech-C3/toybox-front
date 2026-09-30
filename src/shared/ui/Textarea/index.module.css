@@ -5,7 +5,7 @@
   resize: vertical;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .textarea-field {
     min-height: 88px;
     padding-block: var(--space-8);

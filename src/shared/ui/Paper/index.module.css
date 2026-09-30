@@ -9,7 +9,7 @@
   box-shadow: 0 2px 8px var(--shadow-soft-color);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .paper-wrapper {
     border-radius: 12px;
   }

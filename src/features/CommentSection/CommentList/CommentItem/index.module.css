@@ -91,7 +91,7 @@
   border-left: none;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .comment-row {
     gap: var(--space-8);
   }
