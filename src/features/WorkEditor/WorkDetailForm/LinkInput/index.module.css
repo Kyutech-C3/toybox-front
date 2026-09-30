@@ -1,0 +1,56 @@
+.link-input {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.heading-row {
+  min-height: 36px;
+  margin: var(--space-8) 5px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+}
+
+.optional-label {
+  padding: 2px var(--space-12);
+  border-radius: 9999px;
+  background: var(--primary-pale-color);
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.url-count {
+  margin-left: auto;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.url-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+@media (max-width: 599px) {
+  .heading-row {
+    margin: 0 2px 8px;
+    gap: 8px;
+
+    h3 {
+      font-size: 16px;
+    }
+  }
+
+  .url-count {
+    font-size: 14px;
+  }
+}

@@ -1,7 +1,9 @@
 import styles from "./index.module.css";
 
+import type { ReactNode } from "react";
+
 type PaperProps = {
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 const Paper = ({ children }: PaperProps) => {

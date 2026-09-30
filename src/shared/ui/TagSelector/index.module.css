@@ -1,0 +1,109 @@
+.tag-search {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  text-align: left;
+}
+
+.tag-toolbar {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.search-form {
+  min-width: 0;
+  flex: 1 1 120px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.search-form > :first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+/* ブラウザ標準の×を隠し、共通Buttonに揃える。 */
+.search-field::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.search-form .search-surface {
+  height: 36px;
+  min-height: 36px;
+  padding-inline: var(--space-12) var(--space-4);
+  border-radius: 9999px;
+  font-size: 14px;
+}
+
+.clear-button {
+  position: relative;
+  flex-shrink: 0;
+  gap: var(--space-4);
+}
+
+.selected-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: var(--space-4);
+  box-sizing: border-box;
+  border-radius: 9999px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--error-color);
+  box-shadow: 0 0 0 2px var(--tag-fade-color, var(--background-color));
+  color: var(--paper-color);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.create-symbol {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.hint {
+  margin: 0;
+  color: var(--font-muted-color);
+  font-size: 14px;
+}
+
+@media (max-width: 599px) {
+  .clear-button,
+  .create-button {
+    width: auto;
+    aspect-ratio: 1;
+    padding: 0;
+  }
+
+  .clear-label,
+  .create-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .create-button:not([aria-busy="true"]) .create-symbol {
+    display: inline-flex;
+  }
+}
+
+@media (pointer: coarse) {
+  .search-form .search-surface {
+    height: 40px;
+    min-height: 40px;
+    font-size: 16px;
+  }
+}

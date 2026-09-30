@@ -1,0 +1,26 @@
+.character-count {
+  display: block;
+  margin-top: var(--space-4);
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.character-count[data-over-limit="true"] {
+  color: var(--error-color);
+}
+
+.counted-field {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+
+/* 実際の文字幅だけ確保し、入力欄と同じ行に置く。 */
+.character-count[data-placement="inline"] {
+  flex-shrink: 0;
+  margin: 0;
+  white-space: nowrap;
+}

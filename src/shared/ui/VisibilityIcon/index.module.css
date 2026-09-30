@@ -1,0 +1,25 @@
+.visibility-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  color: inherit;
+  font-size: 16px;
+}
+
+.visibility-glyph {
+  display: inline-flex;
+  align-items: center;
+}
+
+.public-icon {
+  color: color-mix(in srgb, var(--link-color) 55%, var(--font-muted-color));
+}
+
+.private-icon {
+  color: color-mix(in srgb, var(--error-color) 50%, var(--font-muted-color));
+}
+
+.visibility-label {
+  white-space: nowrap;
+}

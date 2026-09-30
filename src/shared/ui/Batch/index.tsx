@@ -1,31 +1,126 @@
 import CloseIcon from "@mui/icons-material/Close";
+import RefreshIcon from "@mui/icons-material/Refresh";
 
 import styles from "./index.module.css";
+
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 
 import type { ReactNode } from "react";
 
 type BatchProps = {
   children: ReactNode;
-  color?: "primary" | "secondary";
+  color?: "neutral" | "selected" | "primary" | "secondary" | "pale";
+  variant?: "default" | "error";
   onClick?: (() => void) | null;
+  onRetry?: (() => void) | null;
+  onSelect?: (() => void) | null;
+  isSelected?: boolean;
+  ariaLabel?: string;
+  isRetrying?: boolean;
 };
 
-const Batch = ({ children, color = "primary", onClick = null }: BatchProps) => {
+const Batch = ({
+  children,
+  color = "neutral",
+  variant = "default",
+  onClick = null,
+  onRetry = null,
+  onSelect = null,
+  isSelected = false,
+  ariaLabel,
+  isRetrying = false,
+}: BatchProps) => {
+  const resolvedColor =
+    color === "primary" || color === "pale"
+      ? "selected"
+      : color === "secondary"
+        ? "neutral"
+        : color;
+
+  if (onSelect) {
+    return (
+      <button
+        type="button"
+        className={styles["batch"]}
+        data-color={isSelected ? "selected" : "neutral"}
+        data-selectable="true"
+        aria-pressed={isSelected}
+        aria-label={ariaLabel}
+        onClick={onSelect}
+      >
+        {children}
+      </button>
+    );
+  }
+
+  if (onClick && !onRetry) {
+    return (
+      <button
+        type="button"
+        className={styles["batch"]}
+        data-color={resolvedColor}
+        data-variant={variant}
+        data-clickable="true"
+        data-retrying={isRetrying ? "true" : "false"}
+        aria-busy={isRetrying || undefined}
+        aria-label={ariaLabel ?? `Remove ${children} batch`}
+        onClick={onClick}
+        disabled={isRetrying}
+      >
+        {children}
+        {isRetrying ? (
+          <LoadingSpinner size="small" />
+        ) : (
+          <CloseIcon
+            className={styles["batch-close-icon"]}
+            aria-hidden="true"
+          />
+        )}
+      </button>
+    );
+  }
+
   return (
     <span
       className={styles["batch"]}
-      data-color={color}
-      data-onclick={onClick ? "true" : "false"}
+      data-color={resolvedColor}
+      data-variant={variant}
+      data-clickable={onClick ? "true" : "false"}
+      data-retrying={isRetrying ? "true" : "false"}
+      aria-busy={isRetrying || undefined}
     >
       {children}
+      {onRetry && (
+        <button
+          type="button"
+          className={styles["batch-button"]}
+          onClick={onRetry}
+          disabled={isRetrying}
+          aria-label={
+            isRetrying
+              ? `Retrying ${children} batch`
+              : `Retry ${children} batch`
+          }
+        >
+          {isRetrying ? (
+            <LoadingSpinner size="small" />
+          ) : (
+            <RefreshIcon fontSize="inherit" />
+          )}
+        </button>
+      )}
       {onClick && (
         <button
           type="button"
           className={styles["batch-button"]}
           onClick={onClick}
-          aria-label={`Remove ${children} batch`}
+          disabled={isRetrying}
+          aria-label={ariaLabel ?? `Remove ${children} batch`}
         >
-          <CloseIcon fontSize="inherit" />
+          <CloseIcon
+            className={styles["batch-close-icon"]}
+            aria-hidden="true"
+          />
         </button>
       )}
     </span>

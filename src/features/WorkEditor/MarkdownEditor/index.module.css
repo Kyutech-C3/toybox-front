@@ -1,15 +1,193 @@
-.live-editor-wrapper {
+.markdown-editor-container {
   display: flex;
+  justify-content: center;
   width: 100%;
 }
 
-.live-editor {
+.markdown-editor-container[data-mode="live"] {
+  --content-read-width: calc(100vw - var(--space-16) * 2);
+  --paper-padding: var(--space-16);
+
+  height: calc(100dvh - var(--space-16) * 2);
+}
+
+.markdown-editor-container[data-mode="live"]::before {
+  position: fixed;
+  z-index: 41;
+  inset: 0;
+  background: var(--background-color);
+  content: "";
+}
+
+.markdown-editor-container[data-mode="live"] > div {
+  position: fixed;
+  z-index: 42;
+  inset: var(--space-16);
+  width: auto;
+  overflow: hidden;
+}
+
+.markdown-editor {
+  --editor-line-height: 24px;
+  --editor-initial-lines: 7;
+  --editor-text-padding: 12px;
+  --editor-min-height: calc(
+    var(--editor-line-height) *
+    var(--editor-initial-lines) +
+    var(--editor-text-padding) *
+    2
+  );
+  --editor-radius: 12px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.markdown-editor-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-12);
+}
+
+.markdown-editor[data-mode="live"] .markdown-editor-header {
+  padding-right: 44px;
+}
+
+.live-close-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.line-numbers {
+  position: relative;
+  z-index: 1;
+  width: calc(100% + var(--line-number-gutter-width));
+  margin-left: calc(-1 * var(--line-number-gutter-width));
+  pointer-events: none;
+  font-family: var(--md-editor-font-family);
+  font-size: 16px;
+  font-feature-settings: "liga", "clig";
+  font-variant-ligatures: common-ligatures;
+  line-height: var(--editor-line-height);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.line-number-row {
+  display: grid;
+  grid-template-columns: var(--line-number-gutter-width) minmax(0, 1fr);
+  min-height: var(--editor-line-height);
+}
+
+.line-number {
+  padding-right: 16px;
+  color: var(--font-muted-color);
+  font-size: 12px;
+  line-height: var(--editor-line-height);
+  text-align: right;
+}
+
+.line-measure {
+  visibility: hidden;
+}
+
+.image-insert-notice {
+  margin: 0;
+  color: var(--font-muted-color);
+  font-size: 14px;
+}
+
+.markdown-editor-panel {
+  width: 100%;
+}
+
+.markdown-editor[data-mode="split"] .markdown-editor-panel {
+  flex: none;
+  grid-template-rows: minmax(var(--editor-min-height), 1fr);
+  max-height: 70dvh;
+}
+
+.markdown-editor[data-mode="live"] .markdown-editor-panel {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.markdown-editor[data-mode="live"] {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.markdown-editor[data-mode="live"] .edit-pane,
+.markdown-editor[data-mode="live"] .edit-pane > div,
+.markdown-editor[data-mode="live"] :global(.w-md-editor-content),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-area) {
+  display: flex;
+  flex-direction: column;
+}
+
+.markdown-editor[data-mode="live"] .edit-pane > div,
+.markdown-editor[data-mode="live"] :global(.w-md-editor),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-content),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-area),
+.markdown-editor[data-mode="live"] :global(.w-md-editor-text) {
   flex: 1;
 }
 
-.live-preview {
-  flex: 1;
-  border-left: 1px solid var(--border-color);
-  padding-left: 16px;
-  overflow-y: auto;
+.edit-pane {
+  width: 100%;
+}
+
+.markdown-editor[data-mode="preview"] .edit-pane {
+  display: none;
+}
+
+/* 本番（WorkPage）は Paper 1024px の内側余白の中に本文が入る。
+   ここも Paper に width="read" を渡しているので、ペイン側は枠も余白も持たない */
+.preview-pane {
+  box-sizing: border-box;
+  min-height: var(--editor-min-height);
+}
+
+.preview-empty {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--editor-min-height);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--editor-radius);
+  color: var(--font-muted-color);
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 599px) {
+  .markdown-editor {
+    --editor-initial-lines: 5;
+
+    gap: 12px;
+  }
+
+  .preview-empty {
+    font-size: 13px;
+  }
+
+  .markdown-editor-header {
+    flex-wrap: nowrap;
+    gap: var(--space-4);
+  }
+
+  .markdown-editor[data-mode="split"] .markdown-editor-panel {
+    grid-template-rows: repeat(2, minmax(var(--editor-min-height), 1fr));
+    max-height: calc(200dvh + var(--space-24));
+  }
 }

@@ -1,34 +1,66 @@
 import styles from "./index.module.css";
 
-import type { ReactNode } from "react";
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 
-type ButtonProps = {
-  children: ReactNode;
-  onClick: () => void;
-  variant?: "primary" | "secondary";
-  disabled?: boolean;
+import type { ComponentPropsWithRef, ReactNode } from "react";
+
+type ButtonProps = ComponentPropsWithRef<"button"> & {
+  variant?:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "destructive"
+    | "ghost"
+    | "link";
+  size?: "default" | "small" | "compact";
+  icon?: ReactNode;
+  isIconOnly?: boolean;
+  isLoading?: boolean;
+  isDisabled?: boolean;
   isActive?: boolean;
   ariaLabel?: string;
 };
 
 const Button = ({
   children,
-  onClick,
   variant = "primary",
-  disabled = false,
+  size = "default",
+  icon,
+  isIconOnly = false,
+  isLoading = false,
+  isDisabled = false,
   isActive = false,
   ariaLabel,
+  disabled = false,
+  type = "button",
+  className,
+  ...buttonProps
 }: ButtonProps) => {
+  const isUnavailable = disabled || isDisabled || isLoading;
+
   return (
     <button
-      type="button"
-      className={styles[`${variant}-button`]}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={ariaLabel}
-      data-disabled={disabled ? "true" : "false"}
+      {...buttonProps}
+      type={type}
+      className={[styles["button"], className].filter(Boolean).join(" ")}
+      disabled={isUnavailable}
+      aria-label={buttonProps["aria-label"] ?? ariaLabel}
+      aria-busy={isLoading || buttonProps["aria-busy"]}
+      data-variant={variant}
+      data-size={size}
+      data-icon-only={isIconOnly ? "true" : "false"}
+      data-disabled={isUnavailable ? "true" : "false"}
       data-active={isActive ? "true" : "false"}
     >
+      {isLoading && !isIconOnly ? (
+        <LoadingSpinner size="small" isDecorative />
+      ) : (
+        icon && (
+          <span className={styles["icon"]} aria-hidden="true">
+            {icon}
+          </span>
+        )
+      )}
       {children}
     </button>
   );

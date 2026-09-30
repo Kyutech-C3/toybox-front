@@ -1,0 +1,20 @@
+.upload-prompt {
+  display: inline-flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-items: center;
+  color: var(--font-color);
+  font-size: 12px;
+  text-align: center;
+}
+
+.upload-prompt > svg {
+  color: var(--font-muted-color);
+  font-size: 36px;
+}
+
+@media (max-width: 599px) {
+  .upload-prompt > svg {
+    font-size: 30px;
+  }
+}

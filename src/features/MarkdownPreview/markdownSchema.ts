@@ -1,0 +1,70 @@
+import { defaultSchema } from "rehype-sanitize";
+
+import type { Options } from "rehype-sanitize";
+
+// Markdown/GFM の出力と折りたたみに必要な要素だけを許可する。
+// clobberPrefix と URL の protocol 制限は既定の保護を維持する。
+export const MARKDOWN_SCHEMA: Options = {
+  ...defaultSchema,
+  tagNames: [
+    "a",
+    "blockquote",
+    "br",
+    "code",
+    "del",
+    "details",
+    "em",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "img",
+    "input",
+    "li",
+    "mark",
+    "ol",
+    "p",
+    "pre",
+    "section",
+    "strong",
+    "summary",
+    "sub",
+    "sup",
+    "table",
+    "tbody",
+    "td",
+    "th",
+    "thead",
+    "tr",
+    "ul",
+    "u",
+  ],
+  attributes: {
+    a: defaultSchema.attributes?.a ?? [],
+    code: [
+      ...(defaultSchema.attributes?.code ?? []),
+      // remark-math の数式マーカーだけを通し、KaTeX の描画より前に入力を検査する。
+      ["className", "math-inline", "math-display"],
+    ],
+    details: ["open"],
+    h2: defaultSchema.attributes?.h2 ?? [],
+    img: [
+      "src",
+      "alt",
+      ["width", /^[1-9]\d{0,3}$/],
+      ["style", /^\s*width\s*:\s*[1-9]\d{0,3}px\s*;?\s*$/i],
+    ],
+    input: ["checked", ["disabled", true], ["type", "checkbox"]],
+    li: defaultSchema.attributes?.li ?? [],
+    ol: ["start", ...(defaultSchema.attributes?.ol ?? [])],
+    section: defaultSchema.attributes?.section ?? [],
+    td: ["align"],
+    th: ["align"],
+    ul: defaultSchema.attributes?.ul ?? [],
+    "*": ["id", "title"],
+  },
+  strip: ["script", "style", "iframe", "object", "embed", "svg", "math"],
+};

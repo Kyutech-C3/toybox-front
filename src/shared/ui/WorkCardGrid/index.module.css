@@ -1,0 +1,29 @@
+/* 列数の計算は useWorkGridColumns が行い、--work-card-columns で受け取る */
+.work-card-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(var(--work-card-columns, 3), minmax(0, 1fr));
+  gap: var(--grid-gap);
+}
+
+.work-card-grid-empty {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 160px;
+  padding: 40px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: var(--paper-overlay-color);
+  color: var(--font-color);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+@media (max-width: 599px) {
+  .work-card-grid-empty {
+    min-height: 120px;
+    padding: 24px;
+    font-size: 1rem;
+  }
+}

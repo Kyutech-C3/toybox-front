@@ -1,31 +1,40 @@
 import useSWR from "swr";
 
-import { fetchData } from "@/util/fetchData";
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { fetchData, fetchDataWithAuth } from "@/util/fetchData";
 
 import type { Comment } from "@/shared/types/comment";
 
-interface UseCommentOptionsReturn {
-  data: Comment[];
-  error: Error | undefined;
+interface UseCommentParams {
+  workId: string;
 }
 
-const useComment = (workID: string): UseCommentOptionsReturn => {
-  const url = `/works/${workID}/comments`;
+interface UseCommentReturn {
+  data: Comment[];
+}
 
-  const fetcher = async (url: string): Promise<Comment[]> => {
-    const response = await fetchData(url);
-    return response;
-  };
+export const getCommentSWRKey = (
+  workId: string,
+  accessToken: string | null,
+) => {
+  const url = `/works/${workId}/comments`;
+  return accessToken ? ([url, accessToken] as const) : url;
+};
 
-  const { data: response, error } = useSWR<Comment[]>(url, fetcher, {
-    suspense: true,
-  });
+const useComment = ({ workId }: UseCommentParams): UseCommentReturn => {
+  const accessToken = useAuthStore((state) => state.accessToken);
 
-  console.log("Comments fetched:", response);
+  const { data: response } = useSWR<Comment[]>(
+    getCommentSWRKey(workId, accessToken),
+    () =>
+      accessToken
+        ? fetchDataWithAuth(`/works/${workId}/comments`, accessToken)
+        : fetchData(`/works/${workId}/comments`),
+    { suspense: true },
+  );
 
   return {
     data: response ?? [],
-    error: error,
   };
 };
 

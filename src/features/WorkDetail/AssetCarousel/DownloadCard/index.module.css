@@ -1,0 +1,75 @@
+.download-card {
+  box-sizing: border-box;
+  width: min(480px, 90vw);
+  height: 100%;
+  padding: 48px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--asset-font-color);
+  text-align: center;
+}
+
+.file-icon {
+  display: inline-flex;
+  color: var(--asset-font-color);
+  font-size: 96px;
+}
+
+.extension {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.description {
+  margin: 0;
+  color: var(--asset-font-color);
+  line-height: 1.6;
+}
+
+.download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.download-link {
+  min-height: 44px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--on-primary-color);
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--on-primary-color);
+    box-shadow: 0 6px 12px var(--shadow-soft-color);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: 3px;
+  }
+}
+
+.download-link {
+  border: 1px solid var(--primary-color);
+  background-color: var(--primary-color);
+}
+
+.url-error {
+  margin: 0;
+  color: color-mix(in srgb, var(--error-color) 65%, var(--asset-font-color));
+  line-height: 1.6;
+}

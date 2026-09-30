@@ -1,34 +1,35 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
 
-import { getAccessToken, refreshAccessToken } from "../auth";
-
-type AuthStoreProps = {
+type AuthStore = {
   accessToken: string | null;
-  getAccessToken: (code: string) => Promise<void>;
-  refreshAccessToken: () => Promise<void>;
+  sessionVersion: number;
+  isInitialized: boolean;
+  startSession: (accessToken: string) => void;
+  setAccessToken: (accessToken: string) => void;
+  clearAuth: () => void;
+  setInitialized: () => void;
 };
 
-export const useAuthStore = create<AuthStoreProps>()(
-  persist(
-    (set, get) => ({
+export const useAuthStore = create<AuthStore>()((set) => ({
+  accessToken: null,
+  sessionVersion: 0,
+  isInitialized: false,
+  startSession: (accessToken) => {
+    set((state) => ({
+      accessToken,
+      sessionVersion: state.sessionVersion + 1,
+    }));
+  },
+  setAccessToken: (accessToken) => {
+    set({ accessToken });
+  },
+  clearAuth: () => {
+    set((state) => ({
       accessToken: null,
-      getAccessToken: async (code: string) => {
-        const accessToken = await getAccessToken(code);
-        set({ accessToken: accessToken });
-      },
-      refreshAccessToken: async () => {
-        const currentToken = get().accessToken;
-        if (!currentToken) {
-          throw new Error("No access token available");
-        }
-        const newAccessToken = await refreshAccessToken(currentToken);
-        set({ accessToken: newAccessToken });
-      },
-    }),
-    {
-      name: "auth-storage",
-      storage: createJSONStorage(() => localStorage),
-    },
-  ),
-);
+      sessionVersion: state.sessionVersion + 1,
+    }));
+  },
+  setInitialized: () => {
+    set({ isInitialized: true });
+  },
+}));

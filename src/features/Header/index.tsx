@@ -1,78 +1,149 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import AutoAwesomeRoundedIcon from "@mui/icons-material/AutoAwesomeRounded";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
+import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
-import { getLoginUrl } from "../auth/auth";
+import { getLoginUrl, logout } from "../auth/auth";
 import { useAuthStore } from "../auth/store/useAuthStore";
+import { useUserStore } from "../auth/store/useUserStore";
+import AccountMenu from "./AccountMenu";
 import { getUserData } from "./api/getUserData";
 import styles from "./index.module.css";
 
-import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
+import FloatingActionButton from "@/shared/ui/FloatingActionButton";
+import useToast from "@/shared/ui/Toast/hook/useToast";
+import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 
 const Header = () => {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isEditingWork = pathname.startsWith("/edit/");
+  const { showToast } = useToast();
+  const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
 
-  const searchParams = useSearchParams();
-
-  const handleLogin = async () => {
-    const url = await getLoginUrl();
-    navigate(url);
+  const handleThemeToggle = () => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
   };
 
-  const { getAccessToken, accessToken } = useAuthStore();
-  const [userData, setUserData] = useState<{
-    display_name: string;
-    icon_url: string;
-  } | null>(null);
+  const handleLogin = async () => {
+    if (isLoggingIn) return;
+    setIsLoggingIn(true);
+    try {
+      const url = await getLoginUrl();
 
-  useEffect(() => {
-    const code = searchParams[0].get("code");
-    if (code && !accessToken) {
-      getAccessToken(code)
-        .then(() => {
-          navigate("/");
-        })
-        .catch((error) => {
-          console.error("Error during login:", error);
-        });
-    }
-  }, [searchParams, accessToken, getAccessToken, navigate]);
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (accessToken) {
-        const data = await getUserData(accessToken);
-        setUserData(data);
+      if (url.startsWith("http://") || url.startsWith("https://")) {
+        window.location.href = url;
+        return;
       }
+
+      navigate(url);
+    } catch {
+      showToast({
+        message: "ログイン画面を開けませんでした",
+        severity: "error",
+      });
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+  const { accessToken } = useAuthStore();
+  const { user, hasLoadFailed, setUser, setUserLoadFailed, clearUser } =
+    useUserStore();
+
+  useEffect(() => {
+    if (!accessToken) {
+      clearUser();
+      return;
+    }
+
+    let isActive = true;
+    const fetchUserData = async () => {
+      const data = await getUserData(accessToken);
+      if (!isActive) return;
+      if (data) setUser(data);
+      else setUserLoadFailed();
     };
-    fetchUserData();
-  }, [accessToken]);
+
+    fetchUserData().catch((error) => {
+      console.error("Error fetching user data:", error);
+      if (isActive) setUserLoadFailed();
+    });
+
+    return () => {
+      isActive = false;
+    };
+  }, [accessToken, clearUser, setUser, setUserLoadFailed]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      showToast({ message: "ログアウトしました", severity: "success" });
+    } catch {
+      showToast({
+        message: "サーバー側のセッションを無効化できませんでした",
+        severity: "error",
+      });
+    } finally {
+      navigate("/", { replace: true });
+    }
+  };
 
   return (
     <header className={styles["header-wrapper"]}>
       <div className={styles["logo-wrapper"]}>
         <Link to="/">
-          <img src="/logo.webp" alt="logo-image" height={75} />
+          <img
+            src="/ToyboxLogo.svg"
+            alt="logo-image"
+            className={styles["logo-image"]}
+            height={44}
+          />
         </Link>
       </div>
       <div className={styles["login-wrapper"]}>
-        <Button variant="primary" onClick={() => navigate("/edit/new")}>
-          <div className={styles["login-container"]}>
-            <p>新規投稿する</p>
-            <AutoAwesomeRoundedIcon />
-          </div>
-        </Button>
-        {userData ? (
-          <Avatar avatarURL={userData.icon_url} />
+        <Button
+          variant="ghost"
+          isIconOnly
+          className={styles["theme-toggle"]}
+          onClick={handleThemeToggle}
+          aria-label={
+            theme === "light"
+              ? "ダークモードに切り替え"
+              : "ライトモードに切り替え"
+          }
+          icon={
+            theme === "light" ? (
+              <DarkModeRoundedIcon />
+            ) : (
+              <LightModeRoundedIcon />
+            )
+          }
+        />
+        {user ? (
+          <AccountMenu user={user} onLogout={handleLogout} />
         ) : (
-          <Button variant="primary" onClick={handleLogin}>
-            <div className={styles["login-container"]}>
-              <p>ログイン</p>
-              <LoginRoundedIcon />
-            </div>
+          <Button
+            variant="primary"
+            onClick={handleLogin}
+            isLoading={isLoggingIn || (!!accessToken && !hasLoadFailed)}
+            icon={<LoginRoundedIcon />}
+            ariaLabel="ログイン"
+          >
+            ログイン
           </Button>
+        )}
+        {accessToken && (
+          <FloatingActionButton
+            label="投稿"
+            icon={<AddRoundedIcon fontSize="inherit" />}
+            onClick={() => navigate("/edit/new")}
+            isFloatingHidden={isEditingWork}
+          />
         )}
       </div>
     </header>

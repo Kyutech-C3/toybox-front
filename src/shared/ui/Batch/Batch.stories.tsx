@@ -2,7 +2,7 @@ import Batch from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof Batch> = {
+const META: Meta<typeof Batch> = {
   title: "UI/Batch",
   component: Batch,
   parameters: {
@@ -14,8 +14,8 @@ const meta: Meta<typeof Batch> = {
   },
 };
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default META;
+type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
   args: {
@@ -32,5 +32,32 @@ export const TypeScript: Story = {
 export const LongTag: Story = {
   args: {
     children: "JavaScript Development",
+  },
+};
+
+export const Removable: Story = {
+  args: {
+    children: "React",
+    color: "selected",
+    onClick: () => {},
+  },
+};
+
+export const CreationFailed: Story = {
+  args: {
+    children: "React",
+    variant: "error",
+    onRetry: () => {},
+    onClick: () => {},
+  },
+};
+
+export const Retrying: Story = {
+  args: {
+    children: "React",
+    variant: "error",
+    isRetrying: true,
+    onRetry: () => {},
+    onClick: () => {},
   },
 };

@@ -1,11 +1,32 @@
 .title {
-  font-style: normal;
-  font-weight: 700;
-  font-size: 24px;
-  line-height: 29px;
+  margin: 0 0 var(--space-24);
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
   color: var(--font-color);
-  margin: 0 0 24px;
+  font-size: 1.5rem;
+  font-weight: 700;
   text-align: left;
+}
+
+.comment-count {
+  min-width: 28px;
+  padding: 0 var(--space-8);
+  border-radius: 9999px;
+  background: var(--primary-pale-color);
+  color: var(--font-muted-color);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.empty,
+.login-notice {
+  padding: var(--space-24);
+  border-radius: 12px;
+  background: var(--background-color);
+  color: var(--font-muted-color);
+  font-size: 0.875rem;
+  text-align: center;
 }
 
 .content {
@@ -14,19 +35,22 @@
   gap: 32px;
 }
 
-.loading {
-  padding: 40px;
-  text-align: center;
-  font-size: 16px;
-  color: #666;
-}
-
 .error {
   padding: 20px;
-  background: #fff3f3;
-  border: 1px solid #ffcccc;
+  background: var(--paper-color);
+  border: 1px solid var(--error-color);
   border-radius: 12px;
-  color: #c33;
+  color: var(--error-color);
   font-size: 14px;
   text-align: center;
+}
+
+@media (max-width: 599px) {
+  .content {
+    gap: 24px;
+  }
+  .title {
+    margin: 0 0 var(--space-16);
+    font-size: 1.25rem;
+  }
 }

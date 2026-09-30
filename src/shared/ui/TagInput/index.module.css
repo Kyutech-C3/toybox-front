@@ -1,53 +1,26 @@
 .tag-input-wrapper {
+  --tag-fade-color: var(--paper-color);
+
   display: flex;
   flex-direction: column;
-  align-items: stretch;
+  gap: var(--space-16);
+}
 
-  h3 {
-    margin: 8px 5px;
-    font-size: 18px;
-    font-weight: bold;
+.tag-input-wrapper h3 {
+  margin: 8px 5px;
+  font-size: 18px;
+}
+
+.failed-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 599px) {
+  .tag-input-wrapper h3 {
+    margin: 8px 2px;
+    font-size: 16px;
   }
-}
-
-.input-wrapper {
-  padding: 0;
-  border: solid 2px var(--primary-color);
-  border-radius: 25px;
-  box-sizing: border-box;
-  background: transparent;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  resize: none;
-  outline: none;
-  color: var(--font-color);
-  text-align: left;
-}
-
-.tags-wrapper {
-  width: 100%;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 16px 0 16px 24px;
-}
-
-.input-dropdown-container {
-  position: relative;
-}
-
-.input-field {
-  flex-grow: 1;
-  padding: 0;
-  height: 24px;
-  border: none;
-  background: transparent;
-  font-style: normal;
-  font-weight: 500;
-  font-size: 16px;
-  resize: none;
-  outline: none;
-  color: var(--font-color);
-  text-align: left;
 }

@@ -1,0 +1,253 @@
+import { useId, useState } from "react";
+import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
+import { mutate } from "swr";
+
+import { updateUserProfile } from "../api/updateUserProfile";
+import styles from "./index.module.css";
+
+import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { useUserStore } from "@/features/auth/store/useUserStore";
+import Button from "@/shared/ui/Button";
+import CharacterCount from "@/shared/ui/CharacterCount";
+import FieldError from "@/shared/ui/FieldError";
+import Input from "@/shared/ui/Input";
+import Textarea from "@/shared/ui/Textarea";
+import useToast from "@/shared/ui/Toast/hook/useToast";
+import { normalizeInputText } from "@/util/normalizeInputText";
+
+import type { UserProfileData } from "../api/getUserProfile";
+import type { UserPortfolioSWRKey } from "../hook/useUserPortfolio";
+
+type ProfileEditorProps = {
+  userProfile: UserProfileData;
+  userPortfolioSWRKey: UserPortfolioSWRKey;
+  onClose: () => void;
+};
+
+const DISPLAY_NAME_MAX_LENGTH = 32;
+const PROFILE_MAX_LENGTH = 500;
+const GITHUB_USERNAME_MAX_LENGTH = 39;
+const X_USERNAME_MAX_LENGTH = 15;
+const GITHUB_USERNAME_PATTERN = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+const DISCARD_CONFIRM_MESSAGE =
+  "保存していない変更があります。編集した内容を破棄しますか？";
+const X_USERNAME_PATTERN = /^[a-z\d_]+$/i;
+
+const normalizeSocialUsername = (username: string) =>
+  normalizeInputText(username).replace(/^@/, "");
+
+const getGithubError = (username: string) => {
+  if (username === "") return "";
+  if (username.length > GITHUB_USERNAME_MAX_LENGTH) {
+    return `GitHub のユーザー名は${GITHUB_USERNAME_MAX_LENGTH}文字以内で入力してください`;
+  }
+  if (!GITHUB_USERNAME_PATTERN.test(username)) {
+    return "GitHub のユーザー名には英数字と単独のハイフンのみ使用できます";
+  }
+  return "";
+};
+
+const getXError = (username: string) => {
+  if (username === "") return "";
+  if (username.length > X_USERNAME_MAX_LENGTH) {
+    return `X のユーザー名は${X_USERNAME_MAX_LENGTH}文字以内で入力してください`;
+  }
+  if (!X_USERNAME_PATTERN.test(username)) {
+    return "X のユーザー名には英数字とアンダースコアのみ使用できます";
+  }
+  return "";
+};
+
+const ProfileEditor = ({
+  userProfile,
+  userPortfolioSWRKey,
+  onClose,
+}: ProfileEditorProps) => {
+  const displayNameID = useId();
+  const profileID = useId();
+  const githubID = useId();
+  const githubErrorID = useId();
+  const xID = useId();
+  const xErrorID = useId();
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
+  const { showToast } = useToast();
+
+  const [displayName, setDisplayName] = useState(userProfile.display_name);
+  const [profile, setProfile] = useState(userProfile.profile);
+  const [github, setGithub] = useState(userProfile.github_id);
+  const [xUsername, setXUsername] = useState(userProfile.x_username);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const trimmedDisplayName = displayName.trim();
+  const normalizedGithubUsername = normalizeSocialUsername(github);
+  const normalizedXUsername = normalizeSocialUsername(xUsername);
+  const githubError = getGithubError(normalizedGithubUsername);
+  const xError = getXError(normalizedXUsername);
+  const isSubmitDisabled =
+    isSubmitting ||
+    trimmedDisplayName.length === 0 ||
+    Array.from(trimmedDisplayName).length > DISPLAY_NAME_MAX_LENGTH ||
+    Array.from(profile).length > PROFILE_MAX_LENGTH ||
+    githubError !== "" ||
+    xError !== "";
+
+  const hasUnsavedChanges =
+    trimmedDisplayName !== userProfile.display_name ||
+    profile !== userProfile.profile ||
+    normalizedGithubUsername !== userProfile.github_id ||
+    normalizedXUsername !== userProfile.x_username;
+
+  const handleCancel = () => {
+    if (hasUnsavedChanges && !window.confirm(DISCARD_CONFIRM_MESSAGE)) return;
+
+    onClose();
+  };
+
+  const handleSubmit = async () => {
+    if (isSubmitDisabled || !accessToken) return;
+
+    setIsSubmitting(true);
+    try {
+      await updateUserProfile({
+        displayName: trimmedDisplayName,
+        profile,
+        githubUsername: normalizedGithubUsername,
+        xUsername: normalizedXUsername,
+        accessToken,
+      });
+      await mutate(userPortfolioSWRKey);
+      if (user) setUser({ ...user, display_name: trimmedDisplayName });
+
+      showToast({ message: "プロフィールを更新しました", severity: "success" });
+      onClose();
+    } catch {
+      showToast({
+        message: "プロフィールを更新できませんでした",
+        severity: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form
+      className={styles["profile-editor"]}
+      onSubmit={(event) => {
+        event.preventDefault();
+        void handleSubmit();
+      }}
+    >
+      <div className={styles["field"]}>
+        <label className={styles["label"]} htmlFor={displayNameID}>
+          表示名
+        </label>
+        <Input
+          id={displayNameID}
+          value={displayName}
+          onChange={setDisplayName}
+          maxLength={DISPLAY_NAME_MAX_LENGTH}
+          isCharacterCountVisible
+        />
+      </div>
+      <div className={styles["field"]}>
+        <label className={styles["label"]} htmlFor={profileID}>
+          自己紹介
+        </label>
+        <Textarea
+          isAutoResizing
+          id={profileID}
+          value={profile}
+          onChange={setProfile}
+          rows={4}
+          maxLength={PROFILE_MAX_LENGTH}
+          isCharacterCountVisible
+        />
+      </div>
+      <div className={styles["field"]}>
+        <label className={styles["label"]} htmlFor={githubID}>
+          GitHub
+        </label>
+        <Input
+          containerClassName={styles["social-input"]}
+          leadingContent={
+            <span className={styles["url-prefix"]}>https://github.com/</span>
+          }
+          trailingContent={
+            <CharacterCount
+              value={normalizedGithubUsername}
+              maxLength={GITHUB_USERNAME_MAX_LENGTH}
+              placement="inline"
+            />
+          }
+          id={githubID}
+          value={github}
+          placeholder="GitHub の ID"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-invalid={githubError !== ""}
+          aria-describedby={githubError !== "" ? githubErrorID : undefined}
+          onChange={setGithub}
+          onBlur={() => setGithub(normalizedGithubUsername)}
+        />
+        {githubError !== "" && (
+          <FieldError id={githubErrorID} role="alert">
+            {githubError}
+          </FieldError>
+        )}
+      </div>
+      <div className={styles["field"]}>
+        <label className={styles["label"]} htmlFor={xID}>
+          X
+        </label>
+        <Input
+          containerClassName={styles["social-input"]}
+          leadingContent={
+            <span className={styles["url-prefix"]}>https://x.com/</span>
+          }
+          trailingContent={
+            <CharacterCount
+              value={normalizedXUsername}
+              maxLength={X_USERNAME_MAX_LENGTH}
+              placement="inline"
+            />
+          }
+          id={xID}
+          value={xUsername}
+          placeholder="X の ID"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-invalid={xError !== ""}
+          aria-describedby={xError !== "" ? xErrorID : undefined}
+          onChange={setXUsername}
+          onBlur={() => setXUsername(normalizedXUsername)}
+        />
+        {xError !== "" && (
+          <FieldError id={xErrorID} role="alert">
+            {xError}
+          </FieldError>
+        )}
+      </div>
+      <div className={styles["actions"]}>
+        <Button onClick={handleCancel} isDisabled={isSubmitting}>
+          キャンセル
+        </Button>
+        <Button
+          variant="accent"
+          onClick={() => void handleSubmit()}
+          isDisabled={isSubmitDisabled}
+          isLoading={isSubmitting}
+          icon={<SaveRoundedIcon />}
+        >
+          {isSubmitting ? "保存中..." : "保存"}
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+export default ProfileEditor;

@@ -1,0 +1,36 @@
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: var(--space-8) 0 calc(var(--space-12) + var(--fab-clearance));
+  background: linear-gradient(to bottom, transparent, var(--background-color));
+  pointer-events: none;
+}
+
+.actions {
+  width: min(100%, var(--content-read-width));
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-12);
+}
+
+.actions > * {
+  pointer-events: auto;
+}
+
+@media (max-width: 599px) {
+  .action-bar {
+    position: static;
+    z-index: auto;
+    padding: var(--space-8) 0 var(--space-12);
+    background: none;
+  }
+
+  .actions {
+    gap: var(--space-8);
+  }
+}

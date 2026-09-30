@@ -1,0 +1,89 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  background: transparent;
+  padding: var(--space-8) 0;
+}
+
+.pagination .page-button[data-size] {
+  width: 36px;
+  padding: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.listbox-container {
+  position: relative;
+  display: inline-block;
+}
+
+.listbox-trigger {
+  height: 36px;
+  min-width: 36px;
+  padding: 0 var(--space-8);
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  user-select: none;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--font-color);
+  white-space: nowrap;
+}
+
+.listbox-trigger:hover,
+.listbox-trigger:focus-visible {
+  background: var(--primary-soft-color);
+  color: var(--font-color);
+}
+
+.listbox-trigger[aria-expanded="true"] {
+  color: var(--font-color);
+}
+
+.page-listbox {
+  max-height: min(300px, calc(100vh - 32px));
+}
+
+@media (max-width: 599px) {
+  .pagination {
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .listbox-trigger {
+    font-size: 16px;
+  }
+
+  .page-listbox {
+    max-height: min(240px, calc(100vh - 32px));
+  }
+}
+
+@media (pointer: coarse) {
+  .pagination .page-button[data-size] {
+    width: 40px;
+  }
+
+  .listbox-trigger {
+    height: 40px;
+    min-width: 40px;
+  }
+}
+
+@media (hover: none) {
+  .listbox-trigger:hover {
+    background: transparent;
+    color: var(--font-color);
+  }
+}
+
+.listbox-trigger:active {
+  filter: var(--press-filter);
+}

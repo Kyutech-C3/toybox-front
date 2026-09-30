@@ -1,0 +1,13 @@
+.url-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.favicon-slot {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  display: grid;
+  place-items: center;
+}

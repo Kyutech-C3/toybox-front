@@ -1,0 +1,72 @@
+.controls-help {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.controls-help .controls-help-button {
+  position: absolute;
+  left: var(--space-12);
+  bottom: var(--space-12);
+  pointer-events: auto;
+  color: var(--asset-font-color);
+}
+
+.controls-help .controls-help-button[aria-expanded="true"] {
+  color: var(--primary-color);
+}
+
+.controls-help .controls-help-button:focus-visible {
+  outline-color: var(--primary-color);
+}
+
+@media (hover: hover) {
+  .controls-help .controls-help-button[data-variant]:not(:disabled):hover {
+    background: transparent;
+    color: var(--primary-color);
+  }
+}
+
+.controls-help .controls-help-popover {
+  left: var(--space-12);
+  right: auto;
+  top: auto;
+  bottom: calc(var(--space-12) + 48px + var(--space-8));
+  width: min(340px, calc(100vw - 48px));
+  max-height: calc(100% - 48px - var(--space-32));
+  padding: var(--space-12);
+  color: var(--font-color);
+  text-align: left;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.controls-help-title {
+  margin: 0 0 var(--space-8);
+  font-weight: 700;
+}
+
+.controls-help-list {
+  display: grid;
+  gap: var(--space-8);
+  margin: 0;
+}
+
+.controls-help-list > div {
+  display: grid;
+  grid-template-columns: minmax(72px, auto) 1fr;
+  gap: var(--space-12);
+}
+
+.controls-help-list dt {
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.controls-help-list dd {
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}

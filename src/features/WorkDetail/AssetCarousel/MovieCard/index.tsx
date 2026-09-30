@@ -1,33 +1,114 @@
+import { useRef } from "react";
+
+import MediaPlayer from "../MediaPlayer";
+import useAutoHideControls from "../MediaPlayer/hook/useAutoHideControls";
+import useMediaPlayer from "../MediaPlayer/hook/useMediaPlayer";
 import styles from "./index.module.css";
+
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 
 type MovieCardProps = {
   src: string;
   extension: string;
+  isActive: boolean;
+  isFullscreen?: boolean;
+  onLoadError?: () => void;
+  onToggleFullscreen?: () => void;
 };
 
-const MovieCard = ({ src, extension }: MovieCardProps) => {
-  const getVideoMimeType = (extension: string): string => {
-    switch (extension) {
-      case "mp4":
-        return "video/mp4";
-      case "mov":
-        return "video/quicktime";
-      case "avi":
-        return "video/x-msvideo";
-      case "flv":
-        return "video/x-flv";
-      case "webm":
-        return "video/webm";
-      default:
-        return "video/mp4";
-    }
-  };
+const getVideoMimeTypes = (extension: string): string[] => {
+  switch (extension.trim().replace(/^\./, "").toLowerCase()) {
+    case "mp4":
+      return ["video/mp4"];
+    case "mov":
+      return ["video/mp4", "video/quicktime"];
+    case "avi":
+      return ["video/x-msvideo"];
+    case "flv":
+      return ["video/x-flv"];
+    case "webm":
+      return ["video/webm"];
+    default:
+      return ["video/mp4"];
+  }
+};
+
+const MovieCard = ({
+  src,
+  extension,
+  isActive,
+  isFullscreen,
+  onLoadError,
+  onToggleFullscreen,
+}: MovieCardProps) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const {
+    isLoading,
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    togglePlay,
+    seekTo,
+    changeVolume,
+  } = useMediaPlayer({ mediaRef: videoRef });
+  const { isVisible, showControls, pinControls, unpinControls } =
+    useAutoHideControls({ mediaRef: videoRef });
+  const mimeTypes = getVideoMimeTypes(extension);
 
   return (
-    <video controls className={styles["card-movie"]}>
-      <source src={src} type={getVideoMimeType(extension)} />
-      <track kind="captions" srcLang="jp" label="Japanese" />
-    </video>
+    <div
+      className={styles["card-movie"]}
+      onPointerMove={showControls}
+      onPointerEnter={showControls}
+    >
+      <video
+        ref={videoRef}
+        className={styles["movie"]}
+        playsInline
+        preload={isActive ? "metadata" : "none"}
+        onClick={togglePlay}
+        onError={onLoadError}
+      >
+        {mimeTypes.map((mimeType, index) => (
+          <source
+            key={mimeType}
+            src={src}
+            type={mimeType}
+            onError={index === mimeTypes.length - 1 ? onLoadError : undefined}
+          />
+        ))}
+        <track kind="captions" />
+      </video>
+      {isActive && isLoading && (
+        <div className={styles["loading-state"]}>
+          <LoadingSpinner />
+        </div>
+      )}
+      <div
+        className={styles["movie-controls"]}
+        onPointerEnter={pinControls}
+        onPointerLeave={unpinControls}
+        onFocusCapture={pinControls}
+        onBlurCapture={unpinControls}
+      >
+        <MediaPlayer
+          isPlaying={isPlaying}
+          currentTime={currentTime}
+          duration={duration}
+          volume={volume}
+          isVisible={isVisible}
+          isFullscreen={isFullscreen}
+          downloadURL={src}
+          downloadLabel="動画ファイルをダウンロード"
+          onTogglePlay={togglePlay}
+          onChangeVolume={changeVolume}
+          onToggleFullscreen={onToggleFullscreen}
+          onSeekRatio={(ratio) => seekTo(ratio * duration)}
+        />
+      </div>
+    </div>
   );
 };
+
 export default MovieCard;

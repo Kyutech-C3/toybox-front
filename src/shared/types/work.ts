@@ -1,3 +1,4 @@
+/** @apiContract */
 type Work = {
   assets: Asset[];
   tags: Tag[];
@@ -7,10 +8,15 @@ type Work = {
   description_html: string;
   user: User;
   thumbnail_url: string;
-  visibility: string;
+  visibility: WorkVisibility;
+  thumbnail_asset_id: string;
+  is_favorite: boolean;
+  urls: string[];
   created_at: string;
   updated_at: string;
 };
+
+type WorkVisibility = "public" | "private" | "draft";
 
 type User = {
   id: string;
@@ -25,7 +31,7 @@ type WorkRequestData = {
   title: string;
   thumbnail_asset_id: string;
   urls: string[];
-  visibility: "public" | "private" | "draft";
+  visibility: WorkVisibility;
 };
 
 type Tag = {
@@ -35,18 +41,17 @@ type Tag = {
   updated_at: string;
 };
 
-type TagResponse = {
-  id: string;
-  name: string;
-  created_at: string;
-  updated_at: string;
+/** @apiContract */
+type TagDetail = Tag & {
+  work_count: number;
 };
 
 type TagListResponse = {
-  tags: Tag[];
+  tags: TagDetail[];
 };
 
 type Asset = {
+  id: string;
   asset_type: string;
   created_at: Date;
   extension: string;
@@ -64,11 +69,12 @@ type WorkListResponse = {
 };
 
 export type {
+  Asset,
+  Tag,
+  TagDetail,
+  TagListResponse,
   Work,
   WorkListResponse,
   WorkRequestData,
-  Tag,
-  TagResponse,
-  TagListResponse,
-  Asset,
+  WorkVisibility,
 };

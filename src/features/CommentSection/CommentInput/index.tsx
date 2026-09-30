@@ -1,49 +1,55 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 
 import styles from "./index.module.css";
+
+import { useUserStore } from "@/features/auth/store/useUserStore";
+import Avatar from "@/shared/ui/Avatar";
+import Button from "@/shared/ui/Button";
+import Textarea from "@/shared/ui/Textarea";
 
 import type React from "react";
 import type { Comment } from "@/shared/types/comment";
 
 interface CommentInputProps {
-  onSubmit: (message: string) => void;
+  onSubmit: (message: string) => Promise<boolean>;
   replyingTo?: Comment;
   onCancelReply?: () => void;
-  autoFocus?: boolean;
-  avatarUrl?: string;
+  isAutoFocus?: boolean;
+  isSubmitting?: boolean;
 }
 
 const CommentInput = ({
   onSubmit,
   replyingTo,
   onCancelReply,
-  autoFocus,
-  avatarUrl = "https://s3.ap-northeast-1.wasabisys.com/mastodondb/accounts/avatars/110/275/885/725/745/131/original/c9bc5b34647f2e0d.jpg",
+  isAutoFocus,
+  isSubmitting = false,
 }: CommentInputProps) => {
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const user = useUserStore((state) => state.user);
 
-  // テキストエリアの高さを内容に合わせて自動調整
-  const adjustHeight = useCallback(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
+  useEffect(() => {
+    if (isAutoFocus) {
+      textareaRef.current?.focus();
     }
-  }, []);
+  }, [isAutoFocus]);
 
-  const handleSend = useCallback(() => {
-    if (!value.trim()) return;
-    onSubmit(value);
+  const handleSend = useCallback(async () => {
+    if (!value.trim() || isSubmitting) return;
+    const isSubmitted = await onSubmit(value);
+    if (!isSubmitted) return;
+
     setValue("");
-    setTimeout(() => adjustHeight(), 0);
-  }, [onSubmit, value, adjustHeight]);
+  }, [onSubmit, value, isSubmitting]);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
         event.preventDefault();
-        handleSend();
+        void handleSend();
       }
     },
     [handleSend],
@@ -51,55 +57,53 @@ const CommentInput = ({
 
   return (
     <div className={styles["input-row"]}>
-      <div className={styles.avatar}>
-        <img src={avatarUrl} alt="あなた" className={styles["avatar-img"]} />
-      </div>
+      <Avatar
+        avatarURL={user?.icon_url || undefined}
+        alt={`${user?.display_name ?? "あなた"}のアバター`}
+      />
       <div className={styles["right-col"]}>
-        <div className={styles.username}>あなた</div>
         {/* 返信対象がある場合は表示 */}
         {replyingTo && (
           <div className={styles["reply-info"]}>
             <span>
-              {replyingTo.user
-                ? replyingTo.user.display_name
-                : "名無しのユーザー"}{" "}
+              {replyingTo.user ? replyingTo.user.display_name : "Anonymous"}{" "}
               への返信
             </span>
-            <button
-              type="button"
+            <Button
+              variant="ghost"
+              isIconOnly
+              icon={<CloseRoundedIcon />}
               onClick={onCancelReply}
-              className={styles["cancel-reply-button"]}
               aria-label="返信をキャンセル"
-            >
-              ×
-            </button>
+            />
           </div>
         )}
-        <label className={styles["input-box"]}>
-          <span className={styles["sr-only"]}>コメントを入力</span>
-          <textarea
-            ref={textareaRef}
-            className={styles.textarea}
-            placeholder="コメントを追加"
-            value={value}
-            onChange={(event) => {
-              setValue(event.target.value);
-              adjustHeight();
-            }}
-            onKeyDown={handleKeyDown}
-            // biome-ignore lint/a11y/noAutofocus: 返信時にフォーカスを当てるため
-            autoFocus={autoFocus}
-          />
-        </label>
+        <Textarea
+          isAutoResizing
+          aria-label="コメントを入力"
+          isCharacterCountVisible
+          ref={textareaRef}
+          className={styles["textarea"]}
+          placeholder="コメントを追加"
+          value={value}
+          disabled={isSubmitting}
+          maxLength={255}
+          onChange={setValue}
+          onKeyDown={handleKeyDown}
+        />
         <div className={styles["send-wrap"]}>
-          <button
-            type="button"
-            onClick={handleSend}
-            disabled={!value.trim()}
-            className={styles["send-button"]}
-          >
-            送信
-          </button>
+          <p className={styles["send-hint"]}>Ctrl + Enter で送信</p>
+          <div className={styles["send-button-slot"]}>
+            <Button
+              variant="accent"
+              onClick={() => void handleSend()}
+              isDisabled={!value.trim()}
+              isLoading={isSubmitting}
+              icon={<SendRoundedIcon />}
+            >
+              {isSubmitting ? "送信中..." : "送信"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

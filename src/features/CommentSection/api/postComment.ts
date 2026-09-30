@@ -9,8 +9,8 @@ const postComment = async (
   const response = await postDataWithAuth(
     `/works/${workID}/comments`,
     JSON.stringify({
-      content,
-      replyAt,
+      content: content,
+      reply_at: replyAt,
     }),
     accessToken,
   );

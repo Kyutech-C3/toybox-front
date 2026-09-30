@@ -1,43 +1,83 @@
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import CheckIcon from "@mui/icons-material/Check";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import { prism as style } from "react-syntax-highlighter/dist/esm/styles/prism";
+import {
+  coldarkCold,
+  vscDarkPlus,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
 
 import styles from "./index.module.css";
 
-const CodeBlock = ({
-  language,
-  children,
-}: {
-  language: string;
+import Button from "@/shared/ui/Button";
+import { copyTextToClipboard } from "@/util/copyTextToClipboard";
+import { getCurrentTheme, subscribeTheme } from "@/util/theme";
+
+type CodeBlockProps = {
+  language?: string;
+  fileName?: string;
   children: string;
-}) => {
-  const [copied, setCopied] = useState(false);
+};
+
+const CodeBlock = ({ language, fileName, children }: CodeBlockProps) => {
+  const [isCopied, setCopied] = useState(false);
+  const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(children);
+    const didCopy = await copyTextToClipboard(children);
+    if (!didCopy) return;
+
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <div className={styles.codeBlockContainer}>
-      <button
-        type="button"
-        className={styles.copyButton}
+    <div className={styles["code-block-container"]}>
+      {fileName && <div className={styles["file-name"]}>{fileName}</div>}
+      <Button
+        size="compact"
+        isIconOnly
+        className={styles["copy-button"]}
         onClick={handleCopy}
         aria-label="コードをコピー"
-      >
-        {copied ? (
-          <CheckIcon fontSize="small" />
-        ) : (
-          <ContentCopyIcon fontSize="small" />
-        )}
-      </button>
-      <SyntaxHighlighter PreTag="div" language={language} style={style}>
-        {children}
-      </SyntaxHighlighter>
+        icon={isCopied ? <CheckIcon /> : <ContentCopyIcon />}
+      />
+      {language ? (
+        <SyntaxHighlighter
+          language={language}
+          style={theme === "dark" ? vscDarkPlus : coldarkCold}
+          codeTagProps={{
+            style: {
+              fontFamily: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+            },
+          }}
+          customStyle={{
+            fontFamily: "inherit",
+            fontSize: "inherit",
+            lineHeight: "inherit",
+            background: "var(--code-block-background-color)",
+            backgroundColor: "var(--code-block-background-color)",
+            padding: "0.5rem 2.75rem 0.5rem 0.5rem",
+            margin: 0,
+          }}
+        >
+          {children}
+        </SyntaxHighlighter>
+      ) : (
+        <pre style={{ paddingInlineEnd: "2.75rem", margin: 0 }}>
+          <code
+            style={{
+              fontFamily: "inherit",
+              fontSize: "inherit",
+              lineHeight: "inherit",
+            }}
+          >
+            {children}
+          </code>
+        </pre>
+      )}
     </div>
   );
 };

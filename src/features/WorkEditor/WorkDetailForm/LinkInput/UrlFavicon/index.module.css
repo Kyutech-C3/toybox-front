@@ -1,0 +1,12 @@
+.favicon {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  display: block;
+  border-radius: 4px;
+
+  &:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 3px;
+  }
+}

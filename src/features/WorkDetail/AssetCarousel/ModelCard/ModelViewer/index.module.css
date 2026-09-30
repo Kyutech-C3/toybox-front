@@ -1,0 +1,24 @@
+.model-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+
+.model-canvas:active {
+  cursor: grabbing;
+}
+
+.model-canvas:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -4px;
+}
+
+.loading-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}

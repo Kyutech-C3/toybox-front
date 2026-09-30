@@ -1,120 +1,65 @@
-import { useRef, useState } from "react";
-import CloudUploadRoundedIcon from "@mui/icons-material/CloudUploadRounded";
-
+import useThumbnailUpload, {
+  THUMBNAIL_ACCEPT,
+} from "../hook/useThumbnailUpload";
+import UploadArea from "../UploadArea";
+import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
-type ImageUploadProps = {
-  label?: string;
-  onImageSelect: (file: File) => void;
-  acceptedFormats?: string;
-  maxSizeMB?: number;
-  previewUrl?: string;
-};
+import FieldError from "@/shared/ui/FieldError";
+import LoadingImage from "@/shared/ui/LoadingImage";
 
-const ImageUpload = ({
-  onImageSelect,
-  acceptedFormats = "image/png, image/jpeg, image/jpg, image/webp, image/gif, image/bmp",
-  maxSizeMB = 5,
-  previewUrl,
-}: ImageUploadProps) => {
-  const [preview, setPreview] = useState<string | null>(previewUrl || null);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileChange = (file: File | null) => {
-    if (!file) return;
-
-    // ファイルサイズチェック
-    if (file.size > maxSizeMB * 1024 * 1024) {
-      alert(`ファイルサイズは${maxSizeMB}MB以下にしてください`);
-      return;
-    }
-
-    // ファイル形式チェック
-    const acceptedTypes = acceptedFormats.split(", ");
-    if (!acceptedTypes.includes(file.type)) {
-      alert("サポートされていないファイル形式です");
-      return;
-    }
-
-    // プレビュー生成
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-
-    onImageSelect(file);
-  };
-
-  const handleClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileChange(files[0]);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      handleFileChange(files[0]);
-    }
-  };
+const ImageUpload = () => {
+  const {
+    thumbnail,
+    validationError,
+    handleSelectFile,
+    handleRetry,
+    handleRemove,
+  } = useThumbnailUpload();
+  const isUploading = thumbnail?.status === "uploading";
 
   return (
     <div className={styles["upload-container"]}>
-      <span className={styles["upload-label"]}>サムネイル</span>
-      <button
-        type="button"
-        className={styles["upload-area"]}
-        onClick={handleClick}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        data-dragging={isDragging ? "true" : "false"}
-        data-has-image={preview ? "true" : "false"}
-        aria-label="画像をアップロード"
+      <h3 className={styles["upload-heading"]}>サムネイル</h3>
+      <UploadCard
+        asset={thumbnail}
+        hasPreview={!!thumbnail?.previewURL}
+        onRemove={handleRemove}
+        onRetry={handleRetry}
+        statusText={
+          thumbnail?.status === "uploading"
+            ? "アップロード中"
+            : thumbnail?.status === "error"
+              ? "アップロードに失敗"
+              : thumbnail?.file
+                ? "アップロード完了"
+                : ""
+        }
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={acceptedFormats}
-          onChange={handleInputChange}
-          className={styles["file-input"]}
-          tabIndex={-1}
-        />
-        {preview ? (
-          <img
-            src={preview}
-            alt="アップロードされた画像のプレビュー"
-            className={styles["preview-image"]}
-          />
-        ) : (
-          <CloudUploadRoundedIcon
-            style={{
-              fontSize: 128,
-              color: isDragging ? "var(--primary-color)" : "#999",
-            }}
-          />
-        )}
-      </button>
+        <UploadArea
+          accept={THUMBNAIL_ACCEPT}
+          ariaLabel="サムネイル画像をアップロード"
+          onSelectFiles={(files) => handleSelectFile(files[0])}
+          isDisabled={isUploading}
+          isEmbedded
+        >
+          {thumbnail?.previewURL ? (
+            <LoadingImage
+              src={thumbnail.previewURL}
+              alt="サムネイル画像のプレビュー"
+              className={styles["preview-image"]}
+            />
+          ) : undefined}
+        </UploadArea>
+      </UploadCard>
+      {(validationError || thumbnail?.errorMessage) && (
+        <FieldError role="alert">
+          {validationError || thumbnail?.errorMessage}
+        </FieldError>
+      )}
+      <p className={styles["format-help"]}>
+        PNG・JPG・JPEG・BMP・GIF・WEBP / 5MB以下
+      </p>
     </div>
   );
 };

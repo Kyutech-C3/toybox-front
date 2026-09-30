@@ -1,0 +1,32 @@
+.account-menu-wrapper {
+  position: relative;
+  display: flex;
+}
+
+.account-menu-trigger {
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.account-menu-trigger:focus-visible {
+  outline: 2px solid var(--font-color);
+  outline-offset: 3px;
+}
+
+.account-menu {
+  width: 200px;
+  max-width: calc(100vw - 32px);
+}
+
+@media (max-width: 599px) {
+  .account-menu-trigger {
+    min-width: var(--touch-target-min);
+    min-height: var(--touch-target-min);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

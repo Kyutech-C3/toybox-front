@@ -1,127 +1,86 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-
 import Batch from "../Batch";
-import Dropdown from "../Dropdown";
+import TagSelector from "../TagSelector";
 import styles from "./index.module.css";
 
-import type { FormEvent, InputHTMLAttributes } from "react";
+import FieldError from "@/shared/ui/FieldError";
+import { normalizeTagNameInput } from "@/util/tagName";
+
+import type { TagSelectorOption } from "../TagSelector";
+
+export type TagInputTag = {
+  id: string;
+  name: string;
+};
 
 type TagInputProps = {
-  tags: string[];
-  allTagOptions?: string[];
-  addTag: (tag: string) => void;
-  removeTag: (index: number) => void;
+  tags: TagInputTag[];
+  allTagOptions: TagSelectorOption[];
+  failedTags?: string[];
+  retryingTags?: string[];
+  errorMessage?: string;
+  onAddTag: (tagID: string) => void;
+  onCreateTag: (tagName: string) => Promise<boolean>;
+  onRemoveTag: (tagID: string) => void;
+  onRetryTag?: (tagName: string) => void;
+  onRemoveFailedTag?: (tagName: string) => void;
   heading?: string;
-} & Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  "value" | "onChange" | "className"
->;
+};
 
 const TagInput = ({
   tags,
   allTagOptions,
-  addTag,
-  removeTag,
+  failedTags = [],
+  retryingTags = [],
+  errorMessage,
+  onAddTag,
+  onCreateTag,
+  onRemoveTag,
+  onRetryTag,
+  onRemoveFailedTag,
   heading,
-  ...props
 }: TagInputProps) => {
-  const [focused, setFocused] = useState(false);
-  const [inputValue, setInputValue] = useState("");
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const tag = inputValue.trim();
-    if (tag !== "") {
-      if (tags.includes(tag)) return;
-      addTag(tag);
-      setInputValue("");
-    }
-  };
-
-  useEffect(() => {
-    if (!focused) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setFocused(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [focused]);
-
-  useEffect(() => {
-    if (!focused) return;
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setFocused(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [focused]);
-
-  const options = useMemo(() => {
-    if (!allTagOptions) return [];
-    const lowerInput = inputValue.toLowerCase();
-    return allTagOptions.filter(
-      (option) =>
-        option.toLowerCase().includes(lowerInput) &&
-        !tags.includes(option.toLowerCase()),
-    );
-  }, [inputValue, allTagOptions, tags]);
-
   return (
-    <form className={styles["tag-input-wrapper"]} onSubmit={onSubmit}>
+    <section className={styles["tag-input-wrapper"]}>
       {heading && <h3>{heading}</h3>}
-      <div ref={containerRef} className={styles["input-wrapper"]}>
-        <div className={styles["tags-wrapper"]}>
-          {tags.map((tag, id) => (
-            <Batch key={`${tag}`} color="primary" onClick={() => removeTag(id)}>
-              {tag}
-            </Batch>
-          ))}
-          <span className={styles["input-dropdown-container"]}>
-            <Dropdown
-              isOpen={options.length > 0 && focused}
-              options={options}
-              position="bottom"
-              onSelect={(tag) => {
-                if (tags.includes(tag.toLowerCase())) return;
-                addTag(tag);
-                setInputValue("");
-                setFocused(false);
-              }}
-            />
-          </span>
-          <input
-            type="text"
-            name="tag"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onFocus={() => {
-              setFocused(true);
-            }}
-            className={styles["input-field"]}
-            {...props}
-          />
+      <TagSelector
+        allTags={allTagOptions}
+        selectedTags={tags}
+        onAddTag={onAddTag}
+        onRemoveTag={onRemoveTag}
+        onClearTags={() => {
+          tags.forEach((tag) => {
+            onRemoveTag(tag.id);
+          });
+        }}
+        ariaLabel="作品に付けるタグを探す"
+        searchPlaceholder="既存のタグを探す"
+        onCreateTag={onCreateTag}
+      />
+      {failedTags.length > 0 && (
+        <div className={styles["failed-tags"]}>
+          {failedTags.map((name) => {
+            const isRetrying = retryingTags.some(
+              (retrying) => retrying.toLowerCase() === name.toLowerCase(),
+            );
+            return (
+              <Batch
+                key={name}
+                variant="error"
+                isRetrying={isRetrying}
+                onRetry={onRetryTag ? () => onRetryTag(name) : null}
+                onClick={
+                  onRemoveFailedTag ? () => onRemoveFailedTag(name) : null
+                }
+                ariaLabel={`${normalizeTagNameInput(name)}の作成失敗を取り消す`}
+              >
+                {normalizeTagNameInput(name)}
+              </Batch>
+            );
+          })}
         </div>
-      </div>
-    </form>
+      )}
+      {errorMessage && <FieldError role="alert">{errorMessage}</FieldError>}
+    </section>
   );
 };
 

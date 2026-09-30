@@ -1,33 +1,46 @@
 .asset-wrapper {
-  position: relative;
   display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  width: 100%;
+}
+
+.carousel-viewport {
+  position: relative;
+  width: 100%;
+  min-width: 0;
 }
 
 .asset-container {
   margin: 0;
   padding: 0;
-  border-radius: 25px;
-  height: 540px;
+  border-radius: var(--asset-carousel-radius, 25px);
   width: 100%;
-  overflow-x: scroll;
+  aspect-ratio: 4 / 3;
+  max-height: max(240px, calc(100vh - 272px));
+  display: flex;
+  overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  columns: 1;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
   background-color: var(--asset-background);
   text-align: center;
-  gap: 4vw;
 
-  &::column {
-    scroll-snap-align: center;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
 .asset-carousel {
   text-align: left;
   list-style-type: none;
-  display: inline-block;
-  height: 100%;
+  min-height: 0;
+  align-self: stretch;
+  min-width: 100%;
   flex: 0 0 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 .scroll-left-button,
@@ -37,27 +50,116 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: transparent;
   display: flex;
   justify-content: center;
   align-items: center;
   border: none;
-  color: var(--font-color);
-  padding: 10px;
+  color: var(--asset-font-color);
+  padding: 0;
   cursor: pointer;
   z-index: 1;
-  border-radius: 50%;
+}
 
-  &[data-disabled="true"] {
-    background-color: rgba(255, 255, 255, 0.2);
-    color: var(--font-sub-color);
-  }
+.scroll-left-button:hover,
+.scroll-right-button:hover {
+  color: var(--primary-color);
+}
+
+.scroll-left-button:focus-visible,
+.scroll-right-button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: -4px;
 }
 
 .scroll-left-button {
-  left: 25px;
+  left: var(--space-8);
 }
 
 .scroll-right-button {
-  right: 25px;
+  right: var(--space-8);
+}
+
+/* 全画面ボタンは viewport に置く。アセット側に置くと横スクロールで一緒に流れる */
+.fullscreen-button {
+  position: absolute;
+  right: var(--space-12);
+  bottom: var(--space-12);
+  width: var(--touch-target-min);
+  height: var(--touch-target-min);
+  padding: 0;
+  border: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1;
+  color: var(--asset-font-color);
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.fullscreen-button:hover {
+  color: var(--primary-color);
+}
+
+.fullscreen-button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.carousel-viewport:fullscreen {
+  --asset-carousel-radius: 0;
+
+  display: flex;
+  align-items: center;
+  background-color: var(--asset-background);
+}
+
+.carousel-viewport:fullscreen .asset-container {
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+}
+
+.carousel-viewport[data-pseudo-fullscreen="true"] {
+  --asset-carousel-radius: 0;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  box-sizing: border-box;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  display: flex;
+  align-items: center;
+  background-color: var(--asset-background);
+}
+
+.carousel-viewport[data-pseudo-fullscreen="true"] .asset-container {
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+}
+
+.carousel-viewport[data-pseudo-fullscreen="true"] .fullscreen-button {
+  right: calc(var(--space-12) + env(safe-area-inset-right));
+  bottom: calc(var(--space-12) + env(safe-area-inset-bottom));
+}
+
+@media (max-width: 599px) {
+  .scroll-left-button,
+  .scroll-right-button {
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+  }
+}
+
+@media (hover: none) {
+  .scroll-left-button:hover,
+  .scroll-right-button:hover,
+  .fullscreen-button:hover {
+    color: var(--asset-font-color);
+  }
 }

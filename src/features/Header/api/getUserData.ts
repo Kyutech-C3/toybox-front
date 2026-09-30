@@ -3,6 +3,7 @@ import { fetchDataWithAuth } from "@/util/fetchData";
 const getUserData = async (accessToken: string) => {
   try {
     const response: {
+      id: string;
       display_name: string;
       icon_url: string;
     } = await fetchDataWithAuth("/auth/users/me", accessToken);
