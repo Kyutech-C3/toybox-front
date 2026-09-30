@@ -27,3 +27,7 @@
     padding: 3px var(--space-8);
   }
 }
+
+.tag-link:active {
+  filter: var(--press-filter);
+}

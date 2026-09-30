@@ -82,3 +82,7 @@
     color: var(--font-muted-color);
   }
 }
+
+.like-button:not(:disabled):active {
+  filter: var(--press-filter);
+}

@@ -196,3 +196,7 @@
 :global(:root[data-theme="dark"]) .expand-label {
   border-color: color-mix(in srgb, var(--font-color) 20%, transparent);
 }
+
+.expand-button:active .expand-label {
+  filter: var(--press-filter);
+}
