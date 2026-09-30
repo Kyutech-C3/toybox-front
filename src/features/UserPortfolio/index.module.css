@@ -89,7 +89,7 @@
   padding: 0 var(--page-margin) var(--space-64);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .profile-card {
     padding: var(--space-16);
     border-radius: 16px;

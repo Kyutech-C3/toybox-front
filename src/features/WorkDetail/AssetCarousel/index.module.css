@@ -148,7 +148,7 @@
   bottom: calc(var(--space-12) + env(safe-area-inset-bottom));
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .scroll-left-button,
   .scroll-right-button {
     width: var(--touch-target-min);

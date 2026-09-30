@@ -4,11 +4,12 @@ import styles from "./index.module.css";
 
 import SiteFavicon from "@/shared/ui/SiteFavicon";
 
-type WorkLinksProps = {
+type LinkListProps = {
   urls: string[];
+  ariaLabel?: string;
 };
 
-const WorkLinks = ({ urls }: WorkLinksProps) => {
+const LinkList = ({ urls, ariaLabel = "リンク" }: LinkListProps) => {
   const links = [...new Set(urls)].flatMap((url) => {
     try {
       const parsedURL = new URL(url);
@@ -23,21 +24,21 @@ const WorkLinks = ({ urls }: WorkLinksProps) => {
   if (links.length === 0) return null;
 
   return (
-    <section className={styles["work-links"]} aria-label="リンク">
-      <ul className={styles["work-link-list"]}>
+    <section className={styles["link-list"]} aria-label={ariaLabel}>
+      <ul className={styles["link-items"]}>
         {links.map(({ url, href }) => (
-          <li key={url}>
+          <li key={url} className={styles["link-item"]}>
             <a
-              className={styles["work-link"]}
+              className={styles["link"]}
               href={href}
               title={url}
               target="_blank"
               rel="noopener noreferrer"
             >
               <SiteFavicon url={url} size="small" />
-              <span className={styles["work-link-url"]}>{url}</span>
+              <span className={styles["link-url"]}>{url}</span>
               <OpenInNewRoundedIcon
-                className={styles["work-link-external-icon"]}
+                className={styles["external-icon"]}
                 aria-hidden="true"
                 fontSize="inherit"
               />
@@ -49,4 +50,4 @@ const WorkLinks = ({ urls }: WorkLinksProps) => {
   );
 };
 
-export default WorkLinks;
+export default LinkList;

@@ -51,3 +51,4 @@ export default WorkCardGrid;
 export { default as useWorkGridColumns } from "./hook/useWorkGridColumns";
 export { default as useWorkPageSize } from "./hook/useWorkPageSize";
 export { default as PageSizeSelect } from "./PageSizeSelect";
+export { default as WorkListControls } from "./WorkListControls";

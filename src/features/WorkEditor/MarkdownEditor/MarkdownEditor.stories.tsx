@@ -315,17 +315,17 @@ export const LongDocumentWithAssets: Story = {
     if (!(input instanceof HTMLTextAreaElement))
       throw new Error("説明の入力欄が見つかりません");
     await waitFor(() =>
-      expect(canvas.getAllByText("説明文でも使用中")).toHaveLength(3),
+      expect(canvas.getAllByText("説明文使用中")).toHaveLength(3),
     );
     await userEvent.click(input);
     input.setSelectionRange(input.value.length, input.value.length);
     const startedAt = performance.now();
     await userEvent.type(input, "追記");
     await expect(performance.now() - startedAt).toBeLessThan(500);
-    await expect(canvas.getAllByText("説明文でも使用中")).toHaveLength(3);
+    await expect(canvas.getAllByText("説明文使用中")).toHaveLength(3);
     fireEvent.change(input, { target: { value: LONG_DOCUMENT_DESCRIPTION } });
     await waitFor(() =>
-      expect(canvas.queryAllByText("説明文でも使用中")).toHaveLength(0),
+      expect(canvas.queryAllByText("説明文使用中")).toHaveLength(0),
     );
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
   },
@@ -972,7 +972,7 @@ export const ReferencedImageRemovalUpdatesDescription: Story = {
     input.setSelectionRange(input.value.length, input.value.length);
     document.execCommand("insertText", false, "\n追記");
     await expect(input).toHaveValue(`${originalDescription}\n追記`);
-    await expect(await canvas.findByText(/説明文でも使用中/)).toBeVisible();
+    await expect(await canvas.findByText(/説明文使用中/)).toBeVisible();
     const confirm = spyOn(window, "confirm")
       .mockReturnValueOnce(false)
       .mockReturnValueOnce(true);

@@ -20,7 +20,7 @@
   font-weight: 700;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .work-card-grid-empty {
     min-height: 120px;
     padding: 24px;

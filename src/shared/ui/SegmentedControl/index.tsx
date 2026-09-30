@@ -151,30 +151,69 @@ const SegmentedControl = <T extends string>({
     );
   }
 
-  if (role === "tablist") {
-    return (
+  const currentIndex = Math.max(selectedIndex, 0);
+  const currentOption = options[currentIndex];
+  const nextOption = options[(currentIndex + 1) % options.length];
+  const toggle = options.length === 2 && currentOption && nextOption && (
+    <button
+      type="button"
+      className={styles["toggle"]}
+      data-position={currentIndex}
+      aria-label={`${ariaLabel}：${currentOption.label}。押すと${nextOption.label}に切り替え`}
+      aria-controls={controlsID}
+      onClick={() => onChange(nextOption.value)}
+    >
+      <span className={styles["toggle-thumb"]}>
+        <span className={styles["toggle-labels"]} aria-hidden="true">
+          {options.map((option) => (
+            <span
+              key={option.value}
+              className={styles["toggle-label"]}
+              data-current={
+                option.value === currentOption.value ? "true" : "false"
+              }
+              data-label={option.label}
+            >
+              {option.icon && (
+                <span className={styles["segment-icon"]}>{option.icon}</span>
+              )}
+            </span>
+          ))}
+        </span>
+      </span>
+    </button>
+  );
+
+  const control =
+    role === "tablist" ? (
       <div
         className={styles["segmented-control"]}
         style={controlStyle}
         role="tablist"
         aria-label={ariaLabel}
         aria-orientation="horizontal"
+        data-has-toggle={toggle ? "true" : "false"}
         onKeyDown={handleTabKeyDown}
       >
         {segments}
       </div>
+    ) : (
+      <div
+        className={styles["segmented-control"]}
+        style={controlStyle}
+        role="radiogroup"
+        aria-label={ariaLabel}
+        data-has-toggle={toggle ? "true" : "false"}
+      >
+        {segments}
+      </div>
     );
-  }
 
   return (
-    <div
-      className={styles["segmented-control"]}
-      style={controlStyle}
-      role="radiogroup"
-      aria-label={ariaLabel}
-    >
-      {segments}
-    </div>
+    <>
+      {control}
+      {toggle}
+    </>
   );
 };
 

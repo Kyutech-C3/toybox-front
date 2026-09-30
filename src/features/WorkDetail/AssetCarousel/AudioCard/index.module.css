@@ -60,7 +60,7 @@
   left: var(--space-16);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .card-audio {
     --waveform-inset: 56px;
   }

@@ -38,20 +38,12 @@
   font-size: 0.875rem;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .input-row {
     gap: var(--space-8);
   }
 
   .send-wrap {
     flex-wrap: wrap;
-  }
-
-  .send-button-slot {
-    flex: 1;
-  }
-
-  .send-button-slot > button {
-    width: 100%;
   }
 }

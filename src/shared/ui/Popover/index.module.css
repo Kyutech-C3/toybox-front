@@ -125,8 +125,12 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .popover-item {
-    min-height: var(--touch-target-min);
+    min-height: 40px;
   }
+}
+
+.popover-item:active {
+  filter: var(--press-filter);
 }

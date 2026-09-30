@@ -86,7 +86,7 @@
   color: var(--error-color);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .upload-card {
     border-radius: 16px;
   }

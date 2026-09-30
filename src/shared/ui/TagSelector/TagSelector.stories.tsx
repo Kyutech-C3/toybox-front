@@ -2,8 +2,6 @@ import { useState } from "react";
 
 import TagSelector from "./index";
 
-import SegmentedControl from "@/shared/ui/SegmentedControl";
-
 import type { Meta, StoryObj } from "@storybook/react";
 import type { TagDetail } from "@/shared/types/work";
 
@@ -65,14 +63,10 @@ const TOP_PAGE_TAGS: TagDetail[] = Array.from({ length: 28 }, (_, index) => ({
 
 const TopPagePreview = () => {
   const [selectedIDs, setSelectedIDs] = useState<string[]>(["tag-1"]);
-  const [visibility, setVisibility] = useState("public");
-  const [sortOrder, setSortOrder] = useState("newest");
-  const [pageSize, setPageSize] = useState("30");
 
   return (
-    <div style={{ width: "min(980px, 100%)", display: "grid", gap: 8 }}>
+    <div style={{ width: "min(980px, 100%)" }}>
       <TagSelector
-        layout="top-page"
         allTags={TOP_PAGE_TAGS}
         selectedTags={TOP_PAGE_TAGS.filter((tag) =>
           selectedIDs.includes(tag.id),
@@ -82,41 +76,7 @@ const TopPagePreview = () => {
           setSelectedIDs((current) => current.filter((id) => id !== tagID))
         }
         onClearTags={() => setSelectedIDs([])}
-        leadingControls={
-          <>
-            <SegmentedControl
-              options={[
-                { value: "public", label: "公開" },
-                { value: "private", label: "限定" },
-              ]}
-              value={visibility}
-              onChange={setVisibility}
-              ariaLabel="公開範囲"
-            />
-            <SegmentedControl
-              options={[
-                { value: "newest", label: "新しい順" },
-                { value: "oldest", label: "古い順" },
-              ]}
-              value={sortOrder}
-              onChange={setSortOrder}
-              ariaLabel="並び順"
-            />
-          </>
-        }
-        trailingControls={
-          <SegmentedControl
-            options={[
-              { value: "30", label: "30件" },
-              { value: "45", label: "45件" },
-            ]}
-            value={pageSize}
-            onChange={setPageSize}
-            ariaLabel="表示件数"
-          />
-        }
       />
-      <strong>全28件</strong>
     </div>
   );
 };

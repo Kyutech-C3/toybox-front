@@ -18,7 +18,7 @@
   color: var(--font-color);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .work-editor-wrapper {
     box-sizing: border-box;
     gap: var(--space-16);

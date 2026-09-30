@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
@@ -13,12 +13,15 @@ import { getUserData } from "./api/getUserData";
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
+import FloatingActionButton from "@/shared/ui/FloatingActionButton";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 
 const Header = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isEditingWork = pathname.startsWith("/edit/");
   const { showToast } = useToast();
   const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
 
@@ -135,20 +138,12 @@ const Header = () => {
           </Button>
         )}
         {accessToken && (
-          <div className={styles["new-work-button"]}>
-            <Button
-              variant="primary"
-              onClick={() => navigate("/edit/new")}
-              ariaLabel="投稿"
-              icon={
-                <span className={styles["new-work-icon"]}>
-                  <AddRoundedIcon fontSize="inherit" />
-                </span>
-              }
-            >
-              <span className={styles["new-work-label"]}>投稿</span>
-            </Button>
-          </div>
+          <FloatingActionButton
+            label="投稿"
+            icon={<AddRoundedIcon fontSize="inherit" />}
+            onClick={() => navigate("/edit/new")}
+            isFloatingHidden={isEditingWork}
+          />
         )}
       </div>
     </header>

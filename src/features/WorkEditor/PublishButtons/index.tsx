@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 
 import { useWorkEditorStore } from "../store/useWorkEditorStore";
-import styles from "./index.module.css";
 import PublishButton from "./PublishButton";
 
 import DeleteWorkButton from "@/features/WorkDelete/DeleteWorkButton";
+import ActionBar from "@/shared/ui/ActionBar";
 import Button from "@/shared/ui/Button";
 
 const PublishButtons = () => {
@@ -24,19 +24,17 @@ const PublishButtons = () => {
   };
 
   return (
-    <div className={styles["publish-buttons-bar"]}>
-      <div className={styles["publish-buttons-wrapper"]}>
-        <Button onClick={handleCancel}>キャンセル</Button>
-        {mode === "edit" && workID && ownerID && (
-          <DeleteWorkButton
-            workID={workID}
-            ownerID={ownerID}
-            onDeleted={handleDeleted}
-          />
-        )}
-        <PublishButton />
-      </div>
-    </div>
+    <ActionBar>
+      <Button onClick={handleCancel}>キャンセル</Button>
+      {mode === "edit" && workID && ownerID && (
+        <DeleteWorkButton
+          workID={workID}
+          ownerID={ownerID}
+          onDeleted={handleDeleted}
+        />
+      )}
+      <PublishButton />
+    </ActionBar>
   );
 };
 export default PublishButtons;

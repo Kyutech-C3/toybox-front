@@ -1,0 +1,54 @@
+.header-action {
+  display: flex;
+}
+
+.header-action .header-action-button[data-size] {
+  height: 36px;
+  min-width: 36px;
+  padding-inline: var(--space-12);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  font-size: 18px;
+}
+
+.floating-action {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .header-action {
+    display: none;
+  }
+
+  .floating-action {
+    position: fixed;
+    right: var(--page-margin);
+    bottom: var(--page-margin);
+    z-index: 25;
+    display: flex;
+  }
+
+  .floating-action .floating-action-button[data-size] {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 9999px;
+    box-shadow: 0 4px 12px var(--shadow-soft-color);
+  }
+
+  .floating-icon {
+    display: inline-flex;
+    align-items: center;
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 599px) and (hover: hover) {
+  .floating-action .floating-action-button[data-size]:not(:disabled):hover {
+    background: var(--primary-color);
+    box-shadow: var(--hover-shadow);
+  }
+}

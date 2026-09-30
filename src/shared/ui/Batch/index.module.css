@@ -7,7 +7,8 @@
   font: inherit;
   font-size: inherit;
   font-weight: 700;
-  border-radius: 9999px;
+  border-radius: 0.4em;
+  line-height: 1.4;
   text-align: center;
   display: inline-flex;
   align-items: center;
@@ -27,7 +28,8 @@
   }
 
   &[data-clickable="true"] {
-    padding: 0 var(--space-8) 0 var(--space-12);
+    min-height: 28px;
+    padding: var(--space-4) var(--space-8) var(--space-4) var(--space-12);
   }
 
   &[data-clickable="true"]:is(button) {
@@ -35,15 +37,16 @@
   }
 
   &[data-clickable="false"] {
-    padding: 2px var(--space-12);
+    padding: var(--space-4) var(--space-12);
   }
 
   &[data-selectable="true"] {
-    padding: 2px var(--space-12);
+    min-height: 28px;
+    padding: var(--space-4) var(--space-12);
     cursor: pointer;
   }
 
-  &[data-selectable="true"]:hover {
+  &[data-selectable="true"][data-color="neutral"]:hover {
     background: var(--primary-soft-color);
   }
 
@@ -60,9 +63,9 @@
 }
 
 .batch .batch-close-icon {
-  width: 10px;
-  height: 10px;
-  font-size: 10px;
+  width: 12px;
+  height: 12px;
+  font-size: 12px;
   flex-shrink: 0;
 }
 
@@ -83,4 +86,43 @@
 
 .batch-button:disabled {
   cursor: not-allowed;
+}
+
+@media (hover: none) {
+  .batch[data-selectable="true"][data-color="neutral"]:hover {
+    background: var(--paper-color);
+  }
+}
+
+@media (pointer: coarse) {
+  .batch[data-selectable="true"],
+  .batch[data-clickable="true"] {
+    min-height: 27px;
+  }
+}
+
+@media (max-width: 599px) {
+  .batch[data-selectable="true"] {
+    padding-inline: var(--space-8);
+  }
+
+  .batch[data-clickable="true"] {
+    padding-inline: var(--space-8) var(--space-4);
+  }
+}
+
+:global(:root[data-theme="dark"]) .batch[data-color="selected"] {
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--primary-color) 70%, transparent);
+  background-color: color-mix(
+    in srgb,
+    var(--primary-color) 18%,
+    var(--paper-color)
+  );
+  color: color-mix(in srgb, var(--primary-color) 45%, var(--font-color));
+}
+
+.batch:is(button):not(:disabled):active,
+.batch-button:not(:disabled):active {
+  filter: var(--press-filter);
 }

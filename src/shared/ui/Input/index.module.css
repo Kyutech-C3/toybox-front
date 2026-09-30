@@ -75,7 +75,7 @@
   cursor: not-allowed;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .input-wrapper h3 {
     margin: 8px 2px;
     font-size: 16px;
@@ -83,7 +83,7 @@
 
   .input-surface {
     --input-border-radius: 16px;
-    min-height: var(--touch-target-min);
+    min-height: 40px;
     padding-inline: var(--space-16);
   }
 }
@@ -98,4 +98,11 @@
   min-width: 32px;
   height: 32px;
   padding: 0;
+}
+
+@media (max-width: 599px) {
+  .input-field,
+  .input-adorned {
+    height: 40px;
+  }
 }

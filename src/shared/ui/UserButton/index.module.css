@@ -52,12 +52,21 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .user-button {
+    height: 40px;
     gap: var(--space-8);
   }
 
-  .display-name {
-    font-size: 1rem;
+  .user-button[data-size="compact"] {
+    height: auto;
   }
+
+  .display-name {
+    font-size: 0.9375rem;
+  }
+}
+
+.user-button:active {
+  filter: var(--press-filter);
 }

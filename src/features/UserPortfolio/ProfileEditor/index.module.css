@@ -32,7 +32,7 @@
   gap: var(--space-8);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 599px) {
   .profile-editor .social-input {
     padding-inline: var(--space-12);
     gap: var(--space-4);

@@ -5,6 +5,13 @@
   resize: vertical;
 }
 
+@media (max-width: 599px) {
+  .textarea-field {
+    min-height: 88px;
+    padding-block: var(--space-8);
+  }
+}
+
 textarea[data-auto-resizing="true"] {
   resize: none;
   overflow: hidden;

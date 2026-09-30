@@ -66,10 +66,10 @@
   font-weight: 700;
 }
 
-@media (max-width: 767px) {
+@media (pointer: coarse) {
   .like-button {
-    min-width: var(--touch-target-min);
-    height: var(--touch-target-min);
+    min-width: 40px;
+    height: 40px;
   }
 }
 
@@ -81,4 +81,8 @@
   .like-button[data-liked="false"]:hover {
     color: var(--font-muted-color);
   }
+}
+
+.like-button:not(:disabled):active {
+  filter: var(--press-filter);
 }

@@ -13,11 +13,11 @@
 }
 
 .public-icon {
-  color: var(--link-color);
+  color: color-mix(in srgb, var(--link-color) 55%, var(--font-muted-color));
 }
 
 .private-icon {
-  color: var(--error-color);
+  color: color-mix(in srgb, var(--error-color) 50%, var(--font-muted-color));
 }
 
 .visibility-label {

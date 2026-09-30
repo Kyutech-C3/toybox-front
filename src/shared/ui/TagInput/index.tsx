@@ -54,7 +54,6 @@ const TagInput = ({
         }}
         ariaLabel="作品に付けるタグを探す"
         searchPlaceholder="既存のタグを探す"
-        layout="editor"
         onCreateTag={onCreateTag}
       />
       {failedTags.length > 0 && (

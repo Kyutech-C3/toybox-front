@@ -32,10 +32,10 @@
   }
 
   &[data-size="small"] {
-    height: 32px;
-    min-width: 32px;
-    padding-inline: var(--space-12);
-    font-size: 12px;
+    height: 36px;
+    min-width: 36px;
+    padding-inline: var(--space-16);
+    font-size: 13px;
   }
 
   &[data-icon-only="true"] {
@@ -44,7 +44,7 @@
   }
 
   &[data-icon-only="true"][data-size="small"] {
-    width: 32px;
+    width: 36px;
   }
 
   &[data-variant="ghost"] {
@@ -117,17 +117,54 @@
 
 /* タグとコード内の補助操作は、本文と同じ密度で表示する。 */
 .button[data-size="compact"] {
-  height: 25px;
-  min-width: 25px;
+  height: 30px;
+  min-width: 30px;
   padding-inline: var(--space-12);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .button[data-size="compact"][data-icon-only="true"] {
-  width: 25px;
+  width: 30px;
   padding: 0;
 }
 
 .button[data-size="compact"] .icon {
-  font-size: 16px;
+  font-size: 18px;
+}
+
+@media (pointer: coarse) {
+  .button[data-size="small"] {
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .button[data-size="small"][data-icon-only="true"] {
+    width: 40px;
+  }
+
+  .button[data-size="compact"] {
+    height: 32px;
+    min-width: 32px;
+  }
+
+  .button[data-size="compact"][data-icon-only="true"] {
+    width: 32px;
+  }
+}
+
+@media (max-width: 599px) {
+  .button[data-size="default"] {
+    height: 40px;
+    min-width: 40px;
+    padding-inline: var(--space-16);
+  }
+
+  .button[data-size="default"][data-icon-only="true"] {
+    width: 40px;
+    padding: 0;
+  }
+}
+
+.button:not(:disabled):active {
+  filter: var(--press-filter);
 }
