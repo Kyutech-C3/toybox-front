@@ -1,4 +1,4 @@
-.publish-buttons-bar {
+.action-bar {
   position: sticky;
   bottom: 0;
   z-index: 20;
@@ -10,28 +10,27 @@
   pointer-events: none;
 }
 
-.publish-buttons-wrapper {
-  gap: var(--space-12);
+.actions {
   width: min(100%, var(--content-read-width));
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: var(--space-12);
 }
 
-.publish-buttons-wrapper > * {
+.actions > * {
   pointer-events: auto;
 }
 
 @media (max-width: 767px) {
-  .publish-buttons-bar {
+  .action-bar {
     position: static;
     z-index: auto;
     padding: var(--space-8) 0 var(--space-12);
     background: none;
   }
 
-  .publish-buttons-wrapper {
-    flex-direction: column-reverse;
-    align-items: stretch;
-    justify-content: flex-start;
+  .actions {
+    gap: var(--space-8);
   }
 }

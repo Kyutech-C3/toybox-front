@@ -1,6 +1,5 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ArrowDropUpRoundedIcon from "@mui/icons-material/ArrowDropUpRounded";
 import { mutate } from "swr";
 
 import { deletePendingResources } from "../../api/deletePendingResources";
@@ -19,20 +18,17 @@ import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { getWorkDetailSWRKey } from "@/features/WorkDetail/hook/useWorkDetail";
-import Button from "@/shared/ui/Button";
-import Listbox from "@/shared/ui/Listbox";
+import SplitButton from "@/shared/ui/SplitButton";
 import useToast from "@/shared/ui/Toast/hook/useToast";
-import VisibilityIcon from "@/shared/ui/VisibilityIcon";
+import VisibilityIcon, {
+  VISIBILITY_TEXT_LABELS,
+} from "@/shared/ui/VisibilityIcon";
 import { ApiError } from "@/util/fetchData";
 
 import type { WorkVisibility } from "@/shared/types/work";
 import type { ListboxOption } from "@/shared/ui/Listbox";
 
-const VISIBILITY_LABELS: Record<WorkVisibility, string> = {
-  public: "全体公開",
-  private: "限定公開",
-  draft: "下書き",
-};
+const VISIBILITY_LABELS = VISIBILITY_TEXT_LABELS;
 
 const VISIBILITY_OPTIONS = [
   {
@@ -54,7 +50,6 @@ const VISIBILITY_OPTIONS = [
     icon: <VisibilityIcon visibility="draft" />,
   },
 ] satisfies ListboxOption<WorkVisibility>[];
-const VISIBILITY_LISTBOX_ID = "work-editor-visibility-listbox";
 const VISIBILITY_CONFIRM_MESSAGES: Partial<Record<WorkVisibility, string>> = {
   public:
     "インターネット上の全ユーザがこのToyを閲覧できます。本当に全体公開しますか？",
@@ -92,9 +87,7 @@ const PublishButton = () => {
   const accessToken = useAuthStore((state) => state.accessToken);
   const storeApi = useWorkEditorStoreApi();
   const { showToast } = useToast();
-  const [isListboxOpen, setIsListboxOpen] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const listboxTriggerRef = useRef<HTMLButtonElement>(null);
   const navigate = useNavigate();
 
   const hasAttemptedSubmit = useWorkEditorStore(
@@ -188,79 +181,45 @@ const PublishButton = () => {
       : visibilityLabel;
 
   return (
-    <div
-      className={styles["publish-button-wrapper"]}
-      data-disabled={isSubmitDisabled ? "true" : "false"}
-      data-visibility={visibility}
-    >
-      <Button
-        variant={visibility === "draft" ? "primary" : "accent"}
-        className={styles["publish-button"]}
-        onClick={() => void handleSubmit()}
-        disabled={isSubmitDisabled}
-        isLoading={isSubmitting}
-        icon={<VisibilityIcon visibility={visibility} />}
-      >
-        {submitLabel}
-      </Button>
-      <span className={styles["button-span"]} />
-      <Button
-        variant={visibility === "draft" ? "primary" : "accent"}
-        isIconOnly
-        icon={<ArrowDropUpRoundedIcon />}
-        className={styles["listbox-trigger"]}
-        onClick={() => setIsListboxOpen((prev) => !prev)}
-        disabled={isSubmitDisabled}
-        aria-label="保存形式を選択"
-        aria-haspopup="listbox"
-        aria-expanded={isListboxOpen}
-        aria-controls={VISIBILITY_LISTBOX_ID}
-        ref={listboxTriggerRef}
-      />
-      <span className={styles["listbox-container"]}>
-        <Listbox
-          id={VISIBILITY_LISTBOX_ID}
-          isOpen={isListboxOpen}
-          options={VISIBILITY_OPTIONS}
-          onClose={() => setIsListboxOpen(false)}
-          triggerRef={listboxTriggerRef}
-          onSelect={(value) => {
-            setIsListboxOpen(false);
-            setVisibility(value);
-          }}
-          selectedValue={visibility}
-          placement="top"
-          align="end"
-          textAlign="center"
-          ariaLabel="保存形式"
-          className={styles["visibility-listbox"]}
-        />
-      </span>
-      {hasUnsettledBackendWork && (
-        <output className={styles["upload-notice"]}>
-          アップロードまたはタグの処理を完了してから保存できます
-        </output>
-      )}
-      {hasInvalidUrls && (
-        <output className={styles["upload-notice"]}>
-          URL入力のエラーを解消してから保存できます
-        </output>
-      )}
-      {hasAttemptedSubmit &&
-        hasValidationErrors &&
-        !submitError &&
-        !isSubmitDisabled && (
-          <span className={styles["submit-error"]} role="alert">
-            入力内容に{Object.keys(validationErrors).length}
-            件のエラーがあります。各項目を確認してください。
-          </span>
-        )}
-      {submitError && (
-        <span className={styles["submit-error"]} role="alert">
-          {submitError}
-        </span>
-      )}
-    </div>
+    <SplitButton
+      label={submitLabel}
+      icon={<VisibilityIcon visibility={visibility} />}
+      variant={visibility === "draft" ? "primary" : "accent"}
+      onClick={() => void handleSubmit()}
+      isDisabled={isSubmitDisabled}
+      isLoading={isSubmitting}
+      menuTriggerLabel="保存形式を選択"
+      menuLabel="保存形式"
+      options={VISIBILITY_OPTIONS}
+      selectedValue={visibility}
+      onSelect={setVisibility}
+      notice={
+        <>
+          {hasUnsettledBackendWork && (
+            <output>
+              アップロードまたはタグの処理を完了してから保存できます
+            </output>
+          )}
+          {hasInvalidUrls && (
+            <output>URL入力のエラーを解消してから保存できます</output>
+          )}
+          {hasAttemptedSubmit &&
+            hasValidationErrors &&
+            !submitError &&
+            !isSubmitDisabled && (
+              <span className={styles["submit-error"]} role="alert">
+                入力内容に{Object.keys(validationErrors).length}
+                件のエラーがあります。各項目を確認してください。
+              </span>
+            )}
+          {submitError && (
+            <span className={styles["submit-error"]} role="alert">
+              {submitError}
+            </span>
+          )}
+        </>
+      }
+    />
   );
 };
 export default PublishButton;
