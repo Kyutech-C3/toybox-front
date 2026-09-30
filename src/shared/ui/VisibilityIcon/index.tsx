@@ -18,6 +18,12 @@ const VISIBILITY_LABELS: Record<WorkVisibility, string> = {
   draft: "下書き",
 };
 
+export const VISIBILITY_TEXT_LABELS: Record<WorkVisibility, string> = {
+  public: "全体",
+  private: "限定",
+  draft: "下書き",
+};
+
 const VisibilityIcon = ({
   visibility,
   className,
@@ -51,7 +57,9 @@ const VisibilityIcon = ({
         <span className={styles["visibility-glyph"]} aria-hidden="true">
           {icon}
         </span>
-        <span className={styles["visibility-label"]}>{label}</span>
+        <span className={styles["visibility-label"]}>
+          {VISIBILITY_TEXT_LABELS[visibility]}
+        </span>
       </span>
     );
   }
