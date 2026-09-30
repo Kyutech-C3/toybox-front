@@ -30,12 +30,39 @@ const INITIAL_TAGS: TagDetail[] = [
   },
 ];
 
-const TagInputPreview = () => {
-  const [options, setOptions] = useState(INITIAL_TAGS);
-  const [selectedIDs, setSelectedIDs] = useState<string[]>(["react"]);
+const MANY_TAGS: TagDetail[] = Array.from({ length: 40 }, (_, index) => ({
+  ...INITIAL_TAGS[0],
+  id: `tag-${index + 1}`,
+  name: index % 4 === 0 ? `少し長いタグ${index + 1}` : `タグ${index + 1}`,
+  work_count: 40 - index,
+}));
+
+type TagInputPreviewProps = {
+  initialTags?: TagDetail[];
+  initialSelectedIDs?: string[];
+  isOnPaper?: boolean;
+};
+
+const TagInputPreview = ({
+  initialTags = INITIAL_TAGS,
+  initialSelectedIDs = ["react"],
+  isOnPaper = false,
+}: TagInputPreviewProps) => {
+  const [options, setOptions] = useState(initialTags);
+  const [selectedIDs, setSelectedIDs] = useState<string[]>(initialSelectedIDs);
 
   return (
-    <div style={{ width: "min(480px, 100%)" }}>
+    <div
+      style={{
+        boxSizing: "border-box",
+        width: "min(640px, 100%)",
+        ...(isOnPaper && {
+          padding: 24,
+          borderRadius: 25,
+          background: "var(--paper-color)",
+        }),
+      }}
+    >
       <TagInput
         heading="タグ"
         tags={options.filter((tag) => selectedIDs.includes(tag.id))}
@@ -96,16 +123,17 @@ export const Default: Story = {
     const surface = input.parentElement;
     if (!surface) throw new Error("入力欄の枠が見つかりません");
     const surfaceRect = surface.getBoundingClientRect();
-    await expect(surfaceRect.height).toBe(32);
-    await expect(
-      canvas.getByRole("button", { name: "新規作成" }).getBoundingClientRect()
-        .height,
-    ).toBe(32);
+    await expect(surfaceRect.height).toBe(36);
     await expect(
       canvas
-        .getByRole("tablist", { name: "タグ一覧の表示" })
+        .getByRole("button", { name: "タグを新規作成" })
         .getBoundingClientRect().height,
-    ).toBe(32);
+    ).toBe(36);
+    await expect(
+      canvas
+        .getByRole("radiogroup", { name: "タグの並び順" })
+        .getBoundingClientRect().height,
+    ).toBe(36);
     const buttonRect = clearButton.getBoundingClientRect();
     await expect(buttonRect.right).toBeLessThan(surfaceRect.right);
     await expect(buttonRect.left).toBeGreaterThan(
@@ -116,4 +144,14 @@ export const Default: Story = {
     await expect(input).toHaveFocus();
     await expect(canvas.getByText("0/50")).toBeVisible();
   },
+};
+
+export const ManyTagsOnPaper: Story = {
+  render: () => (
+    <TagInputPreview
+      initialTags={MANY_TAGS}
+      initialSelectedIDs={["tag-2", "tag-5"]}
+      isOnPaper
+    />
+  ),
 };

@@ -1,4 +1,6 @@
 .tag-input-wrapper {
+  --tag-fade-color: var(--paper-color);
+
   display: flex;
   flex-direction: column;
   gap: var(--space-16);
