@@ -3,6 +3,8 @@ import { expect, waitFor, within } from "storybook/test";
 
 import Card from "./index";
 
+import LikeButton from "@/shared/ui/LikeButton";
+
 import type { Meta, StoryObj } from "@storybook/react";
 import type { Tag, Work } from "@/shared/types/work";
 
@@ -66,6 +68,9 @@ export const Default: Story = {};
 export const Editable: Story = {
   args: {
     viewerUserID: MOCK_WORK.user.id,
+    favoriteButton: (
+      <LikeButton isLiked={false} isCountVisible={false} onToggle={() => {}} />
+    ),
   },
 };
 
@@ -78,6 +83,9 @@ export const Mobile: Story = {
   },
   args: {
     viewerUserID: MOCK_WORK.user.id,
+    favoriteButton: (
+      <LikeButton isLiked={false} isCountVisible={false} onToggle={() => {}} />
+    ),
   },
 };
 

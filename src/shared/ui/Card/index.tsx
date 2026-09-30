@@ -100,6 +100,16 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
         {favoriteButton && (
           <div className={styles["card-favorite"]}>{favoriteButton}</div>
         )}
+        {isEditable && (
+          <Link
+            to={`/edit/${work.id}`}
+            className={styles["edit-link"]}
+            aria-label={`${work.title}を編集する`}
+            title="編集する"
+          >
+            <EditSquareIcon />
+          </Link>
+        )}
       </div>
       <div className={styles["card-body"]}>
         <div className={styles["card-headline"]}>
@@ -155,16 +165,6 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
           </p>
         </div>
       </div>
-      {isEditable && (
-        <Link
-          to={`/edit/${work.id}`}
-          className={styles["edit-link"]}
-          aria-label={`${work.title}を編集する`}
-          title="編集する"
-        >
-          <EditSquareIcon />
-        </Link>
-      )}
     </article>
   );
 };

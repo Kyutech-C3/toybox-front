@@ -62,8 +62,8 @@
   --like-outline-width: 1;
 
   position: absolute;
-  right: var(--space-4);
   bottom: var(--space-4);
+  left: var(--space-4);
   z-index: 2;
   display: flex;
 }
@@ -98,30 +98,38 @@
 
 .edit-link {
   position: absolute;
-  top: calc(-1 * var(--space-4));
-  right: calc(-1 * var(--space-4));
+  top: var(--space-4);
+  right: var(--space-4);
   z-index: 2;
-  width: 26px;
-  height: 26px;
-  border-radius: 4px;
+  box-sizing: border-box;
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--paper-color) 60%, transparent);
+  border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-color);
-  color: var(--on-primary-color);
-  font-size: 22px;
-  transition: box-shadow var(--hover-transition);
+  background: color-mix(in srgb, var(--paper-color) 72%, transparent);
+  backdrop-filter: blur(8px) saturate(1.4);
+  box-shadow: 0 2px 8px var(--shadow-soft-color);
+  color: var(--font-color);
+  font-size: 18px;
+  transition:
+    background-color var(--hover-transition),
+    box-shadow var(--hover-transition);
 }
 
 .edit-link::after {
   position: absolute;
-  inset: -9px;
+  inset: -7px;
   content: "";
 }
 
 .edit-link:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-color);
   box-shadow: var(--hover-shadow);
-  color: var(--font-color);
+  color: var(--on-primary-color);
 }
 
 .edit-link:focus-visible {
@@ -290,7 +298,10 @@
   }
 
   .edit-link:hover {
-    box-shadow: none;
+    border-color: color-mix(in srgb, var(--paper-color) 60%, transparent);
+    background: color-mix(in srgb, var(--paper-color) 72%, transparent);
+    box-shadow: 0 2px 8px var(--shadow-soft-color);
+    color: var(--font-color);
   }
 }
 
@@ -309,4 +320,14 @@
   background: var(--background-color);
   color: var(--font-muted-color);
   font-size: 48px;
+}
+
+:global(:root[data-theme="dark"]) .card-wrapper {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--font-color) 10%, transparent),
+    0 2px 8px var(--shadow-soft-color);
+}
+
+:global(:root[data-theme="dark"]) .edit-link {
+  border-color: color-mix(in srgb, var(--font-color) 18%, transparent);
 }
