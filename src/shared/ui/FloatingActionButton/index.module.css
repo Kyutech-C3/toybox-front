@@ -1,8 +1,8 @@
-.floating-action {
+.header-action {
   display: flex;
 }
 
-.floating-action .floating-action-button[data-size] {
+.header-action .header-action-button[data-size] {
   height: 36px;
   min-width: 36px;
   padding-inline: var(--space-12);
@@ -14,38 +14,40 @@
   font-size: 18px;
 }
 
-@media (max-width: 767px) {
+.floating-action {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .header-action {
+    display: none;
+  }
+
   .floating-action {
     position: fixed;
     right: var(--page-margin);
     bottom: var(--page-margin);
-    z-index: 50;
+    z-index: 25;
+    display: flex;
   }
 
   .floating-action .floating-action-button[data-size] {
     width: 44px;
     height: 44px;
     min-width: 44px;
-    padding: 0;
-    border-color: var(--primary-color);
     border-radius: 9999px;
-    background: var(--primary-color);
-    color: var(--on-primary-color);
     box-shadow: 0 4px 12px var(--shadow-soft-color);
   }
 
-  .icon {
+  .floating-icon {
+    display: inline-flex;
+    align-items: center;
     font-size: 26px;
-  }
-
-  .label {
-    display: none;
   }
 }
 
-@media (max-width: 767px) and (hover: hover) {
+@media (max-width: 599px) and (hover: hover) {
   .floating-action .floating-action-button[data-size]:not(:disabled):hover {
-    border-color: var(--primary-color);
     background: var(--primary-color);
     box-shadow: var(--hover-shadow);
   }

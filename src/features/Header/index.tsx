@@ -1,5 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
@@ -20,6 +20,8 @@ import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 const Header = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isEditingWork = pathname.startsWith("/edit/");
   const { showToast } = useToast();
   const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
 
@@ -140,6 +142,7 @@ const Header = () => {
             label="投稿"
             icon={<AddRoundedIcon fontSize="inherit" />}
             onClick={() => navigate("/edit/new")}
+            isFloatingHidden={isEditingWork}
           />
         )}
       </div>
