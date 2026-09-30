@@ -1,7 +1,7 @@
 .pagination {
   display: flex;
   align-items: center;
-  gap: var(--space-12);
+  gap: var(--space-8);
   background: transparent;
   padding: var(--space-8) 0;
 }
@@ -12,9 +12,9 @@
 }
 
 .listbox-trigger {
-  height: 48px;
-  min-width: 48px;
-  padding: 0 var(--space-12);
+  height: 36px;
+  min-width: 36px;
+  padding: 0 var(--space-8);
   border-radius: 9999px;
   border: none;
   background: transparent;
@@ -52,14 +52,18 @@
   }
 
   .listbox-trigger {
-    height: var(--touch-target-min);
-    min-width: var(--touch-target-min);
-    padding: 0 var(--space-8);
     font-size: 16px;
   }
 
   .page-listbox {
     max-height: min(240px, calc(100vh - 32px));
+  }
+}
+
+@media (pointer: coarse) {
+  .listbox-trigger {
+    height: 40px;
+    min-width: 40px;
   }
 }
 

@@ -127,6 +127,6 @@
 
 @media (max-width: 767px) {
   .popover-item {
-    min-height: var(--touch-target-min);
+    min-height: 40px;
   }
 }
