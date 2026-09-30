@@ -57,6 +57,7 @@
   --hover-transition: 0.2s ease;
   --hover-shadow: 0 6px 12px var(--shadow-soft-color);
   --hover-shadow-around: 0 0 16px 4px var(--shadow-soft-color);
+  --press-filter: brightness(0.9);
 
   color: var(--font-color);
   background-color: var(--background-color);
@@ -67,6 +68,7 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :root[data-theme="dark"] {
@@ -88,6 +90,7 @@
     transparent
   );
   --shadow-soft-color: rgba(0, 0, 0, 0.4);
+  --press-filter: brightness(1.25);
 }
 
 @media (max-width: 767px) {

@@ -331,3 +331,7 @@
 :global(:root[data-theme="dark"]) .edit-link {
   border-color: color-mix(in srgb, var(--font-color) 18%, transparent);
 }
+
+.edit-link:active {
+  filter: var(--press-filter);
+}

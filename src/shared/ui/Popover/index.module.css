@@ -130,3 +130,7 @@
     min-height: 40px;
   }
 }
+
+.popover-item:active {
+  filter: var(--press-filter);
+}

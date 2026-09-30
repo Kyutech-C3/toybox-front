@@ -220,3 +220,8 @@
     transition: none;
   }
 }
+
+.segment:active,
+.toggle:active .toggle-thumb {
+  filter: var(--press-filter);
+}

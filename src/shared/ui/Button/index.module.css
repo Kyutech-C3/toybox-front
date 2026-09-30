@@ -164,3 +164,7 @@
     padding: 0;
   }
 }
+
+.button:not(:disabled):active {
+  filter: var(--press-filter);
+}
