@@ -46,12 +46,4 @@
   .send-wrap {
     flex-wrap: wrap;
   }
-
-  .send-button-slot {
-    flex: 1;
-  }
-
-  .send-button-slot > button {
-    width: 100%;
-  }
 }
