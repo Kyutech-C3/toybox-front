@@ -141,6 +141,7 @@ export const Pagination = ({
             key={item.value}
             variant="primary"
             size="small"
+            className={styles["page-button"]}
             isActive={item.value === currentPage}
             onClick={() => onPageChange(item.value)}
             ariaLabel={`ページ ${item.value}`}
