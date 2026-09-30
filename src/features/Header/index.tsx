@@ -13,6 +13,7 @@ import { getUserData } from "./api/getUserData";
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
+import FloatingActionButton from "@/shared/ui/FloatingActionButton";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 
@@ -135,20 +136,11 @@ const Header = () => {
           </Button>
         )}
         {accessToken && (
-          <div className={styles["new-work-button"]}>
-            <Button
-              variant="primary"
-              onClick={() => navigate("/edit/new")}
-              ariaLabel="投稿"
-              icon={
-                <span className={styles["new-work-icon"]}>
-                  <AddRoundedIcon fontSize="inherit" />
-                </span>
-              }
-            >
-              <span className={styles["new-work-label"]}>投稿</span>
-            </Button>
-          </div>
+          <FloatingActionButton
+            label="投稿"
+            icon={<AddRoundedIcon fontSize="inherit" />}
+            onClick={() => navigate("/edit/new")}
+          />
         )}
       </div>
     </header>

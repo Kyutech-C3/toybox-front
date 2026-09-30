@@ -30,7 +30,6 @@
   gap: var(--space-12);
 }
 
-/* 黄色いヘッダー上ではテーマ操作も背景色に合わせる */
 .header-wrapper .login-wrapper .theme-toggle {
   color: var(--on-primary-color);
 }
@@ -46,61 +45,14 @@
   }
 }
 
-.new-work-icon {
-  display: inline-flex;
-  align-items: center;
-  font-size: 18px;
-}
-
 @media (max-width: 767px) {
   .login-wrapper {
     gap: var(--space-8);
   }
-
-  .new-work-label {
-    display: none;
-  }
-
-  .new-work-icon {
-    font-size: 20px;
-  }
-
-  .new-work-button {
-    position: fixed;
-    right: var(--page-margin);
-    bottom: var(--page-margin);
-    z-index: 50;
-  }
-
-  .new-work-button button {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    padding: 0;
-    border-radius: 9999px;
-    border-color: var(--primary-color);
-    background: var(--primary-color);
-    color: var(--on-primary-color);
-    box-shadow: 0 4px 12px var(--shadow-soft-color);
-  }
-
-  .new-work-button button:not([data-disabled="true"]):hover {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    box-shadow: var(--hover-shadow);
-  }
-}
-
-@media (hover: none) {
-  .new-work-button button:not([data-disabled="true"]):hover {
-    border-color: var(--primary-color);
-    box-shadow: 0 4px 12px var(--shadow-soft-color);
-  }
 }
 
 /* ヘッダー内の操作を36pxのアバターと揃える。 */
-.login-wrapper > button,
-.new-work-button button {
+.login-wrapper > button {
   height: 36px;
   min-width: 36px;
   padding-inline: var(--space-12);
@@ -109,11 +61,4 @@
 .login-wrapper > button[data-icon-only="true"] {
   width: 36px;
   padding: 0;
-}
-
-@media (max-width: 767px) {
-  .new-work-button button {
-    width: 36px;
-    padding: 0;
-  }
 }
