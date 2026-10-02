@@ -6,9 +6,12 @@ import {
   useRef,
   useState,
 } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 
 import styles from "./index.module.css";
+
+import Button from "@/shared/ui/Button";
 
 import type { CSSProperties, ReactNode } from "react";
 
@@ -198,7 +201,10 @@ const CollapsibleTagList = ({
     if (!focusRequest) return;
     setFocusRequest(null);
     if (focusRequest === "expand-button") {
-      expandButtonRef.current?.focus();
+      const focusTarget =
+        expandButtonRef.current ??
+        panelRef.current?.querySelector<HTMLElement>("input, button");
+      focusTarget?.focus();
       return;
     }
     const list = listRef.current;
@@ -268,6 +274,21 @@ const CollapsibleTagList = ({
             </button>
           )}
         </div>
+        {isExpanded && (
+          <Button
+            variant="ghost"
+            isIconOnly
+            className={styles["close-button"]}
+            icon={<CloseRoundedIcon />}
+            aria-label="タグの展開を閉じる"
+            aria-controls={listID}
+            onClick={() => {
+              onExpandedChange(false);
+              if (listRef.current) listRef.current.scrollTop = 0;
+              setFocusRequest("expand-button");
+            }}
+          />
+        )}
       </div>
     </div>
   );

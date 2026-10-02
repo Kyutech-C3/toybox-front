@@ -183,7 +183,7 @@ export const ManyTagsOnPaper: Story = {
 
     await userEvent.click(expandButton);
     await expect(unit).toHaveAttribute("data-expanded", "true");
-    await expect(list.getBoundingClientRect().height).toBeLessThanOrEqual(280);
+    await expect(list.getBoundingClientRect().height).toBeLessThanOrEqual(400);
     const sortToggle = canvas.queryByRole("button", { name: /タグの並び順/ });
     const controls = [
       sortToggle ?? canvas.getByRole("radiogroup", { name: "タグの並び順" }),
@@ -222,6 +222,36 @@ export const ManyTagsOnPaper: Story = {
     await expect(
       canvas.getByRole("button", { name: "選択中のタグはありません" }),
     ).toBeDisabled();
+    const closeButton = canvas.getByRole("button", {
+      name: "タグの展開を閉じる",
+    });
+    const panel = unit.parentElement;
+    if (!panel) throw new Error("タグパネルが見つかりません");
+    const panelRect = panel.getBoundingClientRect();
+    const closeRect = closeButton.getBoundingClientRect();
+    await expect(closeRect.top).toBeGreaterThanOrEqual(panelRect.bottom);
+    await expect(closeRect.right).toBeCloseTo(panelRect.right - 1, 0);
+    await expect(getComputedStyle(closeButton).backgroundColor).toBe(
+      "rgba(0, 0, 0, 0)",
+    );
+    await expect(getComputedStyle(closeButton).borderTopColor).toBe(
+      "rgba(0, 0, 0, 0)",
+    );
+    await userEvent.click(closeButton);
+    await expect(unit).toHaveAttribute("data-expanded", "false");
+    await expect(
+      canvas.getByRole("button", { name: "すべてのタグ" }),
+    ).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect(unit).toHaveAttribute("data-expanded", "true");
+    Array.from(list.querySelectorAll("button")).at(-1)?.focus();
+    await userEvent.tab();
+    await expect(
+      canvas.getByRole("button", { name: "タグの展開を閉じる" }),
+    ).toHaveFocus();
+    await userEvent.keyboard(" ");
+    await expect(unit).toHaveAttribute("data-expanded", "false");
+    await userEvent.click(canvas.getByRole("button", { name: "すべてのタグ" }));
     const backdrop = unit.parentElement?.parentElement?.querySelector(
       ':scope > [aria-hidden="true"]',
     );

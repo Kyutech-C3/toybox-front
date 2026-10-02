@@ -38,6 +38,19 @@
   animation: tag-panel-open 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.15);
 }
 
+.panel .close-button[data-variant="ghost"] {
+  position: absolute;
+  top: calc(100% + var(--space-8));
+  right: 0;
+  background: transparent;
+  border-color: transparent;
+}
+
+.panel .close-button[data-variant="ghost"]:not(:disabled):hover {
+  background: transparent;
+  box-shadow: none;
+}
+
 .toolbar {
   min-width: 0;
 }
@@ -154,7 +167,7 @@
 }
 
 .tag-list-unit[data-expanded="true"] .tag-list {
-  max-height: min(280px, 45vh);
+  max-height: min(400px, 60vh);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: thin;
