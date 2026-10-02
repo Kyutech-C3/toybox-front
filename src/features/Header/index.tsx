@@ -129,12 +129,13 @@ const Header = () => {
         ) : (
           <Button
             variant="primary"
+            className={styles["login-button"]}
             onClick={handleLogin}
             isLoading={isLoggingIn || (!!accessToken && !hasLoadFailed)}
             icon={<LoginRoundedIcon />}
             ariaLabel="ログイン"
           >
-            ログイン
+            <span className={styles["login-label"]}>ログイン</span>
           </Button>
         )}
         {accessToken && (
