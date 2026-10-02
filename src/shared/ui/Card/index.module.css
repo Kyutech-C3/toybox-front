@@ -16,8 +16,10 @@
 }
 
 .work-link {
+  min-width: 0;
   display: -webkit-box;
   overflow: hidden;
+  overflow-wrap: anywhere;
   color: var(--font-color);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
