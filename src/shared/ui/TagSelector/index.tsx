@@ -56,6 +56,7 @@ const TagSelector = ({
   onCreateTag,
 }: TagSelectorProps) => {
   const [keyword, setKeyword] = useState("");
+  const [isExpanded, setIsExpanded] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [sortOrder, setSortOrder] = useState<TagSortOrder>("popular");
   const [isCreating, setCreating] = useState(false);
@@ -117,87 +118,98 @@ const TagSelector = ({
     }
   };
 
+  const toolbar = (
+    <div className={styles["tag-toolbar"]}>
+      <SegmentedControl
+        options={TAG_SORT_OPTIONS}
+        value={sortOrder}
+        onChange={(value) => {
+          setSortOrder(value);
+          if (value === "name") setIsExpanded(true);
+        }}
+        ariaLabel="タグの並び順"
+      />
+      <form className={styles["search-form"]} onSubmit={handleSubmit}>
+        <Input
+          type="search"
+          ref={searchInputRef}
+          className={styles["search-field"]}
+          containerClassName={styles["search-surface"]}
+          trailingContent={
+            <Button
+              variant="ghost"
+              size="compact"
+              isIconOnly
+              icon={<CloseRoundedIcon />}
+              disabled={keyword === "" || isCreating}
+              aria-label="タグの入力をクリア"
+              onClick={() => {
+                setKeyword("");
+                searchInputRef.current?.focus();
+              }}
+            />
+          }
+          aria-label={ariaLabel}
+          placeholder={searchPlaceholder}
+          value={keyword}
+          readOnly={isCreating}
+          maxLength={onCreateTag ? 50 : undefined}
+          isCharacterCountVisible={!!onCreateTag}
+          data-character-count-control={onCreateTag ? true : undefined}
+          onChange={(value) => {
+            setKeyword(value);
+            if (value.length > 0) setIsExpanded(true);
+          }}
+        />
+        {onCreateTag && (
+          <Button
+            variant="accent"
+            size="small"
+            className={styles["create-button"]}
+            isLoading={isCreating}
+            disabled={!canCreateTag || isCreating}
+            aria-label={isCreating ? "タグを作成中" : "タグを新規作成"}
+            onClick={() => void handleCreateTag()}
+          >
+            <span className={styles["create-label"]}>
+              {isCreating ? "作成中…" : "新規作成"}
+            </span>
+            <span className={styles["create-symbol"]} aria-hidden="true">
+              <AddRoundedIcon fontSize="inherit" />
+            </span>
+          </Button>
+        )}
+      </form>
+      <Button
+        variant="destructive"
+        size="small"
+        className={styles["clear-button"]}
+        disabled={selectedTags.length === 0}
+        aria-label={
+          selectedTags.length > 0
+            ? `選択中の${selectedTags.length}件のタグをクリア`
+            : "選択中のタグはありません"
+        }
+        icon={<FilterAltOffRoundedIcon />}
+        onClick={onClearTags}
+      >
+        <span className={styles["clear-label"]}>クリア</span>
+        {selectedTags.length > 0 && (
+          <span className={styles["selected-count"]}>
+            {selectedTags.length}
+          </span>
+        )}
+      </Button>
+    </div>
+  );
+
   return (
     <section className={styles["tag-search"]} aria-label={ariaLabel}>
-      <div className={styles["tag-toolbar"]}>
-        <SegmentedControl
-          options={TAG_SORT_OPTIONS}
-          value={sortOrder}
-          onChange={setSortOrder}
-          ariaLabel="タグの並び順"
-        />
-        <form className={styles["search-form"]} onSubmit={handleSubmit}>
-          <Input
-            type="search"
-            ref={searchInputRef}
-            className={styles["search-field"]}
-            containerClassName={styles["search-surface"]}
-            trailingContent={
-              <Button
-                variant="ghost"
-                size="compact"
-                isIconOnly
-                icon={<CloseRoundedIcon />}
-                disabled={keyword === "" || isCreating}
-                aria-label="タグの入力をクリア"
-                onClick={() => {
-                  setKeyword("");
-                  searchInputRef.current?.focus();
-                }}
-              />
-            }
-            aria-label={ariaLabel}
-            placeholder={searchPlaceholder}
-            value={keyword}
-            readOnly={isCreating}
-            maxLength={onCreateTag ? 50 : undefined}
-            isCharacterCountVisible={!!onCreateTag}
-            data-character-count-control={onCreateTag ? true : undefined}
-            onChange={setKeyword}
-          />
-          {onCreateTag && (
-            <Button
-              variant="accent"
-              size="small"
-              className={styles["create-button"]}
-              isLoading={isCreating}
-              disabled={!canCreateTag || isCreating}
-              aria-label={isCreating ? "タグを作成中" : "タグを新規作成"}
-              onClick={() => void handleCreateTag()}
-            >
-              <span className={styles["create-label"]}>
-                {isCreating ? "作成中…" : "新規作成"}
-              </span>
-              <span className={styles["create-symbol"]} aria-hidden="true">
-                <AddRoundedIcon fontSize="inherit" />
-              </span>
-            </Button>
-          )}
-        </form>
-        <Button
-          variant="destructive"
-          size="small"
-          className={styles["clear-button"]}
-          disabled={selectedTags.length === 0}
-          aria-label={
-            selectedTags.length > 0
-              ? `選択中の${selectedTags.length}件のタグをクリア`
-              : "選択中のタグはありません"
-          }
-          icon={<FilterAltOffRoundedIcon />}
-          onClick={onClearTags}
-        >
-          <span className={styles["clear-label"]}>クリア</span>
-          {selectedTags.length > 0 && (
-            <span className={styles["selected-count"]}>
-              {selectedTags.length}
-            </span>
-          )}
-        </Button>
-      </div>
-
       {allTags.length > 0 || selectedTags.length > 0 ? (
         <CollapsibleTagList
+          toolbar={toolbar}
+          isExpanded={isExpanded}
+          onExpandedChange={setIsExpanded}
           isHeightKept={normalizedKeyword !== ""}
           leadingItems={selectedTags.map((tag) => (
             <Batch
@@ -230,7 +242,10 @@ const TagSelector = ({
           )}
         </CollapsibleTagList>
       ) : (
-        <p className={styles["hint"]}>表示できるタグはありません。</p>
+        <>
+          {toolbar}
+          <p className={styles["hint"]}>表示できるタグはありません。</p>
+        </>
       )}
     </section>
   );
