@@ -27,7 +27,6 @@
   background: var(--primary-color);
   box-shadow: 0 2px 6px var(--shadow-soft-color);
   transform: translateX(calc(var(--segment-index, 0) * (100% + 2px)));
-  transition: transform 0.25s ease;
 }
 
 .segmented-control[data-has-selection="false"] .segment-thumb {
@@ -104,12 +103,6 @@
   border: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .segment-thumb {
-    transition: none;
-  }
-}
-
 @media (hover: none) {
   .segment[data-selected="false"]:hover {
     background: transparent;
@@ -176,7 +169,6 @@
     transform: translateX(
       calc(var(--toggle-travel) * var(--toggle-position, 0))
     );
-    transition: transform 0.25s ease;
   }
 
   .toggle[data-position="1"] {
@@ -212,12 +204,6 @@
 @media (max-width: 599px) and (pointer: coarse) {
   .toggle-thumb {
     min-height: 34px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .toggle-thumb {
-    transition: none;
   }
 }
 

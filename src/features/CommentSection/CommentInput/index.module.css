@@ -39,6 +39,10 @@
 }
 
 @media (max-width: 599px) {
+  .send-hint {
+    display: none;
+  }
+
   .input-row {
     gap: var(--space-8);
   }
