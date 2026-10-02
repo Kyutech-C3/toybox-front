@@ -70,7 +70,6 @@ const CollapsibleTagList = ({
   const [keptHeight, setKeptHeight] = useState<number | null>(null);
   const [rowLayout, setRowLayout] = useState<RowLayout | null>(null);
   const [focusRequest, setFocusRequest] = useState<FocusRequest>(null);
-  const unitRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const listID = useId();
@@ -145,7 +144,7 @@ const CollapsibleTagList = ({
     const handleClick = (event: MouseEvent) => {
       if (
         event.target instanceof Node &&
-        !unitRef.current?.contains(event.target)
+        !panelRef.current?.contains(event.target)
       ) {
         collapse();
       }
@@ -153,14 +152,14 @@ const CollapsibleTagList = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       collapse();
-      if (unitRef.current?.contains(document.activeElement)) {
+      if (panelRef.current?.contains(document.activeElement)) {
         setFocusRequest("expand-button");
       }
     };
     const handleFocusIn = (event: FocusEvent) => {
       if (
         event.target instanceof Node &&
-        !unitRef.current?.contains(event.target)
+        !panelRef.current?.contains(event.target)
       ) {
         collapse();
       }
@@ -230,7 +229,6 @@ const CollapsibleTagList = ({
 
   return (
     <div
-      ref={unitRef}
       className={styles["tag-panel-unit"]}
       style={unitStyle}
       data-expanded={isExpanded ? "true" : "false"}

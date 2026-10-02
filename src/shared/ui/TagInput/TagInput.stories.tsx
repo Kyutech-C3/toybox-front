@@ -222,7 +222,12 @@ export const ManyTagsOnPaper: Story = {
     await expect(
       canvas.getByRole("button", { name: "選択中のタグはありません" }),
     ).toBeDisabled();
-    await userEvent.click(canvas.getByRole("heading", { name: "タグ" }));
+    const backdrop = unit.parentElement?.parentElement?.querySelector(
+      ':scope > [aria-hidden="true"]',
+    );
+    if (!(backdrop instanceof HTMLElement))
+      throw new Error("タグパネルの背景が見つかりません");
+    await userEvent.click(backdrop);
     await waitFor(() => expect(unit).toHaveAttribute("data-expanded", "false"));
   },
 };
