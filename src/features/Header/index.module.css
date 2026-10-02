@@ -62,3 +62,15 @@
   width: 36px;
   padding: 0;
 }
+
+@media (max-width: 599px) {
+  .header-wrapper .login-wrapper > .login-button {
+    width: 40px;
+    padding: 0;
+    gap: 0;
+  }
+
+  .login-label {
+    display: none;
+  }
+}

@@ -33,7 +33,6 @@
   font-size: 0.8125rem;
   font-weight: 500;
   text-decoration: none;
-  transition: background-color var(--hover-transition);
 }
 
 .link:focus-visible {
