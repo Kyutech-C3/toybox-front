@@ -1,6 +1,7 @@
 import { mutate } from "swr";
 
 import requestLogout from "./api/logout";
+import { recordLoginCallback } from "./loginCallback";
 import { useAuthStore } from "./store/useAuthStore";
 import { useUserStore } from "./store/useUserStore";
 
@@ -13,6 +14,24 @@ type AccessTokenResponse = {
 type LoginURLResponse = {
   url?: string;
 };
+
+const REFRESH_TIMEOUT_MS = 10_000;
+const CALLBACK_TIMEOUT_MS = 30_000;
+
+export class AuthRefreshError extends Error {
+  status: number | null;
+
+  constructor(status: number | null) {
+    super("Failed to refresh access token");
+    this.name = "AuthRefreshError";
+    this.status = status;
+  }
+
+  get isSessionInvalid(): boolean {
+    // 現行のBackendはCookie未送信・無効・期限切れを400で返す。
+    return this.status === 400 || this.status === 401;
+  }
+}
 
 let REFRESH_REQUEST: Promise<string> | null = null;
 let CALLBACK_REQUEST: Promise<string> | null = null;
@@ -46,7 +65,11 @@ const clearAuthSession = async () => {
   });
 };
 
-const getLoginUrl = async () => {
+const getLoginUrl = async (
+  returnTo = window.location.pathname +
+    window.location.search +
+    window.location.hash,
+) => {
   const request = await fetch(`${API_BASE_URL}/auth/discord`, {
     credentials: "include",
   });
@@ -60,21 +83,33 @@ const getLoginUrl = async () => {
     throw new Error("Login URL was not returned");
   }
 
+  recordLoginCallback(returnTo);
   return response.url;
 };
 
 const requestCallbackAccessToken = async (code: string, generation: number) => {
   const searchParams = new URLSearchParams({ code });
-  const request = await fetch(
-    `${API_BASE_URL}/auth/discord/callback?${searchParams.toString()}`,
-    { credentials: "include" },
+  const controller = new AbortController();
+  const timeoutID = window.setTimeout(
+    () => controller.abort(),
+    CALLBACK_TIMEOUT_MS,
   );
+  let response: AccessTokenResponse;
+  try {
+    const request = await fetch(
+      `${API_BASE_URL}/auth/discord/callback?${searchParams.toString()}`,
+      { credentials: "include", signal: controller.signal },
+    );
 
-  if (!request.ok) {
-    throw new Error("Failed to process Discord callback");
+    if (!request.ok) {
+      throw new Error("Failed to process Discord callback");
+    }
+
+    response = await request.json();
+  } finally {
+    window.clearTimeout(timeoutID);
   }
 
-  const response: AccessTokenResponse = await request.json();
   if (!response.access_token) {
     throw new Error("Access token was not returned");
   }
@@ -87,16 +122,9 @@ const requestCallbackAccessToken = async (code: string, generation: number) => {
 const authenticateWithCode = (code: string) => {
   if (!CALLBACK_REQUEST) {
     const generation = AUTH_REQUEST_GENERATION;
-    const request = requestCallbackAccessToken(code, generation)
-      .catch(async (error: unknown) => {
-        if (generation === AUTH_REQUEST_GENERATION) {
-          await clearAuthSession();
-        }
-        throw error;
-      })
-      .finally(() => {
-        if (CALLBACK_REQUEST === request) CALLBACK_REQUEST = null;
-      });
+    const request = requestCallbackAccessToken(code, generation).finally(() => {
+      if (CALLBACK_REQUEST === request) CALLBACK_REQUEST = null;
+    });
     CALLBACK_REQUEST = request;
   }
 
@@ -104,16 +132,30 @@ const authenticateWithCode = (code: string) => {
 };
 
 const requestAccessToken = async (generation: number) => {
-  const request = await fetch(`${API_BASE_URL}/auth/refresh`, {
-    method: "POST",
-    credentials: "include",
-  });
-
-  if (!request.ok) {
-    throw new Error("Failed to refresh access token");
+  assertAuthRequestIsCurrent(generation);
+  const controller = new AbortController();
+  const timeoutID = window.setTimeout(
+    () => controller.abort(),
+    REFRESH_TIMEOUT_MS,
+  );
+  let response: AccessTokenResponse;
+  try {
+    const request = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+      signal: controller.signal,
+    });
+    if (!request.ok) {
+      throw new AuthRefreshError(request.status);
+    }
+    response = await request.json();
+  } catch (error) {
+    if (error instanceof AuthRefreshError) throw error;
+    throw new AuthRefreshError(null);
+  } finally {
+    window.clearTimeout(timeoutID);
   }
 
-  const response: AccessTokenResponse = await request.json();
   if (!response.access_token) {
     throw new Error("Access token was not returned");
   }
@@ -126,9 +168,19 @@ const requestAccessToken = async (generation: number) => {
 const refreshAccessToken = () => {
   if (!REFRESH_REQUEST) {
     const generation = AUTH_REQUEST_GENERATION;
-    const request = requestAccessToken(generation)
+    // Cookieはタブ間で共有されるため、対応ブラウザでは更新を直列化する。
+    const refreshRequest = navigator.locks
+      ? navigator.locks.request("toybox-auth-refresh", () =>
+          requestAccessToken(generation),
+        )
+      : requestAccessToken(generation);
+    const request = refreshRequest
       .catch(async (error: unknown) => {
-        if (generation === AUTH_REQUEST_GENERATION) {
+        if (
+          generation === AUTH_REQUEST_GENERATION &&
+          error instanceof AuthRefreshError &&
+          error.isSessionInvalid
+        ) {
           await clearAuthSession();
         }
         throw error;
