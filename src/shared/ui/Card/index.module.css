@@ -16,8 +16,10 @@
 }
 
 .work-link {
+  min-width: 0;
   display: -webkit-box;
   overflow: hidden;
+  overflow-wrap: anywhere;
   color: var(--font-color);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -114,9 +116,7 @@
   box-shadow: 0 2px 8px var(--shadow-soft-color);
   color: var(--font-color);
   font-size: 18px;
-  transition:
-    background-color var(--hover-transition),
-    box-shadow var(--hover-transition);
+  transition: box-shadow var(--hover-transition);
 }
 
 .edit-link::after {

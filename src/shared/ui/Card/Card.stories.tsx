@@ -105,6 +105,24 @@ export const OverflowingTitleAndTags: Story = {
   },
 };
 
+export const RepeatedExclamationTitle: Story = {
+  args: {
+    work: { ...MOCK_WORK, title: `作品タイトル${"！".repeat(80)}` },
+  },
+  play: async ({ canvasElement }) => {
+    const heading = within(canvasElement).getByRole("heading", { level: 2 });
+    const link = within(heading).getByRole("link");
+    const headingBounds = heading.getBoundingClientRect();
+    const linkBounds = link.getBoundingClientRect();
+
+    await expect(linkBounds.right).toBeLessThanOrEqual(headingBounds.right + 1);
+    await expect(link.scrollWidth).toBeLessThanOrEqual(link.clientWidth + 1);
+    await expect(linkBounds.height).toBeLessThanOrEqual(
+      Number.parseFloat(getComputedStyle(link).lineHeight) * 2 + 1,
+    );
+  },
+};
+
 export const MissingThumbnail: Story = {
   args: { work: { ...MOCK_WORK, thumbnail_url: "" } },
   play: async ({ canvasElement }) => {

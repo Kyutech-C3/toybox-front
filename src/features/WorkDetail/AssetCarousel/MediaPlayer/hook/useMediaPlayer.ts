@@ -21,7 +21,7 @@ type UseMediaPlayerReturn = {
 const useMediaPlayer = ({
   mediaRef,
 }: UseMediaPlayerParams): UseMediaPlayerReturn => {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -42,10 +42,16 @@ const useMediaPlayer = ({
     handleDurationChange();
     handleVolumeChange();
     setIsLoading(
-      media.readyState < HTMLMediaElement.HAVE_CURRENT_DATA && !media.error,
+      media.networkState === HTMLMediaElement.NETWORK_LOADING &&
+        media.readyState < HTMLMediaElement.HAVE_METADATA &&
+        !media.error,
     );
     const handleLoadStart = () => setIsLoading(true);
     const handleReady = () => setIsLoading(false);
+    // 先読みが停止しただけの再生待ちは、バッファリングとして表示しない。
+    const handleSuspend = () => {
+      if (media.paused && !media.seeking) setIsLoading(false);
+    };
     const loadingEvents = ["loadstart", "waiting", "seeking"];
     const readyEvents = [
       "loadedmetadata",
@@ -60,6 +66,7 @@ const useMediaPlayer = ({
     for (const event of loadingEvents)
       media.addEventListener(event, handleLoadStart);
     for (const event of readyEvents) media.addEventListener(event, handleReady);
+    media.addEventListener("suspend", handleSuspend);
 
     media.addEventListener("play", handlePlay);
     media.addEventListener("pause", handlePause);
@@ -74,6 +81,7 @@ const useMediaPlayer = ({
         media.removeEventListener(event, handleLoadStart);
       for (const event of readyEvents)
         media.removeEventListener(event, handleReady);
+      media.removeEventListener("suspend", handleSuspend);
       media.removeEventListener("play", handlePlay);
       media.removeEventListener("pause", handlePause);
       media.removeEventListener("ended", handlePause);
