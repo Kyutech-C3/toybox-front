@@ -14,6 +14,11 @@ type ImageOutputSizeParams = {
 export const IMAGE_ACCEPT = ".png,.jpg,.jpeg,.bmp,.gif,.webp";
 export const MAX_IMAGE_OUTPUT_SIDE = 4096;
 
+export const IMAGE_EDIT_SETTINGS = {
+  avatar: { aspect: 1, longSide: 512, cropShape: "round" },
+  thumbnail: { aspect: 4 / 3, longSide: 1600, cropShape: "rect" },
+} as const;
+
 export const getImageOutputSize = ({
   area,
   longSide,

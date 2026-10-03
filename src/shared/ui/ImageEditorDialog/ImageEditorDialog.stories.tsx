@@ -4,6 +4,7 @@ import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 import ImageEditorDialog from "./index";
 
 import Button from "@/shared/ui/Button";
+import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { createImageFixture } from "@/stories/imageFixture";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -58,6 +59,13 @@ const META = {
   title: "Shared/ImageEditorDialog",
   component: ImageEditorExample,
   args: { purpose: "thumbnail", width: 1600, height: 1200 },
+  decorators: [
+    (Story) => (
+      <ToastProvider>
+        <Story />
+      </ToastProvider>
+    ),
+  ],
 } satisfies Meta<typeof ImageEditorExample>;
 export default META;
 type Story = StoryObj<typeof META>;
@@ -70,35 +78,83 @@ const openEditor = async (canvasElement: HTMLElement) => {
     "dialog",
   );
   await waitFor(() =>
-    expect(within(dialog).getByRole("button", { name: "適用" })).toBeEnabled(),
+    expect(within(dialog).getByRole("button", { name: "保存" })).toBeEnabled(),
   );
-  return within(dialog);
+  return dialog;
 };
 
 export const Thumbnail: Story = {
   play: async ({ canvasElement }) => {
-    const dialog = await openEditor(canvasElement);
-    await expect(
-      dialog.getByRole("radio", { name: "4:3（推奨）" }),
-    ).toBeChecked();
-    await expect(
-      dialog.getByRole("img", { name: "4:3 のサムネイル表示プレビュー" }),
-    ).toBeVisible();
+    const element = await openEditor(canvasElement);
+    const dialog = within(element);
+    await expect(element.textContent).toBe("キャンセル保存");
+    await expect(dialog.getAllByRole("button")).toHaveLength(2);
+    await expect(dialog.getAllByRole("slider")).toHaveLength(1);
+    await expect(dialog.queryByRole("heading")).not.toBeInTheDocument();
+    await expect(dialog.queryByRole("spinbutton")).not.toBeInTheDocument();
+    await expect(dialog.queryByRole("radio")).not.toBeInTheDocument();
+    await expect(element.querySelector("canvas")).toBeNull();
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByLabelText("加工結果"),
+      ).toHaveTextContent("1600 × 1200px / image/webp"),
+    );
   },
 };
 
-export const CropAndResize: Story = {
+export const ZoomAndMove: Story = {
   play: async ({ canvasElement }) => {
-    const dialog = await openEditor(canvasElement);
-    await userEvent.click(dialog.getByRole("button", { name: "512px" }));
-    await userEvent.click(dialog.getByRole("radio", { name: "1:1" }));
-    await waitFor(() =>
-      expect(dialog.getByText("出力: 512 × 512px")).toBeVisible(),
-    );
+    const dialog = within(await openEditor(canvasElement));
+    await fireEvent.change(dialog.getByRole("slider"), {
+      target: { value: "2" },
+    });
     const cropper = dialog.getByLabelText("画像の切り抜き位置");
+    const image = cropper.parentElement?.querySelector("img");
+    const transform = image?.style.transform;
     cropper.focus();
     await userEvent.keyboard("{ArrowRight}{ArrowDown}");
-    await userEvent.click(dialog.getByRole("button", { name: "適用" }));
+    await expect(image?.style.transform).not.toBe(transform);
+    const beforeDrag = image?.style.transform;
+    const bounds = cropper.getBoundingClientRect();
+    await fireEvent.mouseDown(cropper, {
+      clientX: bounds.left + bounds.width / 2,
+      clientY: bounds.top + bounds.height / 2,
+      button: 0,
+    });
+    await fireEvent.mouseMove(canvasElement.ownerDocument, {
+      clientX: bounds.left + bounds.width / 2 + 40,
+      clientY: bounds.top + bounds.height / 2 + 20,
+    });
+    await waitFor(() => expect(image?.style.transform).not.toBe(beforeDrag));
+    await fireEvent.mouseUp(canvasElement.ownerDocument);
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByLabelText("加工結果"),
+      ).toHaveTextContent("800 × 600px / image/webp"),
+    );
+  },
+};
+
+export const LowResolution: Story = {
+  args: { width: 160, height: 120 },
+  play: async ({ canvasElement }) => {
+    const dialog = within(await openEditor(canvasElement));
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByLabelText("加工結果"),
+      ).toHaveTextContent("160 × 120px / image/webp"),
+    );
+  },
+};
+
+export const Avatar: Story = {
+  args: { purpose: "avatar" },
+  play: async ({ canvasElement }) => {
+    const dialog = within(await openEditor(canvasElement));
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
     await waitFor(() =>
       expect(
         within(canvasElement).getByLabelText("加工結果"),
@@ -107,86 +163,28 @@ export const CropAndResize: Story = {
   },
 };
 
-export const LowResolution: Story = {
-  args: { width: 160, height: 120 },
+export const LowResolutionAvatar: Story = {
+  args: { purpose: "avatar", width: 80, height: 80 },
   play: async ({ canvasElement }) => {
-    const dialog = await openEditor(canvasElement);
-    await expect(dialog.getByText("出力: 160 × 120px")).toBeVisible();
-    await expect(dialog.getByText(/拡大せずに出力します/)).toBeVisible();
-    await userEvent.click(
-      dialog.getByRole("checkbox", {
-        name: "元画像より大きい解像度への拡大を許可する",
-      }),
-    );
-    await expect(dialog.getByText("出力: 1600 × 1200px")).toBeVisible();
-    await expect(
-      dialog.getByText(/写真の細部は鮮明になりません/),
-    ).toBeVisible();
-    await userEvent.click(dialog.getByRole("checkbox"));
-    await userEvent.click(dialog.getByRole("button", { name: "適用" }));
+    const dialog = within(await openEditor(canvasElement));
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
     await waitFor(() =>
       expect(
         within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("160 × 120px"),
-    );
-  },
-};
-
-export const Avatar: Story = {
-  args: { purpose: "avatar" },
-  play: async ({ canvasElement }) => {
-    const dialog = await openEditor(canvasElement);
-    await expect(dialog.getByRole("radio", { name: "1:1" })).toBeChecked();
-    await expect(
-      dialog.getByRole("img", { name: "円形アイコンの仕上がり" }),
-    ).toBeVisible();
-    await userEvent.click(dialog.getByRole("button", { name: "適用" }));
-    await waitFor(() =>
-      expect(
-        within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("512 × 512px"),
-    );
-  },
-};
-
-export const CustomRatioAndValidation: Story = {
-  play: async ({ canvasElement }) => {
-    const dialog = await openEditor(canvasElement);
-    await userEvent.click(dialog.getByRole("radio", { name: "指定" }));
-    const width = dialog.getByRole("spinbutton", { name: "比率の横" });
-    const height = dialog.getByRole("spinbutton", { name: "比率の縦" });
-    await userEvent.clear(width);
-    await expect(dialog.getByRole("button", { name: "適用" })).toBeDisabled();
-    await userEvent.type(width, "3");
-    await userEvent.clear(height);
-    await userEvent.type(height, "4");
-    await userEvent.click(dialog.getByRole("button", { name: "512px" }));
-    await waitFor(() =>
-      expect(dialog.getByText("出力: 384 × 512px")).toBeVisible(),
-    );
-    const resolution = dialog.getByRole("spinbutton", {
-      name: "出力解像度（長辺 px）",
-    });
-    await userEvent.clear(resolution);
-    await userEvent.type(resolution, "4097");
-    await expect(dialog.getByRole("button", { name: "適用" })).toBeDisabled();
-    await userEvent.click(dialog.getByRole("button", { name: "512px" }));
-    await userEvent.click(dialog.getByRole("button", { name: "適用" }));
-    await waitFor(() =>
-      expect(
-        within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("384 × 512px"),
+      ).toHaveTextContent("80 × 80px / image/webp"),
     );
   },
 };
 
 export const KeyboardCancel: Story = {
   play: async ({ canvasElement }) => {
-    const dialog = await openEditor(canvasElement);
-    const zoom = dialog.getByRole("slider");
-    zoom.focus();
-    await fireEvent.change(zoom, { target: { value: "2" } });
-    await expect(zoom).not.toHaveValue("1");
+    const dialog = within(await openEditor(canvasElement));
+    const cropper = dialog.getByLabelText("画像の切り抜き位置");
+    cropper.focus();
+    await userEvent.tab({ shift: true });
+    await expect(dialog.getByRole("button", { name: "保存" })).toHaveFocus();
+    await userEvent.tab();
+    await expect(cropper).toHaveFocus();
     await userEvent.keyboard("{Escape}");
     await expect(
       within(canvasElement.ownerDocument.body).queryByRole("dialog"),
@@ -206,19 +204,10 @@ export const UnreadableImage: Story = {
     await userEvent.click(
       within(canvasElement).getByRole("button", { name: "画像を編集" }),
     );
-    const dialog = within(
-      await within(canvasElement.ownerDocument.body).findByRole("dialog"),
-    );
-    await expect(await dialog.findByRole("alert")).toHaveTextContent(
+    const body = within(canvasElement.ownerDocument.body);
+    await expect(await body.findByRole("alert")).toHaveTextContent(
       "画像を読み込めませんでした",
     );
-    await expect(dialog.getByRole("button", { name: "適用" })).toBeDisabled();
-  },
-};
-
-export const AvatarPreview: Story = {
-  args: { purpose: "avatar" },
-  play: async ({ canvasElement }) => {
-    await openEditor(canvasElement);
+    await expect(body.queryByRole("dialog")).not.toBeInTheDocument();
   },
 };

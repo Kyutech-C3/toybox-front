@@ -261,6 +261,9 @@ export const OwnerProfileEditing: Story = {
     await expect(
       canvas.queryByRole("button", { name: "アイコン画像を編集" }),
     ).not.toBeInTheDocument();
+    const avatarBefore = canvas
+      .getByRole("img", { name: "作者のプロフィール画像" })
+      .getBoundingClientRect();
     await userEvent.click(
       canvas.getByRole("button", { name: "プロフィールを編集" }),
     );
@@ -272,6 +275,23 @@ export const OwnerProfileEditing: Story = {
         name: /プロフィール画像|アイコン画像のプレビュー/,
       }),
     ).toHaveLength(1);
+    const avatarAfter = canvas
+      .getByRole("img", { name: "アイコン画像のプレビュー" })
+      .getBoundingClientRect();
+    const form = canvas
+      .getByRole("textbox", { name: "表示名" })
+      .closest("form")
+      ?.getBoundingClientRect();
+    if (!form) throw new Error("No profile form");
+    await expect(Math.abs(avatarAfter.left - avatarBefore.left)).toBeLessThan(
+      1,
+    );
+    await expect(avatarAfter.width).toBe(avatarBefore.width);
+    if (window.innerWidth >= 600) {
+      await expect(form.left).toBeGreaterThan(avatarAfter.right);
+    } else {
+      await expect(form.top).toBeGreaterThan(avatarAfter.bottom);
+    }
     await userEvent.click(canvas.getByRole("button", { name: "キャンセル" }));
     await expect(
       canvas.queryByRole("button", { name: "アイコン画像を編集" }),

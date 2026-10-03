@@ -3,11 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./index.module.css";
 
 import Avatar from "@/shared/ui/Avatar";
-import Button from "@/shared/ui/Button";
-import EditSquareIcon from "@/shared/ui/EditSquareIcon";
-import FieldError from "@/shared/ui/FieldError";
+import ImageEditButton from "@/shared/ui/ImageEditButton";
 import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
+import useToast from "@/shared/ui/Toast/hook/useToast";
 import { IMAGE_ACCEPT } from "@/util/imageProcessing";
+
+import type {
+  ImageEditorSource,
+  ImageEditState,
+} from "@/shared/ui/ImageEditorDialog";
 
 type AvatarEditorProps = {
   avatarURL: string;
@@ -15,27 +19,31 @@ type AvatarEditorProps = {
 };
 
 type EditedAvatar = {
-  file: File;
-  source: File;
+  source: ImageEditorSource;
   url: string;
+  edit: ImageEditState;
+};
+
+type PendingAvatarEdit = {
+  source: ImageEditorSource;
+  initialEdit?: ImageEditState;
 };
 
 const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const requestRef = useRef<AbortController | null>(null);
-  const isMountedRef = useRef(false);
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const previousAvatarURLRef = useRef(avatarURL);
+  const { showToast } = useToast();
+  const [pendingEdit, setPendingEdit] = useState<PendingAvatarEdit | null>(
+    null,
+  );
   const [editedAvatar, setEditedAvatar] = useState<EditedAvatar | null>(null);
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const [error, setError] = useState("");
 
   useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-      requestRef.current?.abort();
-    };
-  }, []);
+    if (previousAvatarURLRef.current === avatarURL) return;
+    previousAvatarURLRef.current = avatarURL;
+    setPendingEdit(null);
+    setEditedAvatar(null);
+  }, [avatarURL]);
 
   useEffect(
     () => () => {
@@ -45,88 +53,55 @@ const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
   );
 
   const handleSelect = (file: File | undefined) => {
-    if (!file) return;
+    if (!file || isDisabled) return;
     const extension = `.${file.name.split(".").pop()?.toLowerCase()}`;
     if (!IMAGE_ACCEPT.split(",").includes(extension)) {
-      setError("対応していない画像形式です");
+      showToast({ message: "対応していない画像形式です", severity: "error" });
       return;
     }
-    setError("");
-    setPendingFile(file);
+    setPendingEdit({ source: { file } });
   };
 
-  const handleEdit = async () => {
+  const handleEdit = () => {
+    if (isDisabled) return;
     if (editedAvatar) {
-      setPendingFile(editedAvatar.source);
+      setPendingEdit({
+        source: editedAvatar.source,
+        initialEdit: editedAvatar.edit,
+      });
       return;
     }
-    if (!avatarURL || isLoadingImage) return;
-    const controller = new AbortController();
-    requestRef.current = controller;
-    setIsLoadingImage(true);
-    setError("");
-    try {
-      const response = await fetch(avatarURL, { signal: controller.signal });
-      if (!response.ok) throw new Error("Failed to load image");
-      const blob = await response.blob();
-      if (isMountedRef.current && !controller.signal.aborted) {
-        setPendingFile(new File([blob], "icon.png", { type: blob.type }));
-      }
-    } catch {
-      if (isMountedRef.current && !controller.signal.aborted) {
-        setError(
-          "画像を読み込めませんでした。端末から画像を選択してください。",
-        );
-      }
-    } finally {
-      if (isMountedRef.current) setIsLoadingImage(false);
+    if (!avatarURL) {
+      inputRef.current?.click();
+      return;
     }
+    setPendingEdit({ source: { imageURL: avatarURL, fileName: "icon.png" } });
   };
 
-  const handleApply = (file: File) => {
-    if (!pendingFile) return;
+  const handleApply = (file: File, edit: ImageEditState) => {
+    if (!pendingEdit) return;
     setEditedAvatar({
-      file,
-      source: pendingFile,
+      source: pendingEdit.source,
       url: URL.createObjectURL(file),
+      edit,
     });
-    setPendingFile(null);
+    setPendingEdit(null);
   };
 
   return (
-    <section className={styles["avatar-editor"]} aria-label="アイコン画像">
-      <div className={styles["preview-row"]}>
-        <div className={styles["avatar-preview"]}>
-          <Avatar
-            avatarURL={editedAvatar?.url ?? (avatarURL || undefined)}
-            alt="アイコン画像のプレビュー"
-            size="profile"
-          />
-          <Button
-            className={styles["edit-button"]}
-            variant="secondary"
-            size="small"
-            isIconOnly
-            icon={<EditSquareIcon />}
-            ariaLabel="アイコン画像を編集"
-            onClick={() => {
-              if (editedAvatar || avatarURL) void handleEdit();
-              else inputRef.current?.click();
-            }}
-            disabled={isDisabled}
-            isLoading={isLoadingImage}
-          />
-        </div>
-        <div className={styles["actions"]}>
-          <Button
-            variant="secondary"
-            onClick={() => inputRef.current?.click()}
-            disabled={isDisabled || isLoadingImage}
-          >
-            写真を選択
-          </Button>
-        </div>
-      </div>
+    <div className={styles["avatar-preview"]}>
+      <Avatar
+        avatarURL={editedAvatar?.url ?? (avatarURL || undefined)}
+        alt="アイコン画像のプレビュー"
+        size="profile"
+      />
+      <ImageEditButton
+        className={styles["edit-button"]}
+        ariaLabel="アイコン画像を編集"
+        onEdit={handleEdit}
+        onSelectPhoto={() => inputRef.current?.click()}
+        isDisabled={isDisabled}
+      />
       <input
         ref={inputRef}
         className={styles["file-input"]}
@@ -134,44 +109,22 @@ const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
         accept={IMAGE_ACCEPT}
         aria-label="アイコン画像のファイル選択"
         tabIndex={-1}
-        disabled={isDisabled || isLoadingImage}
+        disabled={isDisabled}
         onChange={(event) => {
           handleSelect(event.target.files?.[0]);
           event.target.value = "";
         }}
       />
-      <p className={styles["help"]}>
-        アイコン画像の保存は準備中です。ここでは編集とプレビューができ、プロフィールを保存しても画像は更新されません。
-      </p>
-      {editedAvatar && (
-        <div className={styles["actions"]}>
-          <a
-            className={styles["download"]}
-            href={editedAvatar.url}
-            download={editedAvatar.file.name}
-          >
-            加工画像をダウンロード
-          </a>
-          <Button
-            variant="secondary"
-            size="small"
-            onClick={() => setEditedAvatar(null)}
-            disabled={isDisabled}
-          >
-            元のアイコンに戻す
-          </Button>
-        </div>
-      )}
-      {error && <FieldError role="alert">{error}</FieldError>}
-      {pendingFile && (
+      {pendingEdit && (
         <ImageEditorDialog
-          file={pendingFile}
+          {...pendingEdit.source}
           purpose="avatar"
+          initialEdit={pendingEdit.initialEdit}
           onConfirm={handleApply}
-          onClose={() => setPendingFile(null)}
+          onClose={() => setPendingEdit(null)}
         />
       )}
-    </section>
+    </div>
   );
 };
 

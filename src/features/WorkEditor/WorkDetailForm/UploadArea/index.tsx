@@ -5,7 +5,7 @@ import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
 
-import type { ChangeEvent, DragEvent, ReactNode } from "react";
+import type { ChangeEvent, DragEvent, ReactNode, RefObject } from "react";
 
 type UploadAreaProps = {
   accept: string;
@@ -15,6 +15,7 @@ type UploadAreaProps = {
   isDisabled?: boolean;
   isEmbedded?: boolean;
   children?: ReactNode;
+  fileInputRef?: RefObject<HTMLInputElement | null>;
 };
 
 const UploadArea = ({
@@ -25,8 +26,10 @@ const UploadArea = ({
   isDisabled = false,
   isEmbedded = false,
   children,
+  fileInputRef: providedFileInputRef,
 }: UploadAreaProps) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const internalFileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = providedFileInputRef ?? internalFileInputRef;
   const [isDragging, setIsDragging] = useState(false);
 
   const selectFiles = (files: FileList | null) => {

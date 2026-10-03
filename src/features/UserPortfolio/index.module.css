@@ -37,7 +37,7 @@
 }
 
 .profile-editor-slot {
-  grid-column: 1 / -1;
+  display: contents;
 }
 
 .display-name {
@@ -100,10 +100,6 @@
   .profile-edit {
     grid-column: 1 / -1;
     justify-self: start;
-  }
-
-  .profile-editor-slot {
-    grid-column: 1 / -1;
   }
 
   .display-name {

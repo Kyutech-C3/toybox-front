@@ -134,124 +134,126 @@ const ProfileEditor = ({
   };
 
   return (
-    <form
-      className={styles["profile-editor"]}
-      onSubmit={(event) => {
-        event.preventDefault();
-        void handleSubmit();
-      }}
-    >
+    <>
       <AvatarEditor
         avatarURL={userProfile.avatar_url}
         isDisabled={isSubmitting}
       />
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={displayNameID}>
-          表示名
-        </label>
-        <Input
-          id={displayNameID}
-          value={displayName}
-          onChange={setDisplayName}
-          maxLength={DISPLAY_NAME_MAX_LENGTH}
-          isCharacterCountVisible
-        />
-      </div>
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={profileID}>
-          自己紹介
-        </label>
-        <Textarea
-          isAutoResizing
-          id={profileID}
-          value={profile}
-          onChange={setProfile}
-          rows={4}
-          maxLength={PROFILE_MAX_LENGTH}
-          isCharacterCountVisible
-        />
-      </div>
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={githubID}>
-          GitHub
-        </label>
-        <Input
-          containerClassName={styles["social-input"]}
-          leadingContent={
-            <span className={styles["url-prefix"]}>https://github.com/</span>
-          }
-          trailingContent={
-            <CharacterCount
-              value={normalizedGithubUsername}
-              maxLength={GITHUB_USERNAME_MAX_LENGTH}
-              placement="inline"
-            />
-          }
-          id={githubID}
-          value={github}
-          placeholder="GitHub の ID"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          aria-invalid={githubError !== ""}
-          aria-describedby={githubError !== "" ? githubErrorID : undefined}
-          onChange={setGithub}
-          onBlur={() => setGithub(normalizedGithubUsername)}
-        />
-        {githubError !== "" && (
-          <FieldError id={githubErrorID} role="alert">
-            {githubError}
-          </FieldError>
-        )}
-      </div>
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={xID}>
-          X
-        </label>
-        <Input
-          containerClassName={styles["social-input"]}
-          leadingContent={
-            <span className={styles["url-prefix"]}>https://x.com/</span>
-          }
-          trailingContent={
-            <CharacterCount
-              value={normalizedXUsername}
-              maxLength={X_USERNAME_MAX_LENGTH}
-              placement="inline"
-            />
-          }
-          id={xID}
-          value={xUsername}
-          placeholder="X の ID"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          aria-invalid={xError !== ""}
-          aria-describedby={xError !== "" ? xErrorID : undefined}
-          onChange={setXUsername}
-          onBlur={() => setXUsername(normalizedXUsername)}
-        />
-        {xError !== "" && (
-          <FieldError id={xErrorID} role="alert">
-            {xError}
-          </FieldError>
-        )}
-      </div>
-      <div className={styles["actions"]}>
-        <Button onClick={handleCancel} isDisabled={isSubmitting}>
-          キャンセル
-        </Button>
-        <Button
-          variant="accent"
-          onClick={() => void handleSubmit()}
-          isDisabled={isSubmitDisabled}
-          isLoading={isSubmitting}
-          icon={<SaveRoundedIcon />}
-        >
-          {isSubmitting ? "保存中..." : "保存"}
-        </Button>
-      </div>
-    </form>
+      <form
+        className={styles["profile-editor"]}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSubmit();
+        }}
+      >
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={displayNameID}>
+            表示名
+          </label>
+          <Input
+            id={displayNameID}
+            value={displayName}
+            onChange={setDisplayName}
+            maxLength={DISPLAY_NAME_MAX_LENGTH}
+            isCharacterCountVisible
+          />
+        </div>
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={profileID}>
+            自己紹介
+          </label>
+          <Textarea
+            isAutoResizing
+            id={profileID}
+            value={profile}
+            onChange={setProfile}
+            rows={4}
+            maxLength={PROFILE_MAX_LENGTH}
+            isCharacterCountVisible
+          />
+        </div>
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={githubID}>
+            GitHub
+          </label>
+          <Input
+            containerClassName={styles["social-input"]}
+            leadingContent={
+              <span className={styles["url-prefix"]}>https://github.com/</span>
+            }
+            trailingContent={
+              <CharacterCount
+                value={normalizedGithubUsername}
+                maxLength={GITHUB_USERNAME_MAX_LENGTH}
+                placement="inline"
+              />
+            }
+            id={githubID}
+            value={github}
+            placeholder="GitHub の ID"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-invalid={githubError !== ""}
+            aria-describedby={githubError !== "" ? githubErrorID : undefined}
+            onChange={setGithub}
+            onBlur={() => setGithub(normalizedGithubUsername)}
+          />
+          {githubError !== "" && (
+            <FieldError id={githubErrorID} role="alert">
+              {githubError}
+            </FieldError>
+          )}
+        </div>
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={xID}>
+            X
+          </label>
+          <Input
+            containerClassName={styles["social-input"]}
+            leadingContent={
+              <span className={styles["url-prefix"]}>https://x.com/</span>
+            }
+            trailingContent={
+              <CharacterCount
+                value={normalizedXUsername}
+                maxLength={X_USERNAME_MAX_LENGTH}
+                placement="inline"
+              />
+            }
+            id={xID}
+            value={xUsername}
+            placeholder="X の ID"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-invalid={xError !== ""}
+            aria-describedby={xError !== "" ? xErrorID : undefined}
+            onChange={setXUsername}
+            onBlur={() => setXUsername(normalizedXUsername)}
+          />
+          {xError !== "" && (
+            <FieldError id={xErrorID} role="alert">
+              {xError}
+            </FieldError>
+          )}
+        </div>
+        <div className={styles["actions"]}>
+          <Button onClick={handleCancel} isDisabled={isSubmitting}>
+            キャンセル
+          </Button>
+          <Button
+            variant="accent"
+            onClick={() => void handleSubmit()}
+            isDisabled={isSubmitDisabled}
+            isLoading={isSubmitting}
+            icon={<SaveRoundedIcon />}
+          >
+            {isSubmitting ? "保存中..." : "保存"}
+          </Button>
+        </div>
+      </form>
+    </>
   );
 };
 

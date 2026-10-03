@@ -1,4 +1,5 @@
 .profile-editor {
+  grid-column: 2 / -1;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -33,6 +34,10 @@
 }
 
 @media (max-width: 599px) {
+  .profile-editor {
+    grid-column: 1 / -1;
+  }
+
   .profile-editor .social-input {
     padding-inline: var(--space-12);
     gap: var(--space-4);

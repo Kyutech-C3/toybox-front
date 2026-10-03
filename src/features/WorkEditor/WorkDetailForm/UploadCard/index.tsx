@@ -13,6 +13,7 @@ type UploadCardProps = {
   statusText?: string;
   hasPreview?: boolean;
   previewClassName?: string;
+  className?: string;
   onRemove: () => void;
   onRetry: () => void;
 };
@@ -23,11 +24,12 @@ const UploadCard = ({
   statusText = "",
   hasPreview = true,
   previewClassName,
+  className,
   onRemove,
   onRetry,
 }: UploadCardProps) => (
   <div
-    className={styles["upload-card"]}
+    className={[styles["upload-card"], className].filter(Boolean).join(" ")}
     data-status={asset?.status ?? "empty"}
     data-has-preview={hasPreview ? "true" : "false"}
   >

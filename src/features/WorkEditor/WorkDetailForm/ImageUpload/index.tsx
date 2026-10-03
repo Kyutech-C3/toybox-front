@@ -2,7 +2,10 @@ import { useRef, useState } from "react";
 
 import { getExtension } from "../../editorAsset";
 import useEditorRequestGuard from "../../hook/useEditorRequestGuard";
-import { useWorkEditorStore } from "../../store/useWorkEditorStore";
+import {
+  useWorkEditorStore,
+  useWorkEditorStoreApi,
+} from "../../store/useWorkEditorStore";
 import useThumbnailUpload, {
   THUMBNAIL_ACCEPT,
 } from "../hook/useThumbnailUpload";
@@ -11,18 +14,25 @@ import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 import { prepareThumbnailImage } from "./prepareThumbnailImage";
 
-import Button from "@/shared/ui/Button";
-import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import FieldError from "@/shared/ui/FieldError";
+import ImageEditButton from "@/shared/ui/ImageEditButton";
 import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
 import LoadingImage from "@/shared/ui/LoadingImage";
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
+
+import type {
+  ImageEditorSource,
+  ImageEditState,
+} from "@/shared/ui/ImageEditorDialog";
 
 type PendingThumbnailEdit = {
-  file: File;
+  source: ImageEditorSource;
   isCurrent: () => boolean;
+  initialEdit?: ImageEditState;
 };
 
 const ThumbnailImageUpload = () => {
+  const editorStore = useWorkEditorStoreApi();
   const {
     thumbnail,
     validationError,
@@ -36,10 +46,12 @@ const ThumbnailImageUpload = () => {
   );
   const [editError, setEditError] = useState("");
   const [originalImage, setOriginalImage] = useState<{
-    source: File;
+    source: ImageEditorSource;
     output: File;
+    edit?: ImageEditState;
   } | null>(null);
   const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const processingSequenceRef = useRef(0);
   const isUploading = thumbnail?.status === "uploading";
 
@@ -61,7 +73,8 @@ const ThumbnailImageUpload = () => {
     try {
       const output = await prepareThumbnailImage(file);
       if (!isCurrent()) return;
-      if (handleSelectFile(output)) setOriginalImage({ source: file, output });
+      if (handleSelectFile(output))
+        setOriginalImage({ source: { file }, output });
     } catch {
       if (isCurrent())
         setEditError(
@@ -73,17 +86,37 @@ const ThumbnailImageUpload = () => {
   };
 
   const handleEdit = () => {
-    if (!hasOriginalImage || isUploading || isProcessingImage) return;
+    if (!thumbnail || isUploading || isProcessingImage) return;
+    const sequence = ++processingSequenceRef.current;
+    const isCurrentSession = createRequestGuard();
+    const previewURL = thumbnail.previewURL;
+    const isCurrent = () =>
+      isCurrentSession() &&
+      sequence === processingSequenceRef.current &&
+      thumbnail === editorStore.getState().current.thumbnail;
+    if (hasOriginalImage) {
+      setPendingEdit({
+        source: originalImage.source,
+        initialEdit: originalImage.edit,
+        isCurrent,
+      });
+      return;
+    }
+    if (thumbnail.file) {
+      setPendingEdit({ source: { file: thumbnail.file }, isCurrent });
+      return;
+    }
+    if (!previewURL) return;
     setPendingEdit({
-      file: originalImage.source,
-      isCurrent: createRequestGuard(),
+      source: { imageURL: previewURL, fileName: thumbnail.fileName },
+      isCurrent,
     });
   };
 
-  const handleApply = (file: File) => {
+  const handleApply = (file: File, edit: ImageEditState) => {
     if (!pendingEdit?.isCurrent()) return;
     if (handleSelectFile(file)) {
-      setOriginalImage({ source: pendingEdit.file, output: file });
+      setOriginalImage({ source: pendingEdit.source, output: file, edit });
     }
     setPendingEdit(null);
   };
@@ -92,6 +125,8 @@ const ThumbnailImageUpload = () => {
     <div className={styles["upload-container"]}>
       <h3 className={styles["upload-heading"]}>サムネイル</h3>
       <UploadCard
+        className={styles["thumbnail-card"]}
+        previewClassName={styles["thumbnail-preview"]}
         asset={thumbnail}
         hasPreview={!!thumbnail?.previewURL}
         onRemove={() => {
@@ -113,6 +148,7 @@ const ThumbnailImageUpload = () => {
         }
       >
         <UploadArea
+          fileInputRef={fileInputRef}
           accept={THUMBNAIL_ACCEPT}
           ariaLabel="サムネイル画像をアップロード"
           onSelectFiles={(files) => void handleChooseImage(files[0])}
@@ -127,41 +163,27 @@ const ThumbnailImageUpload = () => {
             />
           ) : undefined}
         </UploadArea>
-        {hasOriginalImage && (
-          <div className={styles["edit-action"]}>
-            <Button
-              variant="secondary"
-              size="small"
-              isIconOnly
-              icon={<EditSquareIcon />}
-              ariaLabel="サムネイル画像を編集"
-              onClick={handleEdit}
-              disabled={isUploading || isProcessingImage}
-            />
-          </div>
+        {thumbnail?.previewURL && (
+          <ImageEditButton
+            className={styles["edit-action"]}
+            ariaLabel="サムネイル画像を編集"
+            onEdit={handleEdit}
+            onSelectPhoto={() => fileInputRef.current?.click()}
+            isDisabled={isUploading || isProcessingImage}
+          />
         )}
       </UploadCard>
-      {isProcessingImage && (
-        <p className={styles["format-help"]} role="status">
-          画像を加工中
-        </p>
-      )}
+      {isProcessingImage && <LoadingSpinner />}
       {(editError || validationError || thumbnail?.errorMessage) && (
         <FieldError role="alert">
           {editError || validationError || thumbnail?.errorMessage}
         </FieldError>
       )}
-      <p className={styles["format-help"]}>
-        PNG・JPG・JPEG・BMP・GIF・WEBP / 加工後5MB以下
-      </p>
-      <p className={styles["format-help"]}>
-        選択時に
-        4:3・長辺1600px以下に加工します。左下の編集アイコンから再調整できます。
-      </p>
       {pendingEdit?.isCurrent() && (
         <ImageEditorDialog
-          file={pendingEdit.file}
+          {...pendingEdit.source}
           purpose="thumbnail"
+          initialEdit={pendingEdit.initialEdit}
           onConfirm={handleApply}
           onClose={() => setPendingEdit(null)}
         />

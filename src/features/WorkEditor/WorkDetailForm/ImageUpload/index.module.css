@@ -19,10 +19,19 @@
   object-fit: cover;
 }
 
-.format-help {
-  margin: 0;
-  color: var(--font-muted-color);
-  font-size: 0.75rem;
+.thumbnail-card[data-status],
+.thumbnail-card .thumbnail-preview {
+  overflow: visible;
+}
+
+.thumbnail-preview {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+.thumbnail-card .thumbnail-preview > button {
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
 }
 
 @media (max-width: 599px) {

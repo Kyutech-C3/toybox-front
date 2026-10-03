@@ -1,7 +1,8 @@
-import { createEditedImage, getImageOutputSize } from "@/util/imageProcessing";
-
-const THUMBNAIL_ASPECT = 4 / 3;
-const THUMBNAIL_LONG_SIDE = 1600;
+import {
+  createEditedImage,
+  getImageOutputSize,
+  IMAGE_EDIT_SETTINGS,
+} from "@/util/imageProcessing";
 
 export const prepareThumbnailImage = async (file: File): Promise<File> => {
   const url = URL.createObjectURL(file);
@@ -11,9 +12,9 @@ export const prepareThumbnailImage = async (file: File): Promise<File> => {
     await image.decode();
     const width = Math.min(
       image.naturalWidth,
-      image.naturalHeight * THUMBNAIL_ASPECT,
+      image.naturalHeight * IMAGE_EDIT_SETTINGS.thumbnail.aspect,
     );
-    const height = width / THUMBNAIL_ASPECT;
+    const height = width / IMAGE_EDIT_SETTINGS.thumbnail.aspect;
     const area = {
       x: (image.naturalWidth - width) / 2,
       y: (image.naturalHeight - height) / 2,
@@ -25,7 +26,7 @@ export const prepareThumbnailImage = async (file: File): Promise<File> => {
       area,
       size: getImageOutputSize({
         area,
-        longSide: THUMBNAIL_LONG_SIDE,
+        longSide: IMAGE_EDIT_SETTINGS.thumbnail.longSide,
         canUpscale: false,
       }),
       fileName: file.name,
