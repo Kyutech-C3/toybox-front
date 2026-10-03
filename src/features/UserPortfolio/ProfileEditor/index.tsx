@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { mutate } from "swr";
 
@@ -8,6 +8,7 @@ import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
+import useUnsavedChangesGuard from "@/shared/hook/useUnsavedChangesGuard";
 import Button from "@/shared/ui/Button";
 import CharacterCount from "@/shared/ui/CharacterCount";
 import FieldError from "@/shared/ui/FieldError";
@@ -80,6 +81,7 @@ const ProfileEditor = ({
   const [github, setGithub] = useState(userProfile.github_id);
   const [xUsername, setXUsername] = useState(userProfile.x_username);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasAvatarChanges, setHasAvatarChanges] = useState(false);
 
   const trimmedDisplayName = displayName.trim();
   const normalizedGithubUsername = normalizeSocialUsername(github);
@@ -95,10 +97,17 @@ const ProfileEditor = ({
     xError !== "";
 
   const hasUnsavedChanges =
+    hasAvatarChanges ||
     trimmedDisplayName !== userProfile.display_name ||
     profile !== userProfile.profile ||
     normalizedGithubUsername !== userProfile.github_id ||
     normalizedXUsername !== userProfile.x_username;
+
+  const getHasUnsavedChanges = useCallback(
+    () => hasUnsavedChanges,
+    [hasUnsavedChanges],
+  );
+  useUnsavedChangesGuard({ getHasUnsavedChanges });
 
   const handleCancel = () => {
     if (hasUnsavedChanges && !window.confirm(DISCARD_CONFIRM_MESSAGE)) return;
@@ -138,6 +147,7 @@ const ProfileEditor = ({
       <AvatarEditor
         avatarURL={userProfile.avatar_url}
         isDisabled={isSubmitting}
+        onChange={setHasAvatarChanges}
       />
       <form
         className={styles["profile-editor"]}

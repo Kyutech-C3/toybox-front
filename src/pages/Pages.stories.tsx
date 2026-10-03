@@ -1,10 +1,4 @@
-import {
-  createMemoryRouter,
-  MemoryRouter,
-  Route,
-  RouterProvider,
-  Routes,
-} from "react-router-dom";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
 import { expect, userEvent, within } from "storybook/test";
 import { SWRConfig, unstable_serialize } from "swr";
 
@@ -59,17 +53,24 @@ const PageFrame = ({
   routePattern = path,
   fallback,
   children,
-}: PageFrameProps) => (
-  <MemoryRouter initialEntries={[path]}>
-    <ToastProvider>
-      <SWRConfig value={{ fallback, provider: () => new Map() }}>
-        <Routes>
-          <Route path={routePattern} element={children} />
-        </Routes>
-      </SWRConfig>
-    </ToastProvider>
-  </MemoryRouter>
-);
+}: PageFrameProps) => {
+  const router = createMemoryRouter(
+    [
+      {
+        path: routePattern,
+        element: (
+          <ToastProvider>
+            <SWRConfig value={{ fallback, provider: () => new Map() }}>
+              {children}
+            </SWRConfig>
+          </ToastProvider>
+        ),
+      },
+    ],
+    { initialEntries: [path] },
+  );
+  return <RouterProvider router={router} />;
+};
 
 const PageCatalog = () => <TopPage />;
 
@@ -268,15 +269,16 @@ export const OwnerProfileEditing: Story = {
       canvas.getByRole("button", { name: "プロフィールを編集" }),
     );
     await expect(
-      canvas.getByRole("button", { name: "アイコン画像を編集" }),
+      canvas.getByRole("button", { name: "アイコン画像をアップロード" }),
     ).toBeVisible();
     await expect(
-      canvas.getAllByRole("img", {
-        name: /プロフィール画像|アイコン画像のプレビュー/,
-      }),
-    ).toHaveLength(1);
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole("img", { name: "作者のプロフィール画像" }),
+    ).not.toBeInTheDocument();
     const avatarAfter = canvas
-      .getByRole("img", { name: "アイコン画像のプレビュー" })
+      .getByRole("button", { name: "アイコン画像をアップロード" })
       .getBoundingClientRect();
     const form = canvas
       .getByRole("textbox", { name: "表示名" })

@@ -68,7 +68,17 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
-export const AutoCropAndEdit: Story = {
+const getDialog = async (canvasElement: HTMLElement) => {
+  const dialog = within(
+    await within(canvasElement.ownerDocument.body).findByRole("dialog"),
+  );
+  await waitFor(() =>
+    expect(dialog.getByRole("button", { name: "保存" })).toBeEnabled(),
+  );
+  return dialog;
+};
+
+export const SelectAndEdit: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);
@@ -98,6 +108,22 @@ export const AutoCropAndEdit: Story = {
         canvas.getByLabelText("サムネイル画像をアップロードのファイル選択"),
         await createImageFixture(2400, 1600),
       );
+      let selectedDialog = await getDialog(canvasElement);
+      await expect(uploads).toHaveLength(0);
+      await userEvent.click(
+        selectedDialog.getByRole("button", { name: "キャンセル" }),
+      );
+      await expect(
+        canvas.queryByRole("button", { name: "サムネイル画像を編集" }),
+      ).not.toBeInTheDocument();
+      await userEvent.upload(
+        canvas.getByLabelText("サムネイル画像をアップロードのファイル選択"),
+        await createImageFixture(2400, 1600),
+      );
+      selectedDialog = await getDialog(canvasElement);
+      await userEvent.click(
+        selectedDialog.getByRole("button", { name: "保存" }),
+      );
       await waitFor(() =>
         expect(canvas.getByText("アップロード完了")).toBeVisible(),
       );
@@ -109,8 +135,7 @@ export const AutoCropAndEdit: Story = {
       const edit = canvas.getByRole("button", { name: "サムネイル画像を編集" });
       await expect(edit.querySelector("svg")).not.toBeNull();
       await expect(edit).toHaveTextContent("");
-      const preview =
-        edit.parentElement?.parentElement?.getBoundingClientRect();
+      const preview = edit.parentElement?.getBoundingClientRect();
       const button = edit.getBoundingClientRect();
       if (!preview) throw new Error("No thumbnail preview");
       await expect(Math.abs(button.left - preview.left - 8)).toBeLessThan(1);
@@ -118,21 +143,6 @@ export const AutoCropAndEdit: Story = {
         1,
       );
       await userEvent.click(edit);
-      await expect(
-        canvas.getAllByRole("option").map((option) => option.textContent),
-      ).toEqual(["編集", "写真を選択"]);
-      for (const option of canvas.getAllByRole("option")) {
-        const bounds = option.getBoundingClientRect();
-        await expect(
-          canvasElement.ownerDocument
-            .elementFromPoint(
-              bounds.left + bounds.width / 2,
-              bounds.top + bounds.height / 2,
-            )
-            ?.closest('[role="option"]'),
-        ).toBe(option);
-      }
-      await userEvent.click(canvas.getByRole("option", { name: "編集" }));
       let dialog = within(await body.findByRole("dialog"));
       await waitFor(() =>
         expect(dialog.getByRole("button", { name: "保存" })).toBeEnabled(),
@@ -146,7 +156,6 @@ export const AutoCropAndEdit: Story = {
       await expect(uploads).toHaveLength(1);
       await expect(edit).toHaveFocus();
       await userEvent.click(edit);
-      await userEvent.click(canvas.getByRole("option", { name: "編集" }));
       dialog = within(await body.findByRole("dialog"));
       await waitFor(() =>
         expect(dialog.getByRole("button", { name: "保存" })).toBeEnabled(),
@@ -163,7 +172,6 @@ export const AutoCropAndEdit: Story = {
       editedBitmap.close();
       await waitFor(() => expect(edit).toBeEnabled());
       await userEvent.click(edit);
-      await userEvent.click(canvas.getByRole("option", { name: "編集" }));
       dialog = within(await body.findByRole("dialog"));
       await waitFor(() =>
         expect(
@@ -185,15 +193,20 @@ export const AutoCropAndEdit: Story = {
         selectionCount += 1;
       };
       input.addEventListener("click", handleSelectClick);
-      await userEvent.click(edit);
-      await userEvent.click(canvas.getByRole("option", { name: "写真を選択" }));
+      await userEvent.click(
+        canvas.getByRole("button", { name: "サムネイル画像をアップロード" }),
+      );
       input.removeEventListener("click", handleSelectClick);
       await expect(selectionCount).toBe(1);
       await userEvent.upload(input, await createImageFixture(160, 120));
+      const replacementDialog = await getDialog(canvasElement);
+      await expect(uploads).toHaveLength(2);
+      await userEvent.click(
+        replacementDialog.getByRole("button", { name: "保存" }),
+      );
       await waitFor(() => expect(uploads).toHaveLength(3));
       await waitFor(() => expect(edit).toBeEnabled());
       await userEvent.click(edit);
-      await userEvent.click(canvas.getByRole("option", { name: "編集" }));
       dialog = within(await body.findByRole("dialog"));
       await waitFor(() =>
         expect(dialog.getByRole("button", { name: "保存" })).toBeEnabled(),
@@ -206,6 +219,12 @@ export const AutoCropAndEdit: Story = {
       ).toBe(160);
       await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));
       await userEvent.click(
+        canvas.getByRole("button", { name: "保存済みサムネイルを表示" }),
+      );
+      await expect(
+        canvas.queryByRole("button", { name: "サムネイル画像を編集" }),
+      ).not.toBeInTheDocument();
+      await userEvent.click(
         canvas.getByRole("button", { name: "編集をリセット" }),
       );
       await expect(
@@ -217,60 +236,24 @@ export const AutoCropAndEdit: Story = {
   },
 };
 
-export const SavedImageEditing: Story = {
+export const SavedImageCannotBeEdited: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const originalFetch = globalThis.fetch;
-    const uploads: File[] = [];
-    let sourceRequests = 0;
-    globalThis.fetch = async (resource, init) => {
-      if (String(resource) === "/favicon-64x64.png") {
-        sourceRequests += 1;
-        throw new Error("Saved thumbnail must not be fetched");
-      }
-      if (String(resource).endsWith("/auth/works/asset")) {
-        const file =
-          init?.body instanceof FormData ? init.body.get("file") : null;
-        if (!(file instanceof File)) throw new Error("No upload file");
-        uploads.push(file);
-        return new Response(
-          JSON.stringify({ id: "edited-saved", url: "/favicon-64x64.png" }),
-          { status: 200 },
-        );
-      }
-      return originalFetch(resource, init);
-    };
-    try {
-      await userEvent.click(
-        canvas.getByRole("button", { name: "保存済みサムネイルを表示" }),
-      );
-      await expect(
-        await canvas.findByRole("img", { name: "サムネイル画像のプレビュー" }),
-      ).toBeVisible();
-      await userEvent.click(
-        canvas.getByRole("button", { name: "サムネイル画像を編集" }),
-      );
-      await userEvent.click(canvas.getByRole("option", { name: "編集" }));
-      const dialog = within(
-        await within(canvasElement.ownerDocument.body).findByRole("dialog"),
-      );
-      await waitFor(() =>
-        expect(dialog.getByRole("button", { name: "保存" })).toBeEnabled(),
-      );
-      await expect(sourceRequests).toBe(0);
-      await expect(
-        dialog
-          .getByLabelText("画像の切り抜き位置")
-          .parentElement?.querySelector("img")?.naturalWidth,
-      ).toBe(64);
-      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
-      await waitFor(() => expect(uploads).toHaveLength(1));
-      const bitmap = await createImageBitmap(uploads[0]);
-      await expect([bitmap.width, bitmap.height]).toEqual([64, 48]);
-      bitmap.close();
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    await userEvent.click(
+      canvas.getByRole("button", { name: "保存済みサムネイルを表示" }),
+    );
+    await expect(
+      await canvas.findByRole("img", { name: "サムネイル画像のプレビュー" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "サムネイル画像を編集" }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByRole("button", { name: "サムネイル画像をアップロード" }),
+    ).toBeEnabled();
+    await expect(
+      within(canvasElement.ownerDocument.body).queryByRole("dialog"),
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -323,6 +306,8 @@ export const ResetDuringEncoding: Story = {
         canvas.getByLabelText("サムネイル画像をアップロードのファイル選択"),
         source,
       );
+      const dialog = await getDialog(canvasElement);
+      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
       await waitFor(() => expect(encodingCount).toBe(1));
       // 外部の reset 後に画像処理が完了しても、古い画像をアップロードしない。
       canvas.getByRole("button", { name: "編集をリセット" }).click();
@@ -341,7 +326,7 @@ export const ResetDuringEncoding: Story = {
   },
 };
 
-export const LowResolutionAutoUpload: Story = {
+export const LowResolutionUpload: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const originalFetch = globalThis.fetch;
@@ -367,6 +352,9 @@ export const LowResolutionAutoUpload: Story = {
         canvas.getByLabelText("サムネイル画像をアップロードのファイル選択"),
         await createImageFixture(160, 120),
       );
+      const dialog = await getDialog(canvasElement);
+      await expect(uploads).toHaveLength(0);
+      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
       await waitFor(() =>
         expect(canvas.getByText("アップロード完了")).toBeVisible(),
       );
@@ -385,25 +373,45 @@ export const LowResolutionAutoUpload: Story = {
   },
 };
 
-export const ResetDuringSavedImageEditing: Story = {
+export const ResetDuringLocalImageEditing: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);
-    await userEvent.click(
-      canvas.getByRole("button", { name: "保存済みサムネイルを表示" }),
-    );
-    await userEvent.click(
-      canvas.getByRole("button", { name: "サムネイル画像を編集" }),
-    );
-    await userEvent.click(canvas.getByRole("option", { name: "編集" }));
-    await body.findByRole("dialog");
-    // ダイアログの外でセッションをリセットしても、画像のロード完了を反映しない。
-    canvas.getByRole("button", { name: "編集をリセット" }).click();
-    await waitFor(() =>
-      expect(body.queryByRole("dialog")).not.toBeInTheDocument(),
-    );
-    await expect(
-      canvas.queryByRole("button", { name: "サムネイル画像を編集" }),
-    ).not.toBeInTheDocument();
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = (resource, init) =>
+      String(resource).endsWith("/auth/works/asset")
+        ? Promise.resolve(
+            new Response(
+              JSON.stringify({ id: "local", url: "/favicon-64x64.png" }),
+              { status: 200 },
+            ),
+          )
+        : originalFetch(resource, init);
+    try {
+      await userEvent.upload(
+        canvas.getByLabelText("サムネイル画像をアップロードのファイル選択"),
+        await createImageFixture(160, 120),
+      );
+      const dialog = await getDialog(canvasElement);
+      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+      await waitFor(() =>
+        expect(
+          canvas.getByRole("button", { name: "サムネイル画像を編集" }),
+        ).toBeEnabled(),
+      );
+      await userEvent.click(
+        canvas.getByRole("button", { name: "サムネイル画像を編集" }),
+      );
+      await body.findByRole("dialog");
+      canvas.getByRole("button", { name: "編集をリセット" }).click();
+      await waitFor(() =>
+        expect(body.queryByRole("dialog")).not.toBeInTheDocument(),
+      );
+      await expect(
+        canvas.queryByRole("button", { name: "サムネイル画像を編集" }),
+      ).not.toBeInTheDocument();
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   },
 };

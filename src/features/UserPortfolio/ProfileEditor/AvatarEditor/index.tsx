@@ -1,55 +1,56 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
 
 import styles from "./index.module.css";
 
 import Avatar from "@/shared/ui/Avatar";
-import ImageEditButton from "@/shared/ui/ImageEditButton";
+import EditButton from "@/shared/ui/EditButton";
 import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import UploadArea from "@/shared/ui/UploadArea";
 import { IMAGE_ACCEPT } from "@/util/imageProcessing";
 
-import type {
-  ImageEditorSource,
-  ImageEditState,
-} from "@/shared/ui/ImageEditorDialog";
+import type { ImageEditState } from "@/shared/ui/ImageEditorDialog";
 
 type AvatarEditorProps = {
   avatarURL: string;
   isDisabled: boolean;
+  onChange?: (hasChanges: boolean) => void;
 };
 
-type EditedAvatar = {
-  source: ImageEditorSource;
+type SelectedAvatar = {
+  file: File;
   url: string;
-  edit: ImageEditState;
+  edit?: ImageEditState;
 };
 
 type PendingAvatarEdit = {
-  source: ImageEditorSource;
+  file: File;
   initialEdit?: ImageEditState;
 };
 
-const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const previousAvatarURLRef = useRef(avatarURL);
+const AvatarEditorSession = ({
+  avatarURL,
+  isDisabled,
+  onChange,
+}: AvatarEditorProps) => {
   const { showToast } = useToast();
   const [pendingEdit, setPendingEdit] = useState<PendingAvatarEdit | null>(
     null,
   );
-  const [editedAvatar, setEditedAvatar] = useState<EditedAvatar | null>(null);
-
+  const [selectedAvatar, setSelectedAvatar] = useState<SelectedAvatar | null>(
+    null,
+  );
+  const hasChanges = selectedAvatar !== null || pendingEdit !== null;
   useEffect(() => {
-    if (previousAvatarURLRef.current === avatarURL) return;
-    previousAvatarURLRef.current = avatarURL;
-    setPendingEdit(null);
-    setEditedAvatar(null);
-  }, [avatarURL]);
+    onChange?.(hasChanges);
+  }, [onChange, hasChanges]);
 
   useEffect(
     () => () => {
-      if (editedAvatar) URL.revokeObjectURL(editedAvatar.url);
+      if (selectedAvatar) URL.revokeObjectURL(selectedAvatar.url);
     },
-    [editedAvatar],
+    [selectedAvatar],
   );
 
   const handleSelect = (file: File | undefined) => {
@@ -59,65 +60,58 @@ const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
       showToast({ message: "対応していない画像形式です", severity: "error" });
       return;
     }
-    setPendingEdit({ source: { file } });
+    setPendingEdit({ file });
   };
 
   const handleEdit = () => {
-    if (isDisabled) return;
-    if (editedAvatar) {
-      setPendingEdit({
-        source: editedAvatar.source,
-        initialEdit: editedAvatar.edit,
-      });
-      return;
-    }
-    if (!avatarURL) {
-      inputRef.current?.click();
-      return;
-    }
-    setPendingEdit({ source: { imageURL: avatarURL, fileName: "icon.png" } });
+    if (!selectedAvatar || isDisabled) return;
+    setPendingEdit({
+      file: selectedAvatar.file,
+      initialEdit: selectedAvatar.edit,
+    });
   };
 
   const handleApply = (file: File, edit: ImageEditState) => {
-    if (!pendingEdit) return;
-    setEditedAvatar({
-      source: pendingEdit.source,
+    if (!pendingEdit || isDisabled) return;
+    setSelectedAvatar({
+      file: pendingEdit.file,
       url: URL.createObjectURL(file),
       edit,
     });
     setPendingEdit(null);
   };
 
+  const previewURL = selectedAvatar?.url ?? avatarURL;
+
   return (
     <div className={styles["avatar-preview"]}>
-      <Avatar
-        avatarURL={editedAvatar?.url ?? (avatarURL || undefined)}
-        alt="アイコン画像のプレビュー"
-        size="profile"
-      />
-      <ImageEditButton
-        className={styles["edit-button"]}
-        ariaLabel="アイコン画像を編集"
-        onEdit={handleEdit}
-        onSelectPhoto={() => inputRef.current?.click()}
-        isDisabled={isDisabled}
-      />
-      <input
-        ref={inputRef}
-        className={styles["file-input"]}
-        type="file"
+      <UploadArea
         accept={IMAGE_ACCEPT}
-        aria-label="アイコン画像のファイル選択"
-        tabIndex={-1}
-        disabled={isDisabled}
-        onChange={(event) => {
-          handleSelect(event.target.files?.[0]);
-          event.target.value = "";
-        }}
-      />
+        ariaLabel="アイコン画像をアップロード"
+        onSelectFiles={(files) => handleSelect(files[0])}
+        isDisabled={isDisabled}
+        isEmbedded
+        className={styles["upload-area"]}
+      >
+        <Avatar
+          avatarURL={previewURL || undefined}
+          alt="アイコン画像のプレビュー"
+          size="profile"
+        />
+        <span className={styles["select-overlay"]} aria-hidden="true">
+          <AddRoundedIcon />
+        </span>
+      </UploadArea>
+      {selectedAvatar && (
+        <EditButton
+          ariaLabel="アイコン画像を編集"
+          onEdit={handleEdit}
+          isDisabled={isDisabled}
+        />
+      )}
       {pendingEdit && (
         <ImageEditorDialog
-          {...pendingEdit.source}
+          file={pendingEdit.file}
           purpose="avatar"
           initialEdit={pendingEdit.initialEdit}
           onConfirm={handleApply}
@@ -127,5 +121,9 @@ const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
     </div>
   );
 };
+
+const AvatarEditor = (props: AvatarEditorProps) => (
+  <AvatarEditorSession key={props.avatarURL} {...props} />
+);
 
 export default AvatarEditor;

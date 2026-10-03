@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 
 import Batch from "../Batch";
-import EditSquareIcon from "../EditSquareIcon";
+import EditButton from "../EditButton";
 import UserButton from "../UserButton";
 import VisibilityIcon from "../VisibilityIcon";
 import useMarquee from "./hook/useMarquee";
@@ -101,14 +101,11 @@ const Card = ({ work, viewerUserID, favoriteButton }: CardProps) => {
           <div className={styles["card-favorite"]}>{favoriteButton}</div>
         )}
         {isEditable && (
-          <Link
+          <EditButton
             to={`/edit/${work.id}`}
             className={styles["edit-link"]}
-            aria-label={`${work.title}を編集する`}
-            title="編集する"
-          >
-            <EditSquareIcon />
-          </Link>
+            ariaLabel={`${work.title}を編集する`}
+          />
         )}
       </div>
       <div className={styles["card-body"]}>

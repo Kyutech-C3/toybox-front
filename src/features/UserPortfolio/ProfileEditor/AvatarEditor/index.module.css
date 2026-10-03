@@ -1,15 +1,38 @@
-.file-input {
-  display: none;
-}
-
 .avatar-preview {
-  position: relative;
-  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  width: min(120px, 22vw);
 }
 
-.edit-button {
+button.upload-area[data-variant][data-embedded] {
+  position: relative;
+  flex: none;
+  width: min(120px, 22vw);
+  height: min(120px, 22vw);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.select-overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: inherit;
+  background: var(--overlay-dark-color);
+  color: var(--asset-font-color);
+  pointer-events: none;
+}
+
+.select-overlay > svg {
+  font-size: 36px;
+}
+
+@media (max-width: 599px) {
+  .avatar-preview {
+    flex-direction: row;
+    width: fit-content;
+  }
 }

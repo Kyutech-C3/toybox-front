@@ -6,12 +6,12 @@ import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { useWorkEditorStoreApi } from "../../store/useWorkEditorStore";
 import useAssetUpload, { ASSET_ACCEPT } from "../hook/useAssetUpload";
 import { getReferencedAssetURLs } from "../removeAssetImageMarkdown";
-import UploadArea from "../UploadArea";
 import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
 import FieldError from "@/shared/ui/FieldError";
 import LoadingImage from "@/shared/ui/LoadingImage";
+import UploadArea from "@/shared/ui/UploadArea";
 
 type AssetStatusSource = {
   kind: string;

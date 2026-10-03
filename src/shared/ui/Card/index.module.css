@@ -98,43 +98,11 @@
   background: transparent;
 }
 
-.edit-link {
+.edit-link[class] {
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
   z-index: 2;
-  box-sizing: border-box;
-  width: 30px;
-  height: 30px;
-  border: 1px solid color-mix(in srgb, var(--paper-color) 60%, transparent);
-  border-radius: 9999px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--paper-color) 72%, transparent);
-  backdrop-filter: blur(8px) saturate(1.4);
-  box-shadow: 0 2px 8px var(--shadow-soft-color);
-  color: var(--font-color);
-  font-size: 18px;
-  transition: box-shadow var(--hover-transition);
-}
-
-.edit-link::after {
-  position: absolute;
-  inset: -7px;
-  content: "";
-}
-
-.edit-link:hover {
-  border-color: var(--primary-color);
-  background: var(--primary-color);
-  box-shadow: var(--hover-shadow);
-  color: var(--on-primary-color);
-}
-
-.edit-link:focus-visible {
-  outline: 2px solid var(--font-color);
-  outline-offset: 2px;
 }
 
 .card-body {
@@ -296,13 +264,6 @@
   .card-favorite > button:hover {
     --like-outline-color: var(--asset-font-color);
   }
-
-  .edit-link:hover {
-    border-color: color-mix(in srgb, var(--paper-color) 60%, transparent);
-    background: color-mix(in srgb, var(--paper-color) 72%, transparent);
-    box-shadow: 0 2px 8px var(--shadow-soft-color);
-    color: var(--font-color);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -326,12 +287,4 @@
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--font-color) 10%, transparent),
     0 2px 8px var(--shadow-soft-color);
-}
-
-:global(:root[data-theme="dark"]) .edit-link {
-  border-color: color-mix(in srgb, var(--font-color) 18%, transparent);
-}
-
-.edit-link:active {
-  filter: var(--press-filter);
 }

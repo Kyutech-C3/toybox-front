@@ -20,11 +20,8 @@ export type ImageEditState = {
   croppedAreaPercentages: ImageCropArea;
 };
 
-export type ImageEditorSource =
-  | { file: File; imageURL?: never; fileName?: never }
-  | { file?: never; imageURL: string; fileName: string };
-
-type ImageEditorDialogProps = ImageEditorSource & {
+type ImageEditorDialogProps = {
+  file: File;
   purpose: "avatar" | "thumbnail";
   initialEdit?: ImageEditState;
   onConfirm: (file: File, edit: ImageEditState) => void;
@@ -33,8 +30,6 @@ type ImageEditorDialogProps = ImageEditorSource & {
 
 const ImageEditorDialog = ({
   file,
-  imageURL,
-  fileName,
   purpose,
   initialEdit,
   onConfirm,
@@ -72,7 +67,7 @@ const ImageEditorDialog = ({
   }, []);
 
   useEffect(() => {
-    const url = file ? URL.createObjectURL(file) : imageURL;
+    const url = URL.createObjectURL(file);
     const sourceImage = new Image();
     let isActive = true;
     setImage(null);
@@ -91,9 +86,9 @@ const ImageEditorDialog = ({
       isActive = false;
       sourceImage.onload = null;
       sourceImage.onerror = null;
-      if (file) URL.revokeObjectURL(url);
+      URL.revokeObjectURL(url);
     };
-  }, [file, imageURL, showToast]);
+  }, [file, showToast]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
     if (event.key === "Escape") {
@@ -123,40 +118,22 @@ const ImageEditorDialog = ({
     isProcessingRef.current = true;
     setIsProcessing(true);
     try {
-      let canvasImage = image;
-      const source = new URL(image.src, document.baseURI);
-      const hasExternalSource =
-        (source.protocol === "https:" || source.protocol === "http:") &&
-        source.origin !== window.location.origin;
-      if (hasExternalSource) {
-        canvasImage = new Image();
-        canvasImage.crossOrigin = "anonymous";
-        canvasImage.src = image.src;
-        await canvasImage.decode();
-      }
-      if (!isMountedRef.current) return;
       const editedFile = await createEditedImage({
-        image: canvasImage,
+        image,
         area,
         size: getImageOutputSize({
           area,
           longSide: settings.longSide,
           canUpscale: false,
         }),
-        fileName: file ? file.name : fileName,
+        fileName: file.name,
       });
       if (isMountedRef.current)
         onConfirm(editedFile, { croppedAreaPercentages: percentages });
     } catch {
       if (isMountedRef.current) {
-        const source = new URL(image.src, document.baseURI);
-        const hasExternalSource =
-          (source.protocol === "https:" || source.protocol === "http:") &&
-          source.origin !== window.location.origin;
         showToast({
-          message: hasExternalSource
-            ? "画像を保存できませんでした。画像配信元のCORS設定も確認してください。"
-            : "画像を加工できませんでした",
+          message: "画像を加工できませんでした",
           severity: "error",
         });
         onCloseRef.current();

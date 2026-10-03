@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 
 import AvatarEditor from "./index";
 
+import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { createImageFixture } from "@/stories/imageFixture";
 
@@ -22,13 +24,7 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
-const openEdit = async (canvasElement: HTMLElement) => {
-  await userEvent.click(
-    within(canvasElement).getByRole("button", { name: "アイコン画像を編集" }),
-  );
-  await userEvent.click(
-    within(canvasElement).getByRole("option", { name: "編集" }),
-  );
+const getDialog = async (canvasElement: HTMLElement) => {
   const dialog = within(
     await within(canvasElement.ownerDocument.body).findByRole("dialog"),
   );
@@ -38,57 +34,45 @@ const openEdit = async (canvasElement: HTMLElement) => {
   return dialog;
 };
 
+const openEdit = async (canvasElement: HTMLElement) => {
+  await userEvent.click(
+    within(canvasElement).getByRole("button", { name: "アイコン画像を編集" }),
+  );
+  return getDialog(canvasElement);
+};
+
 export const LocalPreview: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const edit = canvas.getByRole("button", { name: "アイコン画像を編集" });
-    const preview = edit.parentElement?.parentElement?.getBoundingClientRect();
-    const button = edit.getBoundingClientRect();
-    if (!preview) throw new Error("No avatar preview");
     await expect(
-      Math.abs(
-        button.left + button.width / 2 - preview.left - preview.width / 2,
-      ),
-    ).toBeLessThan(1);
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+    const select = canvas.getByRole("button", {
+      name: "アイコン画像をアップロード",
+    });
     await expect(
-      Math.abs(
-        button.top + button.height / 2 - preview.top - preview.height / 2,
-      ),
-    ).toBeLessThan(1);
-    await expect(canvasElement.textContent).toBe("");
-    await userEvent.click(edit);
-    await expect(
-      canvas.getAllByRole("option").map((option) => option.textContent),
-    ).toEqual(["編集", "写真を選択"]);
-    await userEvent.keyboard("{ArrowDown}");
-    await expect(
-      canvas.getByRole("option", { name: "写真を選択" }),
-    ).toHaveFocus();
-    await userEvent.keyboard("{Escape}");
-    await expect(edit).toHaveFocus();
-    await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
-    await userEvent.click(edit);
-    await userEvent.click(canvasElement.ownerDocument.body);
-    await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
-
-    const input = canvas.getByLabelText("アイコン画像のファイル選択");
+      select.querySelector('[data-testid="AddRoundedIcon"]'),
+    ).not.toBeNull();
+    await expect(getComputedStyle(select).borderRadius).toBe("50%");
+    await userEvent.hover(select);
+    await expect(getComputedStyle(select).borderRadius).toBe("50%");
+    const input = canvas.getByLabelText(
+      "アイコン画像をアップロードのファイル選択",
+    );
     let selectionCount = 0;
     const handleSelectClick = (event: Event) => {
       event.preventDefault();
       selectionCount += 1;
     };
     input.addEventListener("click", handleSelectClick);
-    await userEvent.click(edit);
-    await userEvent.click(canvas.getByRole("option", { name: "写真を選択" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "アイコン画像をアップロード" }),
+    );
     input.removeEventListener("click", handleSelectClick);
     await expect(selectionCount).toBe(1);
     await userEvent.upload(input, await createImageFixture(1600, 1200));
-    let dialog = within(
-      await within(canvasElement.ownerDocument.body).findByRole("dialog"),
-    );
-    await waitFor(() =>
-      expect(dialog.getByRole("button", { name: "保存" })).toBeEnabled(),
-    );
+    let dialog = await getDialog(canvasElement);
+    await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
     await fireEvent.change(dialog.getByRole("slider"), {
       target: { value: "2" },
     });
@@ -103,8 +87,32 @@ export const LocalPreview: Story = {
         canvas.getByRole("img", { name: "アイコン画像のプレビュー" }),
       ).toHaveAttribute("src", expect.stringContaining("blob:")),
     );
-    const image = canvas.getByRole("img", { name: "アイコン画像のプレビュー" });
+    const image = await canvas.findByRole("img", {
+      name: "アイコン画像のプレビュー",
+    });
     const savedURL = image.getAttribute("src");
+    const edit = canvas.getByRole("button", { name: "アイコン画像を編集" });
+    const preview = select.getBoundingClientRect();
+    const button = edit.getBoundingClientRect();
+    await expect([button.width, button.height]).toEqual([30, 30]);
+    if (window.innerWidth >= 600) {
+      await expect(button.top - preview.bottom).toBeGreaterThanOrEqual(8);
+      await expect(
+        Math.abs(
+          button.left + button.width / 2 - preview.left - preview.width / 2,
+        ),
+      ).toBeLessThan(1);
+    } else {
+      await expect(button.left - preview.right).toBeGreaterThanOrEqual(8);
+      await expect(
+        Math.abs(
+          button.top + button.height / 2 - preview.top - preview.height / 2,
+        ),
+      ).toBeLessThan(1);
+    }
+    await expect(
+      select.querySelector('[data-testid="AddRoundedIcon"]'),
+    ).not.toBeNull();
     dialog = await openEdit(canvasElement);
     await waitFor(() =>
       expect(
@@ -128,47 +136,54 @@ export const LocalPreview: Story = {
   },
 };
 
-export const SavedAvatar: Story = {
+export const SavedAvatarCannotBeEdited: Story = {
   args: { avatarURL: "/favicon-64x64.png" },
   play: async ({ canvasElement }) => {
-    const originalFetch = globalThis.fetch;
-    let fetchCount = 0;
-    globalThis.fetch = (resource, init) => {
-      if (String(resource) === "/favicon-64x64.png") {
-        fetchCount += 1;
-        throw new Error("Saved avatar must not be fetched");
-      }
-      return originalFetch(resource, init);
-    };
-    try {
-      const dialog = await openEdit(canvasElement);
-      await expect(fetchCount).toBe(0);
-      await expect(
-        dialog
-          .getByLabelText("画像の切り抜き位置")
-          .parentElement?.querySelector("img")?.naturalWidth,
-      ).toBe(64);
-      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
-      await waitFor(() =>
-        expect(
-          within(canvasElement).getByRole("img", {
-            name: "アイコン画像のプレビュー",
-          }),
-        ).toHaveAttribute("src", expect.stringContaining("blob:")),
-      );
-      const image = within(canvasElement).getByRole("img", {
-        name: "アイコン画像のプレビュー",
-      });
-      const response = await fetch(image.getAttribute("src") ?? "");
-      const bitmap = await createImageBitmap(await response.blob());
-      await expect([bitmap.width, bitmap.height]).toEqual([64, 64]);
-      bitmap.close();
-      const second = await openEdit(canvasElement);
-      await expect(fetchCount).toBe(0);
-      await userEvent.click(second.getByRole("button", { name: "キャンセル" }));
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByRole("img", { name: "アイコン画像のプレビュー" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+    const dataTransfer = new DataTransfer();
+    const droppedImage = await createImageFixture(80, 80);
+    dataTransfer.items.add(droppedImage);
+    await expect(dataTransfer.files).toHaveLength(1);
+    canvas
+      .getByRole("button", { name: "アイコン画像をアップロード" })
+      .dispatchEvent(new DragEvent("drop", { bubbles: true, dataTransfer }));
+    const dialog = await getDialog(canvasElement);
+    await expect(
+      dialog
+        .getByLabelText("画像の切り抜き位置")
+        .parentElement?.querySelector("img")?.naturalWidth,
+    ).toBe(80);
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    await waitFor(() =>
+      expect(
+        within(canvasElement.ownerDocument.body).queryByRole("dialog"),
+      ).not.toBeInTheDocument(),
+    );
+    const image = await canvas.findByRole("img", {
+      name: "アイコン画像のプレビュー",
+    });
+    const response = await fetch(image.getAttribute("src") ?? "");
+    const bitmap = await createImageBitmap(await response.blob());
+    await expect([bitmap.width, bitmap.height]).toEqual([80, 80]);
+    bitmap.close();
+    await userEvent.upload(
+      canvas.getByLabelText("アイコン画像をアップロードのファイル選択"),
+      await createImageFixture(160, 120),
+    );
+    const second = await getDialog(canvasElement);
+    await expect(second.getByRole("slider")).toHaveValue("1");
+    await expect(
+      second
+        .getByLabelText("画像の切り抜き位置")
+        .parentElement?.querySelector("img")?.naturalWidth,
+    ).toBe(160);
+    await userEvent.click(second.getByRole("button", { name: "キャンセル" }));
   },
 };
 
@@ -176,10 +191,98 @@ export const Disabled: Story = {
   args: { isDisabled: true },
   play: async ({ canvasElement }) => {
     await expect(
-      within(canvasElement).getByRole("button", { name: "アイコン画像を編集" }),
+      within(canvasElement).getByRole("button", {
+        name: "アイコン画像をアップロード",
+      }),
     ).toBeDisabled();
     await expect(
       within(canvasElement).queryByRole("listbox"),
     ).not.toBeInTheDocument();
+  },
+};
+
+const AvatarSessionReset = () => {
+  const [avatarURL, setAvatarURL] = useState("");
+  return (
+    <>
+      <AvatarEditor avatarURL={avatarURL} isDisabled={false} />
+      <Button onClick={() => setAvatarURL("/favicon-64x64.png")}>
+        保存済みアイコンに切り替え
+      </Button>
+    </>
+  );
+};
+
+export const ResetDuringEncoding: Story = {
+  render: () => <AvatarSessionReset />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const source = await createImageFixture(160, 120);
+    const originalToBlob = HTMLCanvasElement.prototype.toBlob;
+    const encoding: { complete?: () => Promise<void> } = {};
+    let encodingCount = 0;
+    HTMLCanvasElement.prototype.toBlob = function (callback, type, quality) {
+      if (type !== "image/webp") {
+        originalToBlob.call(this, callback, type, quality);
+        return;
+      }
+      encodingCount += 1;
+      encoding.complete = () =>
+        new Promise<void>((resolve) => {
+          originalToBlob.call(
+            this,
+            (blob) => {
+              callback(blob);
+              resolve();
+            },
+            type,
+            quality,
+          );
+        });
+    };
+    try {
+      await userEvent.upload(
+        canvas.getByLabelText("アイコン画像をアップロードのファイル選択"),
+        source,
+      );
+      const dialog = await getDialog(canvasElement);
+      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+      await waitFor(() => expect(encodingCount).toBe(1));
+      canvas
+        .getByRole("button", { name: "保存済みアイコンに切り替え" })
+        .click();
+      await encoding.complete?.();
+      await expect(
+        await canvas.findByRole("img", { name: "アイコン画像のプレビュー" }),
+      ).toHaveAttribute("src", "/favicon-64x64.png");
+      await expect(
+        canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+      ).not.toBeInTheDocument();
+      await expect(
+        canvas.getByRole("button", { name: "アイコン画像をアップロード" }),
+      ).toBeEnabled();
+    } finally {
+      HTMLCanvasElement.prototype.toBlob = originalToBlob;
+    }
+  },
+};
+
+export const CancelSelection: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.upload(
+      canvas.getByLabelText("アイコン画像をアップロードのファイル選択"),
+      await createImageFixture(160, 120),
+    );
+    const dialog = await getDialog(canvasElement);
+    await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));
+    await expect(
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas
+        .getByRole("button", { name: "アイコン画像をアップロード" })
+        .querySelector('[data-testid="AddRoundedIcon"]'),
+    ).not.toBeNull();
   },
 };
