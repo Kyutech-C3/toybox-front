@@ -6,13 +6,19 @@ import {
   useRef,
   useState,
 } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 
 import styles from "./index.module.css";
 
+import Button from "@/shared/ui/Button";
+
 import type { CSSProperties, ReactNode } from "react";
 
 type CollapsibleTagListProps = {
+  toolbar: ReactNode;
+  isExpanded: boolean;
+  onExpandedChange: (isExpanded: boolean) => void;
   leadingItems?: ReactNode;
   children: ReactNode;
   isHeightKept?: boolean;
@@ -27,11 +33,13 @@ type CollapsibleTagListStyle = CSSProperties & {
   "--tag-covered-row-top"?: string;
   "--tag-collapsed-height"?: string;
   "--tag-kept-height"?: string;
+  "--tag-panel-kept-height"?: string;
+  "--tag-panel-kept-width"?: string;
 };
 
 type FocusRequest = "expand-button" | "first-hidden-item" | null;
 
-const VISIBLE_ROW_COUNT = 3;
+const VISIBLE_ROW_COUNT = 4;
 
 const getItems = (list: HTMLElement) =>
   Array.from(list.children).filter(
@@ -52,15 +60,19 @@ const isSameRowLayout = (left: RowLayout | null, right: RowLayout | null) =>
   left?.collapsedHeight === right?.collapsedHeight;
 
 const CollapsibleTagList = ({
+  toolbar,
+  isExpanded,
+  onExpandedChange,
   leadingItems,
   children,
   isHeightKept = false,
 }: CollapsibleTagListProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [panelWidth, setPanelWidth] = useState<number | null>(null);
+  const [panelHeight, setPanelHeight] = useState<number | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [keptHeight, setKeptHeight] = useState<number | null>(null);
   const [rowLayout, setRowLayout] = useState<RowLayout | null>(null);
   const [focusRequest, setFocusRequest] = useState<FocusRequest>(null);
-  const unitRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const listID = useId();
@@ -111,18 +123,31 @@ const CollapsibleTagList = ({
     };
   });
 
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    if (!panel || isExpanded) return;
+    const measure = () => {
+      setPanelHeight(panel.offsetHeight);
+      setPanelWidth(panel.offsetWidth);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(panel);
+    measure();
+    return () => observer.disconnect();
+  }, [isExpanded]);
+
   useEffect(() => {
     if (!isExpanded) return;
 
     const collapse = () => {
-      setIsExpanded(false);
+      onExpandedChange(false);
       if (listRef.current) listRef.current.scrollTop = 0;
     };
 
     const handleClick = (event: MouseEvent) => {
       if (
         event.target instanceof Node &&
-        !listRef.current?.contains(event.target)
+        !panelRef.current?.contains(event.target)
       ) {
         collapse();
       }
@@ -130,14 +155,14 @@ const CollapsibleTagList = ({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       collapse();
-      if (unitRef.current?.contains(document.activeElement)) {
+      if (panelRef.current?.contains(document.activeElement)) {
         setFocusRequest("expand-button");
       }
     };
     const handleFocusIn = (event: FocusEvent) => {
       if (
         event.target instanceof Node &&
-        !unitRef.current?.contains(event.target)
+        !panelRef.current?.contains(event.target)
       ) {
         collapse();
       }
@@ -151,7 +176,7 @@ const CollapsibleTagList = ({
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("focusin", handleFocusIn);
     };
-  }, [isExpanded]);
+  }, [isExpanded, onExpandedChange]);
 
   useEffect(() => {
     if (isExpanded || !rowLayout) return;
@@ -164,19 +189,22 @@ const CollapsibleTagList = ({
         candidate.contains(target),
       );
       if (item && isHiddenWhenCollapsed(list, item, rowLayout.coveredRowTop)) {
-        setIsExpanded(true);
+        onExpandedChange(true);
       }
     };
 
     document.addEventListener("focusin", handleFocusIn);
     return () => document.removeEventListener("focusin", handleFocusIn);
-  }, [isExpanded, rowLayout]);
+  }, [isExpanded, onExpandedChange, rowLayout]);
 
   useEffect(() => {
     if (!focusRequest) return;
     setFocusRequest(null);
     if (focusRequest === "expand-button") {
-      expandButtonRef.current?.focus();
+      const focusTarget =
+        expandButtonRef.current ??
+        panelRef.current?.querySelector<HTMLElement>("input, button");
+      focusTarget?.focus();
       return;
     }
     const list = listRef.current;
@@ -191,6 +219,12 @@ const CollapsibleTagList = ({
   }, [focusRequest, rowLayout]);
 
   const unitStyle: CollapsibleTagListStyle = {
+    ...(panelWidth !== null && {
+      "--tag-panel-kept-width": `${panelWidth}px`,
+    }),
+    ...(panelHeight !== null && {
+      "--tag-panel-kept-height": `${panelHeight}px`,
+    }),
     ...(rowLayout && {
       "--tag-covered-row-top": `${rowLayout.coveredRowTop}px`,
       "--tag-collapsed-height": `${rowLayout.collapsedHeight}px`,
@@ -201,39 +235,61 @@ const CollapsibleTagList = ({
 
   return (
     <div
-      ref={unitRef}
-      className={styles["tag-list-unit"]}
+      className={styles["tag-panel-unit"]}
       style={unitStyle}
-      data-collapsible={rowLayout ? "true" : "false"}
       data-expanded={isExpanded ? "true" : "false"}
     >
       {isExpanded && <div className={styles["backdrop"]} aria-hidden="true" />}
-      <div ref={listRef} id={listID} className={styles["tag-list"]}>
-        {hasLeadingItems && (
-          <div className={styles["leading-row"]}>{leadingItems}</div>
-        )}
-        {children}
-      </div>
-      {rowLayout && !isExpanded && (
-        <button
-          ref={expandButtonRef}
-          type="button"
-          className={styles["expand-button"]}
-          aria-expanded={false}
-          aria-controls={listID}
-          onClick={() => {
-            setIsExpanded(true);
-            setFocusRequest("first-hidden-item");
-          }}
+      <div ref={panelRef} className={styles["panel"]}>
+        <div className={styles["toolbar"]}>{toolbar}</div>
+        <div
+          className={styles["tag-list-unit"]}
+          data-collapsible={rowLayout ? "true" : "false"}
+          data-expanded={isExpanded ? "true" : "false"}
         >
-          <span className={styles["expand-label"]}>
-            すべてのタグ
-            <span className={styles["expand-icon"]} aria-hidden="true">
-              <ExpandMoreRoundedIcon fontSize="inherit" />
-            </span>
-          </span>
-        </button>
-      )}
+          <div ref={listRef} id={listID} className={styles["tag-list"]}>
+            {hasLeadingItems && (
+              <div className={styles["leading-row"]}>{leadingItems}</div>
+            )}
+            {children}
+          </div>
+          {rowLayout && !isExpanded && (
+            <button
+              ref={expandButtonRef}
+              type="button"
+              className={styles["expand-button"]}
+              aria-expanded={false}
+              aria-controls={listID}
+              onClick={() => {
+                onExpandedChange(true);
+                setFocusRequest("first-hidden-item");
+              }}
+            >
+              <span className={styles["expand-label"]}>
+                すべてのタグ
+                <span className={styles["expand-icon"]} aria-hidden="true">
+                  <ExpandMoreRoundedIcon fontSize="inherit" />
+                </span>
+              </span>
+            </button>
+          )}
+        </div>
+        {isExpanded && (
+          <Button
+            variant="ghost"
+            isIconOnly
+            className={styles["close-button"]}
+            icon={<CloseRoundedIcon />}
+            aria-label="タグの展開を閉じる"
+            aria-controls={listID}
+            onClick={() => {
+              onExpandedChange(false);
+              if (listRef.current) listRef.current.scrollTop = 0;
+              setFocusRequest("expand-button");
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };
