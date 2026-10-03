@@ -1,4 +1,8 @@
-import { clearAuthSession, refreshAccessToken } from "@/features/auth/auth";
+import {
+  AuthRefreshError,
+  clearAuthSession,
+  refreshAccessToken,
+} from "@/features/auth/auth";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { API_BASE_URL } from "@/util/apiConfig";
 
@@ -86,8 +90,14 @@ const fetchWithAuth = async (
       currentAuth.accessToken && currentAuth.accessToken !== accessToken
         ? currentAuth.accessToken
         : await refreshAccessToken();
-  } catch {
-    throw new ApiError(401);
+  } catch (error) {
+    throw new ApiError(
+      error instanceof AuthRefreshError
+        ? error.isSessionInvalid
+          ? 401
+          : error.status
+        : null,
+    );
   }
 
   if (useAuthStore.getState().sessionVersion !== requestSessionVersion) {

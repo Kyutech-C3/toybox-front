@@ -14,6 +14,21 @@ type LoginURLResponse = {
   url?: string;
 };
 
+export class AuthRefreshError extends Error {
+  status: number | null;
+
+  constructor(status: number | null) {
+    super("Failed to refresh access token");
+    this.name = "AuthRefreshError";
+    this.status = status;
+  }
+
+  get isSessionInvalid(): boolean {
+    // 現行のBackendはCookie未送信・無効・期限切れを400で返す。
+    return this.status === 400 || this.status === 401;
+  }
+}
+
 let REFRESH_REQUEST: Promise<string> | null = null;
 let CALLBACK_REQUEST: Promise<string> | null = null;
 let AUTH_REQUEST_GENERATION = 0;
@@ -104,13 +119,19 @@ const authenticateWithCode = (code: string) => {
 };
 
 const requestAccessToken = async (generation: number) => {
-  const request = await fetch(`${API_BASE_URL}/auth/refresh`, {
-    method: "POST",
-    credentials: "include",
-  });
+  assertAuthRequestIsCurrent(generation);
+  let request: Response;
+  try {
+    request = await fetch(`${API_BASE_URL}/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch {
+    throw new AuthRefreshError(null);
+  }
 
   if (!request.ok) {
-    throw new Error("Failed to refresh access token");
+    throw new AuthRefreshError(request.status);
   }
 
   const response: AccessTokenResponse = await request.json();
@@ -126,9 +147,19 @@ const requestAccessToken = async (generation: number) => {
 const refreshAccessToken = () => {
   if (!REFRESH_REQUEST) {
     const generation = AUTH_REQUEST_GENERATION;
-    const request = requestAccessToken(generation)
+    // Cookieはタブ間で共有されるため、対応ブラウザでは更新を直列化する。
+    const refreshRequest = navigator.locks
+      ? navigator.locks.request("toybox-auth-refresh", () =>
+          requestAccessToken(generation),
+        )
+      : requestAccessToken(generation);
+    const request = refreshRequest
       .catch(async (error: unknown) => {
-        if (generation === AUTH_REQUEST_GENERATION) {
+        if (
+          generation === AUTH_REQUEST_GENERATION &&
+          error instanceof AuthRefreshError &&
+          error.isSessionInvalid
+        ) {
           await clearAuthSession();
         }
         throw error;
