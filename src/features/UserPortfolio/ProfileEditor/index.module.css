@@ -46,8 +46,4 @@
   .url-prefix {
     font-size: 0.875rem;
   }
-
-  .actions {
-    flex-direction: column-reverse;
-  }
 }
