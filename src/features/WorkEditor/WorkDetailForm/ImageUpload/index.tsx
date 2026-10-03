@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import { getExtension } from "../../editorAsset";
 import useEditorRequestGuard from "../../hook/useEditorRequestGuard";
@@ -9,8 +9,10 @@ import useThumbnailUpload, {
 import UploadArea from "../UploadArea";
 import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
+import { prepareThumbnailImage } from "./prepareThumbnailImage";
 
 import Button from "@/shared/ui/Button";
+import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import FieldError from "@/shared/ui/FieldError";
 import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
 import LoadingImage from "@/shared/ui/LoadingImage";
@@ -33,66 +35,56 @@ const ThumbnailImageUpload = () => {
     null,
   );
   const [editError, setEditError] = useState("");
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
-  const requestRef = useRef<AbortController | null>(null);
-  const originalRef = useRef<{ source: File; output: File } | null>(null);
+  const [originalImage, setOriginalImage] = useState<{
+    source: File;
+    output: File;
+  } | null>(null);
+  const [isProcessingImage, setIsProcessingImage] = useState(false);
+  const processingSequenceRef = useRef(0);
   const isUploading = thumbnail?.status === "uploading";
 
-  useEffect(() => () => requestRef.current?.abort(), []);
+  const hasOriginalImage =
+    originalImage !== null && originalImage.output === thumbnail?.file;
 
-  const handleChooseImage = (file: File | undefined) => {
+  const handleChooseImage = async (file: File | undefined) => {
     if (!file) return;
     if (!THUMBNAIL_ACCEPT.split(",").includes(getExtension(file.name))) {
       setEditError("対応していない画像形式です");
       return;
     }
     setEditError("");
-    setPendingEdit({ file, isCurrent: createRequestGuard() });
+    setIsProcessingImage(true);
+    const sequence = ++processingSequenceRef.current;
+    const isCurrentSession = createRequestGuard();
+    const isCurrent = () =>
+      isCurrentSession() && sequence === processingSequenceRef.current;
+    try {
+      const output = await prepareThumbnailImage(file);
+      if (!isCurrent()) return;
+      if (handleSelectFile(output)) setOriginalImage({ source: file, output });
+    } catch {
+      if (isCurrent())
+        setEditError(
+          "画像を加工できませんでした。別の画像を選択してください。",
+        );
+    } finally {
+      if (isCurrent()) setIsProcessingImage(false);
+    }
   };
 
-  const handleEdit = async () => {
-    if (!thumbnail || isUploading || isLoadingImage) return;
-    setEditError("");
-    if (thumbnail.file) {
-      handleChooseImage(
-        originalRef.current?.output === thumbnail.file
-          ? originalRef.current.source
-          : thumbnail.file,
-      );
-      return;
-    }
-    if (!thumbnail.assetURL) return;
-    requestRef.current?.abort();
-    const controller = new AbortController();
-    requestRef.current = controller;
-    const isCurrent = createRequestGuard();
-    setIsLoadingImage(true);
-    try {
-      const response = await fetch(thumbnail.assetURL, {
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error("Failed to load image");
-      const blob = await response.blob();
-      if (!isCurrent() || controller.signal.aborted) return;
-      setPendingEdit({
-        file: new File([blob], thumbnail.fileName, { type: blob.type }),
-        isCurrent,
-      });
-    } catch {
-      if (isCurrent() && !controller.signal.aborted) {
-        setEditError(
-          "画像を読み込めませんでした。端末から画像を選択してください。",
-        );
-      }
-    } finally {
-      if (isCurrent()) setIsLoadingImage(false);
-    }
+  const handleEdit = () => {
+    if (!hasOriginalImage || isUploading || isProcessingImage) return;
+    setPendingEdit({
+      file: originalImage.source,
+      isCurrent: createRequestGuard(),
+    });
   };
 
   const handleApply = (file: File) => {
     if (!pendingEdit?.isCurrent()) return;
-    originalRef.current = { source: pendingEdit.file, output: file };
-    handleSelectFile(file);
+    if (handleSelectFile(file)) {
+      setOriginalImage({ source: pendingEdit.file, output: file });
+    }
     setPendingEdit(null);
   };
 
@@ -103,11 +95,11 @@ const ThumbnailImageUpload = () => {
         asset={thumbnail}
         hasPreview={!!thumbnail?.previewURL}
         onRemove={() => {
-          requestRef.current?.abort();
-          setIsLoadingImage(false);
+          processingSequenceRef.current += 1;
+          setIsProcessingImage(false);
           setEditError("");
           handleRemove();
-          originalRef.current = null;
+          setOriginalImage(null);
         }}
         onRetry={handleRetry}
         statusText={
@@ -123,8 +115,8 @@ const ThumbnailImageUpload = () => {
         <UploadArea
           accept={THUMBNAIL_ACCEPT}
           ariaLabel="サムネイル画像をアップロード"
-          onSelectFiles={(files) => handleChooseImage(files[0])}
-          isDisabled={isUploading || isLoadingImage}
+          onSelectFiles={(files) => void handleChooseImage(files[0])}
+          isDisabled={isUploading || isProcessingImage}
           isEmbedded
         >
           {thumbnail?.previewURL ? (
@@ -135,17 +127,24 @@ const ThumbnailImageUpload = () => {
             />
           ) : undefined}
         </UploadArea>
+        {hasOriginalImage && (
+          <div className={styles["edit-action"]}>
+            <Button
+              variant="secondary"
+              size="small"
+              isIconOnly
+              icon={<EditSquareIcon />}
+              ariaLabel="サムネイル画像を編集"
+              onClick={handleEdit}
+              disabled={isUploading || isProcessingImage}
+            />
+          </div>
+        )}
       </UploadCard>
-      {thumbnail && (
-        <Button
-          variant="secondary"
-          size="small"
-          onClick={() => void handleEdit()}
-          disabled={isUploading}
-          isLoading={isLoadingImage}
-        >
-          画像を編集
-        </Button>
+      {isProcessingImage && (
+        <p className={styles["format-help"]} role="status">
+          画像を加工中
+        </p>
       )}
       {(editError || validationError || thumbnail?.errorMessage) && (
         <FieldError role="alert">
@@ -156,7 +155,8 @@ const ThumbnailImageUpload = () => {
         PNG・JPG・JPEG・BMP・GIF・WEBP / 加工後5MB以下
       </p>
       <p className={styles["format-help"]}>
-        推奨比率 4:3。選択後に切り抜きと解像度を調整できます。
+        選択時に
+        4:3・長辺1600px以下に加工します。左下の編集アイコンから再調整できます。
       </p>
       {pendingEdit?.isCurrent() && (
         <ImageEditorDialog

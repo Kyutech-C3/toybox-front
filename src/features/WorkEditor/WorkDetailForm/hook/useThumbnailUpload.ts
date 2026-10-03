@@ -16,7 +16,7 @@ const MAX_THUMBNAIL_SIZE = 5 * 1024 * 1024;
 type UseThumbnailUploadReturn = {
   thumbnail: EditorAsset | null;
   validationError: string;
-  handleSelectFile: (file: File | null) => void;
+  handleSelectFile: (file: File | null) => boolean;
   handleRetry: () => void;
   handleRemove: () => void;
 };
@@ -75,19 +75,20 @@ const useThumbnailUpload = (): UseThumbnailUploadReturn => {
   };
 
   const handleSelectFile = (file: File | null) => {
-    if (!file) return;
+    if (!file) return false;
     if (file.size > MAX_THUMBNAIL_SIZE) {
       setValidationError("ファイルサイズは5MB以下にしてください");
-      return;
+      return false;
     }
     if (!THUMBNAIL_ACCEPT.split(",").includes(getExtension(file.name))) {
       setValidationError("対応していない画像形式です");
-      return;
+      return false;
     }
 
     setValidationError("");
     setThumbnail(createUploadingAsset(file));
     void upload(file);
+    return true;
   };
 
   const handleRetry = () => {

@@ -31,3 +31,9 @@
     font-size: 16px;
   }
 }
+
+.edit-action {
+  position: absolute;
+  bottom: var(--space-8);
+  left: var(--space-8);
+}
