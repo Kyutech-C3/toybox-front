@@ -81,7 +81,10 @@ const ImageEditorDialog = ({
       onCloseRef.current();
       showToast({ message: "画像を読み込めませんでした", severity: "error" });
     };
-    sourceImage.src = url;
+    // StrictMode の setup → cleanup → setup 後に、有効な読込だけを開始する。
+    queueMicrotask(() => {
+      if (isActive) sourceImage.src = url;
+    });
     return () => {
       isActive = false;
       sourceImage.onload = null;

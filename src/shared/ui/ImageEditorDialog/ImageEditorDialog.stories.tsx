@@ -1,5 +1,12 @@
-import { useState } from "react";
-import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
+import { StrictMode, useState } from "react";
+import {
+  expect,
+  fireEvent,
+  spyOn,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 
 import ImageEditorDialog from "./index";
 
@@ -209,5 +216,49 @@ export const UnreadableImage: Story = {
       "画像を読み込めませんでした",
     );
     await expect(body.queryByRole("dialog")).not.toBeInTheDocument();
+  },
+};
+
+export const StrictModeImageLoading: Story = {
+  decorators: [
+    (Story) => (
+      <StrictMode>
+        <Story />
+      </StrictMode>
+    ),
+  ],
+  play: async ({ canvasElement }) => {
+    const failedImages: string[] = [];
+    const setSource = Object.getOwnPropertyDescriptor(
+      HTMLImageElement.prototype,
+      "src",
+    )?.set;
+    if (!setSource) throw new Error("Image src setter is unavailable");
+    const sourceSpy = spyOn(
+      HTMLImageElement.prototype,
+      "src",
+      "set",
+    ).mockImplementation(function (this: HTMLImageElement, value: string) {
+      this.addEventListener("error", () => failedImages.push(value), {
+        once: true,
+      });
+      setSource.call(this, value);
+    });
+    try {
+      const dialog = within(await openEditor(canvasElement));
+      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+      await waitFor(() =>
+        expect(
+          within(canvasElement).getByLabelText("加工結果"),
+        ).toHaveTextContent("1600 × 1200px / image/webp"),
+      );
+      const reopenedDialog = within(await openEditor(canvasElement));
+      await userEvent.click(
+        reopenedDialog.getByRole("button", { name: "キャンセル" }),
+      );
+      await expect(failedImages).toEqual([]);
+    } finally {
+      sourceSpy.mockRestore();
+    }
   },
 };
