@@ -4,6 +4,7 @@ import styles from "./index.module.css";
 
 import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
+import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import FieldError from "@/shared/ui/FieldError";
 import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
 import { IMAGE_ACCEPT } from "@/util/imageProcessing";
@@ -94,13 +95,28 @@ const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
 
   return (
     <section className={styles["avatar-editor"]} aria-label="アイコン画像">
-      <h3>アイコン画像</h3>
       <div className={styles["preview-row"]}>
-        <Avatar
-          avatarURL={editedAvatar?.url ?? (avatarURL || undefined)}
-          alt="アイコン画像のプレビュー"
-          size="profile"
-        />
+        <div className={styles["avatar-preview"]}>
+          <Avatar
+            avatarURL={editedAvatar?.url ?? (avatarURL || undefined)}
+            alt="アイコン画像のプレビュー"
+            size="profile"
+          />
+          <Button
+            className={styles["edit-button"]}
+            variant="secondary"
+            size="small"
+            isIconOnly
+            icon={<EditSquareIcon />}
+            ariaLabel="アイコン画像を編集"
+            onClick={() => {
+              if (editedAvatar || avatarURL) void handleEdit();
+              else inputRef.current?.click();
+            }}
+            disabled={isDisabled}
+            isLoading={isLoadingImage}
+          />
+        </div>
         <div className={styles["actions"]}>
           <Button
             variant="secondary"
@@ -109,16 +125,6 @@ const AvatarEditor = ({ avatarURL, isDisabled }: AvatarEditorProps) => {
           >
             写真を選択
           </Button>
-          {(editedAvatar || avatarURL) && (
-            <Button
-              variant="secondary"
-              onClick={() => void handleEdit()}
-              disabled={isDisabled}
-              isLoading={isLoadingImage}
-            >
-              アイコン画像を編集
-            </Button>
-          )}
         </div>
       </div>
       <input

@@ -4,11 +4,6 @@
   gap: var(--space-8);
 }
 
-.avatar-editor h3 {
-  margin: 0;
-  font-size: 0.875rem;
-}
-
 .preview-row,
 .actions {
   display: flex;
@@ -28,4 +23,15 @@
 
 .download {
   color: var(--link-color);
+}
+
+.avatar-preview {
+  position: relative;
+}
+
+.edit-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

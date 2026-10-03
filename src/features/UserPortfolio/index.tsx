@@ -49,13 +49,15 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
     <>
       <section className={styles["profile-section"]}>
         <div className={styles["profile-card"]}>
-          <div className={styles["profile-avatar"]}>
-            <Avatar
-              avatarURL={userProfile.avatar_url || undefined}
-              alt={`${userProfile.display_name}のプロフィール画像`}
-              size="profile"
-            />
-          </div>
+          {!(isOwner && isEditing) && (
+            <div className={styles["profile-avatar"]}>
+              <Avatar
+                avatarURL={userProfile.avatar_url || undefined}
+                alt={`${userProfile.display_name}のプロフィール画像`}
+                size="profile"
+              />
+            </div>
+          )}
           {isOwner && isEditing ? (
             <div className={styles["profile-editor-slot"]}>
               <ProfileEditor

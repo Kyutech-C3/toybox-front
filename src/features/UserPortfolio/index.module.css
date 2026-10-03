@@ -37,7 +37,7 @@
 }
 
 .profile-editor-slot {
-  grid-column: 2 / -1;
+  grid-column: 1 / -1;
 }
 
 .display-name {

@@ -220,3 +220,61 @@ export const NotFound: Story = {
     );
   },
 };
+
+export const OwnerProfileEditing: Story = {
+  render: () => (
+    <PageFrame
+      path="/users/owner"
+      routePattern="/users/:id"
+      fallback={{
+        [unstable_serialize([
+          "/users/owner",
+          "/works/users/owner?page=1&limit=30",
+          "storybook-token",
+        ])]: {
+          userProfile: PROFILE,
+          worksResponse: { works: [WORK], total_count: 1, page: 1, limit: 30 },
+        },
+      }}
+    >
+      <UserPage />
+    </PageFrame>
+  ),
+  beforeEach: () => {
+    const originalFetch = globalThis.fetch;
+    const user = { id: "owner", display_name: "作者", icon_url: "" };
+    globalThis.fetch = (resource, init) =>
+      String(resource).endsWith("/auth/users/me")
+        ? Promise.resolve(new Response(JSON.stringify(user), { status: 200 }))
+        : originalFetch(resource, init);
+    useAuthStore.setState({ accessToken: "storybook-token" });
+    useUserStore.setState({ user, hasLoadFailed: false });
+    return () => {
+      globalThis.fetch = originalFetch;
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByRole("heading", { name: "作者" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "プロフィールを編集" }),
+    );
+    await expect(
+      canvas.getByRole("button", { name: "アイコン画像を編集" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getAllByRole("img", {
+        name: /プロフィール画像|アイコン画像のプレビュー/,
+      }),
+    ).toHaveLength(1);
+    await userEvent.click(canvas.getByRole("button", { name: "キャンセル" }));
+    await expect(
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+  },
+};
