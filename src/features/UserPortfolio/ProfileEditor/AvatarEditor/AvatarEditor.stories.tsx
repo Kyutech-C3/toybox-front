@@ -73,6 +73,10 @@ export const LocalPreview: Story = {
     await userEvent.upload(input, await createImageFixture(1600, 1200));
     let dialog = await getDialog(canvasElement);
     await expect(canvas.queryByRole("listbox")).not.toBeInTheDocument();
+    await userEvent.click(dialog.getByRole("button", { name: "右に90度回転" }));
+    await waitFor(() =>
+      expect(dialog.getByRole("button", { name: "保存" })).toBeEnabled(),
+    );
     await fireEvent.change(dialog.getByRole("slider"), {
       target: { value: "2" },
     });
@@ -127,6 +131,8 @@ export const LocalPreview: Story = {
       const restoredTransform = new DOMMatrix(source?.style.transform);
       expect(restoredTransform.m41).toBeCloseTo(savedTransform.m41, 1);
       expect(restoredTransform.m42).toBeCloseTo(savedTransform.m42, 1);
+      expect(restoredTransform.m11).toBeCloseTo(savedTransform.m11, 1);
+      expect(restoredTransform.m12).toBeCloseTo(savedTransform.m12, 1);
     });
     await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));
     await expect(image).toHaveAttribute("src", savedURL);
