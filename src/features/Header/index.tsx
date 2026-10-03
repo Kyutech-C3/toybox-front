@@ -20,7 +20,8 @@ import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 const Header = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const { pathname } = location;
   const isEditingWork = pathname.startsWith("/edit/");
   const { showToast } = useToast();
   const theme = useSyncExternalStore(subscribeTheme, getCurrentTheme);
@@ -34,7 +35,9 @@ const Header = () => {
     if (isLoggingIn) return;
     setIsLoggingIn(true);
     try {
-      const url = await getLoginUrl();
+      const url = await getLoginUrl(
+        location.pathname + location.search + location.hash,
+      );
 
       if (url.startsWith("http://") || url.startsWith("https://")) {
         window.location.href = url;

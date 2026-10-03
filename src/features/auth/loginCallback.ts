@@ -3,15 +3,47 @@ const LOGIN_CALLBACK_MAX_AGE_MS = 10 * 60 * 1000;
 
 type PendingLogin = {
   startedAt: number;
+  returnTo: string;
 };
 
 export type LoginCallback = {
-  code: string;
+  code: string | null;
+  returnTo: string;
 };
 
-export const recordLoginCallback = () => {
+const getSafeReturnPath = (returnTo: unknown): string => {
+  if (
+    typeof returnTo !== "string" ||
+    !returnTo.startsWith("/") ||
+    returnTo.startsWith("//") ||
+    Array.from(returnTo).some(
+      (character) =>
+        character === "\\" ||
+        character.charCodeAt(0) <= 32 ||
+        character.charCodeAt(0) === 127,
+    )
+  ) {
+    return "/";
+  }
+  try {
+    const url = new URL(returnTo, window.location.origin);
+    if (
+      url.origin !== window.location.origin ||
+      url.pathname.startsWith("//") ||
+      /^\/auth\/callback(?:\/|$)/.test(url.pathname)
+    ) {
+      return "/";
+    }
+    return url.pathname + url.search + url.hash;
+  } catch {
+    return "/";
+  }
+};
+
+export const recordLoginCallback = (returnTo: string) => {
   const pendingLogin: PendingLogin = {
     startedAt: Date.now(),
+    returnTo: getSafeReturnPath(returnTo),
   };
   sessionStorage.setItem(PENDING_LOGIN_KEY, JSON.stringify(pendingLogin));
 };
@@ -22,7 +54,6 @@ export const consumeLoginCallback = (
 ): LoginCallback | null => {
   if (pathname !== "/auth/callback") return null;
   const searchParams = new URLSearchParams(search);
-  if (!searchParams.has("code") && !searchParams.has("error")) return null;
 
   try {
     const storedLogin = sessionStorage.getItem(PENDING_LOGIN_KEY);
@@ -43,10 +74,15 @@ export const consumeLoginCallback = (
     // 正規の戻り先への到着で一度だけ消費する。認可コードは保存しない。
     sessionStorage.removeItem(PENDING_LOGIN_KEY);
     const codes = searchParams.getAll("code");
-    if (codes.length !== 1 || !codes[0] || searchParams.has("error")) {
-      return null;
-    }
-    return { code: codes[0] };
+    return {
+      code:
+        codes.length === 1 && codes[0] && !searchParams.has("error")
+          ? codes[0]
+          : null,
+      returnTo: getSafeReturnPath(
+        "returnTo" in pendingLogin ? pendingLogin.returnTo : null,
+      ),
+    };
   } catch {
     return null;
   }

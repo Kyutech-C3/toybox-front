@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 
+import AuthCallbackPage from "@/pages/AuthCallbackPage";
 import EditPage from "@/pages/EditPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import TopPage from "@/pages/TopPage";
@@ -11,6 +12,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<TopPage />} />
+      <Route path="/auth/callback" element={<AuthCallbackPage />} />
       <Route path="/works/:id" element={<WorkPage />} />
       <Route path="/users/:id" element={<UserPage />} />
       <Route path="/edit/new" element={<EditPage isNewWork />} />

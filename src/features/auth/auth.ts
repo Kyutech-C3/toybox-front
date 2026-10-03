@@ -62,7 +62,11 @@ const clearAuthSession = async () => {
   });
 };
 
-const getLoginUrl = async () => {
+const getLoginUrl = async (
+  returnTo = window.location.pathname +
+    window.location.search +
+    window.location.hash,
+) => {
   const request = await fetch(`${API_BASE_URL}/auth/discord`, {
     credentials: "include",
   });
@@ -76,7 +80,7 @@ const getLoginUrl = async () => {
     throw new Error("Login URL was not returned");
   }
 
-  recordLoginCallback();
+  recordLoginCallback(returnTo);
   return response.url;
 };
 

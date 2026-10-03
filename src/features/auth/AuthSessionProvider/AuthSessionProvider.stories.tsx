@@ -1,12 +1,15 @@
-import { MemoryRouter, useLocation } from "react-router-dom";
+import { StrictMode } from "react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
+import AuthCallback from "../AuthCallback";
 import { authenticateWithCode, getLoginUrl, refreshAccessToken } from "../auth";
 import { consumeLoginCallback, recordLoginCallback } from "../loginCallback";
 import { useAuthStore } from "../store/useAuthStore";
 import { useUserStore } from "../store/useUserStore";
 import AuthSessionProvider from "./index";
 
+import AuthCallbackPage from "@/pages/AuthCallbackPage";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { fetchDataWithAuth } from "@/util/fetchData";
 
@@ -17,7 +20,7 @@ const SessionContent = () => {
   return (
     <>
       <p>ログイン確認完了</p>
-      <p>{location.pathname + location.search}</p>
+      <p>{location.pathname + location.search + location.hash}</p>
     </>
   );
 };
@@ -29,12 +32,21 @@ const META = {
     (Story, { parameters }) => (
       <MemoryRouter initialEntries={parameters.initialEntries ?? ["/"]}>
         <ToastProvider>
-          <Story />
+          <StrictMode>
+            <Story />
+          </StrictMode>
         </ToastProvider>
       </MemoryRouter>
     ),
   ],
-  args: { children: <SessionContent /> },
+  args: {
+    children: (
+      <Routes>
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="*" element={<SessionContent />} />
+      </Routes>
+    ),
+  },
   beforeEach: () => {
     sessionStorage.removeItem("toybox-pending-login");
     useAuthStore.setState({ accessToken: null, isInitialized: false });
@@ -213,7 +225,7 @@ export const CodeOnUnrelatedPath: Story = {
   ...UnsolicitedCode,
   parameters: { initialEntries: ["/works/123?code=unsolicited-code"] },
   beforeEach: () => {
-    recordLoginCallback();
+    recordLoginCallback("/");
     return mockRefresh(200);
   },
   play: async ({ canvasElement }) => {
@@ -235,7 +247,7 @@ export const ExpectedCallback: Story = {
     initialEntries: ["/auth/callback?code=valid-code"],
   },
   beforeEach: () => {
-    recordLoginCallback();
+    recordLoginCallback("/");
     const originalFetch = window.fetch;
     window.fetch = fn().mockResolvedValue(
       Response.json({ access_token: "callback-token" }),
@@ -263,7 +275,7 @@ export const ExpectedCallback: Story = {
 export const FailedCallbackRestoresSession: Story = {
   parameters: { initialEntries: ["/auth/callback?code=invalid-code"] },
   beforeEach: () => {
-    recordLoginCallback();
+    recordLoginCallback("/");
     return mockRefresh(500);
   },
   play: async ({ canvasElement }) => {
@@ -312,13 +324,13 @@ export const CallbackExpiry: Story = {
       }),
     );
     try {
-      await getLoginUrl();
+      await getLoginUrl("/");
       await expect(
         consumeLoginCallback("/works/123", "?code=wrong-path"),
       ).toBeNull();
       await expect(
         consumeLoginCallback("/auth/callback", "?code=valid-code"),
-      ).toEqual({ code: "valid-code" });
+      ).toEqual({ code: "valid-code", returnTo: "/" });
       await expect(
         consumeLoginCallback("/auth/callback", "?code=replay"),
       ).toBeNull();
@@ -331,10 +343,10 @@ export const CallbackExpiry: Story = {
       await expect(
         consumeLoginCallback("/auth/callback", "?code=expired"),
       ).toBeNull();
-      await getLoginUrl();
+      await getLoginUrl("/");
       await expect(
         consumeLoginCallback("/auth/callback", "?code=one&code=two"),
-      ).toBeNull();
+      ).toEqual({ code: null, returnTo: "/" });
     } finally {
       window.fetch = originalFetch;
     }
@@ -344,7 +356,7 @@ export const CallbackExpiry: Story = {
 export const CodeOnRootPath: Story = {
   parameters: { initialEntries: ["/?code=valid-code"] },
   beforeEach: () => {
-    recordLoginCallback();
+    recordLoginCallback("/");
     return mockRefresh(200);
   },
   play: async ({ canvasElement }) => {
@@ -371,7 +383,7 @@ export const FailedCallbackKeepsCurrentUser: Story = {
       display_name: "テスト",
       icon_url: "",
     });
-    recordLoginCallback();
+    recordLoginCallback("/");
     return mockRefresh(400);
   },
   play: async ({ canvasElement }) => {
@@ -381,5 +393,123 @@ export const FailedCallbackKeepsCurrentUser: Story = {
     await expect(useAuthStore.getState().accessToken).toBe("existing-token");
     await expect(useUserStore.getState().user?.id).toBe("existing-user");
     await expect(window.fetch).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const ReturnToOriginalPage: Story = {
+  ...ExpectedCallback,
+  beforeEach: () => {
+    recordLoginCallback("/works/123?view=detail#comments");
+    return mockRefresh(200);
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByText("/works/123?view=detail#comments"),
+    ).toBeVisible();
+    await expect(window.fetch).toHaveBeenCalledTimes(1);
+    await expect(sessionStorage.getItem("toybox-pending-login")).toBeNull();
+  },
+};
+
+export const CancelledLoginReturnsToOriginalPage: Story = {
+  parameters: { initialEntries: ["/auth/callback?error=access_denied"] },
+  beforeEach: () => {
+    recordLoginCallback("/edit/new?mode=markdown#description");
+    return mockRefresh(200);
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText(
+        "/edit/new?mode=markdown#description",
+      ),
+    ).toBeVisible();
+    await expect(window.fetch).toHaveBeenCalledTimes(1);
+    await expect(window.fetch).toHaveBeenCalledWith(
+      expect.stringMatching(/\/auth\/refresh$/),
+      { method: "POST", credentials: "include" },
+    );
+    await expect(sessionStorage.getItem("toybox-pending-login")).toBeNull();
+  },
+};
+
+export const CallbackWithoutLoginStart: Story = {
+  parameters: { initialEntries: ["/auth/callback?code=unsolicited-code"] },
+  beforeEach: () => mockRefresh(200),
+  play: async ({ canvasElement }) => {
+    await expect(await within(canvasElement).findByText("/")).toBeVisible();
+    await expect(window.fetch).toHaveBeenCalledTimes(1);
+    await expect(window.fetch).toHaveBeenCalledWith(
+      expect.stringMatching(/\/auth\/refresh$/),
+      { method: "POST", credentials: "include" },
+    );
+  },
+};
+
+export const SafeReturnPaths: Story = {
+  beforeEach: () => useAuthStore.setState({ isInitialized: true }),
+  play: async () => {
+    for (const returnTo of [
+      "https://example.com/",
+      "//example.com/",
+      "/.//example.com/",
+      "/\\example.com/",
+      "/auth/callback?code=loop",
+      "/works/../auth/callback",
+      "/\n/example.com/",
+    ]) {
+      recordLoginCallback(returnTo);
+      await expect(
+        consumeLoginCallback("/auth/callback", "?code=valid-code"),
+      ).toEqual({ code: "valid-code", returnTo: "/" });
+    }
+    // 保存データも、読み取り時に改めて検証する。
+    sessionStorage.setItem(
+      "toybox-pending-login",
+      JSON.stringify({ startedAt: Date.now(), returnTo: "//example.com/" }),
+    );
+    await expect(
+      consumeLoginCallback("/auth/callback", "?code=valid-code"),
+    ).toEqual({ code: "valid-code", returnTo: "/" });
+  },
+};
+
+export const CallbackPageComposition: Story = {
+  parameters: { initialEntries: ["/auth/callback?code=valid-code"] },
+  args: {
+    children: (
+      <Routes>
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="*" element={<SessionContent />} />
+      </Routes>
+    ),
+  },
+  beforeEach: () => {
+    recordLoginCallback("/works/123?view=detail#comments");
+    const originalFetch = window.fetch;
+    window.fetch = fn().mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("/auth/discord/callback?")) {
+        return Response.json({ access_token: "callback-token" });
+      }
+      if (url.endsWith("/auth/users/me")) {
+        return Response.json({
+          id: "test-user",
+          display_name: "テスト",
+          icon_url: "",
+        });
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    return () => {
+      window.fetch = originalFetch;
+    };
+  },
+  play: async ({ canvasElement }) => {
+    await expect(
+      await within(canvasElement).findByText("/works/123?view=detail#comments"),
+    ).toBeVisible();
+    await expect(useAuthStore.getState().accessToken).toBe("callback-token");
+    await expect(sessionStorage.getItem("toybox-pending-login")).toBeNull();
   },
 };
