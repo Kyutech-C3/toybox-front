@@ -1,6 +1,7 @@
 import { mutate } from "swr";
 
 import requestLogout from "./api/logout";
+import { recordLoginCallback } from "./loginCallback";
 import { useAuthStore } from "./store/useAuthStore";
 import { useUserStore } from "./store/useUserStore";
 
@@ -75,6 +76,7 @@ const getLoginUrl = async () => {
     throw new Error("Login URL was not returned");
   }
 
+  recordLoginCallback();
   return response.url;
 };
 
@@ -102,16 +104,9 @@ const requestCallbackAccessToken = async (code: string, generation: number) => {
 const authenticateWithCode = (code: string) => {
   if (!CALLBACK_REQUEST) {
     const generation = AUTH_REQUEST_GENERATION;
-    const request = requestCallbackAccessToken(code, generation)
-      .catch(async (error: unknown) => {
-        if (generation === AUTH_REQUEST_GENERATION) {
-          await clearAuthSession();
-        }
-        throw error;
-      })
-      .finally(() => {
-        if (CALLBACK_REQUEST === request) CALLBACK_REQUEST = null;
-      });
+    const request = requestCallbackAccessToken(code, generation).finally(() => {
+      if (CALLBACK_REQUEST === request) CALLBACK_REQUEST = null;
+    });
     CALLBACK_REQUEST = request;
   }
 

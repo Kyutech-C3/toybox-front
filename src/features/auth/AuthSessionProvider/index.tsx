@@ -7,6 +7,7 @@ import {
   refreshAccessToken,
   removeLegacyAuthStorage,
 } from "../auth";
+import { consumeLoginCallback } from "../loginCallback";
 import { useAuthStore } from "../store/useAuthStore";
 
 import PageErrorState from "@/shared/ui/PageErrorState";
@@ -37,39 +38,48 @@ const AuthSessionProvider = ({ children }: AuthSessionProviderProps) => {
     setHasRestoreFailed(false);
     removeLegacyAuthStorage();
 
-    const searchParams = new URLSearchParams(location.search);
-    const callbackCode = searchParams.get("code");
-    const initializeSession = callbackCode
-      ? authenticateWithCode(callbackCode)
+    const loginCallback = consumeLoginCallback(
+      location.pathname,
+      location.search,
+    );
+    const initializeSession = loginCallback
+      ? authenticateWithCode(loginCallback.code)
+          .then((token) => {
+            showToast({ message: "ログインしました", severity: "success" });
+            return token;
+          })
+          .catch(() => {
+            showToast({ message: "ログインに失敗しました", severity: "error" });
+            // ログイン試行の失敗は既存セッションの失効とは別に扱う。
+            return useAuthStore.getState().accessToken ?? refreshAccessToken();
+          })
       : refreshAccessToken();
 
     initializeSession
       .then(() => {
         setInitialized();
-        if (callbackCode) {
-          showToast({ message: "ログインしました", severity: "success" });
-        }
       })
       .catch((error: unknown) => {
-        if (callbackCode) {
-          showToast({ message: "ログインに失敗しました", severity: "error" });
-          setInitialized();
-        } else if (
-          error instanceof AuthRefreshError &&
-          error.isSessionInvalid
-        ) {
+        if (error instanceof AuthRefreshError && error.isSessionInvalid) {
           setInitialized();
         } else {
           setHasRestoreFailed(true);
         }
       })
       .finally(() => {
-        if (callbackCode) {
+        if (loginCallback) {
           navigate("/", { replace: true });
         }
         isInitializingRef.current = false;
       });
-  }, [isInitialized, location.search, navigate, setInitialized, showToast]);
+  }, [
+    isInitialized,
+    location.pathname,
+    location.search,
+    navigate,
+    setInitialized,
+    showToast,
+  ]);
 
   useEffect(() => {
     initializeAuthSession();
