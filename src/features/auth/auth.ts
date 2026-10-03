@@ -15,6 +15,8 @@ type LoginURLResponse = {
   url?: string;
 };
 
+const REFRESH_TIMEOUT_MS = 10_000;
+
 export class AuthRefreshError extends Error {
   status: number | null;
 
@@ -119,21 +121,29 @@ const authenticateWithCode = (code: string) => {
 
 const requestAccessToken = async (generation: number) => {
   assertAuthRequestIsCurrent(generation);
-  let request: Response;
+  const controller = new AbortController();
+  const timeoutID = window.setTimeout(
+    () => controller.abort(),
+    REFRESH_TIMEOUT_MS,
+  );
+  let response: AccessTokenResponse;
   try {
-    request = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    const request = await fetch(`${API_BASE_URL}/auth/refresh`, {
       method: "POST",
       credentials: "include",
+      signal: controller.signal,
     });
-  } catch {
+    if (!request.ok) {
+      throw new AuthRefreshError(request.status);
+    }
+    response = await request.json();
+  } catch (error) {
+    if (error instanceof AuthRefreshError) throw error;
     throw new AuthRefreshError(null);
+  } finally {
+    window.clearTimeout(timeoutID);
   }
 
-  if (!request.ok) {
-    throw new AuthRefreshError(request.status);
-  }
-
-  const response: AccessTokenResponse = await request.json();
   if (!response.access_token) {
     throw new Error("Access token was not returned");
   }

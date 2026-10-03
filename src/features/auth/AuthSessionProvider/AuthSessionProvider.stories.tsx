@@ -252,6 +252,93 @@ export const SharedRefresh: Story = {
   },
 };
 
+export const RefreshTimeout: Story = {
+  beforeEach: () =>
+    useAuthStore.setState({
+      accessToken: "existing-token",
+      isInitialized: true,
+    }),
+  play: async () => {
+    const originalFetch = window.fetch;
+    const originalSetTimeout = window.setTimeout.bind(window);
+    const originalClearTimeout = window.clearTimeout.bind(window);
+    const mockSetTimeout = fn(
+      (handler: TimerHandler, timeout?: number, ...args: unknown[]) =>
+        originalSetTimeout(handler, timeout === 10_000 ? 20 : timeout, ...args),
+    );
+    const mockClearTimeout = fn((id?: number) => originalClearTimeout(id));
+    Object.defineProperty(window, "setTimeout", {
+      configurable: true,
+      writable: true,
+      value: mockSetTimeout,
+    });
+    Object.defineProperty(window, "clearTimeout", {
+      configurable: true,
+      writable: true,
+      value: mockClearTimeout,
+    });
+    try {
+      // ヘッダー待ちと、ヘッダー受信後の本文待ちの両方を中断する。
+      for (const hasHeaders of [false, true]) {
+        useAuthStore.getState().setAccessToken("existing-token");
+        const sessionVersion = useAuthStore.getState().sessionVersion;
+        let requestSignal: AbortSignal | null = null;
+        window.fetch = fn(
+          async (_input: RequestInfo | URL, init?: RequestInit) => {
+            const signal = init?.signal;
+            if (!signal) throw new Error("AbortSignal is missing");
+            requestSignal = signal;
+            if (!hasHeaders) {
+              return new Promise<Response>((_resolve, reject) => {
+                signal.addEventListener("abort", () => reject(signal.reason), {
+                  once: true,
+                });
+              });
+            }
+            return new Response(
+              new ReadableStream({
+                start(controller) {
+                  signal.addEventListener(
+                    "abort",
+                    () => controller.error(signal.reason),
+                    { once: true },
+                  );
+                },
+              }),
+            );
+          },
+        );
+        const request = refreshAccessToken();
+        await expect(refreshAccessToken()).toBe(request);
+        await expect(request).rejects.toMatchObject({
+          status: null,
+          isSessionInvalid: false,
+        });
+        await expect(requestSignal).toHaveProperty("aborted", true);
+        await expect(useAuthStore.getState().accessToken).toBe(
+          "existing-token",
+        );
+        await expect(useAuthStore.getState().sessionVersion).toBe(
+          sessionVersion,
+        );
+        await expect(mockSetTimeout).toHaveBeenCalledWith(
+          expect.any(Function),
+          10_000,
+        );
+        await expect(mockClearTimeout).toHaveBeenCalled();
+        window.fetch = fn().mockImplementation(async () =>
+          Response.json({ access_token: "retry-token" }),
+        );
+        await expect(refreshAccessToken()).resolves.toBe("retry-token");
+      }
+    } finally {
+      window.fetch = originalFetch;
+      window.setTimeout = originalSetTimeout;
+      window.clearTimeout = originalClearTimeout;
+    }
+  },
+};
+
 export const UnsolicitedCode: Story = {
   parameters: { initialEntries: ["/?code=unsolicited-code"] },
   beforeEach: () => mockRefresh(200),
@@ -262,7 +349,11 @@ export const UnsolicitedCode: Story = {
     await expect(window.fetch).toHaveBeenCalledTimes(1);
     await expect(window.fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/auth\/refresh$/),
-      { method: "POST", credentials: "include" },
+      {
+        method: "POST",
+        credentials: "include",
+        signal: expect.any(AbortSignal),
+      },
     );
   },
 };
@@ -283,7 +374,11 @@ export const CodeOnUnrelatedPath: Story = {
     await expect(window.fetch).toHaveBeenCalledTimes(1);
     await expect(window.fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/auth\/refresh$/),
-      { method: "POST", credentials: "include" },
+      {
+        method: "POST",
+        credentials: "include",
+        signal: expect.any(AbortSignal),
+      },
     );
   },
 };
@@ -334,7 +429,11 @@ export const FailedCallbackRestoresSession: Story = {
     await expect(window.fetch).toHaveBeenCalledTimes(2);
     await expect(window.fetch).toHaveBeenLastCalledWith(
       expect.stringMatching(/\/auth\/refresh$/),
-      { method: "POST", credentials: "include" },
+      {
+        method: "POST",
+        credentials: "include",
+        signal: expect.any(AbortSignal),
+      },
     );
   },
 };
@@ -412,7 +511,11 @@ export const CodeOnRootPath: Story = {
     await expect(window.fetch).toHaveBeenCalledTimes(1);
     await expect(window.fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/auth\/refresh$/),
-      { method: "POST", credentials: "include" },
+      {
+        method: "POST",
+        credentials: "include",
+        signal: expect.any(AbortSignal),
+      },
     );
   },
 };
@@ -473,7 +576,11 @@ export const CancelledLoginReturnsToOriginalPage: Story = {
     await expect(window.fetch).toHaveBeenCalledTimes(1);
     await expect(window.fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/auth\/refresh$/),
-      { method: "POST", credentials: "include" },
+      {
+        method: "POST",
+        credentials: "include",
+        signal: expect.any(AbortSignal),
+      },
     );
     await expect(sessionStorage.getItem("toybox-pending-login")).toBeNull();
   },
@@ -487,7 +594,11 @@ export const CallbackWithoutLoginStart: Story = {
     await expect(window.fetch).toHaveBeenCalledTimes(1);
     await expect(window.fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/auth\/refresh$/),
-      { method: "POST", credentials: "include" },
+      {
+        method: "POST",
+        credentials: "include",
+        signal: expect.any(AbortSignal),
+      },
     );
   },
 };
