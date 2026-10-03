@@ -4,8 +4,14 @@ import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import LightModeRoundedIcon from "@mui/icons-material/LightModeRounded";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
+import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 
-import { getLoginUrl, logout } from "../auth/auth";
+import {
+  AuthRefreshError,
+  getLoginUrl,
+  logout,
+  refreshAccessToken,
+} from "../auth/auth";
 import { useAuthStore } from "../auth/store/useAuthStore";
 import { useUserStore } from "../auth/store/useUserStore";
 import AccountMenu from "./AccountMenu";
@@ -14,11 +20,13 @@ import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
 import FloatingActionButton from "@/shared/ui/FloatingActionButton";
+import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { getCurrentTheme, setTheme, subscribeTheme } from "@/util/theme";
 
 const Header = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isRetryingSession, setIsRetryingSession] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { pathname } = location;
@@ -54,9 +62,29 @@ const Header = () => {
       setIsLoggingIn(false);
     }
   };
-  const { accessToken } = useAuthStore();
+  const { accessToken, hasRestoreFailed } = useAuthStore();
   const { user, hasLoadFailed, setUser, setUserLoadFailed, clearUser } =
     useUserStore();
+
+  const handleRetrySession = async () => {
+    if (isRetryingSession) return;
+    setIsRetryingSession(true);
+    try {
+      await refreshAccessToken();
+      showToast({ message: "ログイン状態を確認しました", severity: "success" });
+    } catch (error) {
+      if (error instanceof AuthRefreshError && error.isSessionInvalid) {
+        showToast({ message: "ログインしていません", severity: "info" });
+      } else {
+        showToast({
+          message: "ログイン状態を確認できませんでした。再試行してください。",
+          severity: "error",
+        });
+      }
+    } finally {
+      setIsRetryingSession(false);
+    }
+  };
 
   useEffect(() => {
     if (!accessToken) {
@@ -112,7 +140,7 @@ const Header = () => {
         <Button
           variant="ghost"
           isIconOnly
-          className={styles["theme-toggle"]}
+          className={styles["header-icon-button"]}
           onClick={handleThemeToggle}
           aria-label={
             theme === "light"
@@ -134,12 +162,32 @@ const Header = () => {
             variant="primary"
             className={styles["login-button"]}
             onClick={handleLogin}
+            isDisabled={isRetryingSession}
             isLoading={isLoggingIn || (!!accessToken && !hasLoadFailed)}
             icon={<LoginRoundedIcon />}
             ariaLabel="ログイン"
           >
             <span className={styles["login-label"]}>ログイン</span>
           </Button>
+        )}
+        {hasRestoreFailed && (
+          <Button
+            variant="ghost"
+            isIconOnly
+            className={styles["header-icon-button"]}
+            onClick={handleRetrySession}
+            isLoading={isRetryingSession}
+            isDisabled={isLoggingIn}
+            ariaLabel="ログイン状態の確認を再試行"
+            title="ログイン状態の確認を再試行"
+            icon={
+              isRetryingSession ? (
+                <LoadingSpinner size="small" isDecorative />
+              ) : (
+                <RefreshRoundedIcon />
+              )
+            }
+          />
         )}
         {accessToken && (
           <FloatingActionButton

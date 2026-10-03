@@ -9,6 +9,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { useUserStore } from "../store/useUserStore";
 import AuthSessionProvider from "./index";
 
+import Header from "@/features/Header";
 import AuthCallbackPage from "@/pages/AuthCallbackPage";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { fetchDataWithAuth } from "@/util/fetchData";
@@ -49,7 +50,11 @@ const META = {
   },
   beforeEach: () => {
     sessionStorage.removeItem("toybox-pending-login");
-    useAuthStore.setState({ accessToken: null, isInitialized: false });
+    useAuthStore.setState({
+      accessToken: null,
+      isInitialized: false,
+      hasRestoreFailed: false,
+    });
     useUserStore.getState().clearUser();
   },
 } satisfies Meta<typeof AuthSessionProvider>;
@@ -67,8 +72,14 @@ const mockRefresh = (status: number | null) => {
       }
       return new Response(null, { status });
     })
-    .mockResolvedValue(
-      Response.json({ access_token: "storybook-refreshed-token" }),
+    .mockImplementation(async (input: RequestInfo | URL) =>
+      String(input).endsWith("/auth/users/me")
+        ? Response.json({
+            id: "test-user",
+            display_name: "テスト",
+            icon_url: "",
+          })
+        : Response.json({ access_token: "storybook-refreshed-token" }),
     );
   return () => {
     window.fetch = originalFetch;
@@ -76,18 +87,52 @@ const mockRefresh = (status: number | null) => {
 };
 
 export const ServerErrorRetry: Story = {
+  args: {
+    children: (
+      <>
+        <Header />
+        <SessionContent />
+      </>
+    ),
+  },
   beforeEach: () => mockRefresh(500),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByText("ログイン状態を確認できませんでした"),
-    ).toBeVisible();
-    await expect(useAuthStore.getState().isInitialized).toBe(false);
-    await userEvent.click(canvas.getByRole("button", { name: "再試行" }));
     await expect(await canvas.findByText("ログイン確認完了")).toBeVisible();
+    await expect(useAuthStore.getState().isInitialized).toBe(true);
+    await expect(useAuthStore.getState().hasRestoreFailed).toBe(true);
+    await waitFor(() =>
+      expect(
+        canvas.getByText(
+          "ログイン状態を確認できませんでした。再試行してください。",
+        ),
+      ).toBeVisible(),
+    );
+    const loginButton = canvas.getByRole("button", { name: "ログイン" });
+    const retryButton = canvas.getByRole("button", {
+      name: "ログイン状態の確認を再試行",
+    });
+    await expect(retryButton).toHaveAttribute("data-icon-only", "true");
+    await expect(retryButton).toHaveTextContent("");
+    await expect(
+      retryButton.getBoundingClientRect().left,
+    ).toBeGreaterThanOrEqual(loginButton.getBoundingClientRect().right);
+    loginButton.focus();
+    await userEvent.tab();
+    await expect(retryButton).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() =>
+      expect(useAuthStore.getState().hasRestoreFailed).toBe(false),
+    );
     await expect(useAuthStore.getState().accessToken).toBe(
       "storybook-refreshed-token",
     );
+    await waitFor(() =>
+      expect(canvas.getByText("ログイン状態を確認しました")).toBeVisible(),
+    );
+    await expect(
+      canvas.queryByRole("button", { name: "ログイン状態の確認を再試行" }),
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -103,6 +148,7 @@ export const NoSession: Story = {
       await within(canvasElement).findByText("ログイン確認完了"),
     ).toBeVisible();
     await expect(useAuthStore.getState().accessToken).toBeNull();
+    await expect(useAuthStore.getState().hasRestoreFailed).toBe(false);
   },
 };
 

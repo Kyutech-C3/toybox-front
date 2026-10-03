@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 import {
@@ -8,8 +8,8 @@ import {
 } from "../auth";
 import { useAuthStore } from "../store/useAuthStore";
 
-import PageErrorState from "@/shared/ui/PageErrorState";
 import PageLoading from "@/shared/ui/PageLoading";
+import useToast from "@/shared/ui/Toast/hook/useToast";
 
 import type { ReactNode } from "react";
 
@@ -21,9 +21,10 @@ const AuthSessionProvider = ({ children }: AuthSessionProviderProps) => {
   const location = useLocation();
   const isCallbackPage = location.pathname === "/auth/callback";
   const isInitializingRef = useRef(false);
-  const [hasRestoreFailed, setHasRestoreFailed] = useState(false);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const setInitialized = useAuthStore((state) => state.setInitialized);
+  const setRestoreFailed = useAuthStore((state) => state.setRestoreFailed);
+  const { showToast } = useToast();
 
   const initializeAuthSession = useCallback(() => {
     if (isCallbackPage || isInitialized || isInitializingRef.current) {
@@ -31,50 +32,36 @@ const AuthSessionProvider = ({ children }: AuthSessionProviderProps) => {
     }
 
     isInitializingRef.current = true;
-    setHasRestoreFailed(false);
+    setRestoreFailed(false);
     removeLegacyAuthStorage();
 
     refreshAccessToken()
-      .then(() => {
-        setInitialized();
-      })
       .catch((error: unknown) => {
-        if (error instanceof AuthRefreshError && error.isSessionInvalid) {
-          setInitialized();
-        } else {
-          setHasRestoreFailed(true);
+        if (!(error instanceof AuthRefreshError && error.isSessionInvalid)) {
+          setRestoreFailed(true);
+          showToast({
+            message: "ログイン状態を確認できませんでした。再試行してください。",
+            severity: "error",
+          });
         }
       })
       .finally(() => {
         isInitializingRef.current = false;
+        setInitialized();
       });
-  }, [isInitialized, isCallbackPage, setInitialized]);
+  }, [
+    isInitialized,
+    isCallbackPage,
+    setInitialized,
+    setRestoreFailed,
+    showToast,
+  ]);
 
   useEffect(() => {
     initializeAuthSession();
   }, [initializeAuthSession]);
 
-  const handleRetry = () => {
-    initializeAuthSession();
-  };
-
   if (!isCallbackPage && !isInitialized) {
-    if (hasRestoreFailed) {
-      return (
-        <PageErrorState
-          title="ログイン状態を確認できませんでした"
-          description="通信環境を確認して、もう一度お試しください。"
-          actions={[
-            {
-              id: "retry",
-              label: "再試行",
-              type: "button",
-              onClick: handleRetry,
-            },
-          ]}
-        />
-      );
-    }
     return <PageLoading />;
   }
 
