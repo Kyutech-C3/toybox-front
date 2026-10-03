@@ -16,6 +16,7 @@ type LoginURLResponse = {
 };
 
 const REFRESH_TIMEOUT_MS = 10_000;
+const CALLBACK_TIMEOUT_MS = 30_000;
 
 export class AuthRefreshError extends Error {
   status: number | null;
@@ -88,16 +89,27 @@ const getLoginUrl = async (
 
 const requestCallbackAccessToken = async (code: string, generation: number) => {
   const searchParams = new URLSearchParams({ code });
-  const request = await fetch(
-    `${API_BASE_URL}/auth/discord/callback?${searchParams.toString()}`,
-    { credentials: "include" },
+  const controller = new AbortController();
+  const timeoutID = window.setTimeout(
+    () => controller.abort(),
+    CALLBACK_TIMEOUT_MS,
   );
+  let response: AccessTokenResponse;
+  try {
+    const request = await fetch(
+      `${API_BASE_URL}/auth/discord/callback?${searchParams.toString()}`,
+      { credentials: "include", signal: controller.signal },
+    );
 
-  if (!request.ok) {
-    throw new Error("Failed to process Discord callback");
+    if (!request.ok) {
+      throw new Error("Failed to process Discord callback");
+    }
+
+    response = await request.json();
+  } finally {
+    window.clearTimeout(timeoutID);
   }
 
-  const response: AccessTokenResponse = await request.json();
   if (!response.access_token) {
     throw new Error("Access token was not returned");
   }

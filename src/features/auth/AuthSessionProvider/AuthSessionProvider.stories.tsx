@@ -404,13 +404,96 @@ export const ExpectedCallback: Story = {
     await expect(window.fetch).toHaveBeenCalledTimes(1);
     await expect(window.fetch).toHaveBeenCalledWith(
       expect.stringMatching(/\/auth\/discord\/callback\?code=valid-code$/),
-      { credentials: "include" },
+      { credentials: "include", signal: expect.any(AbortSignal) },
     );
     await expect(useAuthStore.getState().accessToken).toBe("callback-token");
     await expect(
       consumeLoginCallback("/auth/callback", "?code=valid-code"),
     ).toBeNull();
   },
+};
+
+const mockCallbackTimeout = (hasHeaders: boolean) => {
+  recordLoginCallback("/works/123?view=detail#comments");
+  const originalFetch = window.fetch;
+  const originalSetTimeout = window.setTimeout.bind(window);
+  const mockSetTimeout = fn(
+    (handler: TimerHandler, timeout?: number, ...args: unknown[]) =>
+      originalSetTimeout(handler, timeout === 10_000 ? 20 : timeout, ...args),
+  );
+  Object.defineProperty(window, "setTimeout", {
+    configurable: true,
+    writable: true,
+    value: mockSetTimeout,
+  });
+  window.fetch = fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+    if (String(input).endsWith("/auth/refresh")) {
+      return new Response(null, { status: 400 });
+    }
+    const signal = init?.signal;
+    if (!signal) throw new Error("AbortSignal is missing");
+    if (!hasHeaders) {
+      return new Promise<Response>((_resolve, reject) => {
+        signal.addEventListener("abort", () => reject(signal.reason), {
+          once: true,
+        });
+      });
+    }
+    return new Response(
+      new ReadableStream({
+        start(controller) {
+          signal.addEventListener(
+            "abort",
+            () => controller.error(signal.reason),
+            { once: true },
+          );
+        },
+      }),
+    );
+  });
+  return () => {
+    window.fetch = originalFetch;
+    Object.defineProperty(window, "setTimeout", {
+      configurable: true,
+      writable: true,
+      value: originalSetTimeout,
+    });
+  };
+};
+
+export const CallbackTimeout: Story = {
+  parameters: { initialEntries: ["/auth/callback?code=timeout-code"] },
+  beforeEach: () => mockCallbackTimeout(false),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByText("/works/123?view=detail#comments"),
+    ).toBeVisible();
+    await waitFor(() =>
+      expect(canvas.getByText("ログインに失敗しました")).toBeVisible(),
+    );
+    await waitFor(() => expect(window.fetch).toHaveBeenCalledTimes(2));
+    await expect(window.fetch).toHaveBeenNthCalledWith(
+      1,
+      expect.stringMatching(/\/auth\/discord\/callback\?code=timeout-code$/),
+      {
+        credentials: "include",
+        signal: expect.objectContaining({ aborted: true }),
+      },
+    );
+    await expect(window.setTimeout).toHaveBeenCalledWith(
+      expect.any(Function),
+      10_000,
+    );
+    await expect(useAuthStore.getState().isInitialized).toBe(true);
+    await expect(useAuthStore.getState().accessToken).toBeNull();
+    await expect(sessionStorage.getItem("toybox-pending-login")).toBeNull();
+  },
+};
+
+export const CallbackBodyTimeout: Story = {
+  ...CallbackTimeout,
+  beforeEach: () => mockCallbackTimeout(true),
 };
 
 export const FailedCallbackRestoresSession: Story = {
