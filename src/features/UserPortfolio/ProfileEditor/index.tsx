@@ -3,6 +3,7 @@ import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { mutate } from "swr";
 
 import { updateUserProfile } from "../api/updateUserProfile";
+import AvatarEditor from "./AvatarEditor";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
@@ -140,6 +141,10 @@ const ProfileEditor = ({
         void handleSubmit();
       }}
     >
+      <AvatarEditor
+        avatarURL={userProfile.avatar_url}
+        isDisabled={isSubmitting}
+      />
       <div className={styles["field"]}>
         <label className={styles["label"]} htmlFor={displayNameID}>
           表示名

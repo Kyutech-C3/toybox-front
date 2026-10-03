@@ -1,0 +1,31 @@
+.avatar-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.avatar-editor h3 {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.preview-row,
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.help {
+  color: var(--font-muted-color);
+  font-size: 0.875rem;
+}
+
+.file-input {
+  display: none;
+}
+
+.download {
+  color: var(--link-color);
+}
