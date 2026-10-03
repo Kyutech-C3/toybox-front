@@ -1,9 +1,5 @@
-import { Link } from "react-router-dom";
-
-import styles from "./index.module.css";
-
-import Button from "@/shared/ui/Button";
 import EditSquareIcon from "@/shared/ui/EditSquareIcon";
+import IconActionButton from "@/shared/ui/IconActionButton";
 
 type EditButtonProps = {
   ariaLabel: string;
@@ -20,29 +16,23 @@ const EditButton = ({
   onEdit,
   isDisabled,
 }: EditButtonProps) => {
-  const buttonClassName = [styles["edit-button"], className]
-    .filter(Boolean)
-    .join(" ");
   if (to !== undefined)
     return (
-      <Link
+      <IconActionButton
         to={to}
-        className={buttonClassName}
-        aria-label={ariaLabel}
+        className={className}
+        ariaLabel={ariaLabel}
         title="編集する"
-      >
-        <EditSquareIcon />
-      </Link>
+        icon={<EditSquareIcon />}
+      />
     );
   return (
-    <Button
-      className={buttonClassName}
-      size="compact"
-      isIconOnly
-      icon={<EditSquareIcon />}
-      ariaLabel={ariaLabel}
+    <IconActionButton
       onClick={onEdit}
+      className={className}
+      ariaLabel={ariaLabel}
       isDisabled={isDisabled}
+      icon={<EditSquareIcon />}
     />
   );
 };

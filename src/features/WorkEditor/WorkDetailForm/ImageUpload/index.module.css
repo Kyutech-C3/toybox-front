@@ -19,6 +19,12 @@
   object-fit: cover;
 }
 
+.format-help {
+  margin: 0;
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
+}
+
 @media (max-width: 599px) {
   .upload-heading {
     margin: var(--space-8) 2px;

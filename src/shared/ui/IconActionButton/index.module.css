@@ -1,9 +1,9 @@
-.edit-button {
+.icon-action-button {
   position: relative;
 }
 
-.edit-button,
-.edit-button[data-variant][data-size][data-icon-only] {
+.icon-action-button,
+.icon-action-button[data-variant][data-size][data-icon-only] {
   box-sizing: border-box;
   min-width: 30px;
   padding: 0;
@@ -17,49 +17,53 @@
   background: color-mix(in srgb, var(--paper-color) 72%, transparent);
   backdrop-filter: blur(8px) saturate(1.4);
   box-shadow: 0 2px 8px var(--shadow-soft-color);
-  color: var(--font-color);
+  color: var(--action-icon-color, var(--font-color));
   font-size: 18px;
   transition: box-shadow var(--hover-transition);
 }
 
-.edit-button::after {
+.icon-action-button::after {
   position: absolute;
   inset: -7px;
   content: "";
 }
 
-.edit-button:not(:disabled):hover,
-.edit-button[data-variant]:not(:disabled):hover {
+.icon-action-button:not(:disabled):hover,
+.icon-action-button[data-variant]:not(:disabled):hover {
   border-color: var(--primary-color);
   background: var(--primary-color);
   box-shadow: var(--hover-shadow);
-  color: var(--on-primary-color);
+  color: var(--action-icon-color, var(--on-primary-color));
 }
 
-.edit-button:focus-visible {
+.icon-action-button:focus-visible {
   outline: 2px solid var(--font-color);
   outline-offset: 2px;
 }
 
 @media (hover: none) {
-  .edit-button:not(:disabled):hover,
-  .edit-button[data-variant]:not(:disabled):hover {
+  .icon-action-button:not(:disabled):hover,
+  .icon-action-button[data-variant]:not(:disabled):hover {
     border-color: color-mix(in srgb, var(--paper-color) 60%, transparent);
     background: color-mix(in srgb, var(--paper-color) 72%, transparent);
     box-shadow: 0 2px 8px var(--shadow-soft-color);
-    color: var(--font-color);
+    color: var(--action-icon-color, var(--font-color));
   }
 }
 
-:global(:root[data-theme="dark"]) .edit-button,
-:global(:root[data-theme="dark"]) .edit-button[data-variant] {
+:global(:root[data-theme="dark"]) .icon-action-button,
+:global(:root[data-theme="dark"]) .icon-action-button[data-variant] {
   border-color: color-mix(in srgb, var(--font-color) 18%, transparent);
 }
 
-.edit-button:active {
+.icon-action-button:active {
   filter: var(--press-filter);
 }
 
-.edit-button > span {
+.icon-action-button > span {
   font-size: inherit;
+}
+
+.icon-action-button[data-destructive="true"] {
+  --action-icon-color: var(--error-color);
 }

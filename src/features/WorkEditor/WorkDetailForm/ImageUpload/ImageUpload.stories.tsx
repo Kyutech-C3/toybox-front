@@ -135,6 +135,31 @@ export const SelectAndEdit: Story = {
       const edit = canvas.getByRole("button", { name: "サムネイル画像を編集" });
       await expect(edit.querySelector("svg")).not.toBeNull();
       await expect(edit).toHaveTextContent("");
+      const remove = canvas.getByRole("button", { name: "photo.webpを削除" });
+      const errorColor = document.createElement("span");
+      errorColor.style.color = getComputedStyle(
+        document.documentElement,
+      ).getPropertyValue("--error-color");
+      for (const property of [
+        "width",
+        "height",
+        "backgroundColor",
+        "borderColor",
+        "borderRadius",
+        "boxShadow",
+        "fontSize",
+      ] as const) {
+        await expect(getComputedStyle(remove)[property]).toBe(
+          getComputedStyle(edit)[property],
+        );
+      }
+      await expect(getComputedStyle(remove).color).toBe(errorColor.style.color);
+      await userEvent.hover(remove);
+      const hoveredRemove = getComputedStyle(remove).backgroundColor;
+      await expect(getComputedStyle(remove).color).toBe(errorColor.style.color);
+      await userEvent.hover(edit);
+      await expect(hoveredRemove).toBe(getComputedStyle(edit).backgroundColor);
+      await userEvent.unhover(edit);
       const preview = edit.parentElement?.getBoundingClientRect();
       const button = edit.getBoundingClientRect();
       if (!preview) throw new Error("No thumbnail preview");

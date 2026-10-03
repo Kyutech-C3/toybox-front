@@ -142,6 +142,9 @@ const ThumbnailImageUpload = () => {
           {editError || validationError || thumbnail?.errorMessage}
         </FieldError>
       )}
+      <p className={styles["format-help"]}>
+        PNG・JPG・JPEG・BMP・GIF・WEBP / 加工後5MB以下
+      </p>
       {pendingEdit?.isCurrent() && (
         <ImageEditorDialog
           file={pendingEdit.file}
