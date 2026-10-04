@@ -189,6 +189,31 @@ export const Avatar: Story = {
   },
 };
 
+export const ZoomedAvatarOutputSize: Story = {
+  args: { purpose: "avatar" },
+  play: async ({ canvasElement }) => {
+    const dialog = within(await openEditor(canvasElement));
+    const slider = dialog.getByRole("slider");
+    // 1200px / 2.14 を丸めた切り抜き範囲は561px。512pxへの縮小で誤差が出る。
+    for (const { zoom, size } of [
+      { zoom: "2.14", size: "512 × 512px" },
+      { zoom: "2.35", size: "511 × 511px" },
+      { zoom: "2.14", size: "512 × 512px" },
+    ]) {
+      await fireEvent.change(slider, { target: { value: zoom } });
+      await waitFor(() =>
+        expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(size),
+      );
+    }
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByLabelText("加工結果"),
+      ).toHaveTextContent("512 × 512px / image/webp"),
+    );
+  },
+};
+
 export const RotationAndReset: Story = {
   args: { purpose: "avatar", width: 160, height: 120 },
   play: async ({ canvasElement }) => {

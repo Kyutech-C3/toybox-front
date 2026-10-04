@@ -30,10 +30,16 @@ export const getImageOutputSize = ({
     MAX_IMAGE_OUTPUT_SIDE,
     canUpscale ? Number.POSITIVE_INFINITY : sourceLongSide,
   );
-  const scale = targetLongSide / sourceLongSide;
+  // 倍率を先に求めると512pxが511.999…になるため、乗算してから割る。
   return {
-    width: Math.max(1, Math.floor(area.width * scale)),
-    height: Math.max(1, Math.floor(area.height * scale)),
+    width: Math.max(
+      1,
+      Math.floor((area.width * targetLongSide) / sourceLongSide),
+    ),
+    height: Math.max(
+      1,
+      Math.floor((area.height * targetLongSide) / sourceLongSide),
+    ),
   };
 };
 
