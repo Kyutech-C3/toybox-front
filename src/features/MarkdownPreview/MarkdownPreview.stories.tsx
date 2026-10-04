@@ -162,8 +162,14 @@ export const ImageFullscreen: Story = {
     await waitFor(() =>
       expect(fullscreenImage.naturalWidth).toBeGreaterThan(0),
     );
+    const viewport = fullscreenImage.parentElement;
+    if (!viewport) throw new Error("画像の表示領域が見つかりません");
+    await expect(document.fullscreenElement).toBeNull();
+    await expect(getComputedStyle(fullscreenImage).objectFit).toBe("contain");
+    await expect(fullscreenImage.clientWidth).toBe(viewport.clientWidth);
+    await expect(fullscreenImage.clientHeight).toBe(viewport.clientHeight);
     const bounds = dialog.getBoundingClientRect();
-    dialog.dispatchEvent(
+    viewport.dispatchEvent(
       new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
@@ -181,7 +187,7 @@ export const ImageFullscreen: Story = {
       clientX: bounds.left + bounds.width / 2,
       clientY: bounds.top + bounds.height / 2,
     });
-    dialog.dispatchEvent(zoom);
+    viewport.dispatchEvent(zoom);
     await expect(zoom.defaultPrevented).toBe(true);
     await waitFor(() =>
       expect(fullscreenImage.style.transform).not.toContain("scale(1)"),
@@ -189,17 +195,19 @@ export const ImageFullscreen: Story = {
     const pan = new WheelEvent("wheel", {
       bubbles: true,
       cancelable: true,
+      shiftKey: true,
       deltaY: 80,
     });
-    dialog.dispatchEvent(pan);
+    viewport.dispatchEvent(pan);
     await expect(pan.defaultPrevented).toBe(true);
     await waitFor(() =>
       expect(fullscreenImage.style.transform).toContain("-80px"),
     );
-    dialog.dispatchEvent(
+    viewport.dispatchEvent(
       new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
+        shiftKey: true,
         deltaY: 100000,
       }),
     );
@@ -211,10 +219,11 @@ export const ImageFullscreen: Story = {
         fullscreenImage.getBoundingClientRect().bottom,
       ).toBeGreaterThanOrEqual(bounds.bottom - 1),
     );
-    dialog.dispatchEvent(
+    viewport.dispatchEvent(
       new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
+        shiftKey: true,
         deltaY: -100000,
       }),
     );
@@ -238,8 +247,12 @@ export const ImageFullscreen: Story = {
     );
     await userEvent.click(imageButton);
     await expect(dialog).toBeVisible();
+    await expect(
+      within(dialog).getByAltText("拡大する画像").style.transform,
+    ).toBe("translate3d(0px, 0px, 0px) scale(1)");
     await userEvent.keyboard("{Escape}");
     await expect(dialog).not.toBeVisible();
+    await expect(imageButton).toHaveFocus();
   },
 };
 
@@ -254,6 +267,12 @@ export const ImageFullscreenKeyboard: Story = {
     await userEvent.keyboard("{Enter}");
     const dialog = canvas.getByRole("dialog", { name: "画像の全画面表示" });
     await expect(dialog).toBeVisible();
+    const image = within(dialog).getByAltText("キーボードで拡大");
+    if (!(image instanceof HTMLImageElement) || !image.parentElement)
+      throw new Error("画像の表示領域が見つかりません");
+    await waitFor(() => expect(image.naturalWidth).toBeGreaterThan(0));
+    await expect(image.clientWidth).toBe(image.parentElement.clientWidth);
+    await expect(image.clientHeight).toBe(image.parentElement.clientHeight);
     await userEvent.keyboard("{Escape}");
     await expect(dialog).not.toBeVisible();
   },
