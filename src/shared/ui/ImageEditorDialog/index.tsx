@@ -2,10 +2,6 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Cropper from "react-easy-crop";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
-import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
-import ArrowDownwardRoundedIcon from "@mui/icons-material/ArrowDownwardRounded";
-import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
-import ArrowUpwardRoundedIcon from "@mui/icons-material/ArrowUpwardRounded";
 import RemoveRoundedIcon from "@mui/icons-material/RemoveRounded";
 import RestartAltRoundedIcon from "@mui/icons-material/RestartAltRounded";
 import RotateLeftRoundedIcon from "@mui/icons-material/RotateLeftRounded";
@@ -18,13 +14,11 @@ import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import {
   createEditedImage,
-  drawImageCrop,
   getImageOutputSize,
   IMAGE_EDIT_SETTINGS,
 } from "@/util/imageProcessing";
 
 import type { KeyboardEvent } from "react";
-import type { MediaSize, Size } from "react-easy-crop";
 import type { ImageCropArea } from "@/util/imageProcessing";
 
 export type ImageEditState = {
@@ -40,6 +34,8 @@ type ImageEditorDialogProps = {
   onClose: () => void;
 };
 
+const MAX_ZOOM = 10;
+
 const ImageEditorDialog = ({
   file,
   purpose,
@@ -48,11 +44,7 @@ const ImageEditorDialog = ({
   onClose,
 }: ImageEditorDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const previewRef = useRef<HTMLCanvasElement>(null);
-  const mediaSizeRef = useRef<MediaSize | null>(null);
-  const cropSizeRef = useRef<Size | null>(null);
   const titleID = useId();
-  const hintID = useId();
   const zoomID = useId();
   const isMountedRef = useRef(false);
   const isProcessingRef = useRef(false);
@@ -79,21 +71,6 @@ const ImageEditorDialog = ({
         canUpscale: false,
       })
     : null;
-
-  useEffect(() => {
-    if (!image || !area) return;
-    const frame = requestAnimationFrame(() => {
-      if (previewRef.current)
-        drawImageCrop(
-          previewRef.current,
-          image,
-          area,
-          { width: 120, height: Math.round(120 / settings.aspect) },
-          rotation,
-        );
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [image, area, rotation, settings.aspect]);
 
   useEffect(() => {
     isMountedRef.current = true;
@@ -155,14 +132,11 @@ const ImageEditorDialog = ({
     if (event.key !== "Tab") return;
     const controls = Array.from(
       event.currentTarget.querySelectorAll<HTMLElement>(
-        "button:not(:disabled), input:not(:disabled), summary, [tabindex='0']",
+        "button:not(:disabled), input:not(:disabled), [tabindex='0']",
       ),
     ).filter(
       (control) =>
-        !control.closest("[inert]") &&
-        (control.tagName === "SUMMARY" ||
-          !control.closest("details:not([open])")) &&
-        control.getClientRects().length > 0,
+        !control.closest("[inert]") && control.getClientRects().length > 0,
     );
     const first = controls[0];
     const last = controls.at(-1);
@@ -224,22 +198,7 @@ const ImageEditorDialog = ({
   };
 
   const handleZoom = (change: number) => {
-    setZoom((value) => Math.min(3, Math.max(1, value + change)));
-  };
-
-  const handleMove = (x: number, y: number) => {
-    const mediaSize = mediaSizeRef.current;
-    const cropSize = cropSizeRef.current;
-    if (!mediaSize || !cropSize) return;
-    const isQuarterTurn = rotation % 180 !== 0;
-    const width = isQuarterTurn ? mediaSize.height : mediaSize.width;
-    const height = isQuarterTurn ? mediaSize.width : mediaSize.height;
-    const maxX = Math.max(0, (width * zoom - cropSize.width) / 2);
-    const maxY = Math.max(0, (height * zoom - cropSize.height) / 2);
-    setCrop((position) => ({
-      x: Math.min(maxX, Math.max(-maxX, position.x + x)),
-      y: Math.min(maxY, Math.max(-maxY, position.y + y)),
-    }));
+    setZoom((value) => Math.min(MAX_ZOOM, Math.max(1, value + change)));
   };
 
   return createPortal(
@@ -248,7 +207,6 @@ const ImageEditorDialog = ({
       tabIndex={-1}
       className={styles["dialog"]}
       aria-labelledby={titleID}
-      aria-describedby={hintID}
       onKeyDown={handleKeyDown}
       onCancel={(event) => {
         event.preventDefault();
@@ -259,14 +217,11 @@ const ImageEditorDialog = ({
         <h2 id={titleID}>
           {purpose === "avatar" ? "アイコン画像を編集" : "サムネイル画像を編集"}
         </h2>
-        <p id={hintID}>
-          <span className={styles["pointer-hint"]}>
-            写真をドラッグして位置を調整できます
-          </span>
-          <span className={styles["touch-hint"]}>
-            指で写真を移動・ピンチで拡大できます
-          </span>
-        </p>
+        <output className={styles["output-size"]} aria-label="出力サイズ">
+          {outputSize
+            ? `${outputSize.width} × ${outputSize.height}px`
+            : "読込中"}
+        </output>
       </header>
       <div className={styles["workspace"]}>
         <div className={styles["crop-container"]} inert={isProcessing}>
@@ -276,18 +231,13 @@ const ImageEditorDialog = ({
               image={sourceURL}
               crop={crop}
               zoom={zoom}
+              maxZoom={MAX_ZOOM}
               rotation={rotation}
               aspect={settings.aspect}
               cropShape={settings.cropShape}
               initialCroppedAreaPercentages={initialCrop}
               onCropChange={setCrop}
               onZoomChange={setZoom}
-              setMediaSize={(size) => {
-                mediaSizeRef.current = size;
-              }}
-              onCropSizeChange={(size) => {
-                cropSizeRef.current = size;
-              }}
               onCropAreaChange={(croppedPercentages, pixels) => {
                 setArea(pixels);
                 setPercentages(croppedPercentages);
@@ -306,22 +256,6 @@ const ImageEditorDialog = ({
             <LoadingSpinner />
           )}
         </div>
-        <aside className={styles["preview"]} aria-label="完成プレビュー">
-          <span>完成プレビュー</span>
-          <canvas
-            ref={previewRef}
-            className={styles["preview-image"]}
-            data-round={purpose === "avatar" || undefined}
-            data-ready={!!outputSize}
-            role="img"
-            aria-label="切り抜き後の画像"
-          />
-          <output className={styles["output-size"]} aria-label="出力サイズ">
-            {outputSize
-              ? `${outputSize.width} × ${outputSize.height}px`
-              : "読込中"}
-          </output>
-        </aside>
       </div>
       <div className={styles["controls"]}>
         <div className={styles["zoom-label"]}>
@@ -343,7 +277,7 @@ const ImageEditorDialog = ({
             aria-label="ズーム"
             type="range"
             min="1"
-            max="3"
+            max={MAX_ZOOM}
             step="0.01"
             value={zoom}
             disabled={!image || isProcessing}
@@ -354,7 +288,7 @@ const ImageEditorDialog = ({
             isIconOnly
             icon={<AddRoundedIcon />}
             ariaLabel="ズームを拡大"
-            disabled={!image || isProcessing || zoom >= 3}
+            disabled={!image || isProcessing || zoom >= MAX_ZOOM}
             onClick={() => handleZoom(0.1)}
           />
         </div>
@@ -386,43 +320,6 @@ const ImageEditorDialog = ({
             リセット
           </Button>
         </div>
-        <details className={styles["fine-adjustment"]}>
-          <summary>位置を細かく調整</summary>
-          <div className={styles["move-controls"]}>
-            <Button
-              variant="secondary"
-              isIconOnly
-              icon={<ArrowBackRoundedIcon />}
-              ariaLabel="写真を左へ移動"
-              disabled={!image || isProcessing}
-              onClick={() => handleMove(-10, 0)}
-            />
-            <Button
-              variant="secondary"
-              isIconOnly
-              icon={<ArrowUpwardRoundedIcon />}
-              ariaLabel="写真を上へ移動"
-              disabled={!image || isProcessing}
-              onClick={() => handleMove(0, -10)}
-            />
-            <Button
-              variant="secondary"
-              isIconOnly
-              icon={<ArrowDownwardRoundedIcon />}
-              ariaLabel="写真を下へ移動"
-              disabled={!image || isProcessing}
-              onClick={() => handleMove(0, 10)}
-            />
-            <Button
-              variant="secondary"
-              isIconOnly
-              icon={<ArrowForwardRoundedIcon />}
-              ariaLabel="写真を右へ移動"
-              disabled={!image || isProcessing}
-              onClick={() => handleMove(10, 0)}
-            />
-          </div>
-        </details>
       </div>
       <div className={styles["actions"]}>
         <Button variant="secondary" onClick={onClose}>

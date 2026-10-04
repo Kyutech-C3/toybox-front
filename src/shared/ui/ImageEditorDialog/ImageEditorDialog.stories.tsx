@@ -106,9 +106,14 @@ export const Thumbnail: Story = {
     await expect(
       dialog.getByRole("heading", { name: "サムネイル画像を編集" }),
     ).toBeVisible();
+    await expect(dialog.queryByRole("img")).not.toBeInTheDocument();
+    await expect(dialog.queryByText("完成プレビュー")).not.toBeInTheDocument();
     await expect(
-      dialog.getByRole("img", { name: "切り抜き後の画像" }),
-    ).toBeVisible();
+      dialog.queryByText("写真をドラッグして位置を調整できます"),
+    ).not.toBeInTheDocument();
+    await expect(
+      dialog.queryByText("位置を細かく調整"),
+    ).not.toBeInTheDocument();
     await expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(
       "1600 × 1200px",
     );
@@ -188,27 +193,26 @@ export const RotationAndReset: Story = {
   args: { purpose: "avatar", width: 160, height: 120 },
   play: async ({ canvasElement }) => {
     const dialog = within(await openEditor(canvasElement));
-    const preview = dialog.getByRole("img", {
-      name: "切り抜き後の画像",
-    }) as HTMLCanvasElement;
-    await expect(getComputedStyle(preview).borderRadius).toBe("50%");
-    const context = preview.getContext("2d");
+    const getSourceImage = () =>
+      dialog
+        .getByLabelText("画像の切り抜き位置")
+        .parentElement?.querySelector("img");
+    const image = getSourceImage();
+    if (!image) throw new Error("Source image unavailable");
+    const source = document.createElement("canvas");
+    source.width = 160;
+    source.height = 120;
+    const context = source.getContext("2d");
     if (!context) throw new Error("Canvas unavailable");
-    const colorAt = (x: number, y: number) =>
-      Array.from(context.getImageData(x, y, 1, 1).data);
-    let originalLeft: number[] = [];
-    let originalRight: number[] = [];
-    await waitFor(() => {
-      originalLeft = colorAt(30, 60);
-      originalRight = colorAt(90, 60);
-      expect(originalLeft[3]).toBe(255);
-      expect(originalLeft).not.toEqual(originalRight);
-    });
+    await waitFor(() => expect(image.naturalWidth).toBe(160));
+    context.drawImage(image, 0, 0);
+    const originalLeft = Array.from(context.getImageData(40, 60, 1, 1).data);
+    const originalRight = Array.from(context.getImageData(120, 60, 1, 1).data);
+    await expect(originalLeft).not.toEqual(originalRight);
     await userEvent.click(dialog.getByRole("button", { name: "右に90度回転" }));
-    await waitFor(() => {
-      expect(colorAt(60, 30)).toEqual(originalLeft);
-      expect(colorAt(60, 90)).toEqual(originalRight);
-    });
+    await waitFor(() =>
+      expect(getSourceImage()?.style.transform).toContain("rotate(90deg)"),
+    );
     await userEvent.click(dialog.getByRole("button", { name: "ズームを拡大" }));
     await expect(
       Number((dialog.getByRole("slider") as HTMLInputElement).value),
@@ -216,17 +220,17 @@ export const RotationAndReset: Story = {
     await userEvent.click(dialog.getByRole("button", { name: "リセット" }));
     await waitFor(() => {
       expect(dialog.getByRole("slider")).toHaveValue("1");
-      expect(colorAt(30, 60)).toEqual(originalLeft);
-      expect(colorAt(90, 60)).toEqual(originalRight);
+      expect(getSourceImage()?.style.transform).toContain("rotate(0deg)");
     });
     await userEvent.click(dialog.getByRole("button", { name: "左に90度回転" }));
-    await waitFor(() => {
-      expect(colorAt(60, 30)).toEqual(originalRight);
-      expect(colorAt(60, 90)).toEqual(originalLeft);
-    });
+    await waitFor(() =>
+      expect(getSourceImage()?.style.transform).toContain("rotate(270deg)"),
+    );
     await userEvent.click(dialog.getByRole("button", { name: "右に90度回転" }));
     await userEvent.click(dialog.getByRole("button", { name: "右に90度回転" }));
-    await waitFor(() => expect(colorAt(60, 30)).toEqual(originalLeft));
+    await waitFor(() =>
+      expect(getSourceImage()?.style.transform).toContain("rotate(90deg)"),
+    );
     await userEvent.click(dialog.getByRole("button", { name: "保存" }));
     const output = await within(canvasElement).findByRole("img", {
       name: "加工後の画像",
@@ -252,41 +256,34 @@ export const RotationAndReset: Story = {
   },
 };
 
-export const FineAdjustment: Story = {
-  args: { purpose: "avatar", width: 160, height: 120 },
+export const MaximumZoom: Story = {
   play: async ({ canvasElement }) => {
     const dialog = within(await openEditor(canvasElement));
-    await fireEvent.change(dialog.getByRole("slider"), {
-      target: { value: "2" },
-    });
-    await userEvent.click(dialog.getByText("位置を細かく調整"));
+    const slider = dialog.getByRole("slider");
+    await fireEvent.change(slider, { target: { value: "9.9" } });
+    await userEvent.click(dialog.getByRole("button", { name: "ズームを拡大" }));
+    await expect(slider).toHaveValue("10");
+    await expect(
+      dialog.getByRole("button", { name: "ズームを拡大" }),
+    ).toBeDisabled();
     const image = dialog
       .getByLabelText("画像の切り抜き位置")
       .parentElement?.querySelector("img");
-    const original = new DOMMatrix(image?.style.transform);
-    await userEvent.click(
-      dialog.getByRole("button", { name: "写真を右へ移動" }),
-    );
-    await userEvent.click(
-      dialog.getByRole("button", { name: "写真を下へ移動" }),
-    );
     await waitFor(() => {
-      const moved = new DOMMatrix(image?.style.transform);
-      expect(moved.m41).toBeGreaterThan(original.m41);
-      expect(moved.m42).toBeGreaterThan(original.m42);
+      expect(image?.style.transform).toContain("scale(10)");
+      expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(
+        "160 × 120px",
+      );
     });
-    await userEvent.click(
-      dialog.getByRole("button", { name: "写真を左へ移動" }),
+    await userEvent.click(dialog.getByRole("button", { name: "ズームを縮小" }));
+    await expect(Number((slider as HTMLInputElement).value)).toBeCloseTo(9.9);
+    await fireEvent.change(slider, { target: { value: "10" } });
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByLabelText("加工結果"),
+      ).toHaveTextContent("160 × 120px / image/webp"),
     );
-    await userEvent.click(
-      dialog.getByRole("button", { name: "写真を上へ移動" }),
-    );
-    await waitFor(() => {
-      const restored = new DOMMatrix(image?.style.transform);
-      expect(restored.m41).toBeCloseTo(original.m41);
-      expect(restored.m42).toBeCloseTo(original.m42);
-    });
-    await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));
   },
 };
 
