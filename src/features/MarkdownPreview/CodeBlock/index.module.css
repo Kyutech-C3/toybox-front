@@ -4,6 +4,12 @@
   font-family: "Consolas", "Monaco", "Courier New", monospace;
   font-size: 0.9em;
   line-height: 1.5;
+
+  pre {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
 }
 
 .file-name {
@@ -20,9 +26,18 @@
   }
 }
 
-.copy-button {
+.copy-button[data-size="compact"][data-icon-only="true"] {
   position: absolute;
-  top: 0.5rem;
+  top: calc(0.5rem + 1px);
   right: 0.5rem;
   z-index: 1;
+  width: 1.5em;
+  min-width: 1.5em;
+  height: 1.5em;
+  font-size: inherit;
+
+  svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
 }

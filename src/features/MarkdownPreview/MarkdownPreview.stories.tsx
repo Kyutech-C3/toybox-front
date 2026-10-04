@@ -513,14 +513,35 @@ export const AlertsAndDetails: Story = {
 export const CodeFilesAndCopy: Story = {
   args: {
     content:
-      'インラインの `plain`\n\n```ts:src/main.ts\nconst message = "Toybox";\n```\n\n```\n  言語なし\n次の行\n```\n\n    インデント形式\n\n```unknown-language:example.txt\nunknown code\n```',
+      'インラインの `plain`\n\n```ts:src/main.ts\nconst message = "Toybox";\n```\n\n```\n  言語なし\n次の行\n```\n\n    インデント形式\n\n```unknown-language:example.txt\nunknown code\n```\n\n```ts\nconst value = 1;\n```',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("src/main.ts")).toBeVisible();
     await expect(canvas.getByText("example.txt")).toBeVisible();
     const buttons = canvas.getAllByRole("button", { name: "コードをコピー" });
-    await expect(buttons).toHaveLength(4);
+    await expect(buttons).toHaveLength(5);
+    for (const button of buttons) {
+      const surface =
+        button.previousElementSibling ?? button.nextElementSibling;
+      if (!(surface instanceof HTMLElement))
+        throw new Error("コード枠またはファイル名が見つかりません");
+      const surfaceBounds = surface.getBoundingClientRect();
+      const buttonBounds = button.getBoundingClientRect();
+      await expect(buttonBounds.top - surfaceBounds.top).toBeGreaterThanOrEqual(
+        8,
+      );
+      await expect(
+        surfaceBounds.bottom - buttonBounds.bottom,
+      ).toBeGreaterThanOrEqual(8);
+      await expect(
+        surfaceBounds.right - buttonBounds.right,
+      ).toBeGreaterThanOrEqual(8);
+      await expect(buttonBounds.height).toBeCloseTo(
+        Number.parseFloat(getComputedStyle(surface).lineHeight),
+        0,
+      );
+    }
     const copy = spyOn(navigator.clipboard, "writeText").mockResolvedValue();
     try {
       for (const example of [
@@ -528,6 +549,7 @@ export const CodeFilesAndCopy: Story = {
         "  言語なし\n次の行",
         "インデント形式",
         "unknown code",
+        "const value = 1;",
       ].entries()) {
         await userEvent.click(buttons[example[0]]);
         await expect(copy).toHaveBeenLastCalledWith(example[1]);
