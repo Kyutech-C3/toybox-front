@@ -15,8 +15,8 @@ export const IMAGE_ACCEPT = ".png,.jpg,.jpeg,.bmp,.gif,.webp";
 export const MAX_IMAGE_OUTPUT_SIDE = 4096;
 
 export const IMAGE_EDIT_SETTINGS = {
-  avatar: { aspect: 1, longSide: 512, cropShape: "round" },
-  thumbnail: { aspect: 4 / 3, longSide: 1600, cropShape: "rect" },
+  avatar: { aspect: 1, longSide: 256, cropShape: "round" },
+  thumbnail: { aspect: 4 / 3, longSide: 800, cropShape: "rect" },
 } as const;
 
 export const getImageOutputSize = ({
@@ -44,8 +44,8 @@ export const getImageOutputSize = ({
 };
 
 export const drawImageCrop = (
-  canvas: HTMLCanvasElement,
-  image: HTMLImageElement,
+  canvas: HTMLCanvasElement | OffscreenCanvas,
+  image: HTMLImageElement | OffscreenCanvas,
   area: ImageCropArea,
   size: { width: number; height: number },
   rotation = 0,
@@ -57,8 +57,8 @@ export const drawImageCrop = (
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
   const radians = (rotation * Math.PI) / 180;
-  const width = image.naturalWidth;
-  const height = image.naturalHeight;
+  const width = "naturalWidth" in image ? image.naturalWidth : image.width;
+  const height = "naturalHeight" in image ? image.naturalHeight : image.height;
   const rotatedWidth =
     Math.abs(Math.cos(radians) * width) + Math.abs(Math.sin(radians) * height);
   const rotatedHeight =

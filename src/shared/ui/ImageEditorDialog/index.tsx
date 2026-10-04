@@ -12,6 +12,7 @@ import styles from "./index.module.css";
 import Button from "@/shared/ui/Button";
 import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import { createEditedGif, isGifFile } from "@/util/createEditedGif";
 import {
   createEditedImage,
   getImageOutputSize,
@@ -35,6 +36,7 @@ type ImageEditorDialogProps = {
 };
 
 const MAX_ZOOM = 10;
+type ImageSaveFormat = "still" | "gif";
 
 const ImageEditorDialog = ({
   file,
@@ -48,12 +50,16 @@ const ImageEditorDialog = ({
   const zoomID = useId();
   const isMountedRef = useRef(false);
   const isProcessingRef = useRef(false);
+  const processingControllerRef = useRef<AbortController | null>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
   const { showToast } = useToast();
   const [sourceURL, setSourceURL] = useState("");
   const [image, setImage] = useState<HTMLImageElement | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingFormat, setProcessingFormat] =
+    useState<ImageSaveFormat | null>(null);
+  const isProcessing = processingFormat !== null;
+  const hasGifSource = isGifFile(file);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(initialEdit?.rotation ?? 0);
@@ -82,6 +88,7 @@ const ImageEditorDialog = ({
     document.body.style.overflow = "hidden";
     return () => {
       isMountedRef.current = false;
+      processingControllerRef.current?.abort();
       dialog?.close();
       document.body.style.overflow = previousOverflow;
       if (trigger instanceof HTMLElement && trigger.isConnected)
@@ -95,6 +102,9 @@ const ImageEditorDialog = ({
     let isActive = true;
     setImage(null);
     setArea(null);
+    setProcessingFormat(null);
+    isProcessingRef.current = false;
+    processingControllerRef.current = null;
     setSourceURL(url);
     sourceImage.onload = () => {
       if (isActive) setImage(sourceImage);
@@ -110,6 +120,7 @@ const ImageEditorDialog = ({
     });
     return () => {
       isActive = false;
+      processingControllerRef.current?.abort();
       sourceImage.onload = null;
       sourceImage.onerror = null;
       URL.revokeObjectURL(url);
@@ -122,6 +133,13 @@ const ImageEditorDialog = ({
         ?.querySelector<HTMLElement>("[role='group']")
         ?.focus({ preventScroll: true });
   }, [image]);
+
+  useEffect(() => {
+    if (isProcessing)
+      dialogRef.current
+        ?.querySelector<HTMLButtonElement>("button:not(:disabled)")
+        ?.focus({ preventScroll: true });
+  }, [isProcessing]);
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
     if (event.key === "Escape") {
@@ -149,7 +167,7 @@ const ImageEditorDialog = ({
     }
   };
 
-  const handleConfirm = async () => {
+  const handleConfirm = async (format: ImageSaveFormat = "still") => {
     if (
       !image ||
       !area ||
@@ -159,31 +177,48 @@ const ImageEditorDialog = ({
     )
       return;
     isProcessingRef.current = true;
-    setIsProcessing(true);
+    const controller = new AbortController();
+    processingControllerRef.current = controller;
+    setProcessingFormat(format);
     try {
-      const editedFile = await createEditedImage({
-        image,
-        area,
-        size: outputSize,
-        fileName: file.name,
-        rotation,
-      });
-      if (isMountedRef.current)
+      const editedFile =
+        format === "gif"
+          ? await createEditedGif({
+              file,
+              area,
+              size: outputSize,
+              rotation,
+              signal: controller.signal,
+            })
+          : await createEditedImage({
+              image,
+              area,
+              size: outputSize,
+              fileName: file.name,
+              rotation,
+            });
+      if (isMountedRef.current && !controller.signal.aborted)
         onConfirm(editedFile, {
           croppedAreaPercentages: percentages,
           rotation,
         });
     } catch {
-      if (isMountedRef.current) {
+      if (isMountedRef.current && !controller.signal.aborted) {
         showToast({
-          message: "画像を加工できませんでした",
+          message:
+            format === "gif"
+              ? "GIFを加工できませんでした"
+              : "画像を加工できませんでした",
           severity: "error",
         });
-        onCloseRef.current();
+        if (format === "still") onCloseRef.current();
       }
     } finally {
-      isProcessingRef.current = false;
-      if (isMountedRef.current) setIsProcessing(false);
+      if (processingControllerRef.current === controller) {
+        isProcessingRef.current = false;
+        processingControllerRef.current = null;
+        if (isMountedRef.current) setProcessingFormat(null);
+      }
     }
   };
 
@@ -321,17 +356,26 @@ const ImageEditorDialog = ({
           </Button>
         </div>
       </div>
-      <div className={styles["actions"]}>
+      <div className={styles["actions"]} data-gif={hasGifSource || undefined}>
         <Button variant="secondary" onClick={onClose}>
           キャンセル
         </Button>
         <Button
           onClick={() => void handleConfirm()}
-          isLoading={isProcessing}
-          disabled={!image || !area}
+          isLoading={processingFormat === "still"}
+          disabled={!image || !area || isProcessing}
         >
-          保存
+          {hasGifSource ? "静止画保存" : "保存"}
         </Button>
+        {hasGifSource && (
+          <Button
+            onClick={() => void handleConfirm("gif")}
+            isLoading={processingFormat === "gif"}
+            disabled={!image || !area || isProcessing}
+          >
+            GIF保存
+          </Button>
+        )}
       </div>
     </dialog>,
     document.body,

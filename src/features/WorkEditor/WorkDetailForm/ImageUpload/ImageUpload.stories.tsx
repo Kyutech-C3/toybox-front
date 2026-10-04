@@ -1,3 +1,4 @@
+import { decompressFrames, parseGIF } from "gifuct-js";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 
 import ImageUpload from "./index";
@@ -7,7 +8,9 @@ import { useWorkEditorStore } from "@/features/WorkEditor/store/useWorkEditorSto
 import WorkEditorStoreProvider from "@/features/WorkEditor/store/WorkEditorStoreProvider";
 import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
+import { createGifFixture } from "@/stories/gifFixture";
 import { createImageFixture } from "@/stories/imageFixture";
+import { IMAGE_EDIT_SETTINGS } from "@/util/imageProcessing";
 
 import type { Meta, StoryObj } from "@storybook/react";
 import type { CSSProperties } from "react";
@@ -130,7 +133,14 @@ export const SelectAndEdit: Story = {
       await expect(body.queryByRole("dialog")).not.toBeInTheDocument();
       await expect(uploads).toHaveLength(1);
       const bitmap = await createImageBitmap(uploads[0]);
-      await expect([bitmap.width, bitmap.height]).toEqual([1600, 1200]);
+      const initialWidth = Math.min(
+        2133,
+        IMAGE_EDIT_SETTINGS.thumbnail.longSide,
+      );
+      await expect([bitmap.width, bitmap.height]).toEqual([
+        initialWidth,
+        Math.floor((1600 * initialWidth) / 2133),
+      ]);
       bitmap.close();
       const edit = canvas.getByRole("button", { name: "サムネイル画像を編集" });
       await expect(edit.querySelector("svg")).not.toBeNull();
@@ -191,8 +201,13 @@ export const SelectAndEdit: Story = {
       await userEvent.click(dialog.getByRole("button", { name: "保存" }));
       await waitFor(() => expect(uploads).toHaveLength(2));
       const editedBitmap = await createImageBitmap(uploads[1]);
+      const editedWidth = Math.min(
+        1067,
+        IMAGE_EDIT_SETTINGS.thumbnail.longSide,
+      );
       await expect([editedBitmap.width, editedBitmap.height]).toEqual([
-        1067, 800,
+        editedWidth,
+        Math.floor((800 * editedWidth) / 1067),
       ]);
       editedBitmap.close();
       await waitFor(() => expect(edit).toBeEnabled());
@@ -279,6 +294,86 @@ export const SavedImageCannotBeEdited: Story = {
     await expect(
       within(canvasElement.ownerDocument.body).queryByRole("dialog"),
     ).not.toBeInTheDocument();
+  },
+};
+
+export const GifAndStillUpload: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    const originalFetch = globalThis.fetch;
+    const uploads: File[] = [];
+    globalThis.fetch = async (resource, init) => {
+      if (String(resource).endsWith("/auth/works/asset")) {
+        const file =
+          init?.body instanceof FormData ? init.body.get("file") : null;
+        if (!(file instanceof File)) throw new Error("No upload file");
+        uploads.push(file);
+        return new Response(
+          JSON.stringify({
+            id: `gif-${uploads.length}`,
+            url: "/favicon-64x64.png",
+          }),
+          { status: 200 },
+        );
+      }
+      return originalFetch(resource, init);
+    };
+    try {
+      await userEvent.upload(
+        canvas.getByLabelText("サムネイル画像をアップロードのファイル選択"),
+        createGifFixture().file,
+      );
+      const dialog = within(await body.findByRole("dialog"));
+      await waitFor(() =>
+        expect(dialog.getByRole("button", { name: "GIF保存" })).toBeEnabled(),
+      );
+      await fireEvent.change(dialog.getByRole("slider"), {
+        target: { value: "2" },
+      });
+      await waitFor(() =>
+        expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(
+          "80 × 60px",
+        ),
+      );
+      await userEvent.click(dialog.getByRole("button", { name: "GIF保存" }));
+      await waitFor(() =>
+        expect(canvas.getByText("アップロード完了")).toBeVisible(),
+      );
+      await expect(uploads).toHaveLength(1);
+      await expect([uploads[0].name, uploads[0].type]).toEqual([
+        "animation.gif",
+        "image/gif",
+      ]);
+      const gif = parseGIF(await uploads[0].arrayBuffer());
+      await expect([
+        gif.lsd.width,
+        gif.lsd.height,
+        decompressFrames(gif, true).length,
+      ]).toEqual([80, 60, 3]);
+      await userEvent.click(
+        canvas.getByRole("button", { name: "サムネイル画像を編集" }),
+      );
+      const reopened = within(await body.findByRole("dialog"));
+      await waitFor(() =>
+        expect(
+          reopened.getByRole("button", { name: "静止画保存" }),
+        ).toBeEnabled(),
+      );
+      await expect(
+        reopened.getByRole("button", { name: "GIF保存" }),
+      ).toBeEnabled();
+      await userEvent.click(
+        reopened.getByRole("button", { name: "静止画保存" }),
+      );
+      await waitFor(() => expect(uploads).toHaveLength(2));
+      await expect([uploads[1].name, uploads[1].type]).toEqual([
+        "animation.webp",
+        "image/webp",
+      ]);
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
   },
 };
 

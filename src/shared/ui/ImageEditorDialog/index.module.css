@@ -181,6 +181,14 @@
     flex: 1;
     height: 48px;
   }
+
+  .actions[data-gif] {
+    gap: var(--space-8);
+  }
+
+  .dialog .actions[data-gif] button[data-size] {
+    padding-inline: var(--space-8);
+  }
 }
 
 @media (pointer: coarse) and (min-width: 600px) and (max-height: 500px) {
@@ -246,5 +254,13 @@
   .dialog .actions button[data-size] {
     flex: 1;
     height: 48px;
+  }
+
+  .actions[data-gif] {
+    gap: var(--space-8);
+  }
+
+  .dialog .actions[data-gif] button[data-size] {
+    padding-inline: var(--space-8);
   }
 }

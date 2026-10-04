@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { decompressFrames, parseGIF } from "gifuct-js";
 import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 
 import AvatarEditor from "./index";
 
 import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
+import { createGifFixture } from "@/stories/gifFixture";
 import { createImageFixture } from "@/stories/imageFixture";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -204,6 +206,53 @@ export const Disabled: Story = {
     await expect(
       within(canvasElement).queryByRole("listbox"),
     ).not.toBeInTheDocument();
+  },
+};
+
+export const GifAndStillPreview: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.upload(
+      canvas.getByLabelText("アイコン画像をアップロードのファイル選択"),
+      createGifFixture().file,
+    );
+    const dialog = within(await body.findByRole("dialog"));
+    await waitFor(() =>
+      expect(dialog.getByRole("button", { name: "GIF保存" })).toBeEnabled(),
+    );
+    await userEvent.click(dialog.getByRole("button", { name: "GIF保存" }));
+    await waitFor(() =>
+      expect(body.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    const preview = await canvas.findByRole("img", {
+      name: "アイコン画像のプレビュー",
+    });
+    const savedURL = preview.getAttribute("src") ?? "";
+    const blob = await (await fetch(savedURL)).blob();
+    await expect(blob.type).toBe("image/gif");
+    const gif = parseGIF(await blob.arrayBuffer());
+    await expect([
+      gif.lsd.width,
+      gif.lsd.height,
+      decompressFrames(gif, true).length,
+    ]).toEqual([120, 120, 3]);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "アイコン画像を編集" }),
+    );
+    const reopened = within(await body.findByRole("dialog"));
+    await waitFor(() =>
+      expect(
+        reopened.getByRole("button", { name: "静止画保存" }),
+      ).toBeEnabled(),
+    );
+    await expect(
+      reopened.getByRole("button", { name: "GIF保存" }),
+    ).toBeEnabled();
+    await userEvent.click(reopened.getByRole("button", { name: "静止画保存" }));
+    await waitFor(() => expect(preview.getAttribute("src")).not.toBe(savedURL));
+    const still = await (await fetch(preview.getAttribute("src") ?? "")).blob();
+    await expect(still.type).toBe("image/webp");
   },
 };
 

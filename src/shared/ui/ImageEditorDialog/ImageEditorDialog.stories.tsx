@@ -13,6 +13,7 @@ import ImageEditorDialog from "./index";
 import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { createImageFixture } from "@/stories/imageFixture";
+import { IMAGE_EDIT_SETTINGS } from "@/util/imageProcessing";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -86,6 +87,9 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
+const THUMBNAIL_WIDTH = Math.min(1600, IMAGE_EDIT_SETTINGS.thumbnail.longSide);
+const THUMBNAIL_SIZE = `${THUMBNAIL_WIDTH} × ${(THUMBNAIL_WIDTH * 3) / 4}px`;
+
 const openEditor = async (canvasElement: HTMLElement) => {
   await userEvent.click(
     within(canvasElement).getByRole("button", { name: "画像を編集" }),
@@ -115,7 +119,7 @@ export const Thumbnail: Story = {
       dialog.queryByText("位置を細かく調整"),
     ).not.toBeInTheDocument();
     await expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(
-      "1600 × 1200px",
+      THUMBNAIL_SIZE,
     );
     await expect(dialog.getAllByRole("slider")).toHaveLength(1);
     await expect(dialog.queryByRole("spinbutton")).not.toBeInTheDocument();
@@ -124,7 +128,7 @@ export const Thumbnail: Story = {
     await waitFor(() =>
       expect(
         within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("1600 × 1200px / image/webp"),
+      ).toHaveTextContent(`${THUMBNAIL_SIZE} / image/webp`),
     );
   },
 };
@@ -184,7 +188,9 @@ export const Avatar: Story = {
     await waitFor(() =>
       expect(
         within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("512 × 512px / image/webp"),
+      ).toHaveTextContent(
+        `${IMAGE_EDIT_SETTINGS.avatar.longSide} × ${IMAGE_EDIT_SETTINGS.avatar.longSide}px / image/webp`,
+      ),
     );
   },
 };
@@ -194,11 +200,15 @@ export const ZoomedAvatarOutputSize: Story = {
   play: async ({ canvasElement }) => {
     const dialog = within(await openEditor(canvasElement));
     const slider = dialog.getByRole("slider");
-    // 1200px / 2.14 を丸めた切り抜き範囲は561px。512pxへの縮小で誤差が出る。
+    const maxSize = IMAGE_EDIT_SETTINGS.avatar.longSide;
+    // 561pxの切り抜き範囲から上限サイズに縮小するときの浮動小数誤差も確認する。
     for (const { zoom, size } of [
-      { zoom: "2.14", size: "512 × 512px" },
-      { zoom: "2.35", size: "511 × 511px" },
-      { zoom: "2.14", size: "512 × 512px" },
+      { zoom: "2.14", size: `${maxSize} × ${maxSize}px` },
+      {
+        zoom: String(Math.ceil((1200 / (maxSize - 1)) * 100) / 100),
+        size: `${maxSize - 1} × ${maxSize - 1}px`,
+      },
+      { zoom: "2.14", size: `${maxSize} × ${maxSize}px` },
     ]) {
       await fireEvent.change(slider, { target: { value: zoom } });
       await waitFor(() =>
@@ -209,7 +219,9 @@ export const ZoomedAvatarOutputSize: Story = {
     await waitFor(() =>
       expect(
         within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("512 × 512px / image/webp"),
+      ).toHaveTextContent(
+        `${IMAGE_EDIT_SETTINGS.avatar.longSide} × ${IMAGE_EDIT_SETTINGS.avatar.longSide}px / image/webp`,
+      ),
     );
   },
 };
@@ -392,7 +404,7 @@ export const StrictModeImageLoading: Story = {
       await waitFor(() =>
         expect(
           within(canvasElement).getByLabelText("加工結果"),
-        ).toHaveTextContent("1600 × 1200px / image/webp"),
+        ).toHaveTextContent(`${THUMBNAIL_SIZE} / image/webp`),
       );
       const reopenedDialog = within(await openEditor(canvasElement));
       await userEvent.click(
