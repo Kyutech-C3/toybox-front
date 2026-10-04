@@ -149,9 +149,6 @@ const ProfileEditor = ({
         isDisabled={isSubmitting}
         onChange={setHasAvatarChanges}
       />
-      <p className={styles["avatar-help"]}>
-        アイコン画像の編集は、この画面内のプレビューにのみ反映されます。
-      </p>
       <form
         className={styles["profile-editor"]}
         onSubmit={(event) => {
