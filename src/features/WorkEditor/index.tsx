@@ -9,6 +9,7 @@ import WorkDetailForm from "./WorkDetailForm";
 
 import Button from "@/shared/ui/Button";
 import PageLoading from "@/shared/ui/PageLoading";
+import PageMetadata from "@/shared/ui/PageMetadata";
 
 type WorkEditorProps = {
   workID: string | null;
@@ -26,6 +27,10 @@ const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
   if (status === "forbidden") {
     return (
       <section className={styles["editor-status"]}>
+        <PageMetadata
+          title="この作品は編集できません"
+          description="編集できるのは作品を投稿した本人だけです。"
+        />
         <h1>この作品は編集できません</h1>
         <p>編集できるのは作品を投稿した本人だけです。</p>
       </section>
@@ -35,6 +40,10 @@ const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
   if (status === "error") {
     return (
       <section className={styles["editor-status"]} role="alert">
+        <PageMetadata
+          title="ユーザー情報を取得できませんでした"
+          description="通信環境を確認して、ページを再読み込みしてください。"
+        />
         <h1>ユーザー情報を取得できませんでした</h1>
         <p>通信環境を確認して、ページを再読み込みしてください。</p>
         <Button onClick={() => window.location.reload()}>再読み込み</Button>
@@ -50,6 +59,14 @@ const WorkEditorContent = ({ workID }: WorkEditorContentProps) => {
       inert={isSubmitting}
       aria-busy={isSubmitting}
     >
+      <PageMetadata
+        title={workID ? "作品を編集" : "作品を投稿"}
+        description={
+          workID
+            ? "作品のタイトルや説明、アセットなどを編集します。"
+            : "制作した作品をToyBoxに投稿できます。"
+        }
+      />
       <WorkDetailForm />
       <MarkdownEditor />
       <PublishButtons />
