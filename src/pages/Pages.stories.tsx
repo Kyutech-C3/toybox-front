@@ -78,6 +78,19 @@ const expectPageIndexing = async (isNoIndex: boolean) => {
   });
 };
 
+const expectPageCanonical = async (path?: string) => {
+  await waitFor(() => {
+    const links = document.head.querySelectorAll('link[rel="canonical"]');
+    expect(links).toHaveLength(path ? 1 : 0);
+    if (path) {
+      expect(links[0]).toHaveAttribute(
+        "href",
+        `https://toybox.compositecomputer.club${path}`,
+      );
+    }
+  });
+};
+
 type PageFrameProps = {
   path: string;
   routePattern?: string;
@@ -187,13 +200,14 @@ export const Top: Story = {
       }),
     ).toBeVisible();
     await expectPageMetadata("作品一覧");
+    await expectPageCanonical("/");
   },
 };
 
 export const WorkDetail: Story = {
   render: () => (
     <PageFrame
-      path="/works/work-1"
+      path="/works/work-1?utm_source=story#description"
       routePattern="/works/:id"
       fallback={{
         "/works/work-1": WORK,
@@ -213,6 +227,7 @@ export const WorkDetail: Story = {
       WORK.title,
       "作品説明 画面全体の表示を確認するための固定データです。",
     );
+    await expectPageCanonical("/works/work-1");
   },
 };
 
@@ -241,6 +256,7 @@ export const WorkEdit: Story = {
     ).toBeVisible();
     await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
     await expectPageMetadata("作品を投稿");
+    await expectPageCanonical();
   },
 };
 
@@ -277,13 +293,14 @@ export const WorkEditForbidden: Story = {
       "この作品は編集できません",
       "編集できるのは作品を投稿した本人だけです。",
     );
+    await expectPageCanonical();
   },
 };
 
 export const UserPortfolio: Story = {
   render: () => (
     <PageFrame
-      path="/users/owner"
+      path="/users/owner?page=1&utm_source=story#profile"
       routePattern="/users/:id"
       fallback={{
         [unstable_serialize([
@@ -304,6 +321,7 @@ export const UserPortfolio: Story = {
       within(canvasElement).getByRole("heading", { name: "作者" }),
     ).toBeVisible();
     await expectPageMetadata("作者", PROFILE.profile);
+    await expectPageCanonical("/users/owner");
   },
 };
 
@@ -353,15 +371,18 @@ export const PaginationMetadata: Story = {
     const canvas = within(canvasElement);
     await expectPageMetadata("作品一覧");
     await expectPageIndexing(true);
+    await expectPageCanonical();
 
     await act(async () => {
       await userEvent.click(canvas.getByRole("button", { name: "ページ 1" }));
     });
     await expectPageIndexing(false);
+    await expectPageCanonical("/");
     await act(async () => {
       await userEvent.click(canvas.getByRole("button", { name: "ページ 2" }));
     });
     await expectPageIndexing(true);
+    await expectPageCanonical();
 
     await act(async () => {
       await userEvent.click(
@@ -370,20 +391,80 @@ export const PaginationMetadata: Story = {
     });
     await expectPageMetadata(PROFILE.display_name, PROFILE.profile);
     await expectPageIndexing(true);
+    await expectPageCanonical();
     await act(async () => {
       await userEvent.click(canvas.getByRole("button", { name: "ページ 1" }));
     });
     await expectPageIndexing(false);
+    await expectPageCanonical("/users/owner");
     await act(async () => {
       await userEvent.click(canvas.getByRole("button", { name: "ページ 2" }));
     });
     await expectPageIndexing(true);
+    await expectPageCanonical();
 
     await act(async () => {
       await userEvent.click(canvas.getByRole("link", { name: "作品詳細" }));
     });
     await expectPageMetadata(WORK.title);
     await expectPageIndexing(false);
+    await expectPageCanonical("/works/work-1");
+  },
+};
+
+export const CanonicalQueryNormalization: Story = {
+  render: () => (
+    <PageFrame
+      path="/?tags=tag-b,tag-a,tag-b,missing,unused&page=1&sort=newest&utm_source=story#works"
+      routePattern="*"
+      fallback={{
+        "/tags": {
+          tags: ["tag-a", "tag-b", "unused"].map((id) => ({
+            ...WORK.tags[0],
+            id,
+            name: id,
+            work_count: id === "unused" ? 0 : 1,
+          })),
+        },
+        ...Object.fromEntries(
+          ["", "&tag_ids=tag-b,tag-a", "&tag_ids=tag-a,tag-b"].flatMap(
+            (tagsQuery) =>
+              ["", "&sort=oldest"].map((sortQuery) => [
+                `/works?page=1&limit=30${tagsQuery}${sortQuery}`,
+                { works: [WORK], total_count: 1, page: 1, limit: 30 },
+              ]),
+          ),
+        ),
+      }}
+    >
+      <nav aria-label="検証用の検索条件">
+        <Link to="/?tags=tag-a,tag-b&utm_source=other">同じタグの別URL</Link>
+        <Link to="/?tags=missing,unused&sort=invalid&page=0&visibility=private&utm_source=story">
+          無効な条件と未認証の公開範囲
+        </Link>
+      </nav>
+      <App />
+    </PageFrame>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expectPageMetadata("作品一覧");
+    await expectPageCanonical("/?tags=tag-a%2Ctag-b");
+    await expectPageIndexing(false);
+
+    await userEvent.click(
+      canvas.getByRole("link", { name: "同じタグの別URL" }),
+    );
+    await expectPageCanonical("/?tags=tag-a%2Ctag-b");
+    await userEvent.click(canvas.getByText("古い順"));
+    await expectPageCanonical("/?tags=tag-a%2Ctag-b&sort=oldest");
+    await userEvent.click(canvas.getByText("新しい順"));
+    await expectPageCanonical("/?tags=tag-a%2Ctag-b");
+
+    await userEvent.click(
+      canvas.getByRole("link", { name: "無効な条件と未認証の公開範囲" }),
+    );
+    await expectPageCanonical("/");
   },
 };
 
@@ -398,6 +479,7 @@ export const NotFound: Story = {
       "ページが見つかりません",
     );
     await expectPageMetadata("ページが見つかりません");
+    await expectPageCanonical();
   },
 };
 
@@ -448,15 +530,18 @@ export const MetadataNavigationAndRetry: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expectPageMetadata(WORK.title);
+    await expectPageCanonical("/works/work-1");
     await act(async () => {
       await userEvent.click(canvas.getByRole("link", { name: "次の作品" }));
     });
     await expectPageMetadata("読み込み中", "ページを読み込んでいます。");
+    await expectPageCanonical();
     await waitFor(() => expect(completeWorkRequest).toBeDefined());
     await act(async () => {
       finishWorkRequest(new Response(null, { status: 404 }));
     });
     await expectPageMetadata("作品が見つかりません", "作品が見つかりません");
+    await expectPageCanonical();
 
     await act(async () => {
       await userEvent.click(canvas.getByRole("button", { name: "再試行" }));
@@ -474,18 +559,22 @@ export const MetadataNavigationAndRetry: Story = {
       );
     });
     await expectPageMetadata("次の作品", "次の作品 説明とリンクです。");
+    await expectPageCanonical("/works/work-2");
 
     await userEvent.click(canvas.getByRole("link", { name: "最初の作品" }));
     await expectPageMetadata(WORK.title);
+    await expectPageCanonical("/works/work-1");
     await userEvent.click(
       canvas.getByRole("link", { name: "存在しないページ" }),
     );
     await expectPageMetadata("ページが見つかりません");
+    await expectPageCanonical();
     await userEvent.click(canvas.getByRole("link", { name: "投稿ページ" }));
     await expectPageMetadata(
       "ログインが必要です",
       "作品を投稿・編集するにはログインしてください。",
     );
+    await expectPageCanonical();
   },
 };
 
@@ -517,5 +606,6 @@ export const CommentErrorKeepsWorkMetadata: Story = {
       "サーバーで問題が発生しました",
     );
     await expectPageMetadata(WORK.title);
+    await expectPageCanonical("/works/work-1");
   },
 };

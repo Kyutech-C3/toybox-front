@@ -17,6 +17,7 @@ import EditSquareIcon from "@/shared/ui/EditSquareIcon";
 import PageMetadata from "@/shared/ui/PageMetadata";
 import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid from "@/shared/ui/WorkCardGrid";
+import { getCanonicalUrl } from "@/util/getCanonicalUrl";
 
 type UserPortfolioProps = {
   userID: string;
@@ -51,6 +52,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
       <PageMetadata
         title={userProfile.display_name}
         description={userProfile.profile}
+        canonicalUrl={getCanonicalUrl(`/users/${encodeURIComponent(userID)}`)}
         isNoIndex={currentPage > 1}
       />
       <section className={styles["profile-section"]}>

@@ -3,6 +3,7 @@ import { useLayoutEffect } from "react";
 type PageMetadataProps = {
   title: string;
   description?: string;
+  canonicalUrl?: string;
   isNoIndex?: boolean;
 };
 
@@ -13,6 +14,7 @@ const DESCRIPTION_MAX_LENGTH = 160;
 const PageMetadata = ({
   title,
   description,
+  canonicalUrl,
   isNoIndex = false,
 }: PageMetadataProps) => {
   const pageTitle = title.trim();
@@ -33,6 +35,9 @@ const PageMetadata = ({
           .slice(0, DESCRIPTION_MAX_LENGTH)
           .join("")}
       />
+      {canonicalUrl && !isNoIndex && (
+        <link rel="canonical" href={canonicalUrl} />
+      )}
       {isNoIndex && <meta name="robots" content="noindex" />}
     </>
   );

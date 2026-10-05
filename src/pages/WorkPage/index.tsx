@@ -16,6 +16,7 @@ import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
 import PageMetadata from "@/shared/ui/PageMetadata";
 import { ApiError } from "@/util/fetchData";
+import { getCanonicalUrl } from "@/util/getCanonicalUrl";
 import { getMarkdownText } from "@/util/getMarkdownText";
 
 type WorkPageContentProps = {
@@ -54,6 +55,11 @@ const WorkPageContent = ({ id, locationKey }: WorkPageContentProps) => {
       <PageMetadata
         title={data.title}
         description={getMarkdownText(data.description)}
+        canonicalUrl={
+          data.visibility === "public"
+            ? getCanonicalUrl(`/works/${encodeURIComponent(data.id)}`)
+            : undefined
+        }
       />
       <WorkDetail data={data} />
       {data.visibility !== "draft" && (

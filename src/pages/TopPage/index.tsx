@@ -11,7 +11,6 @@ import { getWorkIndexSelection } from "@/features/WorkIndex/getWorkIndexSelectio
 import { getWorksSWRKey } from "@/features/WorkIndex/hook/useWorks";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
-import PageMetadata from "@/shared/ui/PageMetadata";
 import { useWorkPageSize } from "@/shared/ui/WorkCardGrid";
 
 import type { TagListResponse } from "@/shared/types/work";
@@ -20,10 +19,6 @@ const TopPage = () => {
   const { key: locationKey } = useLocation();
 
   const [searchParams] = useSearchParams();
-  const { currentPage } = getWorkIndexSelection({
-    searchParams,
-    allTags: [],
-  });
   const accessToken = useAuthStore((state) => state.accessToken);
   const { itemsPerPage } = useWorkPageSize();
   const { cache, mutate } = useSWRConfig();
@@ -64,7 +59,6 @@ const TopPage = () => {
         <PageErrorBoundary resetKey={locationKey} onRetry={handleRetry}>
           <Suspense fallback={<PageLoading />}>
             <WorkIndex />
-            <PageMetadata title="作品一覧" isNoIndex={currentPage > 1} />
           </Suspense>
         </PageErrorBoundary>
       </main>
