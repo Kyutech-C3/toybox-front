@@ -314,7 +314,7 @@ export const MarkdownSyntaxSample: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(
-      canvas.getByRole("heading", { name: "Markdown 記法テストドキュメント" }),
+      canvas.getByRole("heading", { name: "Markdown チートシート" }),
     ).toBeInTheDocument();
     await expect(
       canvas.getByRole("heading", { name: "収録項目" }),
