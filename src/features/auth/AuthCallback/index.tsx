@@ -46,7 +46,7 @@ const AuthCallback = () => {
     };
   }, [location.pathname, location.search, navigate, showToast]);
 
-  return <PageLoading />;
+  return <PageLoading title="ログイン処理中" />;
 };
 
 export default AuthCallback;

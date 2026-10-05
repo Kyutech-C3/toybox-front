@@ -11,6 +11,7 @@ import { getWorkIndexSelection } from "@/features/WorkIndex/getWorkIndexSelectio
 import { getWorksSWRKey } from "@/features/WorkIndex/hook/useWorks";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
+import PageMetadata from "@/shared/ui/PageMetadata";
 import { useWorkPageSize } from "@/shared/ui/WorkCardGrid";
 
 import type { TagListResponse } from "@/shared/types/work";
@@ -59,6 +60,7 @@ const TopPage = () => {
         <PageErrorBoundary resetKey={locationKey} onRetry={handleRetry}>
           <Suspense fallback={<PageLoading />}>
             <WorkIndex />
+            <PageMetadata title="作品一覧" />
           </Suspense>
         </PageErrorBoundary>
       </main>

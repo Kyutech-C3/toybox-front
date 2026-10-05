@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { mutate } from "swr";
+import { useSWRConfig } from "swr";
 
 import styles from "./index.module.css";
 
@@ -14,7 +14,9 @@ import useWorkDetail, {
 } from "@/features/WorkDetail/hook/useWorkDetail";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
+import PageMetadata from "@/shared/ui/PageMetadata";
 import { ApiError } from "@/util/fetchData";
+import { getMarkdownText } from "@/util/getMarkdownText";
 
 type WorkPageContentProps = {
   id: string;
@@ -23,10 +25,16 @@ type WorkPageContentProps = {
 
 const WorkPageContent = ({ id, locationKey }: WorkPageContentProps) => {
   const { data } = useWorkDetail({ id });
+  const { mutate } = useSWRConfig();
   const accessToken = useAuthStore((state) => state.accessToken);
 
   if (!data) {
-    return <div>データがありません</div>;
+    return (
+      <>
+        <PageMetadata title="作品が見つかりません" />
+        <div>データがありません</div>
+      </>
+    );
   }
 
   const getCommentErrorMessage = (error: Error) => {
@@ -43,6 +51,10 @@ const WorkPageContent = ({ id, locationKey }: WorkPageContentProps) => {
 
   return (
     <>
+      <PageMetadata
+        title={data.title}
+        description={getMarkdownText(data.description)}
+      />
       <WorkDetail data={data} />
       {data.visibility !== "draft" && (
         <PageErrorBoundary
@@ -62,6 +74,7 @@ const WorkPageContent = ({ id, locationKey }: WorkPageContentProps) => {
 };
 
 const WorkPage = () => {
+  const { mutate } = useSWRConfig();
   const { id } = useParams<{ id: string }>();
   const { key: locationKey } = useLocation();
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -93,11 +106,14 @@ const WorkPage = () => {
           getErrorMessage={getErrorMessage}
           onRetry={handleWorkRetry}
         >
-          <Suspense fallback={<PageLoading />}>
+          <Suspense key={id} fallback={<PageLoading />}>
             {id ? (
               <WorkPageContent id={id} locationKey={locationKey} />
             ) : (
-              <h1>作品がありません</h1>
+              <>
+                <PageMetadata title="作品がありません" />
+                <h1>作品がありません</h1>
+              </>
             )}
           </Suspense>
         </PageErrorBoundary>
