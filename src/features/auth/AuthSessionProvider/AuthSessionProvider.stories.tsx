@@ -1,9 +1,15 @@
 import { StrictMode } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import useSWR, { mutate } from "swr";
 
 import AuthCallback from "../AuthCallback";
-import { authenticateWithCode, getLoginUrl, refreshAccessToken } from "../auth";
+import {
+  authenticateWithCode,
+  getLoginUrl,
+  logout,
+  refreshAccessToken,
+} from "../auth";
 import { consumeLoginCallback, recordLoginCallback } from "../loginCallback";
 import { useAuthStore } from "../store/useAuthStore";
 import { useUserStore } from "../store/useUserStore";
@@ -248,6 +254,105 @@ export const SharedRefresh: Story = {
       releaseLock();
       await pendingLock;
       window.fetch = originalFetch;
+    }
+  },
+};
+
+const LogoutCacheContent = () => {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const { data } = useSWR(
+    accessToken ? ["/logout-private-data", accessToken] : null,
+    () => ({ title: "非公開の作品" }),
+    { suspense: false },
+  );
+  return <p>{data?.title ?? "未認証"}</p>;
+};
+
+export const LogoutSessionCleanup: Story = {
+  args: { children: <LogoutCacheContent /> },
+  beforeEach: () => useAuthStore.setState({ isInitialized: true }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const originalFetch = window.fetch;
+    const originalSetTimeout = window.setTimeout.bind(window);
+    const originalClearTimeout = window.clearTimeout.bind(window);
+    let expireLogout = () => {};
+    const mockSetTimeout = fn(
+      (handler: TimerHandler, timeout?: number, ...args: unknown[]) => {
+        if (timeout === 10_000 && typeof handler === "function") {
+          expireLogout = () => handler(...args);
+        }
+        return originalSetTimeout(handler, timeout, ...args);
+      },
+    );
+    const mockClearTimeout = fn((id?: number) => originalClearTimeout(id));
+    Object.defineProperty(window, "setTimeout", {
+      configurable: true,
+      writable: true,
+      value: mockSetTimeout,
+    });
+    Object.defineProperty(window, "clearTimeout", {
+      configurable: true,
+      writable: true,
+      value: mockClearTimeout,
+    });
+    try {
+      for (const status of [200, 500, null]) {
+        useAuthStore.getState().startSession("storybook-logout-token");
+        useUserStore.getState().setUser({
+          id: "storybook-user",
+          display_name: "テスト",
+          icon_url: "",
+        });
+        const privateKey = ["/logout-private-data", "storybook-logout-token"];
+        await expect(await canvas.findByText("非公開の作品")).toBeVisible();
+        let completeRequest = (_response: Response) => {};
+        const mockFetch = fn(
+          (_input: RequestInfo | URL, init?: RequestInit) =>
+            new Promise<Response>((resolve, reject) => {
+              completeRequest = resolve;
+              const signal = init?.signal;
+              signal?.addEventListener("abort", () => reject(signal.reason), {
+                once: true,
+              });
+            }),
+        );
+        window.fetch = mockFetch;
+        const request = logout().then(
+          () => null,
+          (error: unknown) => error,
+        );
+        // サーバーが応答する前に、認証情報と非公開データを破棄する。
+        await expect(useAuthStore.getState().accessToken).toBeNull();
+        await expect(useUserStore.getState().user).toBeNull();
+        await expect(mutate(privateKey)).resolves.toBeUndefined();
+        await expect(mockFetch).toHaveBeenCalledWith(
+          expect.stringMatching(/\/auth\/logout$/),
+          {
+            method: "POST",
+            credentials: "include",
+            signal: expect.any(AbortSignal),
+          },
+        );
+        if (status === null) expireLogout();
+        else completeRequest(new Response(null, { status }));
+        const error = await request;
+        if (status === 200) await expect(error).toBeNull();
+        else if (status === null) {
+          await expect(error).toHaveProperty("name", "AbortError");
+          await expect(mockFetch.mock.calls[0]?.[1]?.signal).toHaveProperty(
+            "aborted",
+            true,
+          );
+        } else await expect(error).toBeInstanceOf(Error);
+        await expect(mockClearTimeout).toHaveBeenCalled();
+        mockClearTimeout.mockClear();
+      }
+    } finally {
+      expireLogout();
+      window.fetch = originalFetch;
+      window.setTimeout = originalSetTimeout;
+      window.clearTimeout = originalClearTimeout;
     }
   },
 };
