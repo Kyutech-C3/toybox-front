@@ -195,24 +195,12 @@ const refreshAccessToken = () => {
 };
 
 const logout = async () => {
-  invalidateAuthRequests();
-  let requestError: unknown;
-
-  try {
-    await requestLogout();
-  } catch (error) {
-    requestError = error;
-  }
-
-  try {
-    await clearAuthSession();
-  } catch (error) {
+  // 通信や公開データの再取得を待たずに、ローカルの認証情報を破棄する。
+  void clearAuthSession().catch((error: unknown) => {
     console.error("Failed to clear authenticated cache:", error);
-  }
+  });
 
-  if (requestError) {
-    throw requestError;
-  }
+  await requestLogout();
 };
 
 export {
