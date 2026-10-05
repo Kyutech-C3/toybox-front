@@ -3,13 +3,18 @@ import { useLayoutEffect } from "react";
 type PageMetadataProps = {
   title: string;
   description?: string;
+  isNoIndex?: boolean;
 };
 
 const DEFAULT_DESCRIPTION =
   "ToyBoxは九州工業大学情報工学部の Composite Computer Club（C3）の作品ポータルサイトです。C3部員が製作した作品の閲覧が出来ます。";
 const DESCRIPTION_MAX_LENGTH = 160;
 
-const PageMetadata = ({ title, description }: PageMetadataProps) => {
+const PageMetadata = ({
+  title,
+  description,
+  isNoIndex = false,
+}: PageMetadataProps) => {
   const pageTitle = title.trim();
   const documentTitle = pageTitle ? `${pageTitle} | ToyBox` : "ToyBox";
   const pageDescription =
@@ -21,12 +26,15 @@ const PageMetadata = ({ title, description }: PageMetadataProps) => {
   }, [documentTitle]);
 
   return (
-    <meta
-      name="description"
-      content={Array.from(pageDescription)
-        .slice(0, DESCRIPTION_MAX_LENGTH)
-        .join("")}
-    />
+    <>
+      <meta
+        name="description"
+        content={Array.from(pageDescription)
+          .slice(0, DESCRIPTION_MAX_LENGTH)
+          .join("")}
+      />
+      {isNoIndex && <meta name="robots" content="noindex" />}
+    </>
   );
 };
 

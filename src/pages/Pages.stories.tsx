@@ -68,6 +68,16 @@ const expectPageMetadata = async (title: string, description?: string) => {
   });
 };
 
+const expectPageIndexing = async (isNoIndex: boolean) => {
+  await waitFor(() => {
+    const robots = document.head.querySelectorAll('meta[name="robots"]');
+    expect(robots).toHaveLength(isNoIndex ? 1 : 0);
+    if (isNoIndex) {
+      expect(robots[0]).toHaveAttribute("content", "noindex");
+    }
+  });
+};
+
 type PageFrameProps = {
   path: string;
   routePattern?: string;
@@ -294,6 +304,86 @@ export const UserPortfolio: Story = {
       within(canvasElement).getByRole("heading", { name: "作者" }),
     ).toBeVisible();
     await expectPageMetadata("作者", PROFILE.profile);
+  },
+};
+
+export const PaginationMetadata: Story = {
+  render: () => (
+    <PageFrame
+      path="/?page=2"
+      routePattern="*"
+      fallback={{
+        "/tags": { tags: [] },
+        ...Object.fromEntries(
+          [1, 2].map((page) => [
+            `/works?page=${page}&limit=30`,
+            { works: [WORK], total_count: 31, page, limit: 30 },
+          ]),
+        ),
+        ...Object.fromEntries(
+          [1, 2].map((page) => [
+            unstable_serialize([
+              "/users/owner",
+              `/works/users/owner?page=${page}&limit=30`,
+              null,
+            ]),
+            {
+              userProfile: PROFILE,
+              worksResponse: {
+                works: [WORK],
+                total_count: 31,
+                page,
+                limit: 30,
+              },
+            },
+          ]),
+        ),
+        "/works/work-1": WORK,
+        "/works/work-1/comments": [],
+      }}
+    >
+      <nav aria-label="検証用のページ移動">
+        <Link to="/users/owner?page=2">ユーザーの２ページ目</Link>
+        <Link to="/works/work-1">作品詳細</Link>
+      </nav>
+      <App />
+    </PageFrame>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expectPageMetadata("作品一覧");
+    await expectPageIndexing(true);
+
+    await act(async () => {
+      await userEvent.click(canvas.getByRole("button", { name: "ページ 1" }));
+    });
+    await expectPageIndexing(false);
+    await act(async () => {
+      await userEvent.click(canvas.getByRole("button", { name: "ページ 2" }));
+    });
+    await expectPageIndexing(true);
+
+    await act(async () => {
+      await userEvent.click(
+        canvas.getByRole("link", { name: "ユーザーの２ページ目" }),
+      );
+    });
+    await expectPageMetadata(PROFILE.display_name, PROFILE.profile);
+    await expectPageIndexing(true);
+    await act(async () => {
+      await userEvent.click(canvas.getByRole("button", { name: "ページ 1" }));
+    });
+    await expectPageIndexing(false);
+    await act(async () => {
+      await userEvent.click(canvas.getByRole("button", { name: "ページ 2" }));
+    });
+    await expectPageIndexing(true);
+
+    await act(async () => {
+      await userEvent.click(canvas.getByRole("link", { name: "作品詳細" }));
+    });
+    await expectPageMetadata(WORK.title);
+    await expectPageIndexing(false);
   },
 };
 

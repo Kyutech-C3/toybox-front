@@ -51,6 +51,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
       <PageMetadata
         title={userProfile.display_name}
         description={userProfile.profile}
+        isNoIndex={currentPage > 1}
       />
       <section className={styles["profile-section"]}>
         <div className={styles["profile-card"]}>
