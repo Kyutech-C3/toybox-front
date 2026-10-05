@@ -49,7 +49,7 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   return (
     <>
       <PageMetadata
-        title={`${userProfile.display_name}の作品`}
+        title={userProfile.display_name}
         description={userProfile.profile}
       />
       <section className={styles["profile-section"]}>

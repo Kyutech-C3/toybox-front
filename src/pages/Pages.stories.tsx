@@ -102,6 +102,40 @@ const PageFrame = ({
 
 const PageCatalog = () => <TopPage />;
 
+type EditPageFrameProps = {
+  path: string;
+  isNewWork?: boolean;
+};
+
+const EditPageFrame = ({ path, isNewWork = false }: EditPageFrameProps) => {
+  const router = createMemoryRouter(
+    [
+      {
+        path: isNewWork ? "/edit/new" : "/edit/:id",
+        element: (
+          <ToastProvider>
+            <SWRConfig
+              value={{
+                fallback: {
+                  [unstable_serialize(["/tags", "storybook-token"])]: {
+                    tags: [],
+                  },
+                },
+                provider: () => new Map(),
+                suspense: true,
+              }}
+            >
+              <EditPage isNewWork={isNewWork} />
+            </SWRConfig>
+          </ToastProvider>
+        ),
+      },
+    ],
+    { initialEntries: [path] },
+  );
+  return <RouterProvider router={router} />;
+};
+
 const META = {
   title: "Pages",
   component: PageCatalog,
@@ -173,33 +207,7 @@ export const WorkDetail: Story = {
 };
 
 export const WorkEdit: Story = {
-  render: () => {
-    const router = createMemoryRouter(
-      [
-        {
-          path: "/edit/new",
-          element: (
-            <ToastProvider>
-              <SWRConfig
-                value={{
-                  fallback: {
-                    [unstable_serialize(["/tags", "storybook-token"])]: {
-                      tags: [],
-                    },
-                  },
-                  provider: () => new Map(),
-                }}
-              >
-                <EditPage isNewWork />
-              </SWRConfig>
-            </ToastProvider>
-          ),
-        },
-      ],
-      { initialEntries: ["/edit/new"] },
-    );
-    return <RouterProvider router={router} />;
-  },
+  render: () => <EditPageFrame path="/edit/new" isNewWork />,
   beforeEach: () => {
     useAuthStore.setState({ accessToken: "storybook-token" });
     useUserStore.setState({
@@ -226,6 +234,42 @@ export const WorkEdit: Story = {
   },
 };
 
+export const WorkEditForbidden: Story = {
+  render: () => <EditPageFrame path="/edit/work-1" />,
+  beforeEach: () => {
+    const viewer = {
+      id: "viewer",
+      display_name: "閲覧者",
+      icon_url: "",
+    };
+    useAuthStore.setState({ accessToken: "storybook-token" });
+    useUserStore.setState({ user: viewer, hasLoadFailed: false });
+    const originalFetch = window.fetch;
+    window.fetch = fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith("/auth/users/me"))
+        return Response.json(viewer);
+      if (String(input).endsWith("/works/work-1")) return Response.json(WORK);
+      throw new Error(`Unexpected request: ${input}`);
+    });
+    return () => {
+      window.fetch = originalFetch;
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByRole("heading", { name: "この作品は編集できません" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("textbox", { name: "タイトル" }),
+    ).toBeNull();
+    await expectPageMetadata(
+      "この作品は編集できません",
+      "編集できるのは作品を投稿した本人だけです。",
+    );
+  },
+};
+
 export const UserPortfolio: Story = {
   render: () => (
     <PageFrame
@@ -249,7 +293,7 @@ export const UserPortfolio: Story = {
     await expect(
       within(canvasElement).getByRole("heading", { name: "作者" }),
     ).toBeVisible();
-    await expectPageMetadata("作者の作品", PROFILE.profile);
+    await expectPageMetadata("作者", PROFILE.profile);
   },
 };
 

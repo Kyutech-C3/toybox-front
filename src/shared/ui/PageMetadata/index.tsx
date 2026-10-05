@@ -1,3 +1,5 @@
+import { useLayoutEffect } from "react";
+
 type PageMetadataProps = {
   title: string;
   description?: string;
@@ -9,19 +11,22 @@ const DESCRIPTION_MAX_LENGTH = 160;
 
 const PageMetadata = ({ title, description }: PageMetadataProps) => {
   const pageTitle = title.trim();
+  const documentTitle = pageTitle ? `${pageTitle} | ToyBox` : "ToyBox";
   const pageDescription =
     description?.replace(/\s+/g, " ").trim() || DEFAULT_DESCRIPTION;
 
+  useLayoutEffect(() => {
+    // 初期HTMLのtitle要素を維持し、画面切り替えでも空にしない。
+    document.title = documentTitle;
+  }, [documentTitle]);
+
   return (
-    <>
-      <title>{pageTitle ? `${pageTitle} | ToyBox` : "ToyBox"}</title>
-      <meta
-        name="description"
-        content={Array.from(pageDescription)
-          .slice(0, DESCRIPTION_MAX_LENGTH)
-          .join("")}
-      />
-    </>
+    <meta
+      name="description"
+      content={Array.from(pageDescription)
+        .slice(0, DESCRIPTION_MAX_LENGTH)
+        .join("")}
+    />
   );
 };
 
