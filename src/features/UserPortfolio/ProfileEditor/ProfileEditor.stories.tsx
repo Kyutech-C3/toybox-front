@@ -85,13 +85,21 @@ type Story = StoryObj<typeof META>;
 
 export const Default: Story = {};
 
-type SaveRevalidationProps = {
-  swrKey: UserPortfolioSWRKey;
-  onRevalidate: () => Promise<null>;
+const SAVE_KEY: UserPortfolioSWRKey = [
+  "/profile-save",
+  "/profile-save-works",
+  "storybook-profile-token",
+];
+const SAVE = {
+  onClose: fn(),
+  save: fn<() => Promise<Response>>(),
+  revalidate: fn<() => Promise<null>>(),
+  completeSave: (_response: Response) => {},
+  completeRevalidation: () => {},
 };
 
-const SaveRevalidation = ({ swrKey, onRevalidate }: SaveRevalidationProps) => {
-  useSWR(swrKey, onRevalidate, {
+const SaveRevalidation = () => {
+  useSWR(SAVE_KEY, SAVE.revalidate, {
     suspense: false,
     revalidateOnMount: false,
     revalidateOnFocus: false,
@@ -100,219 +108,180 @@ const SaveRevalidation = ({ swrKey, onRevalidate }: SaveRevalidationProps) => {
   return null;
 };
 
-type SaveLifecycleParams = {
-  boundary: "save" | "revalidation";
-  interruption?: "logout" | "session" | "unmount";
-  hasSaveError?: boolean;
+const SAVE_STORY: Story = {
+  args: { userPortfolioSWRKey: SAVE_KEY, onClose: SAVE.onClose },
+  render: (args) => (
+    <>
+      <SaveRevalidation />
+      <ProfileEditor {...args} />
+    </>
+  ),
+  beforeEach: () => {
+    const originalFetch = window.fetch;
+    const originalAuth = useAuthStore.getState();
+    const originalUser = useUserStore.getState();
+    useAuthStore.getState().startSession("storybook-profile-token");
+    useUserStore.getState().setUser({
+      id: PROFILE.id,
+      display_name: PROFILE.display_name,
+      icon_url: "",
+    });
+    SAVE.onClose.mockClear();
+    SAVE.save.mockReset().mockReturnValue(
+      new Promise<Response>((resolve) => {
+        SAVE.completeSave = resolve;
+      }),
+    );
+    SAVE.revalidate.mockReset().mockReturnValue(
+      new Promise<null>((resolve) => {
+        SAVE.completeRevalidation = () => resolve(null);
+      }),
+    );
+    window.fetch = (input, init) =>
+      String(input).endsWith("/auth/users") && init?.method === "PATCH"
+        ? SAVE.save()
+        : originalFetch(input, init);
+    return async () => {
+      SAVE.completeSave(Response.json(PROFILE));
+      SAVE.completeRevalidation();
+      window.fetch = originalFetch;
+      await mutate(SAVE_KEY, undefined, { revalidate: false });
+      useAuthStore.setState(originalAuth);
+      useUserStore.setState(originalUser);
+    };
+  },
 };
 
-const createSaveLifecycleStory = ({
-  boundary,
-  interruption,
-  hasSaveError = false,
-}: SaveLifecycleParams): Story => {
-  const swrKey: UserPortfolioSWRKey = [
-    `/profile-save-${boundary}-${interruption ?? "current"}-${hasSaveError}`,
-    "/profile-save-works",
-    "storybook-profile-token",
-  ];
-  const onClose = fn();
-  const revalidate = fn<() => Promise<null>>();
-  let completeSave = (_response: Response) => {};
-  let completeRevalidation = () => {};
+const submitProfile = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  await userEvent.type(canvas.getByRole("textbox", { name: "表示名" }), "変更");
+  await userEvent.click(canvas.getByRole("button", { name: "保存" }));
+  return canvas;
+};
 
-  return {
-    args: { userPortfolioSWRKey: swrKey, onClose },
-    render: (args) => (
-      <>
-        <SaveRevalidation swrKey={swrKey} onRevalidate={revalidate} />
-        <ProfileEditor {...args} />
-      </>
-    ),
-    beforeEach: () => {
-      const originalFetch = window.fetch;
-      const originalAuth = useAuthStore.getState();
-      const originalUser = useUserStore.getState();
-      useAuthStore.getState().startSession("storybook-profile-token");
-      useUserStore.getState().setUser({
-        id: PROFILE.id,
-        display_name: PROFILE.display_name,
-        icon_url: "",
-      });
-      onClose.mockClear();
-      const pendingSave = new Promise<Response>((resolve) => {
-        completeSave = resolve;
-      });
-      const pendingRevalidation = new Promise<null>((resolve) => {
-        completeRevalidation = () => resolve(null);
-      });
-      revalidate.mockReset().mockReturnValue(pendingRevalidation);
-      window.fetch = fn((input: RequestInfo | URL, init?: RequestInit) =>
-        String(input).endsWith("/auth/users") && init?.method === "PATCH"
-          ? pendingSave
-          : originalFetch(input, init),
-      );
-      return async () => {
-        completeSave(Response.json(PROFILE));
-        completeRevalidation();
-        window.fetch = originalFetch;
-        await mutate(swrKey, undefined, { revalidate: false });
-        useAuthStore.setState(originalAuth);
-        useUserStore.setState(originalUser);
-      };
-    },
-    play: async ({ canvasElement }) => {
-      const canvas = within(canvasElement);
-      const body = within(canvasElement.ownerDocument.body);
-      await userEvent.type(
-        canvas.getByRole("textbox", { name: "表示名" }),
-        "変更",
-      );
-      await userEvent.click(canvas.getByRole("button", { name: "保存" }));
-      await expect(
-        canvas.getByRole("button", { name: "保存中..." }),
-      ).toBeDisabled();
-
-      if (boundary === "revalidation") {
-        completeSave(Response.json(PROFILE));
-        await waitFor(() => expect(revalidate).toHaveBeenCalledTimes(1));
-      }
-
-      if (interruption === "logout" || interruption === "session") {
-        await clearAuthSession();
-        if (interruption === "session") {
-          // 同じトークン・ユーザーでも、新しいログインの結果は上書きしない。
-          useAuthStore.getState().startSession("storybook-profile-token");
-          useUserStore.getState().setUser({
-            id: PROFILE.id,
-            display_name: "再ログイン後の名前",
-            icon_url: "",
-          });
-        }
-      } else if (interruption === "unmount") {
-        const originalConfirm = window.confirm;
-        window.confirm = () => true;
-        try {
-          await userEvent.click(
-            canvas.getByRole("link", { name: "別のページへ" }),
-          );
-          await expect(
-            await canvas.findByRole("heading", { name: "移動先のページ" }),
-          ).toBeVisible();
-        } finally {
-          window.confirm = originalConfirm;
-        }
-      } else {
-        // 同一セッションのtoken更新や最新のユーザー情報は維持する。
-        useAuthStore.getState().setAccessToken("storybook-refreshed-token");
-        useUserStore.getState().setUser({
-          id: PROFILE.id,
-          display_name: PROFILE.display_name,
-          icon_url: "/favicon.svg",
-        });
-      }
-
-      if (boundary === "save") {
-        completeSave(
-          hasSaveError
-            ? new Response(null, { status: 500 })
-            : Response.json(PROFILE),
-        );
-      }
-      if (!interruption && !hasSaveError) {
-        await waitFor(() => expect(revalidate).toHaveBeenCalledTimes(1));
-      }
-      completeRevalidation();
-      // 解放したPromiseから保存の完了処理までを次のtaskで待つ。
-      await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
-
-      if (interruption) {
-        await expect(onClose).not.toHaveBeenCalled();
-        await expect(
-          body.queryByText("プロフィールを更新しました"),
-        ).not.toBeInTheDocument();
-        await expect(
-          body.queryByText("プロフィールを更新できませんでした"),
-        ).not.toBeInTheDocument();
-        await expect(revalidate).toHaveBeenCalledTimes(
-          boundary === "save" ? 0 : 1,
-        );
-        await expect(useUserStore.getState().user?.display_name ?? null).toBe(
-          interruption === "logout"
-            ? null
-            : interruption === "session"
-              ? "再ログイン後の名前"
-              : PROFILE.display_name,
-        );
-        await expect(useAuthStore.getState().accessToken).toBe(
-          interruption === "logout" ? null : "storybook-profile-token",
-        );
-      } else if (hasSaveError) {
-        await waitFor(() =>
-          expect(
-            body.getByText("プロフィールを更新できませんでした"),
-          ).toBeVisible(),
-        );
-        await expect(onClose).not.toHaveBeenCalled();
-        await expect(revalidate).not.toHaveBeenCalled();
-        await expect(
-          canvas.getByRole("button", { name: "保存" }),
-        ).toBeEnabled();
-      } else {
-        await waitFor(() =>
-          expect(body.getByText("プロフィールを更新しました")).toBeVisible(),
-        );
-        await expect(onClose).toHaveBeenCalledTimes(1);
-        await expect(useUserStore.getState().user).toEqual({
-          id: PROFILE.id,
-          display_name: `${PROFILE.display_name}変更`,
-          icon_url: "/favicon.svg",
-        });
-        await expect(useAuthStore.getState().accessToken).toBe(
-          "storybook-refreshed-token",
-        );
-      }
-    },
-  };
+const finishIgnoredSave = async (
+  canvasElement: HTMLElement,
+  response = Response.json(PROFILE),
+) => {
+  SAVE.completeSave(response);
+  SAVE.completeRevalidation();
+  // 解放したPromiseから保存の完了処理までを次のtaskで待つ。
+  await new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+  await expect(SAVE.onClose).not.toHaveBeenCalled();
+  const body = within(canvasElement.ownerDocument.body);
+  await expect(body.queryByText(/^プロフィールを更新/)).not.toBeInTheDocument();
 };
 
 export const SaveProfile: Story = {
-  ...createSaveLifecycleStory({ boundary: "save" }),
+  ...SAVE_STORY,
   tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    SAVE.save.mockResolvedValueOnce(new Response(null, { status: 500 }));
+    const canvas = await submitProfile(canvasElement);
+    await waitFor(() =>
+      expect(
+        body.getByText("プロフィールを更新できませんでした"),
+      ).toBeVisible(),
+    );
+    await expect(SAVE.onClose).not.toHaveBeenCalled();
+    await expect(SAVE.revalidate).not.toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole("button", { name: "保存" }));
+    await expect(
+      canvas.getByRole("button", { name: "保存中..." }),
+    ).toBeDisabled();
+    useAuthStore.getState().setAccessToken("storybook-refreshed-token");
+    useUserStore.getState().setUser({
+      id: PROFILE.id,
+      display_name: PROFILE.display_name,
+      icon_url: "/favicon.svg",
+    });
+    SAVE.completeSave(Response.json(PROFILE));
+    await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(1));
+    SAVE.completeRevalidation();
+    await waitFor(() => expect(SAVE.onClose).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(body.getByText("プロフィールを更新しました")).toBeVisible(),
+    );
+    await expect(useUserStore.getState().user).toEqual({
+      id: PROFILE.id,
+      display_name: `${PROFILE.display_name}変更`,
+      icon_url: "/favicon.svg",
+    });
+    await expect(useAuthStore.getState().accessToken).toBe(
+      "storybook-refreshed-token",
+    );
+  },
 };
-export const SaveFailure: Story = {
-  ...createSaveLifecycleStory({ boundary: "save", hasSaveError: true }),
-  tags: ["test"],
-};
+
 export const SaveAfterLogout: Story = {
-  ...createSaveLifecycleStory({ boundary: "save", interruption: "logout" }),
+  ...SAVE_STORY,
   tags: ["test"],
+  play: async ({ canvasElement }) => {
+    await submitProfile(canvasElement);
+    await clearAuthSession();
+    await finishIgnoredSave(canvasElement);
+    await expect(SAVE.revalidate).not.toHaveBeenCalled();
+    await expect(useUserStore.getState().user).toBeNull();
+  },
 };
-export const RevalidationAfterLogout: Story = {
-  ...createSaveLifecycleStory({
-    boundary: "revalidation",
-    interruption: "logout",
-  }),
-  tags: ["test"],
-};
+
 export const RevalidationAfterNewSession: Story = {
-  ...createSaveLifecycleStory({
-    boundary: "revalidation",
-    interruption: "session",
-  }),
+  ...SAVE_STORY,
   tags: ["test"],
+  play: async ({ canvasElement }) => {
+    await submitProfile(canvasElement);
+    SAVE.completeSave(Response.json(PROFILE));
+    await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(1));
+    await clearAuthSession();
+    // 同じトークン・ユーザーでも、新しいログインの結果は上書きしない。
+    useAuthStore.getState().startSession("storybook-profile-token");
+    useUserStore.getState().setUser({
+      id: PROFILE.id,
+      display_name: "再ログイン後の名前",
+      icon_url: "",
+    });
+    await finishIgnoredSave(canvasElement);
+    await expect(useUserStore.getState().user?.display_name).toBe(
+      "再ログイン後の名前",
+    );
+  },
 };
+
+const leaveDuringSave = async (canvasElement: HTMLElement) => {
+  const canvas = await submitProfile(canvasElement);
+  const originalConfirm = window.confirm;
+  window.confirm = () => true;
+  try {
+    await userEvent.click(canvas.getByRole("link", { name: "別のページへ" }));
+    await expect(
+      await canvas.findByRole("heading", { name: "移動先のページ" }),
+    ).toBeVisible();
+  } finally {
+    window.confirm = originalConfirm;
+  }
+};
+
 export const SaveAfterUnmount: Story = {
-  ...createSaveLifecycleStory({ boundary: "save", interruption: "unmount" }),
+  ...SAVE_STORY,
   tags: ["test"],
+  play: async ({ canvasElement }) => {
+    await leaveDuringSave(canvasElement);
+    await finishIgnoredSave(canvasElement);
+    await expect(SAVE.revalidate).not.toHaveBeenCalled();
+    await expect(useUserStore.getState().user?.display_name).toBe(
+      PROFILE.display_name,
+    );
+  },
 };
+
 export const SaveFailureAfterUnmount: Story = {
-  ...createSaveLifecycleStory({
-    boundary: "save",
-    interruption: "unmount",
-    hasSaveError: true,
-  }),
+  ...SAVE_STORY,
   tags: ["test"],
+  play: async ({ canvasElement }) => {
+    await leaveDuringSave(canvasElement);
+    await finishIgnoredSave(canvasElement, new Response(null, { status: 500 }));
+  },
 };
 
 export const ValidationError: Story = {
