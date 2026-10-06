@@ -64,6 +64,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const Thread: Story = {
+  tags: ["test"],
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getAllByRole("button", { name: "返信" })[0]);

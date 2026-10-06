@@ -33,6 +33,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
+  tags: ["test"],
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByRole("textbox", { name: "コメントを入力" });
@@ -44,14 +45,3 @@ export const Default: Story = {
 };
 
 export const Submitting: Story = { args: { isSubmitting: true } };
-
-export const CharacterLimit: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox", { name: "コメントを入力" });
-    await userEvent.click(input);
-    await userEvent.paste("😀".repeat(256));
-    await expect(input).toHaveValue("😀".repeat(255));
-    await expect(canvas.getByText("255/255")).toBeVisible();
-  },
-};

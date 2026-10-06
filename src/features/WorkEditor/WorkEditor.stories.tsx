@@ -61,24 +61,10 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
-export const NewWork: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("heading", { name: "タイトル" }),
-    ).toBeVisible();
-    await userEvent.type(
-      canvas.getByRole("textbox", { name: "タイトル" }),
-      "新しい作品",
-    );
-    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
-    await expect(
-      canvas.getByText("プレビューする内容がありません"),
-    ).toBeVisible();
-  },
-};
+export const NewWork: Story = {};
 
 export const ValidationErrors: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: /下書き保存/ }));

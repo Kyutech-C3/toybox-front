@@ -73,6 +73,7 @@ export const MaximumUrls: Story = {
 };
 
 export const KeyboardAndValidation: Story = {
+  tags: ["test"],
   args: {
     urls: [],
     onChangeUrls: () => undefined,

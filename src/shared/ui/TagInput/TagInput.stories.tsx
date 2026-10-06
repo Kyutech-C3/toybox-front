@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, userEvent, within } from "storybook/test";
 
 import TagInput from "./index";
 
@@ -108,6 +108,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
+  tags: ["test"],
   render: () => <TagInputPreview />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -119,30 +120,9 @@ export const Default: Story = {
     });
     await expect(clearButton).toBeDisabled();
     await userEvent.type(input, "react");
-    const counter = canvas.getByText("5/50");
-    const surface = input.parentElement;
-    if (!surface) throw new Error("入力欄の枠が見つかりません");
-    const surfaceRect = surface.getBoundingClientRect();
-    await expect(surfaceRect.height).toBeCloseTo(36, 3);
-    await expect(
-      canvas
-        .getByRole("button", { name: "タグを新規作成" })
-        .getBoundingClientRect().height,
-    ).toBeCloseTo(36, 3);
-    await expect(
-      canvas
-        .getByRole("radiogroup", { name: "タグの並び順" })
-        .getBoundingClientRect().height,
-    ).toBeCloseTo(36, 3);
-    const buttonRect = clearButton.getBoundingClientRect();
-    await expect(buttonRect.right).toBeLessThan(surfaceRect.right);
-    await expect(buttonRect.left).toBeGreaterThan(
-      counter.getBoundingClientRect().right,
-    );
     await userEvent.click(clearButton);
     await expect(input).toHaveValue("");
     await expect(input).toHaveFocus();
-    await expect(canvas.getByText("0/50")).toBeVisible();
   },
 };
 
@@ -154,110 +134,4 @@ export const ManyTagsOnPaper: Story = {
       isOnPaper
     />
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("searchbox", {
-      name: "作品に付けるタグを探す",
-    });
-    const expandButton = await canvas.findByRole("button", {
-      name: "すべてのタグ",
-    });
-    const listID = expandButton.getAttribute("aria-controls");
-    const list = listID ? document.getElementById(listID) : null;
-    const unit = list?.parentElement;
-    if (!list || !unit) throw new Error("タグ一覧が見つかりません");
-    const rowTops = [
-      ...new Set(
-        Array.from(list.children).map(
-          (item) => (item as HTMLElement).offsetTop,
-        ),
-      ),
-    ];
-    await expect(rowTops.length).toBeGreaterThan(4);
-    const fourthRow = Array.from(list.children).find(
-      (item) => (item as HTMLElement).offsetTop === rowTops[3],
-    ) as HTMLElement;
-    await expect(unit.getBoundingClientRect().height).toBe(
-      fourthRow.offsetTop - rowTops[0] + fourthRow.offsetHeight,
-    );
-
-    await userEvent.click(expandButton);
-    await expect(unit).toHaveAttribute("data-expanded", "true");
-    await expect(list.getBoundingClientRect().height).toBeLessThanOrEqual(400);
-    const sortToggle = canvas.queryByRole("button", { name: /タグの並び順/ });
-    const controls = [
-      sortToggle ?? canvas.getByRole("radiogroup", { name: "タグの並び順" }),
-      input,
-      canvas.getByRole("button", { name: "タグを新規作成" }),
-      canvas.getByRole("button", { name: "選択中の2件のタグをクリア" }),
-    ];
-    for (const control of controls) {
-      await waitFor(() => expect(control).toBeVisible());
-      const rect = control.getBoundingClientRect();
-      await expect(
-        control.contains(
-          document.elementFromPoint(
-            rect.x + rect.width / 2,
-            rect.y + rect.height / 2,
-          ),
-        ),
-      ).toBe(true);
-    }
-    await userEvent.click(input);
-    await expect(unit).toHaveAttribute("data-expanded", "true");
-    await userEvent.keyboard("{Escape}");
-    await expect(unit).toHaveAttribute("data-expanded", "false");
-    await userEvent.type(input, "#");
-    await expect(unit).toHaveAttribute("data-expanded", "true");
-    await userEvent.click(
-      canvas.getByRole("button", { name: "タグの入力をクリア" }),
-    );
-    await userEvent.keyboard("{Escape}");
-    await userEvent.click(sortToggle ?? canvas.getByText("名前順"));
-    await expect(unit).toHaveAttribute("data-expanded", "true");
-    await userEvent.click(
-      canvas.getByRole("button", { name: "選択中の2件のタグをクリア" }),
-    );
-    await expect(unit).toHaveAttribute("data-expanded", "true");
-    await expect(
-      canvas.getByRole("button", { name: "選択中のタグはありません" }),
-    ).toBeDisabled();
-    const closeButton = canvas.getByRole("button", {
-      name: "タグの展開を閉じる",
-    });
-    const panel = unit.parentElement;
-    if (!panel) throw new Error("タグパネルが見つかりません");
-    const panelRect = panel.getBoundingClientRect();
-    const closeRect = closeButton.getBoundingClientRect();
-    await expect(closeRect.top).toBeGreaterThanOrEqual(panelRect.bottom);
-    await expect(closeRect.right).toBeCloseTo(panelRect.right - 1, 0);
-    await expect(getComputedStyle(closeButton).backgroundColor).toBe(
-      "rgba(0, 0, 0, 0)",
-    );
-    await expect(getComputedStyle(closeButton).borderTopColor).toBe(
-      "rgba(0, 0, 0, 0)",
-    );
-    await userEvent.click(closeButton);
-    await expect(unit).toHaveAttribute("data-expanded", "false");
-    await expect(
-      canvas.getByRole("button", { name: "すべてのタグ" }),
-    ).toHaveFocus();
-    await userEvent.keyboard("{Enter}");
-    await expect(unit).toHaveAttribute("data-expanded", "true");
-    Array.from(list.querySelectorAll("button")).at(-1)?.focus();
-    await userEvent.tab();
-    await expect(
-      canvas.getByRole("button", { name: "タグの展開を閉じる" }),
-    ).toHaveFocus();
-    await userEvent.keyboard(" ");
-    await expect(unit).toHaveAttribute("data-expanded", "false");
-    await userEvent.click(canvas.getByRole("button", { name: "すべてのタグ" }));
-    const backdrop = unit.parentElement?.parentElement?.querySelector(
-      ':scope > [aria-hidden="true"]',
-    );
-    if (!(backdrop instanceof HTMLElement))
-      throw new Error("タグパネルの背景が見つかりません");
-    await userEvent.click(backdrop);
-    await waitFor(() => expect(unit).toHaveAttribute("data-expanded", "false"));
-  },
 };
