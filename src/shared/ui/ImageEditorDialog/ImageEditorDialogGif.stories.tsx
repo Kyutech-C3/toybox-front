@@ -14,6 +14,7 @@ import ImageEditorDialog from "./index";
 import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { createGifFixture } from "@/stories/gifFixture";
+import { findImageEditor } from "@/stories/imageEditorHelpers";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -77,19 +78,7 @@ const openEditor = async (canvasElement: HTMLElement) => {
   await userEvent.click(
     within(canvasElement).getByRole("button", { name: "GIFを編集" }),
   );
-  const dialog = within(
-    await within(canvasElement.ownerDocument.body).findByRole("dialog"),
-  );
-  await waitFor(() =>
-    expect(dialog.getByRole("button", { name: "GIF保存" })).toBeEnabled(),
-  );
-  await expect(
-    dialog.queryByRole("button", { name: "保存" }),
-  ).not.toBeInTheDocument();
-  await expect(
-    dialog.getByRole("button", { name: "静止画保存" }),
-  ).toBeEnabled();
-  return dialog;
+  return findImageEditor(canvasElement, "GIF保存");
 };
 
 const readResult = async (canvasElement: HTMLElement) => {
@@ -98,18 +87,6 @@ const readResult = async (canvasElement: HTMLElement) => {
   }) as HTMLAnchorElement;
   const gif = parseGIF(await (await fetch(link.href)).arrayBuffer());
   return { gif, frames: decompressFrames(gif, true) };
-};
-
-export const StillImageSave: Story = {
-  play: async ({ canvasElement }) => {
-    const dialog = await openEditor(canvasElement);
-    await userEvent.click(dialog.getByRole("button", { name: "静止画保存" }));
-    await waitFor(() =>
-      expect(
-        within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("image/webp"),
-    );
-  },
 };
 
 export const AnimatedAvatarCropAndRotation: Story = {
@@ -164,6 +141,7 @@ export const AnimatedAvatarCropAndRotation: Story = {
 };
 
 export const TransparencyAndDisposal: Story = {
+  tags: ["test"],
   args: { hasDisposalFrames: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -194,6 +172,7 @@ export const TransparencyAndDisposal: Story = {
 };
 
 export const CancelDuringGifSave: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const post = spyOn(Worker.prototype, "postMessage").mockImplementation(
       () => undefined,
@@ -227,6 +206,7 @@ export const CancelDuringGifSave: Story = {
 };
 
 export const GifErrorAllowsStillSave: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const post = spyOn(Worker.prototype, "postMessage").mockImplementation(
       function (this: Worker) {

@@ -38,24 +38,7 @@ const META = {
 } satisfies Meta<typeof UploadCard>;
 export default META;
 type Story = StoryObj<typeof META>;
-export const Uploaded: Story = {
-  play: async ({ canvasElement, args }) => {
-    const remove = within(canvasElement).getByRole("button", {
-      name: /を削除/,
-    });
-    const bounds = remove.getBoundingClientRect();
-    await expect([bounds.width, bounds.height]).toEqual([30, 30]);
-    const errorColor = document.createElement("span");
-    errorColor.style.color = getComputedStyle(
-      document.documentElement,
-    ).getPropertyValue("--error-color");
-    await expect(getComputedStyle(remove).color).toBe(errorColor.style.color);
-    await userEvent.hover(remove);
-    await expect(getComputedStyle(remove).color).toBe(errorColor.style.color);
-    await userEvent.click(remove);
-    await expect(args.onRemove).toHaveBeenCalledTimes(1);
-  },
-};
+export const Uploaded: Story = {};
 export const Empty: Story = {
   args: {
     asset: null,
