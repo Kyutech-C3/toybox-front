@@ -2,6 +2,7 @@ import { expect, spyOn, userEvent, waitFor, within } from "storybook/test";
 
 import MarkdownPreview from "./index";
 
+import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import markdownSyntaxSample from "@/stories/markdownSyntaxSample.md?raw";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -13,7 +14,9 @@ const META = {
   decorators: [
     (Story) => (
       <div style={{ width: "min(760px, 90vw)" }}>
-        <Story />
+        <ToastProvider>
+          <Story />
+        </ToastProvider>
       </div>
     ),
   ],
@@ -442,6 +445,7 @@ export const HeadingLinksAndFootnotes: Story = {
     }
     const originalURL = window.location.href;
     const copy = spyOn(navigator.clipboard, "writeText").mockResolvedValue();
+    const legacyCopy = spyOn(document, "execCommand").mockReturnValue(false);
     try {
       await userEvent.click(headingLink);
       await expect(copy).toHaveBeenCalledWith(
@@ -449,8 +453,19 @@ export const HeadingLinksAndFootnotes: Story = {
           .href,
       );
       await expect(decodeURIComponent(window.location.hash)).toBe("#概要");
+      await waitFor(() =>
+        expect(canvas.getByText("リンクをコピーしました")).toBeVisible(),
+      );
+      copy.mockRejectedValue(new Error("Clipboard unavailable"));
+      await userEvent.click(headingLink);
+      await waitFor(() =>
+        expect(
+          canvas.getByText("リンクをコピーできませんでした"),
+        ).toBeVisible(),
+      );
     } finally {
       copy.mockRestore();
+      legacyCopy.mockRestore();
       window.history.replaceState(null, "", originalURL);
     }
     await expect(
