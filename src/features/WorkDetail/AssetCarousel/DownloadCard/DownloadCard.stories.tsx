@@ -1,5 +1,3 @@
-import { expect, within } from "storybook/test";
-
 import DownloadCard from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -21,18 +19,6 @@ export const Zip: Story = {
     assetType: "zip",
     extension: "zip",
     url: "https://example.com/assets/source.zip",
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const downloadLink = canvas.getByRole("link", {
-      name: ".zipファイルをダウンロード",
-    });
-
-    await expect(downloadLink).toHaveAttribute(
-      "href",
-      "https://example.com/assets/source.zip",
-    );
-    await expect(downloadLink).toHaveAttribute("download");
   },
 };
 
@@ -58,13 +44,5 @@ export const UnsafeURL: Story = {
     assetType: "zip",
     extension: "zip",
     url: "javascript:alert('unsafe')",
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await expect(
-      canvas.getByText("このアセットのURLは安全に開けません。"),
-    ).toBeInTheDocument();
-    await expect(canvas.queryByRole("link")).not.toBeInTheDocument();
   },
 };

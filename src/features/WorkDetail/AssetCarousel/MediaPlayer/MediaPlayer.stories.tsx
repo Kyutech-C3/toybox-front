@@ -30,6 +30,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const DeferredPreload: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const media = canvasElement.querySelector("video");

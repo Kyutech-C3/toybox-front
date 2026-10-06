@@ -12,7 +12,9 @@ const ShareButton = ({ title }: ShareButtonProps) => {
   const { showToast } = useToast();
 
   const handleShare = async () => {
-    const url = window.location.href;
+    const shareUrl = new URL(window.location.href);
+    shareUrl.hash = "";
+    const url = shareUrl.href;
 
     const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
     if (navigator.share && isCoarsePointer) {

@@ -11,6 +11,7 @@ import UserPortfolio, {
 } from "@/features/UserPortfolio";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
 import PageLoading from "@/shared/ui/PageLoading";
+import PageMetadata from "@/shared/ui/PageMetadata";
 import { ApiError } from "@/util/fetchData";
 
 const UserPage = () => {
@@ -54,11 +55,12 @@ const UserPage = () => {
           getErrorMessage={getErrorMessage}
           onRetry={handleRetry}
         >
-          <Suspense fallback={<PageLoading />}>
+          <Suspense key={id} fallback={<PageLoading />}>
             {id ? (
               <UserPortfolio key={id} userID={id} />
             ) : (
               <section className={styles["page-status"]}>
+                <PageMetadata title="ユーザーが見つかりません" />
                 <h1>ユーザーが見つかりません</h1>
               </section>
             )}

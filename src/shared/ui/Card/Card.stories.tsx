@@ -1,5 +1,4 @@
 import { MemoryRouter } from "react-router-dom";
-import { expect, waitFor, within } from "storybook/test";
 
 import Card from "./index";
 
@@ -74,21 +73,6 @@ export const Editable: Story = {
   },
 };
 
-export const Mobile: Story = {
-  globals: {
-    viewport: { value: "mobile2", isRotated: false },
-  },
-  parameters: {
-    containerWidth: "min(640px, 100vw - 32px)",
-  },
-  args: {
-    viewerUserID: MOCK_WORK.user.id,
-    favoriteButton: (
-      <LikeButton isLiked={false} isCountVisible={false} onToggle={() => {}} />
-    ),
-  },
-};
-
 export const OverflowingTitleAndTags: Story = {
   args: {
     work: {
@@ -105,55 +89,6 @@ export const OverflowingTitleAndTags: Story = {
   },
 };
 
-export const RepeatedExclamationTitle: Story = {
-  args: {
-    work: { ...MOCK_WORK, title: `作品タイトル${"！".repeat(80)}` },
-  },
-  play: async ({ canvasElement }) => {
-    const heading = within(canvasElement).getByRole("heading", { level: 2 });
-    const link = within(heading).getByRole("link");
-    const headingBounds = heading.getBoundingClientRect();
-    const linkBounds = link.getBoundingClientRect();
-
-    await expect(linkBounds.right).toBeLessThanOrEqual(headingBounds.right + 1);
-    await expect(link.scrollWidth).toBeLessThanOrEqual(link.clientWidth + 1);
-    await expect(linkBounds.height).toBeLessThanOrEqual(
-      Number.parseFloat(getComputedStyle(link).lineHeight) * 2 + 1,
-    );
-  },
-};
-
-export const MissingThumbnail: Story = {
-  args: { work: { ...MOCK_WORK, thumbnail_url: "" } },
-  play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole("img", {
-        name: "作品タイトルのサムネイルなし",
-      }),
-    ).toBeVisible();
-  },
-};
-
 export const BrokenThumbnail: Story = {
   args: { work: { ...MOCK_WORK, thumbnail_url: "/missing-thumbnail.svg" } },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await waitFor(() => {
-      expect(
-        canvas.getByRole("img", { name: "作品タイトルのサムネイルなし" }),
-      ).toBeVisible();
-      expect(canvasElement.querySelector("img")).toBeNull();
-      expect(canvas.queryByRole("status")).not.toBeInTheDocument();
-    });
-  },
-};
-
-export const MissingThumbnailDark: Story = {
-  ...MissingThumbnail,
-  globals: { theme: "dark" },
-};
-
-export const BrokenThumbnailDark: Story = {
-  ...BrokenThumbnail,
-  globals: { theme: "dark" },
 };

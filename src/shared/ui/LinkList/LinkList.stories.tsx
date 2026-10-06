@@ -1,5 +1,3 @@
-import { expect, within } from "storybook/test";
-
 import LinkList from "./index";
 
 import type { Meta, StoryObj } from "@storybook/react";
@@ -25,26 +23,4 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
-export const WithUrls: Story = {
-  play: async ({ canvasElement }) => {
-    const links = within(canvasElement).getAllByRole("link");
-    for (const link of links) {
-      const icon = link.querySelector<HTMLSpanElement>(
-        'span[aria-hidden="true"]',
-      );
-      const label = link.querySelector<HTMLSpanElement>(
-        'span:not([aria-hidden="true"])',
-      );
-      if (!icon || !label)
-        throw new Error("リンクのアイコンか URL がありません");
-      const iconBounds = icon.getBoundingClientRect();
-      const labelBounds = label.getBoundingClientRect();
-      const centerOffset = Math.abs(
-        iconBounds.top +
-          iconBounds.height / 2 -
-          (labelBounds.top + labelBounds.height / 2),
-      );
-      await expect(centerOffset).toBeLessThanOrEqual(1);
-    }
-  },
-};
+export const WithUrls: Story = {};

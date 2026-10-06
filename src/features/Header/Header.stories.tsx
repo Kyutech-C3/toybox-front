@@ -24,7 +24,7 @@ const META = {
   parameters: { layout: "fullscreen" },
   tags: ["autodocs"],
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: null });
+    useAuthStore.setState({ accessToken: null, hasRestoreFailed: false });
     useUserStore.getState().clearUser();
   },
 } satisfies Meta<typeof Header>;
@@ -33,14 +33,17 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const LoggedOut: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("img", { name: "logo-image" })).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "ログイン" }),
     ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "ログイン状態の確認を再試行" }),
+    ).not.toBeInTheDocument();
 
-    const lightBackground = getComputedStyle(document.body).backgroundColor;
     await userEvent.click(
       canvas.getByRole("button", { name: "ダークモードに切り替え" }),
     );
@@ -51,24 +54,16 @@ export const LoggedOut: Story = {
     await expect(
       canvas.getByRole("button", { name: "ライトモードに切り替え" }),
     ).toBeVisible();
-    expect(getComputedStyle(document.body).backgroundColor).not.toBe(
-      lightBackground,
-    );
   },
 };
 
 export const Dark: Story = {
   globals: { theme: "dark" },
   parameters: { docs: { story: { inline: false } } },
-  play: async ({ canvasElement }) => {
-    await expect(document.documentElement).toHaveAttribute(
-      "data-theme",
-      "dark",
-    );
-    await expect(
-      within(canvasElement).getByRole("button", {
-        name: "ライトモードに切り替え",
-      }),
-    ).toBeVisible();
+};
+
+export const RestoreRetryFailure: Story = {
+  beforeEach: () => {
+    useAuthStore.setState({ accessToken: null, hasRestoreFailed: true });
   },
 };

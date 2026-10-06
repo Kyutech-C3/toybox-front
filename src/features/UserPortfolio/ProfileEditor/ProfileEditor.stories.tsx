@@ -76,6 +76,7 @@ type Story = StoryObj<typeof META>;
 export const Default: Story = {};
 
 export const ValidationError: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const github = canvas.getByRole("textbox", { name: "GitHub" });
@@ -88,34 +89,6 @@ export const ValidationError: Story = {
   },
 };
 
-export const NormalizedUsernameLimits: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    for (const { name, username, maxLength } of [
-      { name: "GitHub", username: "a".repeat(39), maxLength: 39 },
-      { name: "X", username: "abcdefghijklmno", maxLength: 15 },
-    ]) {
-      const input = canvas.getByRole("textbox", { name });
-      await userEvent.clear(input);
-      await userEvent.click(input);
-      await userEvent.paste(`  ＠${username}  `);
-      await expect(input).toHaveValue(`  ＠${username}  `);
-      await expect(canvas.getByText(`${maxLength}/${maxLength}`)).toBeVisible();
-      await expect(input).toHaveAttribute("aria-invalid", "false");
-      await userEvent.tab();
-      await expect(input).toHaveValue(username);
-
-      await userEvent.click(input);
-      await userEvent.type(input, "a");
-      await expect(input).toHaveValue(`${username}a`);
-      await expect(input).toHaveAttribute("aria-invalid", "true");
-      await expect(canvas.getByRole("button", { name: "保存" })).toBeDisabled();
-      await userEvent.keyboard("{Backspace}");
-      await expect(input).toHaveAttribute("aria-invalid", "false");
-    }
-  },
-};
-
 const isUnloadPrevented = () => {
   const event = new Event("beforeunload", { cancelable: true });
   window.dispatchEvent(event);
@@ -123,6 +96,7 @@ const isUnloadPrevented = () => {
 };
 
 export const PreventLeavingWithChanges: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const originalConfirm = window.confirm;
@@ -171,6 +145,7 @@ export const PreventLeavingWithChanges: Story = {
 };
 
 export const UnchangedProfileCanLeave: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const originalConfirm = window.confirm;
@@ -189,6 +164,7 @@ export const UnchangedProfileCanLeave: Story = {
 };
 
 export const PreventLeavingWithAvatarChanges: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);

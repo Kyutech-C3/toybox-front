@@ -113,6 +113,7 @@ export const StillImageSave: Story = {
 };
 
 export const AnimatedAvatarCropAndRotation: Story = {
+  tags: ["test"],
   args: { purpose: "avatar" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

@@ -82,6 +82,7 @@ const getDialog = async (canvasElement: HTMLElement) => {
 };
 
 export const SelectAndEdit: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);

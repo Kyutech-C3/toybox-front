@@ -34,6 +34,7 @@ type Story = StoryObj<typeof META>;
 
 export const Closed: Story = {};
 export const OpenAndLogout: Story = {
+  tags: ["test"],
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await userEvent.click(

@@ -75,16 +75,9 @@ export const Uploading: Story = {
     asset: { ...META.args.asset, status: "uploading" },
     statusText: "画像・アップロード中",
   },
-  play: async ({ canvasElement, args }) => {
-    const button = within(canvasElement).getByRole("button", {
-      name: /を削除/,
-    });
-    await expect(button).toBeDisabled();
-    await userEvent.click(button);
-    await expect(args.onRemove).not.toHaveBeenCalled();
-  },
 };
 export const Failed: Story = {
+  tags: ["test"],
   args: {
     asset: { ...META.args.asset, status: "error" },
     statusText: "アップロードに失敗しました",

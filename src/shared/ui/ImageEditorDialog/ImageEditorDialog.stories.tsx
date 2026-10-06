@@ -104,6 +104,7 @@ const openEditor = async (canvasElement: HTMLElement) => {
 };
 
 export const Thumbnail: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const element = await openEditor(canvasElement);
     const dialog = within(element);
@@ -338,6 +339,7 @@ export const LowResolutionAvatar: Story = {
 };
 
 export const KeyboardCancel: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const dialog = within(await openEditor(canvasElement));
     const cropper = dialog.getByLabelText("画像の切り抜き位置");

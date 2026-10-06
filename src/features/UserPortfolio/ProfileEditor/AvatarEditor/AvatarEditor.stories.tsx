@@ -44,6 +44,7 @@ const openEdit = async (canvasElement: HTMLElement) => {
 };
 
 export const LocalPreview: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(

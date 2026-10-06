@@ -30,6 +30,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const Page: Story = {
+  tags: ["test"],
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "再試行" }));

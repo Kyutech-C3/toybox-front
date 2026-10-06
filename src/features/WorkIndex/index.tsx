@@ -11,12 +11,14 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import FavoriteButton from "@/features/FavoriteButton";
 import useTagOptions from "@/features/Tag/hook/useTagOptions";
+import PageMetadata from "@/shared/ui/PageMetadata";
 import { Pagination } from "@/shared/ui/Pagination";
 import TagSelector from "@/shared/ui/TagSelector";
 import WorkCardGrid, {
   useWorkPageSize,
   WorkListControls,
 } from "@/shared/ui/WorkCardGrid";
+import { getCanonicalUrl } from "@/util/getCanonicalUrl";
 
 const WorkIndex = () => {
   const paginationRef = useRef<HTMLDivElement>(null);
@@ -44,6 +46,13 @@ const WorkIndex = () => {
   });
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const canonicalParams = new URLSearchParams({
+    tags: normalizedTags,
+    sort: sortOrder,
+  });
+  if (accessToken && visibility) {
+    canonicalParams.set("visibility", visibility);
+  }
 
   useEffect(() => {
     const nextPage = Math.min(currentPage, Math.max(totalPages, 1));
@@ -125,6 +134,11 @@ const WorkIndex = () => {
 
   return (
     <>
+      <PageMetadata
+        title="作品一覧"
+        canonicalUrl={getCanonicalUrl("/", canonicalParams)}
+        isNoIndex={currentPage > 1}
+      />
       <div className={styles["work-index-header"]}>
         <TagSelector
           searchPlaceholder="タグを検索"

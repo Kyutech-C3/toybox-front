@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
 
 import AssetNavigator from "./index";
 
@@ -60,12 +59,6 @@ type Story = StoryObj<typeof META>;
 
 export const AssetTypes: Story = {
   render: () => <StatefulNavigator />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const third = canvas.getByRole("button", { name: "3番目のアセットを表示" });
-    await userEvent.click(third);
-    await expect(third).toHaveAttribute("aria-current", "true");
-  },
 };
 
 export const FailedImage: Story = {

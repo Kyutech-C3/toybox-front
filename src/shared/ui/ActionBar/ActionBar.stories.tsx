@@ -37,9 +37,3 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const EditorLike: Story = {};
-
-export const EditorLikeMobile: Story = {
-  globals: {
-    viewport: { value: "mobile2", isRotated: false },
-  },
-};
