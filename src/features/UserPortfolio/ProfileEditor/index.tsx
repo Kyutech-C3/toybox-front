@@ -1,4 +1,4 @@
-import { useCallback, useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { mutate } from "swr";
 
@@ -71,10 +71,15 @@ const ProfileEditor = ({
   const githubErrorID = useId();
   const xID = useId();
   const xErrorID = useId();
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const user = useUserStore((state) => state.user);
-  const setUser = useUserStore((state) => state.setUser);
   const { showToast } = useToast();
+  const generationRef = useRef(0);
+
+  useEffect(
+    () => () => {
+      generationRef.current += 1;
+    },
+    [],
+  );
 
   const [displayName, setDisplayName] = useState(userProfile.display_name);
   const [profile, setProfile] = useState(userProfile.profile);
@@ -116,7 +121,13 @@ const ProfileEditor = ({
   };
 
   const handleSubmit = async () => {
+    const { accessToken, sessionVersion } = useAuthStore.getState();
     if (isSubmitDisabled || !accessToken) return;
+
+    const generation = generationRef.current;
+    const isRequestCurrent = () =>
+      generation === generationRef.current &&
+      sessionVersion === useAuthStore.getState().sessionVersion;
 
     setIsSubmitting(true);
     try {
@@ -127,18 +138,26 @@ const ProfileEditor = ({
         xUsername: normalizedXUsername,
         accessToken,
       });
+      if (!isRequestCurrent()) return;
       await mutate(userPortfolioSWRKey);
-      if (user) setUser({ ...user, display_name: trimmedDisplayName });
+      if (!isRequestCurrent()) return;
+      const currentUser = useUserStore.getState().user;
+      if (currentUser?.id === userProfile.id) {
+        useUserStore
+          .getState()
+          .setUser({ ...currentUser, display_name: trimmedDisplayName });
+      }
 
       showToast({ message: "プロフィールを更新しました", severity: "success" });
       onClose();
     } catch {
+      if (!isRequestCurrent()) return;
       showToast({
         message: "プロフィールを更新できませんでした",
         severity: "error",
       });
     } finally {
-      setIsSubmitting(false);
+      if (isRequestCurrent()) setIsSubmitting(false);
     }
   };
 
