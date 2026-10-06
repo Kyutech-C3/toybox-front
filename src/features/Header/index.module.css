@@ -30,16 +30,16 @@
   gap: var(--space-12);
 }
 
-.header-wrapper .login-wrapper .theme-toggle {
+.header-wrapper .login-wrapper .header-icon-button {
   color: var(--on-primary-color);
 }
 
-.header-wrapper .login-wrapper .theme-toggle:focus-visible {
+.header-wrapper .login-wrapper .header-icon-button:focus-visible {
   outline-color: var(--on-primary-color);
 }
 
 @media (hover: hover) {
-  .header-wrapper .login-wrapper .theme-toggle:not(:disabled):hover {
+  .header-wrapper .login-wrapper .header-icon-button:not(:disabled):hover {
     background: color-mix(in srgb, var(--on-primary-color) 12%, transparent);
     color: var(--on-primary-color);
   }

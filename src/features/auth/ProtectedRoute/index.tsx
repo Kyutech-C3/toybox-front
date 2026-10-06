@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import LoginRoundedIcon from "@mui/icons-material/LoginRounded";
 
 import { getLoginUrl } from "../auth";
@@ -15,6 +15,7 @@ type ProtectedRouteProps = {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const accessToken = useAuthStore((state) => state.accessToken);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState<string | undefined>();
@@ -25,7 +26,9 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     setIsLoggingIn(true);
     setLoginError(undefined);
     try {
-      const url = await getLoginUrl();
+      const url = await getLoginUrl(
+        location.pathname + location.search + location.hash,
+      );
       if (url.startsWith("http://") || url.startsWith("https://")) {
         window.location.href = url;
         return;

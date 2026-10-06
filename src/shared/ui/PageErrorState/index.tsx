@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
+import PageMetadata from "@/shared/ui/PageMetadata";
 
 import type { ReactNode } from "react";
 
@@ -51,6 +52,9 @@ const PageErrorState = ({
 }: PageErrorStateProps) => {
   return (
     <section className={styles["page-error"]} data-layout={layout} role="alert">
+      {layout === "page" && (
+        <PageMetadata title={title} description={description ?? title} />
+      )}
       <div className={styles["message"]}>
         <h1>{title}</h1>
         {description && <p>{description}</p>}

@@ -162,8 +162,14 @@ export const ImageFullscreen: Story = {
     await waitFor(() =>
       expect(fullscreenImage.naturalWidth).toBeGreaterThan(0),
     );
+    const viewport = fullscreenImage.parentElement;
+    if (!viewport) throw new Error("画像の表示領域が見つかりません");
+    await expect(document.fullscreenElement).toBeNull();
+    await expect(getComputedStyle(fullscreenImage).objectFit).toBe("contain");
+    await expect(fullscreenImage.clientWidth).toBe(viewport.clientWidth);
+    await expect(fullscreenImage.clientHeight).toBe(viewport.clientHeight);
     const bounds = dialog.getBoundingClientRect();
-    dialog.dispatchEvent(
+    viewport.dispatchEvent(
       new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
@@ -181,7 +187,7 @@ export const ImageFullscreen: Story = {
       clientX: bounds.left + bounds.width / 2,
       clientY: bounds.top + bounds.height / 2,
     });
-    dialog.dispatchEvent(zoom);
+    viewport.dispatchEvent(zoom);
     await expect(zoom.defaultPrevented).toBe(true);
     await waitFor(() =>
       expect(fullscreenImage.style.transform).not.toContain("scale(1)"),
@@ -189,17 +195,19 @@ export const ImageFullscreen: Story = {
     const pan = new WheelEvent("wheel", {
       bubbles: true,
       cancelable: true,
+      shiftKey: true,
       deltaY: 80,
     });
-    dialog.dispatchEvent(pan);
+    viewport.dispatchEvent(pan);
     await expect(pan.defaultPrevented).toBe(true);
     await waitFor(() =>
       expect(fullscreenImage.style.transform).toContain("-80px"),
     );
-    dialog.dispatchEvent(
+    viewport.dispatchEvent(
       new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
+        shiftKey: true,
         deltaY: 100000,
       }),
     );
@@ -211,10 +219,11 @@ export const ImageFullscreen: Story = {
         fullscreenImage.getBoundingClientRect().bottom,
       ).toBeGreaterThanOrEqual(bounds.bottom - 1),
     );
-    dialog.dispatchEvent(
+    viewport.dispatchEvent(
       new WheelEvent("wheel", {
         bubbles: true,
         cancelable: true,
+        shiftKey: true,
         deltaY: -100000,
       }),
     );
@@ -238,8 +247,12 @@ export const ImageFullscreen: Story = {
     );
     await userEvent.click(imageButton);
     await expect(dialog).toBeVisible();
+    await expect(
+      within(dialog).getByAltText("拡大する画像").style.transform,
+    ).toBe("translate3d(0px, 0px, 0px) scale(1)");
     await userEvent.keyboard("{Escape}");
     await expect(dialog).not.toBeVisible();
+    await expect(imageButton).toHaveFocus();
   },
 };
 
@@ -254,6 +267,12 @@ export const ImageFullscreenKeyboard: Story = {
     await userEvent.keyboard("{Enter}");
     const dialog = canvas.getByRole("dialog", { name: "画像の全画面表示" });
     await expect(dialog).toBeVisible();
+    const image = within(dialog).getByAltText("キーボードで拡大");
+    if (!(image instanceof HTMLImageElement) || !image.parentElement)
+      throw new Error("画像の表示領域が見つかりません");
+    await waitFor(() => expect(image.naturalWidth).toBeGreaterThan(0));
+    await expect(image.clientWidth).toBe(image.parentElement.clientWidth);
+    await expect(image.clientHeight).toBe(image.parentElement.clientHeight);
     await userEvent.keyboard("{Escape}");
     await expect(dialog).not.toBeVisible();
   },
@@ -295,7 +314,7 @@ export const MarkdownSyntaxSample: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(
-      canvas.getByRole("heading", { name: "Markdown 記法テストドキュメント" }),
+      canvas.getByRole("heading", { name: "Markdown チートシート" }),
     ).toBeInTheDocument();
     await expect(
       canvas.getByRole("heading", { name: "収録項目" }),
@@ -513,14 +532,35 @@ export const AlertsAndDetails: Story = {
 export const CodeFilesAndCopy: Story = {
   args: {
     content:
-      'インラインの `plain`\n\n```ts:src/main.ts\nconst message = "Toybox";\n```\n\n```\n  言語なし\n次の行\n```\n\n    インデント形式\n\n```unknown-language:example.txt\nunknown code\n```',
+      'インラインの `plain`\n\n```ts:src/main.ts\nconst message = "Toybox";\n```\n\n```\n  言語なし\n次の行\n```\n\n    インデント形式\n\n```unknown-language:example.txt\nunknown code\n```\n\n```ts\nconst value = 1;\n```',
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("src/main.ts")).toBeVisible();
     await expect(canvas.getByText("example.txt")).toBeVisible();
     const buttons = canvas.getAllByRole("button", { name: "コードをコピー" });
-    await expect(buttons).toHaveLength(4);
+    await expect(buttons).toHaveLength(5);
+    for (const button of buttons) {
+      const surface =
+        button.previousElementSibling ?? button.nextElementSibling;
+      if (!(surface instanceof HTMLElement))
+        throw new Error("コード枠またはファイル名が見つかりません");
+      const surfaceBounds = surface.getBoundingClientRect();
+      const buttonBounds = button.getBoundingClientRect();
+      await expect(buttonBounds.top - surfaceBounds.top).toBeGreaterThanOrEqual(
+        8,
+      );
+      await expect(
+        surfaceBounds.bottom - buttonBounds.bottom,
+      ).toBeGreaterThanOrEqual(8);
+      await expect(
+        surfaceBounds.right - buttonBounds.right,
+      ).toBeGreaterThanOrEqual(8);
+      await expect(buttonBounds.height).toBeCloseTo(
+        Number.parseFloat(getComputedStyle(surface).lineHeight),
+        0,
+      );
+    }
     const copy = spyOn(navigator.clipboard, "writeText").mockResolvedValue();
     try {
       for (const example of [
@@ -528,6 +568,7 @@ export const CodeFilesAndCopy: Story = {
         "  言語なし\n次の行",
         "インデント形式",
         "unknown code",
+        "const value = 1;",
       ].entries()) {
         await userEvent.click(buttons[example[0]]);
         await expect(copy).toHaveBeenLastCalledWith(example[1]);
