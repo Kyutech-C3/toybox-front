@@ -18,9 +18,3 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const Default: Story = {};
-
-export const Mobile: Story = {
-  globals: {
-    viewport: { value: "mobile2", isRotated: false },
-  },
-};

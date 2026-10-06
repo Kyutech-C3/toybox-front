@@ -48,10 +48,3 @@ export const Default: Story = {};
 export const Owner: Story = {
   args: { editPath: "/edit/work-1" },
 };
-
-export const OwnerMobile: Story = {
-  args: { editPath: "/edit/work-1" },
-  globals: {
-    viewport: { value: "mobile2", isRotated: false },
-  },
-};

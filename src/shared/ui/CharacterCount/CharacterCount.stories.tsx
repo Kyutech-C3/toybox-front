@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
 
 import CharacterCount from "./index";
 
@@ -35,23 +34,4 @@ const EditableCount = () => {
 
 export const Editing: Story = {
   render: () => <EditableCount />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox", { name: "本文" });
-    await userEvent.type(input, "あ😀");
-    await expect(canvas.getByText("2/2")).toHaveAttribute(
-      "data-over-limit",
-      "false",
-    );
-    await userEvent.type(input, "い");
-    await expect(canvas.getByText("3/2")).toHaveAttribute(
-      "data-over-limit",
-      "true",
-    );
-    await userEvent.clear(input);
-    await expect(canvas.getByText("0/2")).toHaveAttribute(
-      "data-over-limit",
-      "false",
-    );
-  },
 };

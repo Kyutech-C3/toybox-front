@@ -57,6 +57,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const Interactive: Story = {
+  tags: ["test"],
   render: () => <ListboxExample />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

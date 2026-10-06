@@ -27,6 +27,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const LoginRequired: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByRole("button")).toBeDisabled();
     await expect(

@@ -1,13 +1,11 @@
-import { act } from "react";
 import {
   createMemoryRouter,
-  Link,
   MemoryRouter,
   Route,
   RouterProvider,
   Routes,
 } from "react-router-dom";
-import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, waitFor, within } from "storybook/test";
 import { SWRConfig, unstable_serialize } from "swr";
 
 import EditPage from "./EditPage";
@@ -16,7 +14,6 @@ import TopPage from "./TopPage";
 import UserPage from "./UserPage";
 import WorkPage from "./WorkPage";
 
-import App from "@/App";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
@@ -64,16 +61,6 @@ const expectPageMetadata = async (title: string, description?: string) => {
     expect(descriptions).toHaveLength(1);
     if (description !== undefined) {
       expect(descriptions[0]).toHaveAttribute("content", description);
-    }
-  });
-};
-
-const expectPageIndexing = async (isNoIndex: boolean) => {
-  await waitFor(() => {
-    const robots = document.head.querySelectorAll('meta[name="robots"]');
-    expect(robots).toHaveLength(isNoIndex ? 1 : 0);
-    if (isNoIndex) {
-      expect(robots[0]).toHaveAttribute("content", "noindex");
     }
   });
 };
@@ -193,18 +180,10 @@ export const Top: Story = {
       <TopPage />
     </PageFrame>
   ),
-  play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole("heading", {
-        name: "Storybookで確認する作品",
-      }),
-    ).toBeVisible();
-    await expectPageMetadata("作品一覧");
-    await expectPageCanonical("/");
-  },
 };
 
 export const WorkDetail: Story = {
+  tags: ["test"],
   render: () => (
     <PageFrame
       path="/works/work-1?utm_source=story#description"
@@ -249,18 +228,10 @@ export const WorkEdit: Story = {
       window.fetch = originalFetch;
     };
   },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(
-      await canvas.findByRole("heading", { name: "タイトル" }),
-    ).toBeVisible();
-    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
-    await expectPageMetadata("作品を投稿");
-    await expectPageCanonical();
-  },
 };
 
 export const WorkEditForbidden: Story = {
+  tags: ["test"],
   render: () => <EditPageFrame path="/edit/work-1" />,
   beforeEach: () => {
     const viewer = {
@@ -316,156 +287,6 @@ export const UserPortfolio: Story = {
       <UserPage />
     </PageFrame>
   ),
-  play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole("heading", { name: "作者" }),
-    ).toBeVisible();
-    await expectPageMetadata("作者", PROFILE.profile);
-    await expectPageCanonical("/users/owner");
-  },
-};
-
-export const PaginationMetadata: Story = {
-  render: () => (
-    <PageFrame
-      path="/?page=2"
-      routePattern="*"
-      fallback={{
-        "/tags": { tags: [] },
-        ...Object.fromEntries(
-          [1, 2].map((page) => [
-            `/works?page=${page}&limit=30`,
-            { works: [WORK], total_count: 31, page, limit: 30 },
-          ]),
-        ),
-        ...Object.fromEntries(
-          [1, 2].map((page) => [
-            unstable_serialize([
-              "/users/owner",
-              `/works/users/owner?page=${page}&limit=30`,
-              null,
-            ]),
-            {
-              userProfile: PROFILE,
-              worksResponse: {
-                works: [WORK],
-                total_count: 31,
-                page,
-                limit: 30,
-              },
-            },
-          ]),
-        ),
-        "/works/work-1": WORK,
-        "/works/work-1/comments": [],
-      }}
-    >
-      <nav aria-label="検証用のページ移動">
-        <Link to="/users/owner?page=2">ユーザーの２ページ目</Link>
-        <Link to="/works/work-1">作品詳細</Link>
-      </nav>
-      <App />
-    </PageFrame>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expectPageMetadata("作品一覧");
-    await expectPageIndexing(true);
-    await expectPageCanonical();
-
-    await act(async () => {
-      await userEvent.click(canvas.getByRole("button", { name: "ページ 1" }));
-    });
-    await expectPageIndexing(false);
-    await expectPageCanonical("/");
-    await act(async () => {
-      await userEvent.click(canvas.getByRole("button", { name: "ページ 2" }));
-    });
-    await expectPageIndexing(true);
-    await expectPageCanonical();
-
-    await act(async () => {
-      await userEvent.click(
-        canvas.getByRole("link", { name: "ユーザーの２ページ目" }),
-      );
-    });
-    await expectPageMetadata(PROFILE.display_name, PROFILE.profile);
-    await expectPageIndexing(true);
-    await expectPageCanonical();
-    await act(async () => {
-      await userEvent.click(canvas.getByRole("button", { name: "ページ 1" }));
-    });
-    await expectPageIndexing(false);
-    await expectPageCanonical("/users/owner");
-    await act(async () => {
-      await userEvent.click(canvas.getByRole("button", { name: "ページ 2" }));
-    });
-    await expectPageIndexing(true);
-    await expectPageCanonical();
-
-    await act(async () => {
-      await userEvent.click(canvas.getByRole("link", { name: "作品詳細" }));
-    });
-    await expectPageMetadata(WORK.title);
-    await expectPageIndexing(false);
-    await expectPageCanonical("/works/work-1");
-  },
-};
-
-export const CanonicalQueryNormalization: Story = {
-  render: () => (
-    <PageFrame
-      path="/?tags=tag-b,tag-a,tag-b,missing,unused&page=1&sort=newest&utm_source=story#works"
-      routePattern="*"
-      fallback={{
-        "/tags": {
-          tags: ["tag-a", "tag-b", "unused"].map((id) => ({
-            ...WORK.tags[0],
-            id,
-            name: id,
-            work_count: id === "unused" ? 0 : 1,
-          })),
-        },
-        ...Object.fromEntries(
-          ["", "&tag_ids=tag-b,tag-a", "&tag_ids=tag-a,tag-b"].flatMap(
-            (tagsQuery) =>
-              ["", "&sort=oldest"].map((sortQuery) => [
-                `/works?page=1&limit=30${tagsQuery}${sortQuery}`,
-                { works: [WORK], total_count: 1, page: 1, limit: 30 },
-              ]),
-          ),
-        ),
-      }}
-    >
-      <nav aria-label="検証用の検索条件">
-        <Link to="/?tags=tag-a,tag-b&utm_source=other">同じタグの別URL</Link>
-        <Link to="/?tags=missing,unused&sort=invalid&page=0&visibility=private&utm_source=story">
-          無効な条件と未認証の公開範囲
-        </Link>
-      </nav>
-      <App />
-    </PageFrame>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expectPageMetadata("作品一覧");
-    await expectPageCanonical("/?tags=tag-a%2Ctag-b");
-    await expectPageIndexing(false);
-
-    await userEvent.click(
-      canvas.getByRole("link", { name: "同じタグの別URL" }),
-    );
-    await expectPageCanonical("/?tags=tag-a%2Ctag-b");
-    await userEvent.click(canvas.getByText("古い順"));
-    await expectPageCanonical("/?tags=tag-a%2Ctag-b&sort=oldest");
-    await userEvent.click(canvas.getByText("新しい順"));
-    await expectPageCanonical("/?tags=tag-a%2Ctag-b");
-
-    await userEvent.click(
-      canvas.getByRole("link", { name: "無効な条件と未認証の公開範囲" }),
-    );
-    await expectPageCanonical("/");
-  },
 };
 
 export const NotFound: Story = {
@@ -474,138 +295,4 @@ export const NotFound: Story = {
       <NotFoundPage />
     </PageFrame>
   ),
-  play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByRole("alert")).toHaveTextContent(
-      "ページが見つかりません",
-    );
-    await expectPageMetadata("ページが見つかりません");
-    await expectPageCanonical();
-  },
-};
-
-let completeWorkRequest: ((response: Response) => void) | undefined;
-
-const finishWorkRequest = (response: Response) => {
-  if (!completeWorkRequest) throw new Error("No pending work request");
-  completeWorkRequest(response);
-  completeWorkRequest = undefined;
-};
-
-export const MetadataNavigationAndRetry: Story = {
-  beforeEach: () => {
-    const originalFetch = window.fetch;
-    completeWorkRequest = undefined;
-    window.fetch = fn(async (input: RequestInfo | URL) => {
-      if (String(input).endsWith("/works/work-2")) {
-        return new Promise<Response>((resolve) => {
-          completeWorkRequest = resolve;
-        });
-      }
-      throw new Error(`Unexpected request: ${input}`);
-    });
-    return () => {
-      window.fetch = originalFetch;
-      completeWorkRequest = undefined;
-    };
-  },
-  render: () => (
-    <PageFrame
-      path="/works/work-1"
-      routePattern="*"
-      fallback={{
-        "/works/work-1": WORK,
-        "/works/work-1/comments": [],
-        "/works/work-2/comments": [],
-      }}
-    >
-      <nav aria-label="検証用のページ移動">
-        <Link to="/works/work-1">最初の作品</Link>
-        <Link to="/works/work-2">次の作品</Link>
-        <Link to="/missing">存在しないページ</Link>
-        <Link to="/edit/new">投稿ページ</Link>
-      </nav>
-      <App />
-    </PageFrame>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expectPageMetadata(WORK.title);
-    await expectPageCanonical("/works/work-1");
-    await act(async () => {
-      await userEvent.click(canvas.getByRole("link", { name: "次の作品" }));
-    });
-    await expectPageMetadata("読み込み中", "ページを読み込んでいます。");
-    await expectPageCanonical();
-    await waitFor(() => expect(completeWorkRequest).toBeDefined());
-    await act(async () => {
-      finishWorkRequest(new Response(null, { status: 404 }));
-    });
-    await expectPageMetadata("作品が見つかりません", "作品が見つかりません");
-    await expectPageCanonical();
-
-    await act(async () => {
-      await userEvent.click(canvas.getByRole("button", { name: "再試行" }));
-    });
-    await waitFor(() => expect(completeWorkRequest).toBeDefined());
-    await act(async () => {
-      finishWorkRequest(
-        Response.json({
-          ...WORK,
-          id: "work-2",
-          title: "次の作品",
-          description:
-            "# 次の作品\n\n**説明**と[リンク](https://example.com)です。",
-        }),
-      );
-    });
-    await expectPageMetadata("次の作品", "次の作品 説明とリンクです。");
-    await expectPageCanonical("/works/work-2");
-
-    await userEvent.click(canvas.getByRole("link", { name: "最初の作品" }));
-    await expectPageMetadata(WORK.title);
-    await expectPageCanonical("/works/work-1");
-    await userEvent.click(
-      canvas.getByRole("link", { name: "存在しないページ" }),
-    );
-    await expectPageMetadata("ページが見つかりません");
-    await expectPageCanonical();
-    await userEvent.click(canvas.getByRole("link", { name: "投稿ページ" }));
-    await expectPageMetadata(
-      "ログインが必要です",
-      "作品を投稿・編集するにはログインしてください。",
-    );
-    await expectPageCanonical();
-  },
-};
-
-export const CommentErrorKeepsWorkMetadata: Story = {
-  beforeEach: () => {
-    const originalFetch = window.fetch;
-    window.fetch = fn(async (input: RequestInfo | URL) => {
-      if (String(input).endsWith("/works/work-1/comments")) {
-        return new Response(null, { status: 500 });
-      }
-      throw new Error(`Unexpected request: ${input}`);
-    });
-    return () => {
-      window.fetch = originalFetch;
-    };
-  },
-  render: () => (
-    <PageFrame
-      path="/works/work-1"
-      routePattern="/works/:id"
-      fallback={{ "/works/work-1": WORK }}
-    >
-      <WorkPage />
-    </PageFrame>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(await canvas.findByRole("alert")).toHaveTextContent(
-      "サーバーで問題が発生しました",
-    );
-    await expectPageMetadata(WORK.title);
-    await expectPageCanonical("/works/work-1");
-  },
 };

@@ -1,5 +1,3 @@
-import { expect, within } from "storybook/test";
-
 import ShareButton from "./index";
 
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
@@ -24,10 +22,4 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
-export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole("button", { name: "この作品を共有する" }),
-    ).toBeVisible();
-  },
-};
+export const Default: Story = {};

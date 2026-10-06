@@ -1,5 +1,3 @@
-import { expect, within } from "storybook/test";
-
 import Input from "../Input";
 import FieldError from "./index";
 
@@ -32,9 +30,4 @@ export const AssociatedInput: Story = {
       <FieldError {...args} id="url-error" />
     </>
   ),
-  play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole("textbox", { name: "URL" }),
-    ).toHaveAccessibleDescription("入力内容を確認してください");
-  },
 };

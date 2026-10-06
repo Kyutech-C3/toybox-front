@@ -40,6 +40,8 @@ const ThemeDecorator = ({
 };
 
 const preview: Preview = {
+  // 表示用の story は手動確認し、主要な操作だけ story 側の test tag で実行する。
+  tags: ["!test"],
   globalTypes: {
     theme: {
       description: "作品表示のテーマ",

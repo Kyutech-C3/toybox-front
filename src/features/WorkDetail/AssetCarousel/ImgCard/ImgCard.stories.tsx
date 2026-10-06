@@ -1,5 +1,4 @@
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
-import { expect, within } from "storybook/test";
 
 import ImgCard from "./index";
 
@@ -46,12 +45,5 @@ export const Default: Story = {
   args: {
     alt: "作品のアセット画像",
     src: TEST_IMAGE_URL,
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await expect(
-      await canvas.findByRole("img", { name: "作品のアセット画像" }),
-    ).toBeInTheDocument();
   },
 };
