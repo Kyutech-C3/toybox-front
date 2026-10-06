@@ -15,6 +15,7 @@ import AssetUpload from "../WorkDetailForm/AssetUpload";
 import MarkdownEditor from "./index";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 
 import type { Meta, StoryObj } from "@storybook/react";
 import type { EditorAsset } from "../types";
@@ -26,7 +27,9 @@ const META = {
     (Story) => (
       <WorkEditorStoreProvider>
         <div style={{ width: "min(900px, 95vw)" }}>
-          <Story />
+          <ToastProvider>
+            <Story />
+          </ToastProvider>
         </div>
       </WorkEditorStoreProvider>
     ),

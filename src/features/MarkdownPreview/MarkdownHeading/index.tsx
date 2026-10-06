@@ -8,6 +8,7 @@ import {
   PROTECTED_HEADING_ID_PREFIX,
 } from "../rehypeMarkdownFeatures";
 
+import useToast from "@/shared/ui/Toast/hook/useToast";
 import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 
 import type { ComponentProps } from "react";
@@ -46,6 +47,7 @@ const MarkdownHeading = ({
   id,
   ...props
 }: MarkdownHeadingProps) => {
+  const { showToast } = useToast();
   const titleID = useId();
   const headingSlug = id ? getHeadingSlug(id) : undefined;
   const name = node?.tagName;
@@ -83,7 +85,14 @@ const MarkdownHeading = ({
               window.location.hash = `#${encodeURIComponent(headingSlug)}`;
               target.scrollIntoView();
             }
-            void copyTextToClipboard(href);
+            void copyTextToClipboard(href).then((isCopied) => {
+              showToast({
+                message: isCopied
+                  ? "リンクをコピーしました"
+                  : "リンクをコピーできませんでした",
+                severity: isCopied ? "success" : "error",
+              });
+            });
           }}
         >
           <LinkRoundedIcon
