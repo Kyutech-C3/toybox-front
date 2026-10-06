@@ -32,6 +32,7 @@ export const FewPages: Story = {
 };
 
 export const ManyPages: Story = {
+  tags: ["test"],
   render: () => <PaginationWithState initialPage={5} totalPages={12} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

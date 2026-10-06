@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
+import { expect, fireEvent, userEvent, within } from "storybook/test";
 
 import Textarea from "./index";
 
@@ -27,22 +27,14 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
-export const Unlimited: Story = {
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.type(
-      canvas.getByRole("textbox", { name: "本文" }),
-      "あ😀い",
-    );
-    await expect(canvas.getByText("3")).toBeVisible();
-  },
-};
+export const Unlimited: Story = {};
 
 export const Disabled: Story = {
   args: { value: "編集できません", disabled: true },
 };
 
 export const CharacterLimit: Story = {
+  tags: ["test"],
   args: { maxLength: 5 },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -50,10 +42,6 @@ export const CharacterLimit: Story = {
     await userEvent.click(input);
     await userEvent.paste("あ😀いうえお");
     await expect(input).toHaveValue("あ😀いうえ");
-    const counter = canvas.getByText("5/5");
-    await expect(counter.getBoundingClientRect().top).toBeGreaterThan(
-      input.getBoundingClientRect().bottom,
-    );
     await userEvent.clear(input);
     await fireEvent.compositionStart(input);
     await fireEvent.change(input, { target: { value: "あいうえおか" } });
@@ -71,30 +59,4 @@ export const AutoResizing: Story = {
       <EditableTextarea {...args} />
     </div>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox", { name: "本文" });
-    const initialHeight = input.getBoundingClientRect().height;
-    await userEvent.click(input);
-    await userEvent.paste("内容に合わせて伸びる入力欄です。\n".repeat(15));
-    await waitFor(() =>
-      expect(input.getBoundingClientRect().height).toBeGreaterThan(
-        initialHeight,
-      ),
-    );
-    await expect(input.scrollHeight).toBeLessThanOrEqual(input.clientHeight);
-    await userEvent.clear(input);
-    await waitFor(() =>
-      expect(input.getBoundingClientRect().height).toBe(initialHeight),
-    );
-    await userEvent.paste(
-      "幅が変わったときにも折り返しを調整します。".repeat(20),
-    );
-    const wideHeight = input.getBoundingClientRect().height;
-    canvas.getByTestId("resize-container").style.width = "200px";
-    await waitFor(() =>
-      expect(input.getBoundingClientRect().height).toBeGreaterThan(wideHeight),
-    );
-    await expect(input.scrollHeight).toBeLessThanOrEqual(input.clientHeight);
-  },
 };

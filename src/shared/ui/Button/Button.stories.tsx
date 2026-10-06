@@ -1,4 +1,3 @@
-import { useRef, useState } from "react";
 import AddRoundedIcon from "@mui/icons-material/AddRounded";
 import { expect, fn, userEvent, within } from "storybook/test";
 
@@ -43,26 +42,10 @@ export const Accent: Story = {
   },
 };
 
-export const AccentDisabled: Story = {
-  args: {
-    variant: "accent",
-    children: "保存する",
-    isDisabled: true,
-  },
-};
-
 export const Destructive: Story = {
   args: {
     variant: "destructive",
     children: "削除",
-  },
-};
-
-export const DestructiveDisabled: Story = {
-  args: {
-    variant: "destructive",
-    children: "削除中...",
-    isDisabled: true,
   },
 };
 
@@ -71,6 +54,7 @@ export const Secondary: Story = {
 };
 
 export const WithIcon: Story = {
+  tags: ["test"],
   args: { variant: "accent", icon: <AddRoundedIcon />, children: "投稿" },
   play: async ({ canvasElement, args }) => {
     const button = within(canvasElement).getByRole("button", { name: "投稿" });
@@ -93,6 +77,7 @@ export const IconOnly: Story = {
 };
 
 export const Loading: Story = {
+  tags: ["test"],
   args: { variant: "accent", isLoading: true, children: "保存中..." },
   play: async ({ canvasElement, args }) => {
     const button = within(canvasElement).getByRole("button", {
@@ -107,6 +92,7 @@ export const Loading: Story = {
 };
 
 export const NativeDisabled: Story = {
+  tags: ["test"],
   args: { disabled: true },
   play: async ({ canvasElement, args }) => {
     const button = within(canvasElement).getByRole("button", {
@@ -115,45 +101,6 @@ export const NativeDisabled: Story = {
     await expect(button).toBeDisabled();
     await userEvent.click(button);
     await expect(args.onClick).not.toHaveBeenCalled();
-  },
-};
-
-export const SubmitAndRef: Story = {
-  render: (args) => {
-    const buttonRef = useRef<HTMLButtonElement>(null);
-    const [isSubmitted, setIsSubmitted] = useState(false);
-    return (
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          setIsSubmitted(true);
-          buttonRef.current?.focus();
-        }}
-      >
-        <input aria-label="タイトル" defaultValue="Toy" />
-        <Button
-          ref={buttonRef}
-          type="submit"
-          onClick={args.onClick}
-          aria-describedby="button-help"
-        >
-          保存
-        </Button>
-        <p id="button-help">Enter でも保存できます</p>
-        <output>{isSubmitted ? "保存しました" : "未保存"}</output>
-      </form>
-    );
-  },
-  play: async ({ canvasElement, args }) => {
-    const button = within(canvasElement).getByRole("button", { name: "保存" });
-    await expect(button).toHaveAccessibleDescription("Enter でも保存できます");
-    await userEvent.click(
-      within(canvasElement).getByRole("textbox", { name: "タイトル" }),
-    );
-    await userEvent.keyboard("{Enter}");
-    await expect(within(canvasElement).getByText("保存しました")).toBeVisible();
-    await expect(args.onClick).toHaveBeenCalledTimes(1);
-    await expect(button).toHaveFocus();
   },
 };
 

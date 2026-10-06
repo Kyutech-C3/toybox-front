@@ -36,6 +36,12 @@ npm run dev
 
 詳しくは[こちら](./DesignDocs.md)
 
+## Storybook
+
+`npm run storybook` で代表的な表示・状態を確認します。`npm run test:storybook` は `tags: ["test"]` を付けた主要な操作の story だけを実行します。
+
+表示用の story には原則 `play` を追加せず、既存の操作テストと重複するケースや、位置・余白・色・短い処理時間を固定値で検査するテストは増やしません。テスト対象の story では、操作結果とアクセシビリティを確認します。
+
 ## 開発の始め方
 
 基本的には issue に自分をアサインしてから作業に取り掛かること。

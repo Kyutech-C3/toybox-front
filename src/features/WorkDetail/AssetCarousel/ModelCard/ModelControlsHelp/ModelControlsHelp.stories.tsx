@@ -32,6 +32,7 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const Interactive: Story = {
+  tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const button = canvas.getByRole("button", {

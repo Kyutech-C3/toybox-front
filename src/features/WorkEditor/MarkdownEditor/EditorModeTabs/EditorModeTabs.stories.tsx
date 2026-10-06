@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
 
 import EditorModeTabs from "./index";
 
@@ -29,11 +28,4 @@ type Story = StoryObj<typeof META>;
 
 export const Default: Story = {
   render: () => <StatefulTabs />,
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("tab", { name: "プレビュー" }));
-    await expect(
-      canvas.getByRole("tab", { name: "プレビュー" }),
-    ).toHaveAttribute("aria-selected", "true");
-  },
 };

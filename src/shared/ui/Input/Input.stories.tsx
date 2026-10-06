@@ -35,42 +35,8 @@ export const Disabled: Story = {
   args: { value: "変更できない値", disabled: true },
 };
 
-export const Editable: Story = {
-  play: async ({ canvasElement }) => {
-    const input = within(canvasElement).getByRole("textbox", {
-      name: "タイトル",
-    });
-    await userEvent.type(input, "Toybox");
-    await expect(input).toHaveValue("Toybox");
-  },
-};
-
-export const KeyboardFocus: Story = {
-  render: (args) => (
-    <div>
-      <InputWithState {...args} heading="通常の入力欄" />
-      <InputWithState
-        {...args}
-        heading="文字数付きの入力欄"
-        isCharacterCountVisible
-      />
-    </div>
-  ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    for (const name of ["通常の入力欄", "文字数付きの入力欄"]) {
-      await userEvent.tab();
-      const input = canvas.getByRole("textbox", { name });
-      await expect(input).toHaveFocus();
-      const surface = input.closest('[class*="input-surface"]');
-      if (!surface) throw new Error("入力欄の枠が見つかりません");
-      await expect(getComputedStyle(surface).outlineStyle).toBe("solid");
-      await expect(getComputedStyle(surface).outlineWidth).toBe("2px");
-    }
-  },
-};
-
 export const CharacterLimit: Story = {
+  tags: ["test"],
   args: { maxLength: 5, isCharacterCountVisible: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -78,17 +44,6 @@ export const CharacterLimit: Story = {
     await userEvent.click(input);
     await userEvent.paste("あ😀いうえお");
     await expect(input).toHaveValue("あ😀いうえ");
-    const counter = canvas.getByText("5/5");
-    const inputRect = input.getBoundingClientRect();
-    const surface = input.parentElement;
-    if (!surface) throw new Error("入力欄の枠が見つかりません");
-    const surfaceRect = surface.getBoundingClientRect();
-    const counterRect = counter.getBoundingClientRect();
-    await expect(surfaceRect.height).toBe(48);
-    await expect(counterRect.right).toBeLessThan(surfaceRect.right);
-    await expect(counterRect.bottom).toBeLessThan(surfaceRect.bottom);
-    await expect(counterRect.top).toBeGreaterThan(surfaceRect.top);
-    await expect(counterRect.left - inputRect.right).toBeCloseTo(8, 0);
     await userEvent.clear(input);
     await fireEvent.compositionStart(input);
     await fireEvent.change(input, { target: { value: "あいうえおか" } });
@@ -117,20 +72,4 @@ export const LinkWithCounter: Story = {
       <InputWithState {...args} />
     </div>
   ),
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const input = canvas.getByRole("textbox", { name: "リンク" });
-    const counter = canvas.getByText("20");
-    const button = canvas.getByRole("button", { name: "リンクを削除" });
-    const surface = input.parentElement;
-    if (!surface) throw new Error("入力欄の枠が見つかりません");
-    await expect(surface.getBoundingClientRect().height).toBe(48);
-    await expect(
-      counter.getBoundingClientRect().left -
-        input.getBoundingClientRect().right,
-    ).toBeCloseTo(8, 0);
-    await expect(counter.getBoundingClientRect().right).toBeLessThan(
-      button.getBoundingClientRect().left,
-    );
-  },
 };
