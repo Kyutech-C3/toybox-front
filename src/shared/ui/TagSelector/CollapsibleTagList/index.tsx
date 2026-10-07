@@ -34,7 +34,6 @@ type CollapsibleTagListStyle = CSSProperties & {
   "--tag-collapsed-height"?: string;
   "--tag-kept-height"?: string;
   "--tag-panel-kept-height"?: string;
-  "--tag-panel-kept-width"?: string;
 };
 
 type FocusRequest = "expand-button" | "first-hidden-item" | null;
@@ -67,7 +66,6 @@ const CollapsibleTagList = ({
   children,
   isHeightKept = false,
 }: CollapsibleTagListProps) => {
-  const [panelWidth, setPanelWidth] = useState<number | null>(null);
   const [panelHeight, setPanelHeight] = useState<number | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [keptHeight, setKeptHeight] = useState<number | null>(null);
@@ -128,7 +126,6 @@ const CollapsibleTagList = ({
     if (!panel || isExpanded) return;
     const measure = () => {
       setPanelHeight(panel.offsetHeight);
-      setPanelWidth(panel.offsetWidth);
     };
     const observer = new ResizeObserver(measure);
     observer.observe(panel);
@@ -219,9 +216,6 @@ const CollapsibleTagList = ({
   }, [focusRequest, rowLayout]);
 
   const unitStyle: CollapsibleTagListStyle = {
-    ...(panelWidth !== null && {
-      "--tag-panel-kept-width": `${panelWidth}px`,
-    }),
     ...(panelHeight !== null && {
       "--tag-panel-kept-height": `${panelHeight}px`,
     }),

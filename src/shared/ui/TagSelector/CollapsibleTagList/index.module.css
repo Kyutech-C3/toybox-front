@@ -16,16 +16,13 @@
 
 .tag-panel-unit[data-expanded="true"] {
   z-index: 30;
-  width: var(--tag-panel-kept-width);
   max-width: 100%;
   height: var(--tag-panel-kept-height);
 }
 
 .tag-panel-unit[data-expanded="true"] .panel {
-  position: absolute;
   top: calc(-1 * var(--tag-list-inset));
-  right: calc(-1 * var(--tag-list-inset));
-  left: calc(-1 * var(--tag-list-inset));
+  margin-inline: calc(-1 * var(--tag-list-inset));
   padding: var(--tag-list-inset);
   border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
   border-radius: 16px;
