@@ -29,6 +29,7 @@ type MarkdownImageProps = ComponentProps<"img"> &
 
 const MAX_IMAGE_WIDTH = 2000;
 const MAX_IMAGE_SCALE = 5;
+const IMAGE_CLICK_TOLERANCE = 5;
 const INITIAL_IMAGE_VIEW: ImageView = { scale: 1, x: 0, y: 0 };
 
 const clampImageView = (
@@ -131,6 +132,9 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const pointersRef = useRef(new Map<number, ImagePoint>());
+  const outsideClickRef = useRef<(ImagePoint & { pointerId: number }) | null>(
+    null,
+  );
   const [fullscreenImage, setFullscreenImage] = useState<PreviewImage | null>(
     null,
   );
@@ -201,9 +205,34 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
     return () => observer.disconnect();
   }, [fullscreenImage, updateImageView]);
 
+  const isOutsideImage = (point: ImagePoint) => {
+    const image = imageRef.current;
+    if (!image?.naturalWidth || !image.naturalHeight) return false;
+    const bounds = image.getBoundingClientRect();
+    const fit = Math.min(
+      bounds.width / image.naturalWidth,
+      bounds.height / image.naturalHeight,
+    );
+    const width = image.naturalWidth * fit;
+    const height = image.naturalHeight * fit;
+    const left = bounds.left + (bounds.width - width) / 2;
+    const top = bounds.top + (bounds.height - height) / 2;
+    return (
+      point.x < left ||
+      point.x > left + width ||
+      point.y < top ||
+      point.y > top + height
+    );
+  };
+
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || pointersRef.current.size >= 2) return;
     event.preventDefault();
+    const point = { x: event.clientX, y: event.clientY };
+    outsideClickRef.current =
+      pointersRef.current.size === 0 && isOutsideImage(point)
+        ? { ...point, pointerId: event.pointerId }
+        : null;
     pointersRef.current.set(event.pointerId, {
       x: event.clientX,
       y: event.clientY,
@@ -214,6 +243,16 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const pointers = pointersRef.current;
     if (!pointers.has(event.pointerId)) return;
+    const outsideClick = outsideClickRef.current;
+    if (
+      outsideClick &&
+      Math.hypot(
+        event.clientX - outsideClick.x,
+        event.clientY - outsideClick.y,
+      ) > IMAGE_CLICK_TOLERANCE
+    ) {
+      outsideClickRef.current = null;
+    }
     const previous = getImageGesture(pointers);
     pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     const gesture = getImageGesture(pointers);
@@ -239,14 +278,28 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
   };
 
   const handlePointerEnd = (event: PointerEvent<HTMLDivElement>) => {
+    const outsideClick = outsideClickRef.current;
+    outsideClickRef.current = null;
     pointersRef.current.delete(event.pointerId);
     if (event.currentTarget.hasPointerCapture(event.pointerId))
       event.currentTarget.releasePointerCapture(event.pointerId);
+    if (
+      event.type === "pointerup" &&
+      outsideClick?.pointerId === event.pointerId &&
+      Math.hypot(
+        event.clientX - outsideClick.x,
+        event.clientY - outsideClick.y,
+      ) <= IMAGE_CLICK_TOLERANCE &&
+      isOutsideImage({ x: event.clientX, y: event.clientY })
+    ) {
+      dialogRef.current?.close();
+    }
   };
 
   useImperativeHandle(ref, () => ({
     open(image) {
       pointersRef.current.clear();
+      outsideClickRef.current = null;
       setImageView(INITIAL_IMAGE_VIEW);
       setFullscreenImage(image);
       const dialog = dialogRef.current;
@@ -263,6 +316,7 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
       onClose={() => {
         if (!dialogRef.current?.open) {
           pointersRef.current.clear();
+          outsideClickRef.current = null;
           setFullscreenImage(null);
         }
       }}
