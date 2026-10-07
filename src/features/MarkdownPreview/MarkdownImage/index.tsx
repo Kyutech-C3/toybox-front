@@ -207,7 +207,7 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
 
   const isOutsideImage = (point: ImagePoint) => {
     const image = imageRef.current;
-    if (!image?.naturalWidth || !image.naturalHeight) return false;
+    if (!image?.naturalWidth || !image.naturalHeight) return true;
     const bounds = image.getBoundingClientRect();
     const fit = Math.min(
       bounds.width / image.naturalWidth,
