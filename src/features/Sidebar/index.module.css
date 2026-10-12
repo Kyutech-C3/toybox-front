@@ -45,7 +45,7 @@ button.sidebar-trigger:focus-visible {
   align-items: center;
   gap: var(--space-8);
   height: var(--header-height);
-  padding-inline: var(--page-margin);
+  padding-inline: var(--space-8) var(--page-margin);
 }
 
 .logo-image {
