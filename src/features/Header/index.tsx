@@ -135,6 +135,9 @@ const Header = () => {
             height={44}
           />
         </Link>
+        {import.meta.env.DEV && (
+          <span className={styles["dev-badge"]}>DEV</span>
+        )}
       </div>
       <div className={styles["login-wrapper"]}>
         <Button

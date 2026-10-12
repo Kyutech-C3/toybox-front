@@ -16,6 +16,18 @@
   min-width: 0;
   display: flex;
   align-items: center;
+  gap: var(--space-8);
+}
+
+.dev-badge {
+  flex-shrink: 0;
+  padding: 2px var(--space-4);
+  border: 1px solid var(--on-primary-color);
+  border-radius: 4px;
+  color: var(--on-primary-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .logo-image {
