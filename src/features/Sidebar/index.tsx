@@ -13,6 +13,7 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
+import DevBadge from "@/shared/ui/DevBadge";
 import { lockPageScroll } from "@/util/pageScroll";
 
 import type { PointerEvent } from "react";
@@ -143,6 +144,7 @@ const Sidebar = () => {
               className={styles["logo-image"]}
             />
           </Link>
+          <DevBadge />
         </div>
         <div className={styles["sidebar-content"]}>
           <nav aria-label="メインナビゲーション">
