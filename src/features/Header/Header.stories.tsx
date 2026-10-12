@@ -74,7 +74,7 @@ export const LoggedOut: Story = {
     ).toHaveAttribute("href", "https://github.com/Kyutech-C3");
     await expect(
       navigation.getByText(
-        `© 2021 - ${new Date().getFullYear()} Composite Computer Club`,
+        `© 2022 - ${new Date().getFullYear()} Composite Computer Club`,
       ),
     ).toBeVisible();
     await userEvent.tab();

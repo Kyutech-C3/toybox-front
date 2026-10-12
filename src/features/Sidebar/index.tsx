@@ -13,6 +13,7 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
+import Copyright from "@/shared/ui/Copyright";
 import DevBadge from "@/shared/ui/DevBadge";
 import { lockPageScroll } from "@/util/pageScroll";
 
@@ -46,18 +47,8 @@ const Sidebar = () => {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const isBackdropPointerDownRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [currentYear, setCurrentYear] = useState(() =>
-    new Date().getFullYear(),
-  );
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useUserStore((state) => state.user);
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setCurrentYear(new Date().getFullYear());
-    }, 60_000);
-    return () => window.clearInterval(intervalId);
-  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -66,7 +57,6 @@ const Sidebar = () => {
 
   const handleOpen = () => {
     dialogRef.current?.showModal();
-    setCurrentYear(new Date().getFullYear());
     setIsOpen(true);
   };
 
@@ -190,7 +180,7 @@ const Sidebar = () => {
             )}
           </nav>
           <footer className={styles["copyright"]}>
-            © 2022 - {currentYear} Composite Computer Club
+            <Copyright />
           </footer>
         </div>
       </dialog>

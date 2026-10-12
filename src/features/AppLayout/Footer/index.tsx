@@ -5,6 +5,7 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 import styles from "./index.module.css";
 
 import c3Logo from "@/assets/C3Logo.svg";
+import Copyright from "@/shared/ui/Copyright";
 
 const EXTERNAL_LINKS = [
   {
@@ -48,9 +49,7 @@ const Footer = () => (
         </a>
       ))}
     </nav>
-    <small className={styles["copyright"]}>
-      © 2022 - {new Date().getFullYear()} Composite Computer Club
-    </small>
+    <Copyright className={styles["copyright"]} />
   </footer>
 );
 
