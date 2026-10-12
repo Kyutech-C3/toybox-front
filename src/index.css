@@ -21,7 +21,7 @@
     var(--paper-color) 90%,
     transparent
   );
-  --overlay-dark-color: rgba(0, 0, 0, 0.3);
+  --overlay-dark-color: rgba(0, 0, 0, 0.5);
   --primary-soft-color: color-mix(
     in srgb,
     var(--primary-color) 10%,
