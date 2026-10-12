@@ -116,6 +116,15 @@ textarea {
   color: inherit;
 }
 
+/* ボタンの既定装飾を揃え、キーボード用のフォーカス表示は維持する。 */
+button {
+  appearance: none;
+}
+
+:where(button:not(:focus-visible)) {
+  outline: none;
+}
+
 a {
   font-weight: 500;
   color: var(--font-color);
