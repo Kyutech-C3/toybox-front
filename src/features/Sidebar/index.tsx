@@ -8,7 +8,7 @@ import YouTubeIcon from "@mui/icons-material/YouTube";
 
 import styles from "./index.module.css";
 
-import c3Logo from "@/assets/3cLogo.svg";
+import c3Logo from "@/assets/C3Logo.svg";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
@@ -190,7 +190,7 @@ const Sidebar = () => {
             )}
           </nav>
           <footer className={styles["copyright"]}>
-            © 2021 - {currentYear} Composite Computer Club
+            © 2022 - {currentYear} Composite Computer Club
           </footer>
         </div>
       </dialog>
