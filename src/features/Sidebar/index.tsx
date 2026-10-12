@@ -1,5 +1,6 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
+import BookRoundedIcon from "@mui/icons-material/BookRounded";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 
@@ -11,10 +12,23 @@ import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
 import Copyright from "@/shared/ui/Copyright";
 import DevBadge from "@/shared/ui/DevBadge";
-import { EXTERNAL_LINKS } from "@/shared/ui/externalLinks";
+import { EXTERNAL_LINKS } from "@/shared/ui/ExternalLinks";
 import { lockPageScroll } from "@/util/pageScroll";
 
 import type { PointerEvent } from "react";
+import type { ExternalLinkItem } from "@/shared/ui/ExternalLinks";
+
+const SIDEBAR_EXTERNAL_LINKS = [
+  EXTERNAL_LINKS.officialSite,
+  {
+    href: "https://compositecomputer.club/blog",
+    label: "C3 ブログ",
+    icon: <BookRoundedIcon />,
+  },
+  EXTERNAL_LINKS.x,
+  EXTERNAL_LINKS.youtube,
+  EXTERNAL_LINKS.github,
+] satisfies ExternalLinkItem[];
 
 const Sidebar = () => {
   const dialogId = useId();
@@ -127,8 +141,20 @@ const Sidebar = () => {
               <HomeRoundedIcon aria-hidden="true" />
               <span>ホーム</span>
             </NavLink>
+            {accessToken && user && (
+              <NavLink
+                to={`/users/${user.id}`}
+                className={styles["navigation-link"]}
+                onClick={handleClose}
+              >
+                <span className={styles["link-icon"]} aria-hidden="true">
+                  <Avatar avatarURL={user.icon_url} alt="" size="small" />
+                </span>
+                <span>マイページ</span>
+              </NavLink>
+            )}
             <hr className={styles["divider"]} />
-            {EXTERNAL_LINKS.map(({ href, label, icon }) => (
+            {SIDEBAR_EXTERNAL_LINKS.map(({ href, label, icon }) => (
               <a
                 key={href}
                 href={href}
@@ -144,21 +170,6 @@ const Sidebar = () => {
               </a>
             ))}
             <hr className={styles["divider"]} />
-            {accessToken && user && (
-              <>
-                <NavLink
-                  to={`/users/${user.id}`}
-                  className={styles["navigation-link"]}
-                  onClick={handleClose}
-                >
-                  <span className={styles["link-icon"]} aria-hidden="true">
-                    <Avatar avatarURL={user.icon_url} alt="" size="small" />
-                  </span>
-                  <span>マイページ</span>
-                </NavLink>
-                <hr className={styles["divider"]} />
-              </>
-            )}
           </nav>
           <footer className={styles["copyright"]}>
             <Copyright />

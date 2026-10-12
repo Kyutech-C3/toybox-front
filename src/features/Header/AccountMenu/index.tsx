@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import AccountCircleRoundedIcon from "@mui/icons-material/AccountCircleRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
 
 import styles from "./index.module.css";
@@ -69,7 +68,9 @@ const AccountMenu = ({ user, onLogout }: AccountMenuProps) => {
       >
         <PopoverLabel>{user.display_name}</PopoverLabel>
         <PopoverLink to={`/users/${user.id}`} onClick={() => setIsOpen(false)}>
-          <AccountCircleRoundedIcon aria-hidden="true" fontSize="small" />
+          <div aria-hidden="true">
+            <Avatar avatarURL={user.icon_url} alt="" size="small" />
+          </div>
           マイページ
         </PopoverLink>
         <PopoverButton

@@ -1,12 +1,21 @@
 import styles from "./index.module.css";
 
 import Copyright from "@/shared/ui/Copyright";
-import { EXTERNAL_LINKS } from "@/shared/ui/externalLinks";
+import { EXTERNAL_LINKS } from "@/shared/ui/ExternalLinks";
+
+import type { ExternalLinkItem } from "@/shared/ui/ExternalLinks";
+
+const FOOTER_EXTERNAL_LINKS = [
+  EXTERNAL_LINKS.officialSite,
+  EXTERNAL_LINKS.x,
+  EXTERNAL_LINKS.youtube,
+  EXTERNAL_LINKS.github,
+] satisfies ExternalLinkItem[];
 
 const Footer = () => (
   <footer className={styles["footer"]}>
     <nav className={styles["external-links"]} aria-label="C3 外部リンク">
-      {EXTERNAL_LINKS.map(({ href, label, icon }) => (
+      {FOOTER_EXTERNAL_LINKS.map(({ href, label, icon }) => (
         <a
           key={href}
           href={href}
