@@ -129,7 +129,7 @@ const Header = () => {
   return (
     <header className={styles["header-wrapper"]}>
       <div className={styles["logo-wrapper"]}>
-        <Sidebar />
+        <Sidebar key={location.key} />
         <Link to="/" className={styles["logo-link"]}>
           <img
             src="/ToyboxLogo.svg"

@@ -5,47 +5,44 @@ type ScrollLock = {
 
 const SCROLL_LOCKS = new WeakMap<HTMLElement, ScrollLock>();
 
-const getContentScroller = (): HTMLElement | null =>
-  document.querySelector<HTMLElement>("[data-page-scroll]");
-
-export const getPageScroller = (): HTMLElement =>
-  getContentScroller() ?? document.documentElement;
+export const getPageScroller = (): HTMLElement => document.documentElement;
 
 const createScrollLock = (scroller: HTMLElement): ScrollLock => {
-  if (scroller.hasAttribute("data-page-scroll")) {
-    const scrollTop = scroller.scrollTop;
-    const scrollLeft = scroller.scrollLeft;
-    const hasScrollOverflow = scroller.scrollHeight > scroller.clientHeight;
-    scroller.style.setProperty("--page-scroll-top", `${scrollTop}px`);
-    scroller.setAttribute("data-scrollbar-kept", String(hasScrollOverflow));
-    scroller.setAttribute("data-scroll-locked", "true");
-    return {
-      count: 0,
-      restore: () => {
-        scroller.removeAttribute("data-scroll-locked");
-        scroller.removeAttribute("data-scrollbar-kept");
-        scroller.style.removeProperty("--page-scroll-top");
-        scroller.scrollTo({
-          top: scrollTop,
-          left: scrollLeft,
-          behavior: "instant",
-        });
-      },
-    };
-  }
+  const scrollTop = scroller.scrollTop;
+  const scrollLeft = scroller.scrollLeft;
+  const hasScrollOverflow = scroller.scrollHeight > scroller.clientHeight;
+  const previousOverflowY = scroller.style.overflowY;
+  let isRestored = false;
 
-  const previousOverflow = scroller.style.overflow;
-  scroller.style.overflow = "hidden";
-  return {
+  scroller.style.setProperty("--page-scroll-top", `${scrollTop}px`);
+  scroller.style.overflowY = hasScrollOverflow ? "scroll" : "auto";
+  scroller.setAttribute("data-scroll-locked", "true");
+
+  const lock: ScrollLock = {
     count: 0,
     restore: () => {
-      scroller.style.overflow = previousOverflow;
+      if (isRestored) return;
+      isRestored = true;
+      scroller.removeAttribute("data-scroll-locked");
+      scroller.style.removeProperty("--page-scroll-top");
+      scroller.style.overflowY = previousOverflowY;
+      scroller.scrollTo({
+        top: scrollTop,
+        left: scrollLeft,
+        behavior: "instant",
+      });
+      if (SCROLL_LOCKS.get(scroller) === lock) SCROLL_LOCKS.delete(scroller);
     },
   };
+  return lock;
+};
+
+export const restorePageScroll = (): void => {
+  SCROLL_LOCKS.get(getPageScroller())?.restore();
 };
 
 export const lockPageScroll = (): (() => void) => {
-  const scroller = getContentScroller() ?? document.body;
+  const scroller = getPageScroller();
   const lock = SCROLL_LOCKS.get(scroller) ?? createScrollLock(scroller);
   lock.count += 1;
   SCROLL_LOCKS.set(scroller, lock);
@@ -57,7 +54,6 @@ export const lockPageScroll = (): (() => void) => {
     lock.count -= 1;
     if (lock.count === 0) {
       lock.restore();
-      SCROLL_LOCKS.delete(scroller);
     }
   };
 };

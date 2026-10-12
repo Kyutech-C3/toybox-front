@@ -127,10 +127,17 @@ a:hover {
 }
 
 body {
+  box-sizing: border-box;
   margin: 0;
-  min-width: 320px;
+  min-width: min(320px, 100%);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+:root[data-scroll-locked="true"] body {
+  position: fixed;
+  inset-inline: 0;
+  top: calc(-1 * var(--page-scroll-top));
 }
 
 @media (hover: none) {

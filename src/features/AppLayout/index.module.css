@@ -1,50 +1,11 @@
 .layout {
-  display: grid;
-  grid-template-rows: var(--header-height) minmax(0, 1fr);
-  height: 100dvh;
-  overflow: hidden;
-}
-
-.content {
-  min-width: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-gutter: stable;
-  overscroll-behavior: contain;
-}
-
-.content[data-scrollbar-kept="true"] {
-  overflow-y: scroll;
-}
-
-.content:focus-visible {
-  outline: 2px solid var(--font-color);
-  outline-offset: -2px;
-}
-
-.page-viewport {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
-}
-
-.page-content {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+  min-height: 100dvh;
 }
 
 .main {
   display: flow-root;
   flex: 1;
   min-width: 0;
-}
-
-.content[data-scroll-locked="true"] .page-viewport {
-  height: 100%;
-  overflow: hidden;
-}
-
-.content[data-scroll-locked="true"] .page-content {
-  margin-top: calc(-1 * var(--page-scroll-top));
 }

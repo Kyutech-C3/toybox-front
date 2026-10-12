@@ -3,7 +3,7 @@ import Footer from "./index";
 import type { Meta, StoryObj } from "@storybook/react";
 
 const META = {
-  title: "Features/AppLayout/Footer",
+  title: "Features/Footer",
   component: Footer,
   parameters: { layout: "fullscreen" },
   tags: ["autodocs"],
