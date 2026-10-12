@@ -15,7 +15,7 @@ import DevBadge from "@/shared/ui/DevBadge";
 import { EXTERNAL_LINKS } from "@/shared/ui/ExternalLinks";
 import { lockPageScroll } from "@/util/pageScroll";
 
-import type { PointerEvent } from "react";
+import type { MouseEvent, PointerEvent } from "react";
 import type { ExternalLinkItem } from "@/shared/ui/ExternalLinks";
 
 const SIDEBAR_EXTERNAL_LINKS = [
@@ -49,8 +49,11 @@ const Sidebar = () => {
     };
   }, [isOpen]);
 
-  const handleOpen = () => {
-    dialogRef.current?.showModal();
+  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    dialog.showModal();
+    if (event.detail > 0) dialog.focus({ preventScroll: true });
     setIsOpen(true);
   };
 
