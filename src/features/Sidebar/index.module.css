@@ -19,7 +19,7 @@ button.sidebar-trigger:focus-visible {
   box-sizing: border-box;
   width: 250px;
   max-width: calc(100vw - var(--space-32));
-  height: 100dvh;
+  height: auto;
   max-height: none;
   margin: 0;
   padding: 0;

@@ -1,4 +1,6 @@
 .button {
+  appearance: none;
+  outline: none;
   box-sizing: border-box;
   flex-shrink: 0;
   height: 48px;
