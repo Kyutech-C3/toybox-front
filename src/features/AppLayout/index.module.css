@@ -8,9 +8,13 @@
 .content {
   min-width: 0;
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-gutter: stable;
   overscroll-behavior: contain;
+}
+
+.content[data-scrollbar-kept="true"] {
+  overflow-y: scroll;
 }
 
 .content:focus-visible {

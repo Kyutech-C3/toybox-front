@@ -15,12 +15,15 @@ const createScrollLock = (scroller: HTMLElement): ScrollLock => {
   if (scroller.hasAttribute("data-page-scroll")) {
     const scrollTop = scroller.scrollTop;
     const scrollLeft = scroller.scrollLeft;
+    const hasScrollOverflow = scroller.scrollHeight > scroller.clientHeight;
     scroller.style.setProperty("--page-scroll-top", `${scrollTop}px`);
+    scroller.setAttribute("data-scrollbar-kept", String(hasScrollOverflow));
     scroller.setAttribute("data-scroll-locked", "true");
     return {
       count: 0,
       restore: () => {
         scroller.removeAttribute("data-scroll-locked");
+        scroller.removeAttribute("data-scrollbar-kept");
         scroller.style.removeProperty("--page-scroll-top");
         scroller.scrollTo({
           top: scrollTop,

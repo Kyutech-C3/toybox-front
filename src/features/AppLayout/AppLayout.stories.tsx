@@ -81,5 +81,16 @@ export const ContentScroll: Story = {
     const nextContent = canvas.getByRole("main", { name: "ページの本文" });
     await expect(within(nextContent).getByText("別のページ")).toBeVisible();
     await expect(nextContent.scrollTop).toBe(0);
+    await expect(nextContent.scrollHeight).toBe(nextContent.clientHeight);
+    await expect(getComputedStyle(nextContent).overflowY).toBe("auto");
+    await userEvent.click(
+      canvas.getByRole("button", { name: "サイドバーを開く" }),
+    );
+    await expect(getComputedStyle(nextContent).overflowY).toBe("auto");
+    await expect(nextContent.scrollHeight).toBe(nextContent.clientHeight);
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(canvas.queryByRole("dialog", { name: "サイドバー" })).toBeNull(),
+    );
   },
 };
