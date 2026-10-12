@@ -16,7 +16,11 @@ const AppLayout = () => {
         data-page-scroll
         aria-label="ページの本文"
       >
-        <Outlet />
+        <div className={styles["page-viewport"]}>
+          <div className={styles["page-content"]}>
+            <Outlet />
+          </div>
+        </div>
       </main>
     </div>
   );

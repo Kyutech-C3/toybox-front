@@ -59,6 +59,8 @@ export const ContentScroll: Story = {
     content.scrollTop = 400;
     await expect(content.scrollTop).toBe(400);
     await expect(header.getBoundingClientRect().top).toBe(headerTop);
+    const paragraph = canvas.getByText("スクロールする本文");
+    const paragraphTop = paragraph.getBoundingClientRect().top;
 
     await userEvent.click(
       canvas.getByRole("button", { name: "サイドバーを開く" }),
@@ -66,6 +68,9 @@ export const ContentScroll: Story = {
     await expect(
       canvas.getByRole("dialog", { name: "サイドバー" }),
     ).toBeVisible();
+    await expect(getComputedStyle(content).overflowY).toBe("scroll");
+    await expect(content.scrollHeight).toBe(content.clientHeight);
+    await expect(paragraph.getBoundingClientRect().top).toBe(paragraphTop);
     await userEvent.keyboard("{Escape}");
     await waitFor(() =>
       expect(canvas.queryByRole("dialog", { name: "サイドバー" })).toBeNull(),

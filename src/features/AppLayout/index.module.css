@@ -17,3 +17,16 @@
   outline: 2px solid var(--font-color);
   outline-offset: -2px;
 }
+
+.page-viewport {
+  display: flow-root;
+}
+
+.content[data-scroll-locked="true"] .page-viewport {
+  height: 100%;
+  overflow: hidden;
+}
+
+.content[data-scroll-locked="true"] .page-content {
+  margin-top: calc(-1 * var(--page-scroll-top));
+}
