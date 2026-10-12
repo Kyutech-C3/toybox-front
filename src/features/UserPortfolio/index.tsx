@@ -39,15 +39,12 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   useEffect(() => {
     const lastPage = Math.max(totalPages, 1);
     if (currentPage > lastPage) {
-      setSearchParams(
-        { page: String(lastPage) },
-        { replace: true, preventScrollReset: true },
-      );
+      setSearchParams({ page: String(lastPage) }, { replace: true });
     }
   }, [currentPage, totalPages, setSearchParams]);
 
   const handlePageChange = (page: number) => {
-    setSearchParams({ page: String(page) }, { preventScrollReset: true });
+    setSearchParams({ page: String(page) });
     getPageScroller().scrollTo({ top: 560, behavior: "smooth" });
   };
 

@@ -1,9 +1,5 @@
 import { StrictMode } from "react";
-import {
-  createBrowserRouter,
-  RouterProvider,
-  ScrollRestoration,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import { SWRConfig } from "swr";
 import "./index.css";
@@ -15,7 +11,6 @@ import AppErrorBoundary, {
   AppErrorFallback,
 } from "@/shared/ui/AppErrorBoundary";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
-import { restorePageScroll } from "@/util/pageScroll";
 import { initializeTheme } from "@/util/theme";
 
 initializeTheme();
@@ -23,23 +18,21 @@ initializeTheme();
 const ROOT = document.getElementById("root");
 if (!ROOT) throw new Error("Failed to find the root element");
 
-// Router が移動前の位置を保存する前に、固定中の本文を元に戻す。
-window.addEventListener("popstate", restorePageScroll);
+const AppRoot = () => (
+  <ToastProvider>
+    <AuthSessionProvider>
+      <SWRConfig value={{ suspense: true }}>
+        <App />
+      </SWRConfig>
+    </AuthSessionProvider>
+  </ToastProvider>
+);
 
 const ROUTER = createBrowserRouter([
   {
     path: "*",
     errorElement: <AppErrorFallback />,
-    element: (
-      <ToastProvider>
-        <AuthSessionProvider>
-          <SWRConfig value={{ suspense: true }}>
-            <App />
-            <ScrollRestoration />
-          </SWRConfig>
-        </AuthSessionProvider>
-      </ToastProvider>
-    ),
+    element: <AppRoot />,
   },
 ]);
 

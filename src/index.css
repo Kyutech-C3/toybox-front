@@ -140,6 +140,10 @@ body {
   top: calc(-1 * var(--page-scroll-top));
 }
 
+:root[data-scroll-locked="true"]::-webkit-scrollbar-thumb {
+  display: none;
+}
+
 @media (hover: none) {
   a:hover {
     color: var(--font-color);

@@ -1,50 +1,64 @@
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import {
   createMemoryRouter,
   Link,
   RouterProvider,
-  ScrollRestoration,
   useNavigate,
 } from "react-router-dom";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, spyOn, userEvent, waitFor, within } from "storybook/test";
 
 import AppLayout from "./index";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import MarkdownPreview from "@/features/MarkdownPreview";
-import PageLoading from "@/shared/ui/PageLoading";
+import useUnsavedChangesGuard from "@/features/WorkEditor/hook/useUnsavedChangesGuard";
+import { useWorkEditorStoreApi } from "@/features/WorkEditor/store/useWorkEditorStore";
+import WorkEditorStoreProvider from "@/features/WorkEditor/store/WorkEditorStoreProvider";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
-import { getPageScroller } from "@/util/pageScroll";
+import { getPageScroller, lockPageScroll } from "@/util/pageScroll";
 
 import type { Meta, StoryObj } from "@storybook/react";
 import type { ReactNode } from "react";
+import type { DataRouter } from "react-router-dom";
 
 import "@/App.css";
 
-const HomeContent = () => {
-  const navigate = useNavigate();
-  return (
-    <div style={{ minHeight: 1600, paddingTop: 500, boxSizing: "border-box" }}>
-      <Link to="/other">別のページへ</Link>
-      <button type="button" onClick={() => navigate(1)}>
-        進む
-      </button>
-      <MarkdownPreview content="![画像](/favicon-192.png)" />
-      <p>スクロールする本文</p>
-    </div>
-  );
-};
+const HomeContent = () => (
+  <div style={{ minHeight: 1600, paddingTop: 500, boxSizing: "border-box" }}>
+    <Link to="/other">別のページへ</Link>
+    <Link to="/edit/new">未保存の編集へ</Link>
+    <MarkdownPreview content="![画像](/favicon-192.png)" />
+    <p>スクロールする本文</p>
+  </div>
+);
 
-const OtherContent = () => {
+const OtherContent = () => <p>別のページ</p>;
+
+const UnsavedPage = () => {
   const navigate = useNavigate();
+  const store = useWorkEditorStoreApi();
+  const [isScrollLocked, setIsScrollLocked] = useState(true);
+  useUnsavedChangesGuard();
+  useEffect(() => {
+    const state = store.getState();
+    state.initializeForNew();
+    state.setTitle("保存していない作品");
+  }, [store]);
+  useLayoutEffect(() => {
+    if (!isScrollLocked) return;
+    return lockPageScroll();
+  }, [isScrollLocked]);
   return (
-    <div>
-      <p>別のページ</p>
+    <>
+      <p>保存していない作品</p>
       <button type="button" onClick={() => navigate(-1)}>
         戻る
       </button>
-    </div>
+      <button type="button" onClick={() => setIsScrollLocked(false)}>
+        スクロールロックを解除
+      </button>
+    </>
   );
 };
 
@@ -53,30 +67,29 @@ type AppLayoutPreviewProps = {
 };
 
 const AppLayoutPreview = ({ children }: AppLayoutPreviewProps) => {
-  const [router] = useState(() =>
-    createMemoryRouter([
+  const [router] = useState<DataRouter>(() => {
+    const router = createMemoryRouter([
       {
-        HydrateFallback: PageLoading,
-        element: (
-          <ToastProvider>
-            {children}
-            <ScrollRestoration />
-          </ToastProvider>
-        ),
+        Component: () => <ToastProvider>{children}</ToastProvider>,
         children: [
           {
             path: "/",
-            loader: () =>
-              new Promise((resolve) =>
-                window.setTimeout(() => resolve(null), 100),
-              ),
             element: <HomeContent />,
           },
           { path: "/other", element: <OtherContent /> },
+          {
+            path: "/edit/new",
+            element: (
+              <WorkEditorStoreProvider>
+                <UnsavedPage />
+              </WorkEditorStoreProvider>
+            ),
+          },
         ],
       },
-    ]),
-  );
+    ]);
+    return router;
+  });
   return <RouterProvider router={router} />;
 };
 
@@ -153,43 +166,40 @@ export const ContentScroll: Story = {
   },
 };
 
-export const HistoryNavigation: Story = {
+export const CanceledNavigation: Story = {
   tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const content = getPageScroller();
-    await waitFor(() =>
-      expect(content.scrollHeight).toBeGreaterThan(content.clientHeight + 400),
-    );
-    content.scrollTop = 400;
-    await userEvent.click(canvas.getByRole("link", { name: "別のページへ" }));
-    await waitFor(() => expect(canvas.getByText("別のページ")).toBeVisible());
-    await expect(getPageScroller().scrollTop).toBe(0);
-
-    await userEvent.click(
-      canvas.getByRole("button", { name: "サイドバーを開く" }),
-    );
-    // 開いている modal の外側から発生するブラウザの履歴移動を再現する。
-    canvas.getByRole("button", { name: "戻る", hidden: true }).click();
-    await waitFor(() =>
-      expect(canvas.queryByRole("dialog", { name: "サイドバー" })).toBeNull(),
-    );
-    await waitFor(() => expect(getPageScroller().scrollTop).toBe(400));
-
-    await userEvent.click(
-      canvas.getByRole("button", { name: "サイドバーを開く" }),
-    );
-    await expect(
-      canvas.getByRole("dialog", { name: "サイドバー" }),
-    ).toBeVisible();
-    await userEvent.keyboard("{Escape}");
-    await waitFor(() =>
-      expect(canvas.queryByRole("dialog", { name: "サイドバー" })).toBeNull(),
-    );
-    await expect(getPageScroller().scrollTop).toBe(400);
-
-    await userEvent.click(canvas.getByRole("button", { name: "進む" }));
-    await waitFor(() => expect(canvas.getByText("別のページ")).toBeVisible());
-    await expect(getPageScroller().scrollTop).toBe(0);
+    const confirm = spyOn(window, "confirm").mockReturnValue(false);
+    try {
+      await userEvent.click(
+        await canvas.findByRole("link", { name: "未保存の編集へ" }),
+      );
+      await waitFor(() =>
+        expect(document.documentElement).toHaveAttribute(
+          "data-scroll-locked",
+          "true",
+        ),
+      );
+      // 履歴イベントの発生だけではロックを解除しない。
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      canvas.getByRole("button", { name: "戻る", hidden: true }).click();
+      await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
+      await expect(canvas.getByText("保存していない作品")).toBeVisible();
+      await expect(document.documentElement).toHaveAttribute(
+        "data-scroll-locked",
+        "true",
+      );
+      await userEvent.click(
+        canvas.getByRole("button", { name: "スクロールロックを解除" }),
+      );
+      await waitFor(() =>
+        expect(document.documentElement).not.toHaveAttribute(
+          "data-scroll-locked",
+        ),
+      );
+    } finally {
+      confirm.mockRestore();
+    }
   },
 };

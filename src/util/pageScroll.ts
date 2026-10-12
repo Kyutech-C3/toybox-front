@@ -1,59 +1,39 @@
-type ScrollLock = {
-  count: number;
-  restore: () => void;
+const PAGE_SCROLL_LOCK = {
+  count: 0,
+  scrollTop: 0,
+  scrollLeft: 0,
+  overflowY: "",
 };
-
-const SCROLL_LOCKS = new WeakMap<HTMLElement, ScrollLock>();
 
 export const getPageScroller = (): HTMLElement => document.documentElement;
 
-const createScrollLock = (scroller: HTMLElement): ScrollLock => {
-  const scrollTop = scroller.scrollTop;
-  const scrollLeft = scroller.scrollLeft;
-  const hasScrollOverflow = scroller.scrollHeight > scroller.clientHeight;
-  const previousOverflowY = scroller.style.overflowY;
-  let isRestored = false;
-
-  scroller.style.setProperty("--page-scroll-top", `${scrollTop}px`);
-  scroller.style.overflowY = hasScrollOverflow ? "scroll" : "auto";
-  scroller.setAttribute("data-scroll-locked", "true");
-
-  const lock: ScrollLock = {
-    count: 0,
-    restore: () => {
-      if (isRestored) return;
-      isRestored = true;
-      scroller.removeAttribute("data-scroll-locked");
-      scroller.style.removeProperty("--page-scroll-top");
-      scroller.style.overflowY = previousOverflowY;
-      scroller.scrollTo({
-        top: scrollTop,
-        left: scrollLeft,
-        behavior: "instant",
-      });
-      if (SCROLL_LOCKS.get(scroller) === lock) SCROLL_LOCKS.delete(scroller);
-    },
-  };
-  return lock;
-};
-
-export const restorePageScroll = (): void => {
-  SCROLL_LOCKS.get(getPageScroller())?.restore();
-};
-
 export const lockPageScroll = (): (() => void) => {
   const scroller = getPageScroller();
-  const lock = SCROLL_LOCKS.get(scroller) ?? createScrollLock(scroller);
-  lock.count += 1;
-  SCROLL_LOCKS.set(scroller, lock);
+  if (PAGE_SCROLL_LOCK.count === 0) {
+    PAGE_SCROLL_LOCK.scrollTop = scroller.scrollTop;
+    PAGE_SCROLL_LOCK.scrollLeft = scroller.scrollLeft;
+    PAGE_SCROLL_LOCK.overflowY = scroller.style.overflowY;
+    scroller.style.setProperty("--page-scroll-top", `${scroller.scrollTop}px`);
+    scroller.style.overflowY =
+      scroller.scrollHeight > scroller.clientHeight ? "scroll" : "auto";
+    scroller.setAttribute("data-scroll-locked", "true");
+  }
+  PAGE_SCROLL_LOCK.count += 1;
 
   let isReleased = false;
   return () => {
     if (isReleased) return;
     isReleased = true;
-    lock.count -= 1;
-    if (lock.count === 0) {
-      lock.restore();
+    PAGE_SCROLL_LOCK.count -= 1;
+    if (PAGE_SCROLL_LOCK.count === 0) {
+      scroller.removeAttribute("data-scroll-locked");
+      scroller.style.removeProperty("--page-scroll-top");
+      scroller.style.overflowY = PAGE_SCROLL_LOCK.overflowY;
+      scroller.scrollTo({
+        top: PAGE_SCROLL_LOCK.scrollTop,
+        left: PAGE_SCROLL_LOCK.scrollLeft,
+        behavior: "instant",
+      });
     }
   };
 };
