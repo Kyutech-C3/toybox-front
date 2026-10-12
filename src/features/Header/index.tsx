@@ -18,7 +18,9 @@ import AccountMenu from "./AccountMenu";
 import { getUserData } from "./api/getUserData";
 import styles from "./index.module.css";
 
+import Sidebar from "@/features/Sidebar";
 import Button from "@/shared/ui/Button";
+import DevBadge from "@/shared/ui/DevBadge";
 import FloatingActionButton from "@/shared/ui/FloatingActionButton";
 import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import useToast from "@/shared/ui/Toast/hook/useToast";
@@ -127,7 +129,8 @@ const Header = () => {
   return (
     <header className={styles["header-wrapper"]}>
       <div className={styles["logo-wrapper"]}>
-        <Link to="/">
+        <Sidebar key={location.key} />
+        <Link to="/" className={styles["logo-link"]}>
           <img
             src="/ToyboxLogo.svg"
             alt="logo-image"
@@ -135,9 +138,7 @@ const Header = () => {
             height={44}
           />
         </Link>
-        {import.meta.env.DEV && (
-          <span className={styles["dev-badge"]}>DEV</span>
-        )}
+        <DevBadge color="on-primary" />
       </div>
       <div className={styles["login-wrapper"]}>
         <Button

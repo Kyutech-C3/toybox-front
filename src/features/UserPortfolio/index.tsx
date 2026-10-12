@@ -18,6 +18,7 @@ import PageMetadata from "@/shared/ui/PageMetadata";
 import { Pagination } from "@/shared/ui/Pagination";
 import WorkCardGrid from "@/shared/ui/WorkCardGrid";
 import { getCanonicalUrl } from "@/util/getCanonicalUrl";
+import { getPageScroller } from "@/util/pageScroll";
 
 type UserPortfolioProps = {
   userID: string;
@@ -38,13 +39,16 @@ const UserPortfolio = ({ userID }: UserPortfolioProps) => {
   useEffect(() => {
     const lastPage = Math.max(totalPages, 1);
     if (currentPage > lastPage) {
-      setSearchParams({ page: String(lastPage) }, { replace: true });
+      setSearchParams(
+        { page: String(lastPage) },
+        { replace: true, preventScrollReset: true },
+      );
     }
   }, [currentPage, totalPages, setSearchParams]);
 
   const handlePageChange = (page: number) => {
-    setSearchParams({ page: String(page) });
-    window.scrollTo({ top: 560, behavior: "smooth" });
+    setSearchParams({ page: String(page) }, { preventScrollReset: true });
+    getPageScroller().scrollTo({ top: 560, behavior: "smooth" });
   };
 
   return (

@@ -46,7 +46,7 @@ export const ImageFullscreen: Story = {
     const imageButton = canvas.getByRole("button", {
       name: "拡大する画像を全画面表示",
     });
-    const previousOverflow = document.body.style.overflow;
+    const previousOverflowY = document.documentElement.style.overflowY;
     imageButton.focus();
     await userEvent.keyboard("{Enter}");
     const dialog = canvas.getByRole("dialog", { name: "画像の全画面表示" });
@@ -55,12 +55,14 @@ export const ImageFullscreen: Story = {
       "src",
       "/toyboxtech.drawio.png",
     );
-    await expect(document.body.style.overflow).toBe("hidden");
+    await expect(document.documentElement.scrollHeight).toBe(
+      document.documentElement.clientHeight,
+    );
     await userEvent.keyboard("{Escape}");
     await expect(dialog).not.toBeVisible();
     await expect(imageButton).toHaveFocus();
     await waitFor(() =>
-      expect(document.body.style.overflow).toBe(previousOverflow),
+      expect(document.documentElement.style.overflowY).toBe(previousOverflowY),
     );
   },
 };

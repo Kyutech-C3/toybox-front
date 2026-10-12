@@ -14,6 +14,7 @@ import TopPage from "./TopPage";
 import UserPage from "./UserPage";
 import WorkPage from "./WorkPage";
 
+import AppLayout from "@/features/AppLayout";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
@@ -103,7 +104,9 @@ const PageFrame = ({
         }}
       >
         <Routes>
-          <Route path={routePattern} element={children} />
+          <Route element={<AppLayout />}>
+            <Route path={routePattern} element={children} />
+          </Route>
         </Routes>
       </SWRConfig>
     </ToastProvider>
@@ -121,7 +124,6 @@ const EditPageFrame = ({ path, isNewWork = false }: EditPageFrameProps) => {
   const router = createMemoryRouter(
     [
       {
-        path: isNewWork ? "/edit/new" : "/edit/:id",
         element: (
           <ToastProvider>
             <SWRConfig
@@ -135,10 +137,16 @@ const EditPageFrame = ({ path, isNewWork = false }: EditPageFrameProps) => {
                 suspense: true,
               }}
             >
-              <EditPage isNewWork={isNewWork} />
+              <AppLayout />
             </SWRConfig>
           </ToastProvider>
         ),
+        children: [
+          {
+            path: isNewWork ? "/edit/new" : "/edit/:id",
+            element: <EditPage isNewWork={isNewWork} />,
+          },
+        ],
       },
     ],
     { initialEntries: [path] },

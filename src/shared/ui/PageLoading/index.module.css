@@ -1,5 +1,7 @@
 .page-loading {
-  min-height: calc(100vh - 260px);
+  flex: 1;
+  width: 100%;
+  min-height: var(--page-status-min-height, calc(100vh - 260px));
   padding: 48px 24px;
   box-sizing: border-box;
   display: grid;
@@ -13,7 +15,10 @@
 
 @media (max-width: 599px) {
   .page-loading {
-    min-height: calc(100vh - var(--header-height) - 96px);
+    min-height: var(
+      --page-status-min-height,
+      calc(100vh - var(--header-height) - 96px)
+    );
     padding: 32px 16px;
   }
 }

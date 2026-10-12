@@ -27,7 +27,6 @@
   border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
   border-radius: 16px;
   background: color-mix(in srgb, var(--paper-color) 82%, transparent);
-  backdrop-filter: blur(20px) saturate(1.6);
   box-shadow:
     0 24px 48px -12px var(--shadow-soft-color),
     0 8px 16px -8px var(--shadow-soft-color);
@@ -166,6 +165,7 @@
 .tag-list-unit[data-expanded="true"] .tag-list {
   max-height: min(400px, 60vh);
   overflow-y: auto;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
@@ -174,8 +174,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: color-mix(in srgb, var(--overlay-dark-color) 35%, transparent);
-  backdrop-filter: blur(2px);
+  background: var(--overlay-dark-color);
   animation: tag-backdrop-in 0.2s ease;
 }
 
@@ -222,10 +221,6 @@
 :global(:root[data-theme="dark"]) .tag-panel-unit[data-expanded="true"] .panel {
   border-color: color-mix(in srgb, var(--font-color) 16%, transparent);
   background: color-mix(in srgb, var(--paper-color) 90%, transparent);
-}
-
-:global(:root[data-theme="dark"]) .backdrop {
-  background: color-mix(in srgb, var(--overlay-dark-color) 80%, transparent);
 }
 
 :global(:root[data-theme="dark"]) .expand-label {

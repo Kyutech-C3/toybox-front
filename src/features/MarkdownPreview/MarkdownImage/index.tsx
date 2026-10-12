@@ -13,6 +13,7 @@ import styles from "../index.module.css";
 
 import Button from "@/shared/ui/Button";
 import LoadingImage from "@/shared/ui/LoadingImage";
+import { lockPageScroll } from "@/util/pageScroll";
 
 import type { ComponentProps, PointerEvent, Ref } from "react";
 import type { ExtraProps } from "react-markdown";
@@ -154,11 +155,7 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
 
   useEffect(() => {
     if (!fullscreenImage) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
+    return lockPageScroll();
   }, [fullscreenImage]);
 
   useEffect(() => {
