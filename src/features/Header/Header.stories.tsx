@@ -94,11 +94,16 @@ export const LoggedOut: Story = {
     await userEvent.click(navigation.getByRole("link", { name: "ホーム" }));
     await waitFor(() => expect(sidebar).not.toBeVisible());
 
-    await userEvent.click(trigger);
     await userEvent.click(
-      navigation.getByRole("button", { name: "サイドバーを閉じる" }),
+      canvas.getByRole("button", { name: "サイドバーを開く" }),
     );
-    await waitFor(() => expect(sidebar).not.toBeVisible());
+    const reopenedSidebar = canvas.getByRole("dialog", { name: "サイドバー" });
+    const closeButton = within(reopenedSidebar).getByRole("button", {
+      name: "サイドバーを閉じる",
+    });
+    await expect(reopenedSidebar).toHaveFocus();
+    await userEvent.click(closeButton);
+    await waitFor(() => expect(reopenedSidebar).not.toBeVisible());
 
     await userEvent.click(
       canvas.getByRole("button", { name: "ダークモードに切り替え" }),
