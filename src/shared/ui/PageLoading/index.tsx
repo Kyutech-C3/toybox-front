@@ -13,11 +13,7 @@ const PageLoading = ({
   title = "読み込み中",
 }: PageLoadingProps) => {
   return (
-    <section
-      className={styles["page-loading"]}
-      data-layout={layout}
-      data-page-loading="true"
-    >
+    <section className={styles["page-loading"]} data-layout={layout}>
       {layout === "page" && (
         <PageMetadata title={title} description="ページを読み込んでいます。" />
       )}

@@ -6,7 +6,6 @@ import "./index.css";
 
 import App from "./App.tsx";
 
-import PageScrollRestoration from "@/features/AppLayout/PageScrollRestoration";
 import AuthSessionProvider from "@/features/auth/AuthSessionProvider";
 import AppErrorBoundary, {
   AppErrorFallback,
@@ -24,7 +23,6 @@ const AppRoot = () => (
     <AuthSessionProvider>
       <SWRConfig value={{ suspense: true }}>
         <App />
-        <PageScrollRestoration router={ROUTER} />
       </SWRConfig>
     </AuthSessionProvider>
   </ToastProvider>

@@ -72,22 +72,19 @@ const WorkIndex = () => {
           }
           return next;
         },
-        { replace: true, preventScrollReset: true },
+        { replace: true },
       );
     }
   }, [currentPage, normalizedTags, searchParams, setSearchParams, totalPages]);
 
   const updateTags = (tagIDs: string[]) => {
-    setSearchParams(
-      (current) => {
-        const next = new URLSearchParams(current);
-        if (tagIDs.length > 0) next.set("tags", tagIDs.join(","));
-        else next.delete("tags");
-        next.delete("page");
-        return next;
-      },
-      { preventScrollReset: true },
-    );
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (tagIDs.length > 0) next.set("tags", tagIDs.join(","));
+      else next.delete("tags");
+      next.delete("page");
+      return next;
+    });
   };
 
   const handleAddTag = (tagID: string) => {
@@ -101,40 +98,31 @@ const WorkIndex = () => {
   };
 
   const handleSortChange = (value: typeof sortOrder) => {
-    setSearchParams(
-      (current) => {
-        const next = new URLSearchParams(current);
-        if (value === "oldest") next.set("sort", value);
-        else next.delete("sort");
-        next.delete("page");
-        return next;
-      },
-      { preventScrollReset: true },
-    );
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (value === "oldest") next.set("sort", value);
+      else next.delete("sort");
+      next.delete("page");
+      return next;
+    });
   };
 
   const handleVisibilityChange = (value: typeof visibility) => {
-    setSearchParams(
-      (current) => {
-        const next = new URLSearchParams(current);
-        if (value) next.set("visibility", value);
-        else next.delete("visibility");
-        next.delete("page");
-        return next;
-      },
-      { preventScrollReset: true },
-    );
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      if (value) next.set("visibility", value);
+      else next.delete("visibility");
+      next.delete("page");
+      return next;
+    });
   };
 
   const handlePageChange = (page: number) => {
-    setSearchParams(
-      (current) => {
-        const next = new URLSearchParams(current);
-        next.set("page", String(page));
-        return next;
-      },
-      { preventScrollReset: true },
-    );
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current);
+      next.set("page", String(page));
+      return next;
+    });
     getPageScroller().scrollTo({ top: 0, behavior: "smooth" });
   };
 
