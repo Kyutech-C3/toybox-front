@@ -6,7 +6,6 @@ import styles from "./index.module.css";
 
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
-import Header from "@/features/Header";
 import WorkEditor from "@/features/WorkEditor";
 import { getWorkEditorSWRKey } from "@/features/WorkEditor/hook/useWorkForEdit";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
@@ -53,22 +52,19 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
   };
 
   return (
-    <>
-      <Header />
-      <main className={styles["main-wrapper"]}>
-        <ProtectedRoute>
-          <PageErrorBoundary
-            resetKey={locationKey}
-            getErrorMessage={getErrorMessage}
-            onRetry={handleRetry}
-          >
-            <Suspense fallback={<PageLoading />}>
-              <WorkEditor workID={workID} />
-            </Suspense>
-          </PageErrorBoundary>
-        </ProtectedRoute>
-      </main>
-    </>
+    <div className={styles["main-wrapper"]}>
+      <ProtectedRoute>
+        <PageErrorBoundary
+          resetKey={locationKey}
+          getErrorMessage={getErrorMessage}
+          onRetry={handleRetry}
+        >
+          <Suspense fallback={<PageLoading />}>
+            <WorkEditor workID={workID} />
+          </Suspense>
+        </PageErrorBoundary>
+      </ProtectedRoute>
+    </div>
   );
 };
 

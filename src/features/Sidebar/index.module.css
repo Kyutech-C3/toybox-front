@@ -60,6 +60,7 @@ button.sidebar-trigger:focus-visible {
   flex-direction: column;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   padding: var(--space-12);
 }

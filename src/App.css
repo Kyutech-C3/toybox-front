@@ -4,5 +4,7 @@
 }
 
 body {
+  min-height: 0;
+  overflow: hidden;
   background-color: var(--background-color);
 }

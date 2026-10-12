@@ -7,7 +7,6 @@ import styles from "./index.module.css";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import CommentSection from "@/features/CommentSection";
 import { getCommentSWRKey } from "@/features/CommentSection/hook/useComment";
-import Header from "@/features/Header";
 import WorkDetail from "@/features/WorkDetail";
 import useWorkDetail, {
   getWorkDetailSWRKey,
@@ -104,27 +103,24 @@ const WorkPage = () => {
   };
 
   return (
-    <>
-      <Header />
-      <main className={styles["main-wrapper"]}>
-        <PageErrorBoundary
-          resetKey={locationKey}
-          getErrorMessage={getErrorMessage}
-          onRetry={handleWorkRetry}
-        >
-          <Suspense key={id} fallback={<PageLoading />}>
-            {id ? (
-              <WorkPageContent id={id} locationKey={locationKey} />
-            ) : (
-              <>
-                <PageMetadata title="作品がありません" />
-                <h1>作品がありません</h1>
-              </>
-            )}
-          </Suspense>
-        </PageErrorBoundary>
-      </main>
-    </>
+    <div className={styles["main-wrapper"]}>
+      <PageErrorBoundary
+        resetKey={locationKey}
+        getErrorMessage={getErrorMessage}
+        onRetry={handleWorkRetry}
+      >
+        <Suspense key={id} fallback={<PageLoading />}>
+          {id ? (
+            <WorkPageContent id={id} locationKey={locationKey} />
+          ) : (
+            <>
+              <PageMetadata title="作品がありません" />
+              <h1>作品がありません</h1>
+            </>
+          )}
+        </Suspense>
+      </PageErrorBoundary>
+    </div>
   );
 };
 

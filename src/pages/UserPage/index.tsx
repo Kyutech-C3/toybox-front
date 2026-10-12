@@ -5,7 +5,6 @@ import { useSWRConfig } from "swr";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
-import Header from "@/features/Header";
 import UserPortfolio, {
   getUserPortfolioSWRKey,
 } from "@/features/UserPortfolio";
@@ -47,27 +46,24 @@ const UserPage = () => {
   };
 
   return (
-    <>
-      <Header />
-      <main className={styles["main-wrapper"]}>
-        <PageErrorBoundary
-          resetKey={locationKey}
-          getErrorMessage={getErrorMessage}
-          onRetry={handleRetry}
-        >
-          <Suspense key={id} fallback={<PageLoading />}>
-            {id ? (
-              <UserPortfolio key={id} userID={id} />
-            ) : (
-              <section className={styles["page-status"]}>
-                <PageMetadata title="ユーザーが見つかりません" />
-                <h1>ユーザーが見つかりません</h1>
-              </section>
-            )}
-          </Suspense>
-        </PageErrorBoundary>
-      </main>
-    </>
+    <div className={styles["main-wrapper"]}>
+      <PageErrorBoundary
+        resetKey={locationKey}
+        getErrorMessage={getErrorMessage}
+        onRetry={handleRetry}
+      >
+        <Suspense key={id} fallback={<PageLoading />}>
+          {id ? (
+            <UserPortfolio key={id} userID={id} />
+          ) : (
+            <section className={styles["page-status"]}>
+              <PageMetadata title="ユーザーが見つかりません" />
+              <h1>ユーザーが見つかりません</h1>
+            </section>
+          )}
+        </Suspense>
+      </PageErrorBoundary>
+    </div>
   );
 };
 

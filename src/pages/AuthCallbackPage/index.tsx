@@ -1,13 +1,9 @@
 import AuthCallback from "@/features/auth/AuthCallback";
-import Header from "@/features/Header";
 
 const AuthCallbackPage = () => (
-  <>
-    <Header />
-    <main>
-      <AuthCallback />
-    </main>
-  </>
+  <div>
+    <AuthCallback />
+  </div>
 );
 
 export default AuthCallbackPage;

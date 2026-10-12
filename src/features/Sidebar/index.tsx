@@ -13,6 +13,7 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
+import { lockPageScroll } from "@/util/pageScroll";
 
 import type { PointerEvent } from "react";
 
@@ -59,11 +60,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (!isOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
+    return lockPageScroll();
   }, [isOpen]);
 
   const handleOpen = () => {
