@@ -11,6 +11,8 @@ import useAssetUpload, {
 } from "../../WorkDetailForm/hook/useAssetUpload";
 import { getAssetImageMarkdown } from "../MarkdownImagePicker";
 
+import { getPageScroller } from "@/util/pageScroll";
+
 import type { ICommand } from "@uiw/react-md-editor";
 import type {
   ChangeEvent,
@@ -117,7 +119,7 @@ const useMarkdownImageInsertion = ({
     if (pending.previewScrollTop !== null && previewRef.current) {
       previewRef.current.scrollTop = pending.previewScrollTop;
     }
-    window.scrollTo(pending.pageX, pending.pageY);
+    getPageScroller().scrollTo(pending.pageX, pending.pageY);
     textareaRef.current = textarea;
     pendingInsertionRef.current = null;
   });
@@ -152,8 +154,8 @@ const useMarkdownImageInsertion = ({
     pendingInsertionRef.current = {
       selectionStart: nextCaretPosition,
       selectionEnd: nextCaretPosition,
-      pageX: window.scrollX,
-      pageY: window.scrollY,
+      pageX: getPageScroller().scrollLeft,
+      pageY: getPageScroller().scrollTop,
       sourceScrollTop: sourceRef.current?.scrollTop ?? null,
       previewScrollTop: previewRef.current?.scrollTop ?? null,
       textareaScrollTop: textarea.scrollTop,
