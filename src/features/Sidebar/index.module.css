@@ -90,7 +90,7 @@ button.sidebar-trigger:focus-visible {
 
 @media (hover: hover) {
   .navigation-link:hover {
-    background: var(--background-color);
+    background: var(--primary-soft-color);
     color: var(--font-color);
   }
 }
