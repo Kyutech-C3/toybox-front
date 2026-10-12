@@ -18,6 +18,7 @@ import AccountMenu from "./AccountMenu";
 import { getUserData } from "./api/getUserData";
 import styles from "./index.module.css";
 
+import Sidebar from "@/features/Sidebar";
 import Button from "@/shared/ui/Button";
 import FloatingActionButton from "@/shared/ui/FloatingActionButton";
 import LoadingSpinner from "@/shared/ui/LoadingSpinner";
@@ -127,7 +128,8 @@ const Header = () => {
   return (
     <header className={styles["header-wrapper"]}>
       <div className={styles["logo-wrapper"]}>
-        <Link to="/">
+        <Sidebar />
+        <Link to="/" className={styles["logo-link"]}>
           <img
             src="/ToyboxLogo.svg"
             alt="logo-image"

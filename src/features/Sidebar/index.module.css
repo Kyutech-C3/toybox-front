@@ -1,0 +1,109 @@
+button.sidebar-trigger[data-variant="ghost"] {
+  color: var(--on-primary-color);
+}
+
+button.sidebar-trigger:focus-visible {
+  outline-color: var(--on-primary-color);
+}
+
+@media (hover: hover) {
+  button.sidebar-trigger[data-variant="ghost"]:not(:disabled):hover {
+    background: color-mix(in srgb, var(--on-primary-color) 12%, transparent);
+    color: var(--on-primary-color);
+  }
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  box-sizing: border-box;
+  width: 280px;
+  max-width: calc(100vw - var(--space-32));
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: var(--paper-color);
+  color: var(--font-color);
+  text-align: left;
+  box-shadow: var(--hover-shadow);
+}
+
+.sidebar[open] {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar::backdrop {
+  background: var(--overlay-dark-color);
+}
+
+.sidebar-header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-8);
+  height: var(--header-height);
+  padding-inline: var(--page-margin);
+}
+
+.logo-image {
+  display: block;
+  width: auto;
+  height: var(--header-logo-height);
+}
+
+.sidebar-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-12);
+}
+
+.navigation-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  min-height: 48px;
+  padding-inline: var(--space-12);
+  border-radius: 10px;
+  color: var(--font-color);
+  font-size: 14px;
+}
+
+.navigation-link:focus-visible {
+  outline: 2px solid var(--font-color);
+  outline-offset: -2px;
+}
+
+.navigation-link > svg,
+.link-icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+@media (hover: hover) {
+  .navigation-link:hover {
+    background: var(--background-color);
+    color: var(--font-color);
+  }
+}
+
+.divider {
+  margin: var(--space-12) 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.copyright {
+  margin-top: auto;
+  padding: var(--space-24) var(--space-12) var(--space-12);
+  color: var(--font-muted-color);
+  font-size: 12px;
+}

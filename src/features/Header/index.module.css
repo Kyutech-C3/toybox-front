@@ -30,10 +30,16 @@
   line-height: 1.5;
 }
 
+.logo-link {
+  min-width: 0;
+}
+
 .logo-image {
   display: block;
   width: auto;
+  max-width: 100%;
   height: var(--header-logo-height);
+  object-fit: contain;
 }
 
 .login-wrapper {
