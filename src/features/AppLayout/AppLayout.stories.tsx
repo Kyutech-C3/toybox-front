@@ -7,6 +7,7 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import MarkdownPreview from "@/features/MarkdownPreview";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
+import { getPageScroller } from "@/util/pageScroll";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
@@ -53,7 +54,7 @@ export const ContentScroll: Story = {
   tags: ["test"],
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const content = canvas.getByRole("main", { name: "ページの本文" });
+    const content = getPageScroller();
     const header = canvas.getByRole("banner");
     const headerTop = header.getBoundingClientRect().top;
     content.scrollTop = 400;
@@ -78,7 +79,7 @@ export const ContentScroll: Story = {
     await expect(content.scrollTop).toBe(400);
 
     await userEvent.click(canvas.getByRole("link", { name: "別のページへ" }));
-    const nextContent = canvas.getByRole("main", { name: "ページの本文" });
+    const nextContent = getPageScroller();
     await expect(within(nextContent).getByText("別のページ")).toBeVisible();
     await expect(nextContent.scrollTop).toBe(0);
     await expect(nextContent.scrollHeight).toBe(nextContent.clientHeight);

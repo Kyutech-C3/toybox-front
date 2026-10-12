@@ -23,7 +23,21 @@
 }
 
 .page-viewport {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.page-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.main {
   display: flow-root;
+  flex: 1;
+  min-width: 0;
 }
 
 .content[data-scroll-locked="true"] .page-viewport {

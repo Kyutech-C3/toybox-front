@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 
+import Footer from "./Footer";
 import styles from "./index.module.css";
 
 import Header from "@/features/Header";
@@ -10,18 +11,16 @@ const AppLayout = () => {
   return (
     <div className={styles["layout"]}>
       <Header />
-      <main
-        key={pathname}
-        className={styles["content"]}
-        data-page-scroll
-        aria-label="ページの本文"
-      >
+      <div key={pathname} className={styles["content"]} data-page-scroll>
         <div className={styles["page-viewport"]}>
           <div className={styles["page-content"]}>
-            <Outlet />
+            <main className={styles["main"]} aria-label="ページの本文">
+              <Outlet />
+            </main>
+            <Footer />
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 };
