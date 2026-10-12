@@ -47,7 +47,7 @@ const Footer = () => (
       ))}
     </nav>
     <small className={styles["copyright"]}>
-      © 2021 - {new Date().getFullYear()} Composite Computer Club
+      © 2022 - {new Date().getFullYear()} Composite Computer Club
     </small>
   </footer>
 );
