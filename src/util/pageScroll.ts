@@ -1,5 +1,6 @@
 type ScrollLock = {
   count: number;
+  scrollTop: number;
   restore: () => void;
 };
 
@@ -20,6 +21,7 @@ const createScrollLock = (scroller: HTMLElement): ScrollLock => {
 
   const lock: ScrollLock = {
     count: 0,
+    scrollTop,
     restore: () => {
       if (isRestored) return;
       isRestored = true;
@@ -37,9 +39,13 @@ const createScrollLock = (scroller: HTMLElement): ScrollLock => {
   return lock;
 };
 
-export const restorePageScroll = (): void => {
-  SCROLL_LOCKS.get(getPageScroller())?.restore();
+export const getPageScrollTop = (): number => {
+  const scroller = getPageScroller();
+  return SCROLL_LOCKS.get(scroller)?.scrollTop ?? scroller.scrollTop;
 };
+
+export const isPageScrollLocked = (): boolean =>
+  SCROLL_LOCKS.has(getPageScroller());
 
 export const lockPageScroll = (): (() => void) => {
   const scroller = getPageScroller();
