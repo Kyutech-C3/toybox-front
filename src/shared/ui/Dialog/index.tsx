@@ -13,6 +13,7 @@ type DialogProps = Omit<
   isOpen: boolean;
   onClose: () => void;
   initialFocusRef?: RefObject<HTMLElement | null>;
+  isInitialFocusOnDialog?: boolean;
   returnFocusRef?: RefObject<HTMLElement | null>;
   isBackdropPointer?: (event: PointerEvent<HTMLDialogElement>) => boolean;
 };
@@ -36,6 +37,7 @@ const Dialog = ({
   isOpen,
   onClose,
   initialFocusRef,
+  isInitialFocusOnDialog = false,
   returnFocusRef,
   isBackdropPointer = isNativeBackdrop,
   className,
@@ -65,7 +67,9 @@ const Dialog = ({
     dialog.showModal();
     const initialFocus = dialog.contains(previousFocus)
       ? previousFocus
-      : initialFocusRef?.current;
+      : isInitialFocusOnDialog
+        ? dialog
+        : initialFocusRef?.current;
     initialFocus?.focus({ preventScroll: true });
 
     return () => {
@@ -81,7 +85,7 @@ const Dialog = ({
           returnFocus.focus({ preventScroll: true });
       });
     };
-  }, [isOpen, initialFocusRef, returnFocusRef]);
+  }, [isOpen, initialFocusRef, isInitialFocusOnDialog, returnFocusRef]);
 
   const hasMoved = (event: PointerEvent<HTMLDialogElement>) => {
     const press = backdropPressRef.current;

@@ -33,6 +33,7 @@ const Sidebar = () => {
   const dialogId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isPointerOpen, setIsPointerOpen] = useState(false);
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useUserStore((state) => state.user);
 
@@ -51,12 +52,16 @@ const Sidebar = () => {
         aria-expanded={isOpen}
         aria-controls={dialogId}
         ref={triggerRef}
-        onClick={() => setIsOpen(true)}
+        onClick={(event) => {
+          setIsPointerOpen(event.detail > 0);
+          setIsOpen(true);
+        }}
       />
       <Dialog
         id={dialogId}
         isOpen={isOpen}
         onClose={handleClose}
+        isInitialFocusOnDialog={isPointerOpen}
         returnFocusRef={triggerRef}
         className={styles["sidebar"]}
         aria-label="サイドバー"

@@ -51,10 +51,17 @@ export const LoggedIn: Story = {
   render: () => <SidebarPreview />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(
-      canvas.getByRole("button", { name: "サイドバーを開く" }),
-    );
+    const trigger = canvas.getByRole("button", { name: "サイドバーを開く" });
+    await userEvent.click(trigger);
     const sidebar = canvas.getByRole("dialog", { name: "サイドバー" });
+    await expect(sidebar).toHaveFocus();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(sidebar).not.toBeVisible());
+    await expect(trigger).toHaveFocus();
+    await userEvent.keyboard("{Enter}");
+    await expect(
+      within(sidebar).getByRole("button", { name: "サイドバーを閉じる" }),
+    ).toHaveFocus();
     const myPage = within(sidebar).getByRole("link", { name: "マイページ" });
     await expect(myPage).toHaveAttribute("href", "/users/sidebar-user");
     await userEvent.click(myPage);
