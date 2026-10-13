@@ -34,6 +34,7 @@ const Sidebar = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isPointerOpen, setIsPointerOpen] = useState(false);
+  const [isPointerFocus, setIsPointerFocus] = useState(false);
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useUserStore((state) => state.user);
 
@@ -51,7 +52,10 @@ const Sidebar = () => {
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={dialogId}
+        data-pointer-focus={isPointerFocus ? "true" : "false"}
         ref={triggerRef}
+        onBlur={() => setIsPointerFocus(false)}
+        onKeyDown={() => setIsPointerFocus(false)}
         onClick={(event) => {
           setIsPointerOpen(event.detail > 0);
           setIsOpen(true);
@@ -65,6 +69,10 @@ const Sidebar = () => {
         returnFocusRef={triggerRef}
         className={styles["sidebar"]}
         aria-label="サイドバー"
+        onPointerDownCapture={(event) => {
+          if (event.button === 0) setIsPointerFocus(true);
+        }}
+        onKeyDownCapture={() => setIsPointerFocus(false)}
       >
         <div className={styles["sidebar-header"]}>
           <Button

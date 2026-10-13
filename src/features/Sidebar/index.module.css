@@ -6,6 +6,10 @@ button.sidebar-trigger:focus-visible {
   outline-color: var(--on-primary-color);
 }
 
+button.sidebar-trigger[data-pointer-focus="true"]:focus-visible {
+  outline: none;
+}
+
 @media (hover: hover) {
   button.sidebar-trigger[data-variant="ghost"]:not(:disabled):hover {
     background: color-mix(in srgb, var(--on-primary-color) 12%, transparent);

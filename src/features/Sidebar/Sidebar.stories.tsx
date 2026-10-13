@@ -54,14 +54,22 @@ export const LoggedIn: Story = {
     const trigger = canvas.getByRole("button", { name: "サイドバーを開く" });
     await userEvent.click(trigger);
     const sidebar = canvas.getByRole("dialog", { name: "サイドバー" });
+    const closeButton = within(sidebar).getByRole("button", {
+      name: "サイドバーを閉じる",
+    });
     await expect(sidebar).toHaveFocus();
+    await userEvent.click(closeButton);
+    await waitFor(() => expect(sidebar).not.toBeVisible());
+    await expect(trigger).toHaveFocus();
+    await expect(trigger).toHaveStyle({ outlineStyle: "none" });
+    await userEvent.keyboard("{Enter}");
+    await expect(closeButton).toHaveFocus();
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(sidebar).not.toBeVisible());
     await expect(trigger).toHaveFocus();
+    await expect(trigger).toHaveStyle({ outlineStyle: "solid" });
     await userEvent.keyboard("{Enter}");
-    await expect(
-      within(sidebar).getByRole("button", { name: "サイドバーを閉じる" }),
-    ).toHaveFocus();
+    await expect(closeButton).toHaveFocus();
     const myPage = within(sidebar).getByRole("link", { name: "マイページ" });
     await expect(myPage).toHaveAttribute("href", "/users/sidebar-user");
     await userEvent.click(myPage);
