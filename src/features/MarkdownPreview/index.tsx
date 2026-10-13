@@ -100,7 +100,8 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
         remarkPlugins={[remarkGfm, remarkMath, remarkSoftBreaks]}
         remarkRehypeOptions={{
           footnoteLabel: "脚注",
-          footnoteBackLabel: "本文へ戻る",
+          footnoteBackLabel: (_referenceIndex, rereferenceIndex) =>
+            `本文へ戻る${rereferenceIndex > 1 ? ` ${rereferenceIndex}` : ""}`,
         }}
         rehypePlugins={[
           rehypeRaw,

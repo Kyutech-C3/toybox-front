@@ -187,8 +187,8 @@ const TagSelector = ({
         disabled={selectedTags.length === 0}
         aria-label={
           selectedTags.length > 0
-            ? `選択中の${selectedTags.length}件のタグをクリア`
-            : "選択中のタグはありません"
+            ? `クリア ${selectedTags.length}件の選択中のタグ`
+            : "クリア、選択中のタグはありません"
         }
         icon={<FilterAltOffRoundedIcon />}
         onClick={onClearTags}

@@ -93,6 +93,8 @@ export const LoggedOut: Story = {
     await userEvent.keyboard("{Enter}");
     await userEvent.click(navigation.getByRole("link", { name: "ホーム" }));
     await waitFor(() => expect(sidebar).not.toBeVisible());
+    // 遷移後も同じダイアログを保持し、閉じるアニメーションを中断しない。
+    await expect(sidebar).toBeInTheDocument();
 
     await userEvent.click(
       canvas.getByRole("button", { name: "サイドバーを開く" }),

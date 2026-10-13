@@ -1,4 +1,4 @@
-import { useId, useLayoutEffect, useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import BookRoundedIcon from "@mui/icons-material/BookRounded";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
@@ -12,10 +12,9 @@ import Avatar from "@/shared/ui/Avatar";
 import Button from "@/shared/ui/Button";
 import Copyright from "@/shared/ui/Copyright";
 import DevBadge from "@/shared/ui/DevBadge";
+import Dialog from "@/shared/ui/Dialog";
 import { EXTERNAL_LINKS } from "@/shared/ui/ExternalLinks";
-import { lockPageScroll } from "@/util/pageScroll";
 
-import type { MouseEvent, PointerEvent } from "react";
 import type { ExternalLinkItem } from "@/shared/ui/ExternalLinks";
 
 const SIDEBAR_EXTERNAL_LINKS = [
@@ -32,47 +31,15 @@ const SIDEBAR_EXTERNAL_LINKS = [
 
 const Sidebar = () => {
   const dialogId = useId();
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const releaseScrollLockRef = useRef<(() => void) | null>(null);
-  const isBackdropPointerDownRef = useRef(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isPointerOpen, setIsPointerOpen] = useState(false);
+  const [isPointerFocus, setIsPointerFocus] = useState(false);
   const accessToken = useAuthStore((state) => state.accessToken);
   const user = useUserStore((state) => state.user);
 
-  useLayoutEffect(() => {
-    if (!isOpen) return;
-    const release = lockPageScroll();
-    releaseScrollLockRef.current = release;
-    return () => {
-      release();
-      releaseScrollLockRef.current = null;
-    };
-  }, [isOpen]);
-
-  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    const dialog = dialogRef.current;
-    if (!dialog) return;
-    dialog.showModal();
-    if (event.detail > 0) dialog.focus({ preventScroll: true });
-    setIsOpen(true);
-  };
-
-  const handleClose = () => {
-    dialogRef.current?.close();
-    releaseScrollLockRef.current?.();
-    setIsOpen(false);
-  };
-
-  const isBackdrop = (event: PointerEvent<HTMLDialogElement>) => {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    return (
-      event.target === event.currentTarget &&
-      (event.clientX < bounds.left ||
-        event.clientX > bounds.right ||
-        event.clientY < bounds.top ||
-        event.clientY > bounds.bottom)
-    );
-  };
+  const handleClose = () => setIsClosing(true);
 
   return (
     <>
@@ -86,35 +53,39 @@ const Sidebar = () => {
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         aria-controls={dialogId}
-        onClick={handleOpen}
+        data-pointer-focus={isPointerFocus ? "true" : "false"}
+        ref={triggerRef}
+        onBlur={() => setIsPointerFocus(false)}
+        onKeyDown={() => setIsPointerFocus(false)}
+        onClick={(event) => {
+          setIsPointerOpen(event.detail > 0);
+          setIsClosing(false);
+          setIsOpen(true);
+        }}
       />
-      <dialog
+      <Dialog
         id={dialogId}
-        ref={dialogRef}
+        isOpen={isOpen}
+        onClose={handleClose}
+        isInitialFocusOnDialog={isPointerOpen}
+        returnFocusRef={triggerRef}
         className={styles["sidebar"]}
         aria-label="サイドバー"
-        onClose={() => {
-          if (dialogRef.current?.open) return;
+        data-closing={isClosing ? "true" : "false"}
+        onAnimationEnd={(event) => {
+          if (
+            event.target !== event.currentTarget ||
+            event.animationName !== styles["sidebar-close"] ||
+            !isClosing
+          )
+            return;
           setIsOpen(false);
-          isBackdropPointerDownRef.current = false;
+          setIsClosing(false);
         }}
-        onKeyDown={(event) => {
-          if (event.key !== "Escape") return;
-          event.preventDefault();
-          handleClose();
+        onPointerDownCapture={(event) => {
+          if (event.button === 0) setIsPointerFocus(true);
         }}
-        onPointerDown={(event) => {
-          isBackdropPointerDownRef.current = isBackdrop(event);
-        }}
-        onPointerUp={(event) => {
-          if (isBackdropPointerDownRef.current && isBackdrop(event)) {
-            handleClose();
-          }
-          isBackdropPointerDownRef.current = false;
-        }}
-        onPointerCancel={() => {
-          isBackdropPointerDownRef.current = false;
-        }}
+        onKeyDownCapture={() => setIsPointerFocus(false)}
       >
         <div className={styles["sidebar-header"]}>
           <Button
@@ -178,7 +149,7 @@ const Sidebar = () => {
             <Copyright />
           </footer>
         </div>
-      </dialog>
+      </Dialog>
     </>
   );
 };
