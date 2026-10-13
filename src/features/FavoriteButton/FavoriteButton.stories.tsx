@@ -32,7 +32,7 @@ export const LoginRequired: Story = {
     await expect(within(canvasElement).getByRole("button")).toBeDisabled();
     await expect(
       within(canvasElement).getByRole("button"),
-    ).toHaveAccessibleName("いいねするにはログインが必要です");
+    ).toHaveAccessibleName("いいねするにはログインが必要です 0件");
   },
 };
 
