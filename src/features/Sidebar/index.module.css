@@ -36,10 +36,6 @@ button.sidebar-trigger:focus-visible {
   flex-direction: column;
 }
 
-.sidebar::backdrop {
-  background: var(--overlay-dark-color);
-}
-
 .sidebar-header {
   display: flex;
   flex-shrink: 0;

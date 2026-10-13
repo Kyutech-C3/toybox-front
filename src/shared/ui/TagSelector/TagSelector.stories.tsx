@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
 
 import TagSelector from "./index";
 
@@ -83,4 +84,40 @@ const TopPagePreview = () => {
 
 export const TopPage: Story = {
   render: () => <TopPagePreview />,
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const search = canvas.getByRole("searchbox", { name: "タグで作品を探す" });
+    await userEvent.click(search);
+    fireEvent.compositionStart(search);
+    fireEvent.input(search, { target: { value: "タグ" }, isComposing: true });
+    const dialog = canvas.getByRole("dialog", { name: "タグの選択" });
+    await expect(dialog).toBeVisible();
+    await expect(within(dialog).getByRole("searchbox")).toBe(search);
+    await expect(search).toHaveFocus();
+    fireEvent.compositionEnd(search, { data: "タグ" });
+    await userEvent.type(search, "2");
+    await expect(search).toHaveValue("タグ2");
+    await expect(document.documentElement).toHaveAttribute(
+      "data-scroll-locked",
+      "true",
+    );
+    await userEvent.keyboard("{Tab}");
+    await expect(dialog.contains(document.activeElement)).toBe(true);
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(dialog).not.toHaveAttribute("open"));
+    await expect(search).toHaveFocus();
+    await expect(search).toHaveValue("タグ2");
+    await expect(document.documentElement).not.toHaveAttribute(
+      "data-scroll-locked",
+    );
+    const sort =
+      canvas.queryByRole("radio", { name: "名前順" }) ??
+      canvas.getByRole("button", { name: /タグの並び順/ });
+    sort.focus();
+    await userEvent.keyboard(" ");
+    await expect(canvas.getByRole("dialog")).toBeVisible();
+    await userEvent.keyboard("{Escape}");
+    await expect(sort).toHaveFocus();
+  },
 };
