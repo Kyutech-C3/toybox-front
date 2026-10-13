@@ -220,12 +220,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .tag-panel-unit[data-expanded="true"] .panel {
-    animation: none;
-  }
-}
-
 @media (max-width: 599px) {
   .tag-list {
     font-size: 0.75rem;

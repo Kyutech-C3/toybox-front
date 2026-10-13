@@ -18,6 +18,9 @@ button.sidebar-trigger[data-pointer-focus="true"]:focus-visible {
 }
 
 .sidebar {
+  --sidebar-open-duration: 0.22s;
+  --sidebar-close-duration: 0.18s;
+
   position: fixed;
   inset: 0 auto 0 0;
   box-sizing: border-box;
@@ -38,6 +41,55 @@ button.sidebar-trigger[data-pointer-focus="true"]:focus-visible {
 .sidebar[open] {
   display: flex;
   flex-direction: column;
+  animation: sidebar-open var(--sidebar-open-duration) ease-out both;
+}
+
+.sidebar[open][data-closing="true"] {
+  animation: sidebar-close var(--sidebar-close-duration) ease-in both;
+}
+
+.sidebar[open]::backdrop {
+  animation: sidebar-backdrop-open var(--sidebar-open-duration) ease-out both;
+}
+
+.sidebar[open][data-closing="true"]::backdrop {
+  animation: sidebar-backdrop-close var(--sidebar-close-duration) ease-in both;
+}
+
+@keyframes sidebar-open {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes sidebar-close {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes sidebar-backdrop-open {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sidebar-backdrop-close {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 .sidebar-header {
