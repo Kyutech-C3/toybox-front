@@ -1,4 +1,4 @@
-import { act, StrictMode } from "react";
+import { act, StrictMode, Suspense } from "react";
 import {
   createMemoryRouter,
   Link,
@@ -13,6 +13,9 @@ import ProfileEditor from "./index";
 import { clearAuthSession } from "@/features/auth/auth";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
+import UserPortfolio, {
+  getUserPortfolioSWRKey,
+} from "@/features/UserPortfolio";
 import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { createGifFixture } from "@/stories/gifFixture";
@@ -113,7 +116,7 @@ const SaveRevalidation = () => {
   return null;
 };
 
-const SAVE_STORY: Story = {
+const SAVE_STORY = {
   args: { userPortfolioSWRKey: SAVE_KEY, onClose: SAVE.onClose },
   render: (args) => (
     <>
@@ -159,7 +162,7 @@ const SAVE_STORY: Story = {
       useUserStore.setState(originalUser);
     };
   },
-};
+} satisfies Story;
 
 const submitProfile = async (canvasElement: HTMLElement) => {
   const canvas = within(canvasElement);
@@ -167,6 +170,9 @@ const submitProfile = async (canvasElement: HTMLElement) => {
   await userEvent.click(canvas.getByRole("button", { name: "保存" }));
   return canvas;
 };
+
+const readProfileRequest = (request: RequestInit) =>
+  new Response(request.body, { headers: request.headers }).formData();
 
 const finishIgnoredSave = async (
   canvasElement: HTMLElement,
@@ -214,7 +220,7 @@ export const SaveProfile: Story = {
       Authorization: "Bearer storybook-profile-token",
     });
     await expect(request.body).toBeInstanceOf(FormData);
-    const data = request.body as FormData;
+    const data = await readProfileRequest(request);
     await expect(data.get("display_name")).toBe(`${PROFILE.display_name}変更`);
     for (const field of ["profile", "github_id", "x_username"]) {
       await expect(data.get(field)).toBe("");
@@ -283,7 +289,7 @@ export const SaveAvatarOnly: Story = {
     SAVE.save.mockResolvedValueOnce(new Response(null, { status: 413 }));
     await userEvent.click(canvas.getByRole("button", { name: "保存" }));
     await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(1));
-    const data = SAVE.save.mock.calls[0][0].body as FormData;
+    const data = await readProfileRequest(SAVE.save.mock.calls[0][0]);
     await expect(data.get("display_name")).toBe(PROFILE.display_name);
     await expect(data.get("profile")).toBe(PROFILE.profile);
     await expect(data.get("github_id")).toBe(PROFILE.github_id);
@@ -374,12 +380,41 @@ export const SaveAfterLogout: Story = {
   play: async ({ canvasElement }) => {
     await submitProfile(canvasElement);
     await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(1));
-    const data = SAVE.save.mock.calls[0][0].body as FormData;
+    const data = await readProfileRequest(SAVE.save.mock.calls[0][0]);
     await expect(data.has("avatar")).toBe(false);
     await clearAuthSession();
     await finishIgnoredSave(canvasElement);
     await expect(SAVE.revalidate).not.toHaveBeenCalled();
     await expect(useUserStore.getState().user).toBeNull();
+  },
+};
+
+export const SaveMultilineProfile: Story = {
+  ...SAVE_STORY,
+  args: {
+    ...SAVE_STORY.args,
+    userProfile: { ...PROFILE, profile: `${"あ".repeat(499)}\n` },
+  },
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("501/500")).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "保存" })).toBeDisabled();
+    const profile = `${"あ".repeat(250)}\n${"い".repeat(248)}`;
+    const input = canvas.getByRole("textbox", { name: "自己紹介" });
+    await userEvent.clear(input);
+    await userEvent.click(input);
+    await userEvent.paste(`${profile}い`);
+    await expect(input).toHaveValue(profile);
+    await expect(canvas.getByText("500/500")).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "保存" }));
+    await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(1));
+    const data = await readProfileRequest(SAVE.save.mock.calls[0][0]);
+    await expect(data.get("profile")).toBe(profile.replace(/\n/g, "\r\n"));
+    SAVE.completeSave(Response.json({ ...PROFILE, profile }));
+    await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(1));
+    SAVE.completeRevalidation();
+    await waitFor(() => expect(SAVE.onClose).toHaveBeenCalledTimes(1));
   },
 };
 
@@ -409,6 +444,82 @@ export const SessionChangeDuringSizeCheck: Story = {
       complete?.(new Blob());
       serialization.mockRestore();
     }
+  },
+};
+
+export const SaveAcrossTokenRefresh: Story = {
+  ...SAVE_STORY,
+  render: () => (
+    <Suspense fallback={<p>プロフィールを読み込み中</p>}>
+      <UserPortfolio userID={PROFILE.id} />
+    </Suspense>
+  ),
+  beforeEach: async () => {
+    const cleanup = SAVE_STORY.beforeEach();
+    const originalFetch = window.fetch;
+    SAVE.revalidate.mockResolvedValue({
+      userProfile: PROFILE,
+      worksResponse: { works: [], total_count: 0, page: 1, limit: 30 },
+    });
+    window.fetch = (resource, init) => {
+      const path = new URL(String(resource)).pathname;
+      if (path === "/auth/refresh")
+        return Promise.resolve(
+          Response.json({ access_token: "storybook-refreshed-token" }),
+        );
+      if (path === `/users/${PROFILE.id}`)
+        return SAVE.revalidate().then((data) =>
+          Response.json(data.userProfile),
+        );
+      if (path === `/works/users/${PROFILE.id}`)
+        return Promise.resolve(
+          Response.json({ works: [], total_count: 0, page: 1, limit: 30 }),
+        );
+      return originalFetch(resource, init);
+    };
+    return async () => {
+      for (const accessToken of [
+        "storybook-profile-token",
+        "storybook-refreshed-token",
+      ]) {
+        await mutate(
+          getUserPortfolioSWRKey({ userID: PROFILE.id, page: 1, accessToken }),
+          undefined,
+          { revalidate: false },
+        );
+      }
+      await cleanup?.();
+    };
+  },
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "プロフィールを編集" }),
+    );
+    SAVE.save.mockResolvedValueOnce(new Response(null, { status: 401 }));
+    await submitProfile(canvasElement);
+    await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(2));
+    await expect(
+      await canvas.findByRole("button", { name: "保存中..." }),
+    ).toBeVisible();
+    SAVE.completeSave(
+      Response.json({ ...PROFILE, display_name: "保存後の名前" }),
+    );
+    await expect(
+      await canvas.findByRole("heading", { name: "保存後の名前" }),
+    ).toBeVisible();
+    await waitFor(() =>
+      expect(
+        within(canvasElement.ownerDocument.body).getByText(
+          "プロフィールを更新しました",
+        ),
+      ).toBeVisible(),
+    );
+    await expect(useUserStore.getState().user?.display_name).toBe(
+      "保存後の名前",
+    );
   },
 };
 

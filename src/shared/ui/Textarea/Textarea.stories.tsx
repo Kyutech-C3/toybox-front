@@ -49,6 +49,11 @@ export const CharacterLimit: Story = {
     await fireEvent.compositionEnd(input, { data: "あいうえおか" });
     await expect(input).toHaveValue("あいうえお");
     await expect(canvas.getByText("5/5")).toBeVisible();
+    await userEvent.clear(input);
+    await userEvent.click(input);
+    await userEvent.paste("あ\n😀いう");
+    await expect(input).toHaveValue("あ\n😀いう");
+    await expect(canvas.getByText("5/5")).toBeVisible();
   },
 };
 

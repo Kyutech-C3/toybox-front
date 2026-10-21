@@ -16,6 +16,7 @@ import Input from "@/shared/ui/Input";
 import Textarea from "@/shared/ui/Textarea";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { ApiError } from "@/util/fetchData";
+import { getTextLength } from "@/util/getTextLength";
 import { normalizeInputText } from "@/util/normalizeInputText";
 
 import type { UserProfileData } from "../api/getUserProfile";
@@ -76,15 +77,17 @@ const ProfileEditor = ({
   const xID = useId();
   const xErrorID = useId();
   const { showToast } = useToast();
-  const generationRef = useRef(0);
+  const isMountedRef = useRef(false);
   const isSubmittingRef = useRef(false);
+  const userPortfolioSWRKeyRef = useRef(userPortfolioSWRKey);
+  userPortfolioSWRKeyRef.current = userPortfolioSWRKey;
 
-  useEffect(
-    () => () => {
-      generationRef.current += 1;
-    },
-    [],
-  );
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const [displayName, setDisplayName] = useState(userProfile.display_name);
   const [profile, setProfile] = useState(userProfile.profile);
@@ -103,7 +106,7 @@ const ProfileEditor = ({
     isSubmitting ||
     trimmedDisplayName.length === 0 ||
     Array.from(trimmedDisplayName).length > DISPLAY_NAME_MAX_LENGTH ||
-    Array.from(profile).length > PROFILE_MAX_LENGTH ||
+    getTextLength(profile, 2) > PROFILE_MAX_LENGTH ||
     githubError !== "" ||
     xError !== "";
 
@@ -130,9 +133,8 @@ const ProfileEditor = ({
     const { accessToken, sessionVersion } = useAuthStore.getState();
     if (isSubmitDisabled || isSubmittingRef.current || !accessToken) return;
 
-    const generation = generationRef.current;
     const isRequestCurrent = () =>
-      generation === generationRef.current &&
+      isMountedRef.current &&
       sessionVersion === useAuthStore.getState().sessionVersion;
 
     isSubmittingRef.current = true;
@@ -147,10 +149,10 @@ const ProfileEditor = ({
         accessToken,
       });
       if (!isRequestCurrent()) return;
-      await mutate(userPortfolioSWRKey);
+      await mutate(userPortfolioSWRKeyRef.current);
       if (!isRequestCurrent()) return;
       await mutate<UserPortfolioData>(
-        userPortfolioSWRKey,
+        userPortfolioSWRKeyRef.current,
         (data) => data && { ...data, userProfile: updatedProfile },
         { revalidate: false },
       );
@@ -219,6 +221,7 @@ const ProfileEditor = ({
             onChange={setProfile}
             rows={4}
             maxLength={PROFILE_MAX_LENGTH}
+            newlineLength={2}
             isCharacterCountVisible
           />
         </div>
