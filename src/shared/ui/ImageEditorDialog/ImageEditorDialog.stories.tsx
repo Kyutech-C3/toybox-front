@@ -163,6 +163,20 @@ export const Avatar: Story = {
   play: async ({ canvasElement }) => {
     const dialog = await openEditor(canvasElement);
     const slider = dialog.getByRole("slider");
+    const cropper = dialog.getByRole("group", { name: "画像の切り抜き位置" });
+    const bounds = cropper.getBoundingClientRect();
+    const pointer = {
+      clientX: bounds.left + bounds.width / 2,
+      clientY: bounds.top + bounds.height / 2,
+    };
+    await fireEvent.wheel(cropper, { ...pointer, deltaY: -100 });
+    await waitFor(() =>
+      expect(Number((slider as HTMLInputElement).value)).toBeGreaterThan(1),
+    );
+    await fireEvent.wheel(cropper, { ...pointer, deltaY: -10000 });
+    await waitFor(() => expect(slider).toHaveValue("10"));
+    await fireEvent.wheel(cropper, { ...pointer, deltaY: 10000 });
+    await waitFor(() => expect(slider).toHaveValue("1"));
     const maxSize = IMAGE_EDIT_SETTINGS.avatar.longSide;
     // 561pxの切り抜き範囲から上限サイズに縮小するときの浮動小数誤差も確認する。
     for (const { zoom, size } of [

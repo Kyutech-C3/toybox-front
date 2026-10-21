@@ -285,7 +285,6 @@ const ImageEditorDialog = ({
                 containerClassName: styles["crop-surface"],
                 cropAreaClassName: styles["crop-frame"],
               }}
-              zoomWithScroll={false}
             />
           ) : (
             <LoadingSpinner />
