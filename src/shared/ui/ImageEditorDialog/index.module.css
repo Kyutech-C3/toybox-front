@@ -16,10 +16,6 @@
   gap: var(--space-16);
 }
 
-.dialog::backdrop {
-  background: var(--overlay-dark-color);
-}
-
 .header {
   display: flex;
   flex-wrap: wrap;
