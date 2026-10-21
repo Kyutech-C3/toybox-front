@@ -1,33 +1,14 @@
-import { useRef, useState } from "react";
-
-import { getExtension } from "../../editorAsset";
-import useEditorRequestGuard from "../../hook/useEditorRequestGuard";
-import {
-  useWorkEditorStore,
-  useWorkEditorStoreApi,
-} from "../../store/useWorkEditorStore";
 import useThumbnailUpload, {
   THUMBNAIL_ACCEPT,
 } from "../hook/useThumbnailUpload";
 import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
-import EditButton from "@/shared/ui/EditButton";
 import FieldError from "@/shared/ui/FieldError";
-import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
 import LoadingImage from "@/shared/ui/LoadingImage";
 import UploadArea from "@/shared/ui/UploadArea";
 
-import type { ImageEditState } from "@/shared/ui/ImageEditorDialog";
-
-type PendingThumbnailEdit = {
-  file: File;
-  isCurrent: () => boolean;
-  initialEdit?: ImageEditState;
-};
-
-const ThumbnailImageUpload = () => {
-  const editorStore = useWorkEditorStoreApi();
+const ImageUpload = () => {
   const {
     thumbnail,
     validationError,
@@ -35,60 +16,7 @@ const ThumbnailImageUpload = () => {
     handleRetry,
     handleRemove,
   } = useThumbnailUpload();
-  const { createRequestGuard } = useEditorRequestGuard();
-  const [pendingEdit, setPendingEdit] = useState<PendingThumbnailEdit | null>(
-    null,
-  );
-  const [editError, setEditError] = useState("");
-  const [originalImage, setOriginalImage] = useState<{
-    file: File;
-    output: File;
-    edit?: ImageEditState;
-  } | null>(null);
-  const processingSequenceRef = useRef(0);
   const isUploading = thumbnail?.status === "uploading";
-
-  const hasOriginalImage =
-    originalImage !== null && originalImage.output === thumbnail?.file;
-
-  const handleChooseImage = (file: File | undefined) => {
-    if (!file || isUploading) return;
-    if (!THUMBNAIL_ACCEPT.split(",").includes(getExtension(file.name))) {
-      setEditError("対応していない画像形式です");
-      return;
-    }
-    setEditError("");
-    const sequence = ++processingSequenceRef.current;
-    const isCurrentSession = createRequestGuard();
-    const isCurrent = () =>
-      isCurrentSession() &&
-      sequence === processingSequenceRef.current &&
-      thumbnail === editorStore.getState().current.thumbnail;
-    setPendingEdit({ file, isCurrent });
-  };
-
-  const handleEdit = () => {
-    if (!hasOriginalImage || isUploading) return;
-    const sequence = ++processingSequenceRef.current;
-    const isCurrentSession = createRequestGuard();
-    const isCurrent = () =>
-      isCurrentSession() &&
-      sequence === processingSequenceRef.current &&
-      thumbnail === editorStore.getState().current.thumbnail;
-    setPendingEdit({
-      file: originalImage.file,
-      initialEdit: originalImage.edit,
-      isCurrent,
-    });
-  };
-
-  const handleApply = (file: File, edit: ImageEditState) => {
-    if (!pendingEdit?.isCurrent()) return;
-    if (handleSelectFile(file)) {
-      setOriginalImage({ file: pendingEdit.file, output: file, edit });
-    }
-    setPendingEdit(null);
-  };
 
   return (
     <div className={styles["upload-container"]}>
@@ -96,12 +24,7 @@ const ThumbnailImageUpload = () => {
       <UploadCard
         asset={thumbnail}
         hasPreview={!!thumbnail?.previewURL}
-        onRemove={() => {
-          processingSequenceRef.current += 1;
-          setEditError("");
-          handleRemove();
-          setOriginalImage(null);
-        }}
+        onRemove={handleRemove}
         onRetry={handleRetry}
         statusText={
           thumbnail?.status === "uploading"
@@ -116,7 +39,7 @@ const ThumbnailImageUpload = () => {
         <UploadArea
           accept={THUMBNAIL_ACCEPT}
           ariaLabel="サムネイル画像をアップロード"
-          onSelectFiles={(files) => handleChooseImage(files[0])}
+          onSelectFiles={(files) => handleSelectFile(files[0])}
           isDisabled={isUploading}
           isEmbedded
         >
@@ -128,39 +51,17 @@ const ThumbnailImageUpload = () => {
             />
           ) : undefined}
         </UploadArea>
-        {hasOriginalImage && (
-          <EditButton
-            className={styles["edit-action"]}
-            ariaLabel="サムネイル画像を編集"
-            onEdit={handleEdit}
-            isDisabled={isUploading}
-          />
-        )}
       </UploadCard>
-      {(editError || validationError || thumbnail?.errorMessage) && (
+      {(validationError || thumbnail?.errorMessage) && (
         <FieldError role="alert">
-          {editError || validationError || thumbnail?.errorMessage}
+          {validationError || thumbnail?.errorMessage}
         </FieldError>
       )}
       <p className={styles["format-help"]}>
-        PNG・JPG・JPEG・BMP・GIF・WEBP / 加工後5MB以下
+        PNG・JPG・JPEG・BMP・GIF・WEBP / 5MB以下
       </p>
-      {pendingEdit?.isCurrent() && (
-        <ImageEditorDialog
-          file={pendingEdit.file}
-          purpose="thumbnail"
-          initialEdit={pendingEdit.initialEdit}
-          onConfirm={handleApply}
-          onClose={() => setPendingEdit(null)}
-        />
-      )}
     </div>
   );
-};
-
-const ImageUpload = () => {
-  const sessionVersion = useWorkEditorStore((state) => state.sessionVersion);
-  return <ThumbnailImageUpload key={sessionVersion} />;
 };
 
 export default ImageUpload;

@@ -31,9 +31,3 @@
     font-size: 16px;
   }
 }
-
-.edit-action[data-variant] {
-  position: absolute;
-  bottom: var(--space-8);
-  left: var(--space-8);
-}
