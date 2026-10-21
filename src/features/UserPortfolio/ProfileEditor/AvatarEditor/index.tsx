@@ -8,7 +8,6 @@ import EditButton from "@/shared/ui/EditButton";
 import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import UploadArea from "@/shared/ui/UploadArea";
-import { IMAGE_ACCEPT } from "@/util/imageProcessing";
 
 import type { ImageEditState } from "@/shared/ui/ImageEditorDialog";
 
@@ -16,10 +15,12 @@ type AvatarEditorProps = {
   avatarURL: string;
   isDisabled: boolean;
   onChange?: (hasChanges: boolean) => void;
+  onFileChange?: (file: File | null) => void;
 };
 
 type SelectedAvatar = {
   file: File;
+  processedFile: File;
   url: string;
   edit?: ImageEditState;
 };
@@ -29,10 +30,13 @@ type PendingAvatarEdit = {
   initialEdit?: ImageEditState;
 };
 
+const AVATAR_ACCEPT = ".png,.jpg,.jpeg,.gif,.webp";
+
 const AvatarEditorSession = ({
   avatarURL,
   isDisabled,
   onChange,
+  onFileChange,
 }: AvatarEditorProps) => {
   const { showToast } = useToast();
   const [pendingEdit, setPendingEdit] = useState<PendingAvatarEdit | null>(
@@ -46,6 +50,10 @@ const AvatarEditorSession = ({
     onChange?.(hasChanges);
   }, [onChange, hasChanges]);
 
+  useEffect(() => {
+    onFileChange?.(selectedAvatar?.processedFile ?? null);
+  }, [onFileChange, selectedAvatar]);
+
   useEffect(
     () => () => {
       if (selectedAvatar) URL.revokeObjectURL(selectedAvatar.url);
@@ -56,7 +64,7 @@ const AvatarEditorSession = ({
   const handleSelect = (file: File | undefined) => {
     if (!file || isDisabled) return;
     const extension = `.${file.name.split(".").pop()?.toLowerCase()}`;
-    if (!IMAGE_ACCEPT.split(",").includes(extension)) {
+    if (!AVATAR_ACCEPT.split(",").includes(extension)) {
       showToast({ message: "対応していない画像形式です", severity: "error" });
       return;
     }
@@ -75,6 +83,7 @@ const AvatarEditorSession = ({
     if (!pendingEdit || isDisabled) return;
     setSelectedAvatar({
       file: pendingEdit.file,
+      processedFile: file,
       url: URL.createObjectURL(file),
       edit,
     });
@@ -86,7 +95,7 @@ const AvatarEditorSession = ({
   return (
     <div className={styles["avatar-preview"]}>
       <UploadArea
-        accept={IMAGE_ACCEPT}
+        accept={AVATAR_ACCEPT}
         ariaLabel="アイコン画像をアップロード"
         onSelectFiles={(files) => handleSelect(files[0])}
         isDisabled={isDisabled}

@@ -1,5 +1,12 @@
 import { act, useState } from "react";
-import { expect, fireEvent, userEvent, waitFor, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  fn,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 
 import AvatarEditor from "./index";
 
@@ -16,7 +23,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 const META = {
   title: "Features/UserPortfolio/AvatarEditor",
   component: AvatarEditor,
-  args: { avatarURL: "", isDisabled: false },
+  args: { avatarURL: "", isDisabled: false, onFileChange: fn() },
   decorators: [
     (Story) => (
       <ToastProvider>
@@ -30,7 +37,7 @@ type Story = StoryObj<typeof META>;
 
 export const LocalPreview: Story = {
   tags: ["test"],
-  play: async ({ canvasElement }) => {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByLabelText(
       "アイコン画像をアップロードのファイル選択",
@@ -42,19 +49,21 @@ export const LocalPreview: Story = {
     await expect(
       canvas.queryByRole("button", { name: "アイコン画像を編集" }),
     ).not.toBeInTheDocument();
+    await expect(args.onFileChange).toHaveBeenLastCalledWith(null);
     await userEvent.upload(input, source);
     dialog = await findImageEditor(canvasElement);
     await fireEvent.change(dialog.getByRole("slider"), {
       target: { value: "2" },
     });
     await userEvent.click(dialog.getByRole("button", { name: "保存" }));
-    const image = await canvas.findByRole("img", {
-      name: "アイコン画像のプレビュー",
-    });
     await waitFor(() =>
-      expect(image).toHaveAttribute("src", expect.stringContaining("blob:")),
+      expect(
+        canvas.getByRole("img", { name: "アイコン画像のプレビュー" }),
+      ).toHaveAttribute("src", expect.stringContaining("blob:")),
     );
+    const image = canvas.getByRole("img", { name: "アイコン画像のプレビュー" });
     const savedURL = image.getAttribute("src");
+    await expect(args.onFileChange).toHaveBeenLastCalledWith(expect.any(File));
     const edit = canvas.getByRole("button", { name: "アイコン画像を編集" });
     await userEvent.click(edit);
     dialog = await findImageEditor(canvasElement);

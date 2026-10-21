@@ -6,7 +6,7 @@ import { getUserWorks } from "../api/getUserWorks";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 
-import type { Work } from "@/shared/types/work";
+import type { Work, WorkListResponse } from "@/shared/types/work";
 import type { UserProfileData } from "../api/getUserProfile";
 
 type UseUserPortfolioParams = {
@@ -29,6 +29,11 @@ type GetUserPortfolioSWRKeyParams = {
 };
 
 export type UserPortfolioSWRKey = readonly [string, string, string | null];
+
+export type UserPortfolioData = {
+  userProfile: UserProfileData;
+  worksResponse: WorkListResponse;
+};
 
 export const USER_WORKS_PAGE_SIZE = 30;
 
@@ -56,7 +61,7 @@ const useUserPortfolio = ({
     page,
   });
 
-  const { data } = useSWR(
+  const { data } = useSWR<UserPortfolioData>(
     swrKey,
     async () => {
       const [userProfile, worksResponse] = await Promise.all([

@@ -15,10 +15,14 @@ import FieldError from "@/shared/ui/FieldError";
 import Input from "@/shared/ui/Input";
 import Textarea from "@/shared/ui/Textarea";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import { ApiError } from "@/util/fetchData";
 import { normalizeInputText } from "@/util/normalizeInputText";
 
 import type { UserProfileData } from "../api/getUserProfile";
-import type { UserPortfolioSWRKey } from "../hook/useUserPortfolio";
+import type {
+  UserPortfolioData,
+  UserPortfolioSWRKey,
+} from "../hook/useUserPortfolio";
 
 type ProfileEditorProps = {
   userProfile: UserProfileData;
@@ -73,6 +77,7 @@ const ProfileEditor = ({
   const xErrorID = useId();
   const { showToast } = useToast();
   const generationRef = useRef(0);
+  const isSubmittingRef = useRef(false);
 
   useEffect(
     () => () => {
@@ -87,6 +92,7 @@ const ProfileEditor = ({
   const [xUsername, setXUsername] = useState(userProfile.x_username);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAvatarChanges, setHasAvatarChanges] = useState(false);
+  const [avatar, setAvatar] = useState<File | null>(null);
 
   const trimmedDisplayName = displayName.trim();
   const normalizedGithubUsername = normalizeSocialUsername(github);
@@ -122,41 +128,55 @@ const ProfileEditor = ({
 
   const handleSubmit = async () => {
     const { accessToken, sessionVersion } = useAuthStore.getState();
-    if (isSubmitDisabled || !accessToken) return;
+    if (isSubmitDisabled || isSubmittingRef.current || !accessToken) return;
 
     const generation = generationRef.current;
     const isRequestCurrent = () =>
       generation === generationRef.current &&
       sessionVersion === useAuthStore.getState().sessionVersion;
 
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
-      await updateUserProfile({
+      const updatedProfile = await updateUserProfile({
         displayName: trimmedDisplayName,
         profile,
         githubUsername: normalizedGithubUsername,
         xUsername: normalizedXUsername,
+        avatar,
         accessToken,
       });
       if (!isRequestCurrent()) return;
       await mutate(userPortfolioSWRKey);
       if (!isRequestCurrent()) return;
+      await mutate<UserPortfolioData>(
+        userPortfolioSWRKey,
+        (data) => data && { ...data, userProfile: updatedProfile },
+        { revalidate: false },
+      );
+      if (!isRequestCurrent()) return;
       const currentUser = useUserStore.getState().user;
       if (currentUser?.id === userProfile.id) {
-        useUserStore
-          .getState()
-          .setUser({ ...currentUser, display_name: trimmedDisplayName });
+        useUserStore.getState().setUser({
+          ...currentUser,
+          display_name: updatedProfile.display_name,
+          icon_url: updatedProfile.avatar_url,
+        });
       }
 
       showToast({ message: "プロフィールを更新しました", severity: "success" });
       onClose();
-    } catch {
+    } catch (error) {
       if (!isRequestCurrent()) return;
       showToast({
-        message: "プロフィールを更新できませんでした",
+        message:
+          error instanceof ApiError && error.status === 413
+            ? "画像とプロフィールを合わせて5 MiB以内にしてください"
+            : "プロフィールを更新できませんでした",
         severity: "error",
       });
     } finally {
+      isSubmittingRef.current = false;
       if (isRequestCurrent()) setIsSubmitting(false);
     }
   };
@@ -167,6 +187,7 @@ const ProfileEditor = ({
         avatarURL={userProfile.avatar_url}
         isDisabled={isSubmitting}
         onChange={setHasAvatarChanges}
+        onFileChange={setAvatar}
       />
       <form
         className={styles["profile-editor"]}

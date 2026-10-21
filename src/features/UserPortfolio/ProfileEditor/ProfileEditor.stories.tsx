@@ -1,11 +1,11 @@
-import { StrictMode } from "react";
+import { act, StrictMode } from "react";
 import {
   createMemoryRouter,
   Link,
   RouterProvider,
   useNavigate,
 } from "react-router-dom";
-import { expect, fn, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, spyOn, userEvent, waitFor, within } from "storybook/test";
 import useSWR, { mutate } from "swr";
 
 import ProfileEditor from "./index";
@@ -15,10 +15,15 @@ import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
 import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
+import { createGifFixture } from "@/stories/gifFixture";
+import { findImageEditor } from "@/stories/imageEditorHelpers";
 import { createImageFixture } from "@/stories/imageFixture";
 
 import type { Meta, StoryObj } from "@storybook/react";
-import type { UserPortfolioSWRKey } from "../hook/useUserPortfolio";
+import type {
+  UserPortfolioData,
+  UserPortfolioSWRKey,
+} from "../hook/useUserPortfolio";
 
 const PROFILE = {
   id: "user-1",
@@ -92,8 +97,8 @@ const SAVE_KEY: UserPortfolioSWRKey = [
 ];
 const SAVE = {
   onClose: fn(),
-  save: fn<() => Promise<Response>>(),
-  revalidate: fn<() => Promise<null>>(),
+  save: fn<(init: RequestInit) => Promise<Response>>(),
+  revalidate: fn<() => Promise<UserPortfolioData>>(),
   completeSave: (_response: Response) => {},
   completeRevalidation: () => {},
 };
@@ -133,13 +138,17 @@ const SAVE_STORY: Story = {
       }),
     );
     SAVE.revalidate.mockReset().mockReturnValue(
-      new Promise<null>((resolve) => {
-        SAVE.completeRevalidation = () => resolve(null);
+      new Promise<UserPortfolioData>((resolve) => {
+        SAVE.completeRevalidation = () =>
+          resolve({
+            userProfile: PROFILE,
+            worksResponse: { works: [], total_count: 0, page: 1, limit: 30 },
+          });
       }),
     );
     window.fetch = (input, init) =>
       String(input).endsWith("/auth/users") && init?.method === "PATCH"
-        ? SAVE.save()
+        ? SAVE.save(init)
         : originalFetch(input, init);
     return async () => {
       SAVE.completeSave(Response.json(PROFILE));
@@ -176,9 +185,23 @@ export const SaveProfile: Story = {
   ...SAVE_STORY,
   tags: ["test"],
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
     const body = within(canvasElement.ownerDocument.body);
+    const source = await createImageFixture(1600, 1200);
+    await userEvent.upload(
+      canvas.getByLabelText("アイコン画像をアップロードのファイル選択"),
+      source,
+    );
+    const dialog = await findImageEditor(canvasElement);
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    await waitFor(() =>
+      expect(body.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    await userEvent.clear(canvas.getByRole("textbox", { name: "自己紹介" }));
+    await userEvent.clear(canvas.getByRole("textbox", { name: "GitHub" }));
+    await userEvent.clear(canvas.getByRole("textbox", { name: "X" }));
     SAVE.save.mockResolvedValueOnce(new Response(null, { status: 500 }));
-    const canvas = await submitProfile(canvasElement);
+    await submitProfile(canvasElement);
     await waitFor(() =>
       expect(
         body.getByText("プロフィールを更新できませんでした"),
@@ -186,6 +209,22 @@ export const SaveProfile: Story = {
     );
     await expect(SAVE.onClose).not.toHaveBeenCalled();
     await expect(SAVE.revalidate).not.toHaveBeenCalled();
+    const request = SAVE.save.mock.calls[0][0];
+    await expect(request.headers).toEqual({
+      Authorization: "Bearer storybook-profile-token",
+    });
+    await expect(request.body).toBeInstanceOf(FormData);
+    const data = request.body as FormData;
+    await expect(data.get("display_name")).toBe(`${PROFILE.display_name}変更`);
+    for (const field of ["profile", "github_id", "x_username"]) {
+      await expect(data.get(field)).toBe("");
+    }
+    const avatar = data.get("avatar") as File;
+    await expect(avatar).toBeInstanceOf(File);
+    await expect(avatar.type).toBe("image/webp");
+    const bitmap = await createImageBitmap(avatar);
+    await expect([bitmap.width, bitmap.height]).toEqual([256, 256]);
+    bitmap.close();
     await userEvent.click(canvas.getByRole("button", { name: "保存" }));
     await expect(
       canvas.getByRole("button", { name: "保存中..." }),
@@ -196,7 +235,12 @@ export const SaveProfile: Story = {
       display_name: PROFILE.display_name,
       icon_url: "/favicon.svg",
     });
-    SAVE.completeSave(Response.json(PROFILE));
+    const updatedProfile = {
+      ...PROFILE,
+      display_name: "保存後の名前",
+      avatar_url: "/favicon-64x64.png",
+    };
+    SAVE.completeSave(Response.json(updatedProfile));
     await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(1));
     SAVE.completeRevalidation();
     await waitFor(() => expect(SAVE.onClose).toHaveBeenCalledTimes(1));
@@ -205,12 +249,122 @@ export const SaveProfile: Story = {
     );
     await expect(useUserStore.getState().user).toEqual({
       id: PROFILE.id,
-      display_name: `${PROFILE.display_name}変更`,
-      icon_url: "/favicon.svg",
+      display_name: updatedProfile.display_name,
+      icon_url: updatedProfile.avatar_url,
     });
+    await expect(
+      (
+        await mutate<UserPortfolioData>(SAVE_KEY, (data) => data, {
+          revalidate: false,
+        })
+      )?.userProfile,
+    ).toEqual(updatedProfile);
     await expect(useAuthStore.getState().accessToken).toBe(
       "storybook-refreshed-token",
     );
+  },
+};
+
+export const SaveAvatarOnly: Story = {
+  ...SAVE_STORY,
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.upload(
+      canvas.getByLabelText("アイコン画像をアップロードのファイル選択"),
+      createGifFixture().file,
+    );
+    const dialog = await findImageEditor(canvasElement, "GIF保存");
+    await userEvent.click(dialog.getByRole("button", { name: "GIF保存" }));
+    await waitFor(() =>
+      expect(body.queryByRole("dialog")).not.toBeInTheDocument(),
+    );
+    SAVE.save.mockResolvedValueOnce(new Response(null, { status: 413 }));
+    await userEvent.click(canvas.getByRole("button", { name: "保存" }));
+    await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(1));
+    const data = SAVE.save.mock.calls[0][0].body as FormData;
+    await expect(data.get("display_name")).toBe(PROFILE.display_name);
+    await expect(data.get("profile")).toBe(PROFILE.profile);
+    await expect(data.get("github_id")).toBe(PROFILE.github_id);
+    await expect(data.get("x_username")).toBe(PROFILE.x_username);
+    const avatar = data.get("avatar") as File;
+    await expect(avatar.type).toBe("image/gif");
+    await expect(avatar.size).toBeGreaterThan(0);
+    await waitFor(() =>
+      expect(
+        body.getByText("画像とプロフィールを合わせて5 MiB以内にしてください"),
+      ).toBeVisible(),
+    );
+    await expect(SAVE.onClose).not.toHaveBeenCalled();
+    await userEvent.click(canvas.getByRole("button", { name: "保存" }));
+    await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(2));
+    const updatedProfile = { ...PROFILE, avatar_url: "/favicon-64x64.png" };
+    SAVE.completeSave(Response.json(updatedProfile));
+    await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(1));
+    SAVE.completeRevalidation();
+    await waitFor(() => expect(SAVE.onClose).toHaveBeenCalledTimes(1));
+    await expect(useUserStore.getState().user?.icon_url).toBe(
+      updatedProfile.avatar_url,
+    );
+  },
+};
+
+export const RequestSizeLimit: Story = {
+  ...SAVE_STORY,
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    const source = await createImageFixture(160, 120);
+    const originalToBlob = HTMLCanvasElement.prototype.toBlob;
+    const encoding = spyOn(
+      HTMLCanvasElement.prototype,
+      "toBlob",
+    ).mockImplementation(function (
+      this: HTMLCanvasElement,
+      callback,
+      type,
+      quality,
+    ) {
+      originalToBlob.call(
+        this,
+        (blob) => {
+          if (!blob) return callback(null);
+          // 画像単体は5 MiB未満でも、multipart全体は上限を超える。
+          callback(
+            new Blob(
+              [blob, new Uint8Array(5 * 1024 * 1024 - 100 - blob.size)],
+              { type: blob.type },
+            ),
+          );
+        },
+        type,
+        quality,
+      );
+    });
+    try {
+      await userEvent.upload(
+        canvas.getByLabelText("アイコン画像をアップロードのファイル選択"),
+        source,
+      );
+      const dialog = await findImageEditor(canvasElement);
+      await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+      await waitFor(() =>
+        expect(body.queryByRole("dialog")).not.toBeInTheDocument(),
+      );
+      await userEvent.click(canvas.getByRole("button", { name: "保存" }));
+      await waitFor(() =>
+        expect(
+          body.getByText("画像とプロフィールを合わせて5 MiB以内にしてください"),
+        ).toBeVisible(),
+      );
+      await expect(SAVE.save).not.toHaveBeenCalled();
+      await expect(SAVE.onClose).not.toHaveBeenCalled();
+      await expect(canvas.getByRole("button", { name: "保存" })).toBeEnabled();
+    } finally {
+      encoding.mockRestore();
+    }
   },
 };
 
@@ -219,10 +373,42 @@ export const SaveAfterLogout: Story = {
   tags: ["test"],
   play: async ({ canvasElement }) => {
     await submitProfile(canvasElement);
+    await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(1));
+    const data = SAVE.save.mock.calls[0][0].body as FormData;
+    await expect(data.has("avatar")).toBe(false);
     await clearAuthSession();
     await finishIgnoredSave(canvasElement);
     await expect(SAVE.revalidate).not.toHaveBeenCalled();
     await expect(useUserStore.getState().user).toBeNull();
+  },
+};
+
+export const SessionChangeDuringSizeCheck: Story = {
+  ...SAVE_STORY,
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    let complete: ((body: Blob) => void) | undefined;
+    const serialization = spyOn(Response.prototype, "blob").mockImplementation(
+      () =>
+        new Promise<Blob>((resolve) => {
+          complete = resolve;
+        }),
+    );
+    try {
+      await submitProfile(canvasElement);
+      await waitFor(() => expect(complete).toBeDefined());
+      await clearAuthSession();
+      useAuthStore.getState().startSession("storybook-new-session-token");
+      await act(async () => {
+        complete?.(new Blob());
+      });
+      await expect(SAVE.save).not.toHaveBeenCalled();
+      await expect(SAVE.revalidate).not.toHaveBeenCalled();
+      await expect(SAVE.onClose).not.toHaveBeenCalled();
+    } finally {
+      complete?.(new Blob());
+      serialization.mockRestore();
+    }
   },
 };
 
