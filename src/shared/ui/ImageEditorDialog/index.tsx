@@ -73,6 +73,7 @@ const ImageEditorDialog = ({
   const hasGifSource = isGifFile(file);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
+  const cropZoomRef = useRef(zoom);
   const [rotation, setRotation] = useState(
     (((initialEdit?.rotation ?? 0) + 180) % 360) - 180,
   );
@@ -283,6 +284,14 @@ const ImageEditorDialog = ({
   };
 
   const handleCropChange = (nextCrop: Point) => {
+    // 回転時の位置補正を、ドラッグ用の移動制限で戻さない。
+    if (
+      nextCrop.x === crop.x &&
+      nextCrop.y === crop.y &&
+      cropZoomRef.current === zoom
+    )
+      return;
+    cropZoomRef.current = zoom;
     const media = mediaSizeRef.current;
     const frame = cropSizeRef.current;
     if (!media || !frame) {
@@ -321,8 +330,18 @@ const ImageEditorDialog = ({
     });
   };
 
-  const handleRotation = (change: number) => {
-    setRotation((value) => Math.min(180, Math.max(-180, value + change)));
+  const handleRotation = (value: number) => {
+    const nextRotation = Math.min(180, Math.max(-180, value));
+    if (nextRotation === rotation) return;
+    const radians = ((nextRotation - rotation) * Math.PI) / 180;
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+    // 枠の中心を軸にするため、画像中心の移動量も同じ角度だけ回転する。
+    setCrop(({ x, y }) => ({
+      x: x * cosine - y * sine,
+      y: x * sine + y * cosine,
+    }));
+    setRotation(nextRotation);
   };
 
   return createPortal(
@@ -440,7 +459,7 @@ const ImageEditorDialog = ({
             icon={<RotateLeftRoundedIcon />}
             ariaLabel="左に1度回転"
             disabled={!image || isProcessing || rotation <= -180}
-            onClick={() => handleRotation(-1)}
+            onClick={() => handleRotation(rotation - 1)}
           />
           <input
             id={rotationID}
@@ -453,7 +472,7 @@ const ImageEditorDialog = ({
             step="1"
             value={rotation}
             disabled={!image || isProcessing}
-            onChange={(event) => setRotation(Number(event.target.value))}
+            onChange={(event) => handleRotation(Number(event.target.value))}
           />
           <Button
             variant="secondary"
@@ -461,7 +480,7 @@ const ImageEditorDialog = ({
             icon={<RotateRightRoundedIcon />}
             ariaLabel="右に1度回転"
             disabled={!image || isProcessing || rotation >= 180}
-            onClick={() => handleRotation(1)}
+            onClick={() => handleRotation(rotation + 1)}
           />
         </div>
       </div>
