@@ -1,22 +1,29 @@
-import { useId, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import SaveRoundedIcon from "@mui/icons-material/SaveRounded";
 import { mutate } from "swr";
 
 import { updateUserProfile } from "../api/updateUserProfile";
+import AvatarEditor from "./AvatarEditor";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { useUserStore } from "@/features/auth/store/useUserStore";
+import useUnsavedChangesGuard from "@/shared/hook/useUnsavedChangesGuard";
 import Button from "@/shared/ui/Button";
 import CharacterCount from "@/shared/ui/CharacterCount";
 import FieldError from "@/shared/ui/FieldError";
 import Input from "@/shared/ui/Input";
 import Textarea from "@/shared/ui/Textarea";
 import useToast from "@/shared/ui/Toast/hook/useToast";
+import { ApiError } from "@/util/fetchData";
+import { getTextLength } from "@/util/getTextLength";
 import { normalizeInputText } from "@/util/normalizeInputText";
 
 import type { UserProfileData } from "../api/getUserProfile";
-import type { UserPortfolioSWRKey } from "../hook/useUserPortfolio";
+import type {
+  UserPortfolioData,
+  UserPortfolioSWRKey,
+} from "../hook/useUserPortfolio";
 
 type ProfileEditorProps = {
   userProfile: UserProfileData;
@@ -69,16 +76,26 @@ const ProfileEditor = ({
   const githubErrorID = useId();
   const xID = useId();
   const xErrorID = useId();
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const user = useUserStore((state) => state.user);
-  const setUser = useUserStore((state) => state.setUser);
   const { showToast } = useToast();
+  const isMountedRef = useRef(false);
+  const isSubmittingRef = useRef(false);
+  const userPortfolioSWRKeyRef = useRef(userPortfolioSWRKey);
+  userPortfolioSWRKeyRef.current = userPortfolioSWRKey;
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const [displayName, setDisplayName] = useState(userProfile.display_name);
   const [profile, setProfile] = useState(userProfile.profile);
   const [github, setGithub] = useState(userProfile.github_id);
   const [xUsername, setXUsername] = useState(userProfile.x_username);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasAvatarChanges, setHasAvatarChanges] = useState(false);
+  const [avatar, setAvatar] = useState<File | null>(null);
 
   const trimmedDisplayName = displayName.trim();
   const normalizedGithubUsername = normalizeSocialUsername(github);
@@ -89,15 +106,22 @@ const ProfileEditor = ({
     isSubmitting ||
     trimmedDisplayName.length === 0 ||
     Array.from(trimmedDisplayName).length > DISPLAY_NAME_MAX_LENGTH ||
-    Array.from(profile).length > PROFILE_MAX_LENGTH ||
+    getTextLength(profile, 2) > PROFILE_MAX_LENGTH ||
     githubError !== "" ||
     xError !== "";
 
   const hasUnsavedChanges =
+    hasAvatarChanges ||
     trimmedDisplayName !== userProfile.display_name ||
     profile !== userProfile.profile ||
     normalizedGithubUsername !== userProfile.github_id ||
     normalizedXUsername !== userProfile.x_username;
+
+  const getHasUnsavedChanges = useCallback(
+    () => hasUnsavedChanges,
+    [hasUnsavedChanges],
+  );
+  useUnsavedChangesGuard({ getHasUnsavedChanges });
 
   const handleCancel = () => {
     if (hasUnsavedChanges && !window.confirm(DISCARD_CONFIRM_MESSAGE)) return;
@@ -106,147 +130,183 @@ const ProfileEditor = ({
   };
 
   const handleSubmit = async () => {
-    if (isSubmitDisabled || !accessToken) return;
+    const { accessToken, sessionVersion } = useAuthStore.getState();
+    if (isSubmitDisabled || isSubmittingRef.current || !accessToken) return;
 
+    const isRequestCurrent = () =>
+      isMountedRef.current &&
+      sessionVersion === useAuthStore.getState().sessionVersion;
+
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
-      await updateUserProfile({
+      const updatedProfile = await updateUserProfile({
         displayName: trimmedDisplayName,
         profile,
         githubUsername: normalizedGithubUsername,
         xUsername: normalizedXUsername,
+        avatar,
         accessToken,
       });
-      await mutate(userPortfolioSWRKey);
-      if (user) setUser({ ...user, display_name: trimmedDisplayName });
+      if (!isRequestCurrent()) return;
+      await mutate(userPortfolioSWRKeyRef.current);
+      if (!isRequestCurrent()) return;
+      await mutate<UserPortfolioData>(
+        userPortfolioSWRKeyRef.current,
+        (data) => data && { ...data, userProfile: updatedProfile },
+        { revalidate: false },
+      );
+      if (!isRequestCurrent()) return;
+      const currentUser = useUserStore.getState().user;
+      if (currentUser?.id === userProfile.id) {
+        useUserStore.getState().setUser({
+          ...currentUser,
+          display_name: updatedProfile.display_name,
+          icon_url: updatedProfile.avatar_url,
+        });
+      }
 
       showToast({ message: "プロフィールを更新しました", severity: "success" });
       onClose();
-    } catch {
+    } catch (error) {
+      if (!isRequestCurrent()) return;
       showToast({
-        message: "プロフィールを更新できませんでした",
+        message:
+          error instanceof ApiError && error.status === 413
+            ? "画像とプロフィールを合わせて5 MiB以内にしてください"
+            : "プロフィールを更新できませんでした",
         severity: "error",
       });
     } finally {
-      setIsSubmitting(false);
+      isSubmittingRef.current = false;
+      if (isRequestCurrent()) setIsSubmitting(false);
     }
   };
 
   return (
-    <form
-      className={styles["profile-editor"]}
-      onSubmit={(event) => {
-        event.preventDefault();
-        void handleSubmit();
-      }}
-    >
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={displayNameID}>
-          表示名
-        </label>
-        <Input
-          id={displayNameID}
-          value={displayName}
-          onChange={setDisplayName}
-          maxLength={DISPLAY_NAME_MAX_LENGTH}
-          isCharacterCountVisible
-        />
-      </div>
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={profileID}>
-          自己紹介
-        </label>
-        <Textarea
-          isAutoResizing
-          id={profileID}
-          value={profile}
-          onChange={setProfile}
-          rows={4}
-          maxLength={PROFILE_MAX_LENGTH}
-          isCharacterCountVisible
-        />
-      </div>
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={githubID}>
-          GitHub
-        </label>
-        <Input
-          containerClassName={styles["social-input"]}
-          leadingContent={
-            <span className={styles["url-prefix"]}>https://github.com/</span>
-          }
-          trailingContent={
-            <CharacterCount
-              value={normalizedGithubUsername}
-              maxLength={GITHUB_USERNAME_MAX_LENGTH}
-              placement="inline"
-            />
-          }
-          id={githubID}
-          value={github}
-          placeholder="GitHub の ID"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          aria-invalid={githubError !== ""}
-          aria-describedby={githubError !== "" ? githubErrorID : undefined}
-          onChange={setGithub}
-          onBlur={() => setGithub(normalizedGithubUsername)}
-        />
-        {githubError !== "" && (
-          <FieldError id={githubErrorID} role="alert">
-            {githubError}
-          </FieldError>
-        )}
-      </div>
-      <div className={styles["field"]}>
-        <label className={styles["label"]} htmlFor={xID}>
-          X
-        </label>
-        <Input
-          containerClassName={styles["social-input"]}
-          leadingContent={
-            <span className={styles["url-prefix"]}>https://x.com/</span>
-          }
-          trailingContent={
-            <CharacterCount
-              value={normalizedXUsername}
-              maxLength={X_USERNAME_MAX_LENGTH}
-              placement="inline"
-            />
-          }
-          id={xID}
-          value={xUsername}
-          placeholder="X の ID"
-          autoCapitalize="none"
-          autoCorrect="off"
-          spellCheck={false}
-          aria-invalid={xError !== ""}
-          aria-describedby={xError !== "" ? xErrorID : undefined}
-          onChange={setXUsername}
-          onBlur={() => setXUsername(normalizedXUsername)}
-        />
-        {xError !== "" && (
-          <FieldError id={xErrorID} role="alert">
-            {xError}
-          </FieldError>
-        )}
-      </div>
-      <div className={styles["actions"]}>
-        <Button onClick={handleCancel} isDisabled={isSubmitting}>
-          キャンセル
-        </Button>
-        <Button
-          variant="accent"
-          onClick={() => void handleSubmit()}
-          isDisabled={isSubmitDisabled}
-          isLoading={isSubmitting}
-          icon={<SaveRoundedIcon />}
-        >
-          {isSubmitting ? "保存中..." : "保存"}
-        </Button>
-      </div>
-    </form>
+    <>
+      <AvatarEditor
+        avatarURL={userProfile.avatar_url}
+        isDisabled={isSubmitting}
+        onChange={setHasAvatarChanges}
+        onFileChange={setAvatar}
+      />
+      <form
+        className={styles["profile-editor"]}
+        onSubmit={(event) => {
+          event.preventDefault();
+          void handleSubmit();
+        }}
+      >
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={displayNameID}>
+            表示名
+          </label>
+          <Input
+            id={displayNameID}
+            value={displayName}
+            onChange={setDisplayName}
+            maxLength={DISPLAY_NAME_MAX_LENGTH}
+            isCharacterCountVisible
+          />
+        </div>
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={profileID}>
+            自己紹介
+          </label>
+          <Textarea
+            isAutoResizing
+            id={profileID}
+            value={profile}
+            onChange={setProfile}
+            rows={4}
+            maxLength={PROFILE_MAX_LENGTH}
+            newlineLength={2}
+            isCharacterCountVisible
+          />
+        </div>
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={githubID}>
+            GitHub
+          </label>
+          <Input
+            containerClassName={styles["social-input"]}
+            leadingContent={
+              <span className={styles["url-prefix"]}>https://github.com/</span>
+            }
+            trailingContent={
+              <CharacterCount
+                value={normalizedGithubUsername}
+                maxLength={GITHUB_USERNAME_MAX_LENGTH}
+                placement="inline"
+              />
+            }
+            id={githubID}
+            value={github}
+            placeholder="GitHub の ID"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-invalid={githubError !== ""}
+            aria-describedby={githubError !== "" ? githubErrorID : undefined}
+            onChange={setGithub}
+            onBlur={() => setGithub(normalizedGithubUsername)}
+          />
+          {githubError !== "" && (
+            <FieldError id={githubErrorID} role="alert">
+              {githubError}
+            </FieldError>
+          )}
+        </div>
+        <div className={styles["field"]}>
+          <label className={styles["label"]} htmlFor={xID}>
+            X
+          </label>
+          <Input
+            containerClassName={styles["social-input"]}
+            leadingContent={
+              <span className={styles["url-prefix"]}>https://x.com/</span>
+            }
+            trailingContent={
+              <CharacterCount
+                value={normalizedXUsername}
+                maxLength={X_USERNAME_MAX_LENGTH}
+                placement="inline"
+              />
+            }
+            id={xID}
+            value={xUsername}
+            placeholder="X の ID"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            aria-invalid={xError !== ""}
+            aria-describedby={xError !== "" ? xErrorID : undefined}
+            onChange={setXUsername}
+            onBlur={() => setXUsername(normalizedXUsername)}
+          />
+          {xError !== "" && (
+            <FieldError id={xErrorID} role="alert">
+              {xError}
+            </FieldError>
+          )}
+        </div>
+        <div className={styles["actions"]}>
+          <Button onClick={handleCancel} isDisabled={isSubmitting}>
+            キャンセル
+          </Button>
+          <Button
+            variant="accent"
+            onClick={() => void handleSubmit()}
+            isDisabled={isSubmitDisabled}
+            isLoading={isSubmitting}
+            icon={<SaveRoundedIcon />}
+          >
+            {isSubmitting ? "保存中..." : "保存"}
+          </Button>
+        </div>
+      </form>
+    </>
   );
 };
 

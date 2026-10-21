@@ -1,12 +1,12 @@
 import useThumbnailUpload, {
   THUMBNAIL_ACCEPT,
 } from "../hook/useThumbnailUpload";
-import UploadArea from "../UploadArea";
 import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 
 import FieldError from "@/shared/ui/FieldError";
 import LoadingImage from "@/shared/ui/LoadingImage";
+import UploadArea from "@/shared/ui/UploadArea";
 
 const ImageUpload = () => {
   const {

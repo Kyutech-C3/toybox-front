@@ -1,4 +1,5 @@
 .profile-editor {
+  grid-column: 2 / -1;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -18,6 +19,14 @@
   font-weight: 700;
 }
 
+.profile-editor .social-input {
+  gap: 0;
+}
+
+.social-input > input {
+  margin-inline-end: var(--space-8);
+}
+
 .url-prefix {
   display: flex;
   align-items: center;
@@ -33,16 +42,19 @@
 }
 
 @media (max-width: 599px) {
+  .profile-editor {
+    grid-column: 1 / -1;
+  }
+
   .profile-editor .social-input {
     padding-inline: var(--space-12);
-    gap: var(--space-4);
+  }
+
+  .social-input > input {
+    margin-inline-end: var(--space-4);
   }
 
   .url-prefix {
     font-size: 0.875rem;
-  }
-
-  .actions {
-    flex-direction: column-reverse;
   }
 }

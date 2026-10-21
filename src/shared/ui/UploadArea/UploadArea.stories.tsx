@@ -1,4 +1,5 @@
-import { expect, fireEvent, fn, userEvent, within } from "storybook/test";
+import { act } from "react";
+import { expect, fn, userEvent, within } from "storybook/test";
 
 import UploadArea from "./index";
 
@@ -6,7 +7,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import type { CSSProperties } from "react";
 
 const META = {
-  title: "Features/WorkEditor/UploadArea",
+  title: "Shared/UploadArea",
   component: UploadArea,
   parameters: { layout: "centered" },
   decorators: [
@@ -44,7 +45,12 @@ export const Multiple: Story = {
     await expect(args.onSelectFiles).toHaveBeenCalledWith(files);
     const dataTransfer = new DataTransfer();
     for (const file of files) dataTransfer.items.add(file);
-    await fireEvent.drop(canvas.getByRole("button"), { dataTransfer });
+    await act(() => {
+      canvas
+        .getByRole("button")
+        .dispatchEvent(new DragEvent("drop", { bubbles: true, dataTransfer }));
+    });
+    await expect(args.onSelectFiles).toHaveBeenCalledTimes(2);
     await expect(args.onSelectFiles).toHaveBeenLastCalledWith(files);
   },
 };
@@ -60,7 +66,11 @@ export const Disabled: Story = {
     dataTransfer.items.add(
       new File(["image"], "image.png", { type: "image/png" }),
     );
-    await fireEvent.drop(button, { dataTransfer });
+    await act(() => {
+      button.dispatchEvent(
+        new DragEvent("drop", { bubbles: true, dataTransfer }),
+      );
+    });
     await userEvent.upload(
       canvas.getByLabelText("ファイルを追加のファイル選択"),
       Array.from(dataTransfer.files),

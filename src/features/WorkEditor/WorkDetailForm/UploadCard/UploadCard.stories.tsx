@@ -1,8 +1,9 @@
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 import { expect, fn, userEvent, within } from "storybook/test";
 
-import UploadArea from "../UploadArea";
 import UploadCard from "./index";
+
+import UploadArea from "@/shared/ui/UploadArea";
 
 import type { Meta, StoryObj } from "@storybook/react";
 import type { CSSProperties } from "react";
