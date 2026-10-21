@@ -133,6 +133,7 @@ const AvatarEditorSession = ({
           title="アイコン画像を編集"
           settings={AVATAR_EDIT_SETTINGS}
           initialEdit={pendingEdit.initialEdit}
+          isDismissible={false}
           onConfirm={handleApply}
           onClose={() => setPendingEdit(null)}
         />

@@ -115,6 +115,14 @@ export const NestedEscape: Story = {
     const childTrigger = within(parent).getByRole("button", {
       name: "子モーダルを開く",
     });
+    const first = within(parent).getByRole("textbox");
+    const last = within(parent).getByRole("button", {
+      name: /^モーダルを閉じる$/,
+    });
+    await userEvent.tab({ shift: true });
+    await expect(last).toHaveFocus();
+    await userEvent.tab();
+    await expect(first).toHaveFocus();
     await userEvent.click(childTrigger);
     const child = canvas.getByRole("dialog", { name: "子モーダル" });
     await userEvent.keyboard("{Escape}");

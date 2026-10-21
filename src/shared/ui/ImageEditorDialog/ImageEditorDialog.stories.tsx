@@ -267,6 +267,59 @@ export const Avatar: Story = {
   },
 };
 
+export const RotationAroundCropCenter: Story = {
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const dialog = await openEditor(canvasElement);
+    await fireEvent.change(dialog.getByRole("slider", { name: "ズーム" }), {
+      target: { value: "2" },
+    });
+    const cropper = dialog.getByRole("group", { name: "画像の切り抜き位置" });
+    const bounds = cropper.getBoundingClientRect();
+    const start = {
+      clientX: bounds.left + bounds.width / 2,
+      clientY: bounds.top + bounds.height / 2,
+    };
+    await fireEvent.mouseDown(cropper, start);
+    await fireEvent.mouseMove(canvasElement.ownerDocument, {
+      clientX: start.clientX + bounds.height / 4,
+      clientY: start.clientY - bounds.height / 4,
+    });
+    await new Promise(requestAnimationFrame);
+    await fireEvent.mouseUp(canvasElement.ownerDocument);
+    await fireEvent.change(dialog.getByRole("slider", { name: "回転" }), {
+      target: { value: "90" },
+    });
+    await userEvent.click(dialog.getByRole("button", { name: "左に1度回転" }));
+    await userEvent.click(dialog.getByRole("button", { name: "右に1度回転" }));
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    const image = await within(canvasElement).findByRole<HTMLImageElement>(
+      "img",
+      { name: "加工後の画像" },
+    );
+    await waitFor(() => expect(image.naturalWidth).toBeGreaterThan(0));
+    const output = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+    const context = output.getContext("2d");
+    if (!context) throw new Error("Canvas unavailable");
+    context.drawImage(image, 0, 0);
+    const center = context.getImageData(
+      output.width / 2,
+      output.height / 2,
+      1,
+      1,
+    ).data;
+    context.fillStyle = getComputedStyle(
+      document.documentElement,
+    ).getPropertyValue("--primary-color");
+    context.fillRect(0, 0, 1, 1);
+    const expected = context.getImageData(0, 0, 1, 1).data;
+    // 移動後の枠の中心にある左半分の色が、回転しても中心に残る。
+    expected.forEach((channel, index) => {
+      expect(Math.abs(center[index] - channel)).toBeLessThan(8);
+    });
+  },
+};
+
 export const KeyboardCancel: Story = {
   tags: ["test"],
   play: async ({ canvasElement }) => {
