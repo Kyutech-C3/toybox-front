@@ -159,9 +159,8 @@ export const patchDataWithAuth = async (
 ) => {
   const response = await fetchWithAuth(path, accessToken, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers:
+      data instanceof FormData ? {} : { "Content-Type": "application/json" },
     body: data,
   });
   if (!response.ok) {

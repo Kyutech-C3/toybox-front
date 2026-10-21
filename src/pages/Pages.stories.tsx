@@ -1,11 +1,5 @@
-import {
-  createMemoryRouter,
-  MemoryRouter,
-  Route,
-  RouterProvider,
-  Routes,
-} from "react-router-dom";
-import { expect, fn, waitFor, within } from "storybook/test";
+import { createMemoryRouter, RouterProvider } from "react-router-dom";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import { SWRConfig, unstable_serialize } from "swr";
 
 import EditPage from "./EditPage";
@@ -91,27 +85,32 @@ const PageFrame = ({
   routePattern = path,
   fallback,
   children,
-}: PageFrameProps) => (
-  <MemoryRouter initialEntries={[path]}>
-    <ToastProvider>
-      <SWRConfig
-        value={{
-          fallback,
-          provider: () => new Map(),
-          suspense: true,
-          revalidateOnMount: false,
-          shouldRetryOnError: false,
-        }}
-      >
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path={routePattern} element={children} />
-          </Route>
-        </Routes>
-      </SWRConfig>
-    </ToastProvider>
-  </MemoryRouter>
-);
+}: PageFrameProps) => {
+  const router = createMemoryRouter(
+    [
+      {
+        element: (
+          <ToastProvider>
+            <SWRConfig
+              value={{
+                fallback,
+                provider: () => new Map(),
+                suspense: true,
+                revalidateOnMount: false,
+                shouldRetryOnError: false,
+              }}
+            >
+              <AppLayout />
+            </SWRConfig>
+          </ToastProvider>
+        ),
+        children: [{ path: routePattern, element: children }],
+      },
+    ],
+    { initialEntries: [path] },
+  );
+  return <RouterProvider router={router} />;
+};
 
 const PageCatalog = () => <TopPage />;
 
@@ -303,4 +302,64 @@ export const NotFound: Story = {
       <NotFoundPage />
     </PageFrame>
   ),
+};
+
+export const OwnerProfileEditing: Story = {
+  tags: ["test"],
+  render: () => (
+    <PageFrame
+      path="/users/owner"
+      routePattern="/users/:id"
+      fallback={{
+        [unstable_serialize([
+          "/users/owner",
+          "/works/users/owner?page=1&limit=30",
+          "storybook-token",
+        ])]: {
+          userProfile: PROFILE,
+          worksResponse: { works: [WORK], total_count: 1, page: 1, limit: 30 },
+        },
+      }}
+    >
+      <UserPage />
+    </PageFrame>
+  ),
+  beforeEach: () => {
+    const originalFetch = globalThis.fetch;
+    const user = { id: "owner", display_name: "作者", icon_url: "" };
+    globalThis.fetch = (resource, init) =>
+      String(resource).endsWith("/auth/users/me")
+        ? Promise.resolve(new Response(JSON.stringify(user), { status: 200 }))
+        : originalFetch(resource, init);
+    useAuthStore.setState({ accessToken: "storybook-token" });
+    useUserStore.setState({ user, hasLoadFailed: false });
+    return () => {
+      globalThis.fetch = originalFetch;
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByRole("heading", { name: "作者" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "プロフィールを編集" }),
+    );
+    await expect(
+      canvas.getByRole("button", { name: "アイコン画像をアップロード" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole("img", { name: "作者のプロフィール画像" }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "キャンセル" }));
+    await expect(
+      canvas.queryByRole("button", { name: "アイコン画像を編集" }),
+    ).not.toBeInTheDocument();
+  },
 };

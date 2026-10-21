@@ -13,12 +13,14 @@ type TextareaProps = {
   variant?: "default" | "plain";
   containerClassName?: string;
   isAutoResizing?: boolean;
+  newlineLength?: 1 | 2;
 } & Omit<ComponentPropsWithRef<"textarea">, "value" | "onChange">;
 
 const Textarea = ({
   value,
   onChange,
   maxLength,
+  newlineLength = 1,
   isCharacterCountVisible = false,
   characterCountID,
   variant = "default",
@@ -73,7 +75,11 @@ const Textarea = ({
       cancelAnimationFrame(frameID);
     };
   }, [isAutoResizing, adjustHeight]);
-  const limitHandlers = useCharacterLimit({ maxLength, onChange });
+  const limitHandlers = useCharacterLimit({
+    maxLength,
+    newlineLength,
+    onChange,
+  });
   const input = (
     <textarea
       ref={setTextareaRef}
@@ -107,7 +113,12 @@ const Textarea = ({
     input
   );
   return isCharacterCountVisible ? (
-    <CharacterCount value={value} maxLength={maxLength} id={characterCountID}>
+    <CharacterCount
+      value={value}
+      maxLength={maxLength}
+      newlineLength={newlineLength}
+      id={characterCountID}
+    >
       {control}
     </CharacterCount>
   ) : (

@@ -15,6 +15,7 @@ type UploadAreaProps = {
   isDisabled?: boolean;
   isEmbedded?: boolean;
   children?: ReactNode;
+  className?: string;
 };
 
 const UploadArea = ({
@@ -25,6 +26,7 @@ const UploadArea = ({
   isDisabled = false,
   isEmbedded = false,
   children,
+  className,
 }: UploadAreaProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -58,7 +60,7 @@ const UploadArea = ({
   return (
     <>
       <Button
-        className={styles["upload-area"]}
+        className={[styles["upload-area"], className].filter(Boolean).join(" ")}
         onClick={() => fileInputRef.current?.click()}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
