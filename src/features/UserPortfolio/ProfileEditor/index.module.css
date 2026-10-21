@@ -19,6 +19,14 @@
   font-weight: 700;
 }
 
+.profile-editor .social-input {
+  gap: 0;
+}
+
+.social-input > input {
+  margin-inline-end: var(--space-8);
+}
+
 .url-prefix {
   display: flex;
   align-items: center;
@@ -40,7 +48,10 @@
 
   .profile-editor .social-input {
     padding-inline: var(--space-12);
-    gap: var(--space-4);
+  }
+
+  .social-input > input {
+    margin-inline-end: var(--space-4);
   }
 
   .url-prefix {
