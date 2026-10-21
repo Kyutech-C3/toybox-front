@@ -44,11 +44,16 @@
   height: clamp(160px, 45dvh, 400px);
   min-width: 0;
   overflow: hidden;
-  background: var(--image-editor-background);
+  background:
+    repeating-conic-gradient(
+      var(--border-color) 0% 25%,
+      var(--paper-color) 0% 50%
+    )
+    0 0 / var(--space-16) var(--space-16);
 }
 
 .crop-container .crop-surface {
-  background: var(--image-editor-background);
+  background: transparent;
 }
 
 .output-frame {

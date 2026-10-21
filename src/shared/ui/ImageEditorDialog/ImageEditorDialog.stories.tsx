@@ -204,8 +204,8 @@ export const OutsideImageBounds: Story = {
         1,
         1,
       ).data;
-    // 外側は黒く保存し、25%を超えて写真から離れない。
-    await expect(Array.from(sample(0.1))).toEqual([0, 0, 0, 255]);
+    // 外側は透過で保存し、25%を超えて写真から離れない。
+    await expect(sample(0.1)[3]).toBe(0);
     await expect(Math.max(...sample(0.35).slice(0, 3))).toBeGreaterThan(32);
     await expect(sample(0.35)[3]).toBe(255);
   },

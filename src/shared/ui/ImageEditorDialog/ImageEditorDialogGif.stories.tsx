@@ -199,7 +199,7 @@ export const OutsideImageBounds: Story = {
         4;
       return frames[0].patch.slice(offset, offset + 4);
     };
-    await expect(Array.from(sample(0.1))).toEqual([0, 0, 0, 255]);
+    await expect(sample(0.1)[3]).toBe(0);
     await expect(Math.max(...sample(0.35).slice(0, 3))).toBeGreaterThan(32);
     await expect(sample(0.35)[3]).toBe(255);
   },
