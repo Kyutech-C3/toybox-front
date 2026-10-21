@@ -15,6 +15,7 @@ import {
 import { removeAssetImageMarkdown } from "../removeAssetImageMarkdown";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { getPageScroller } from "@/util/pageScroll";
 
 import type { EditorAsset } from "../../types";
 
@@ -200,8 +201,9 @@ const useAssetUpload = (): UseAssetUploadReturn => {
         setValidationError("説明文から画像を削除できませんでした");
         return;
       }
-      const scrollX = window.scrollX;
-      const scrollY = window.scrollY;
+      const pageScroller = getPageScroller();
+      const scrollX = pageScroller.scrollLeft;
+      const scrollY = pageScroller.scrollTop;
       const selectionStart = textarea.selectionStart;
       const selectionEnd = textarea.selectionEnd;
       textarea.focus({ preventScroll: true });
@@ -226,7 +228,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
         Math.min(selectionStart, textarea.value.length),
         Math.min(selectionEnd, textarea.value.length),
       );
-      window.scrollTo(scrollX, scrollY);
+      pageScroller.scrollTo(scrollX, scrollY);
     }
     setValidationError("");
     removeAsset(key);

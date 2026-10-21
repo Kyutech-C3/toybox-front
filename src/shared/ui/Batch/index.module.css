@@ -119,7 +119,6 @@
     var(--primary-color) 18%,
     var(--paper-color)
   );
-  color: color-mix(in srgb, var(--primary-color) 45%, var(--font-color));
 }
 
 .batch:is(button):not(:disabled):active,

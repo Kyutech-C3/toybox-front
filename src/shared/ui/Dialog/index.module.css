@@ -1,0 +1,3 @@
+.dialog::backdrop {
+  background: var(--overlay-dark-color);
+}

@@ -12,6 +12,7 @@ import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
+import Dialog from "@/shared/ui/Dialog";
 
 import type { CSSProperties, ReactNode } from "react";
 
@@ -35,9 +36,12 @@ type CollapsibleTagListStyle = CSSProperties & {
   "--tag-kept-height"?: string;
   "--tag-panel-kept-height"?: string;
   "--tag-panel-kept-width"?: string;
+  "--tag-panel-top"?: string;
+  "--tag-panel-left"?: string;
+  "--tag-panel-width"?: string;
 };
 
-type FocusRequest = "expand-button" | "first-hidden-item" | null;
+type FocusRequest = "first-hidden-item" | null;
 
 const VISIBLE_ROW_COUNT = 4;
 
@@ -67,8 +71,15 @@ const CollapsibleTagList = ({
   children,
   isHeightKept = false,
 }: CollapsibleTagListProps) => {
-  const [panelWidth, setPanelWidth] = useState<number | null>(null);
+  const unitRef = useRef<HTMLDivElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const [panelPosition, setPanelPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
   const [panelHeight, setPanelHeight] = useState<number | null>(null);
+  const [panelWidth, setPanelWidth] = useState<number | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [keptHeight, setKeptHeight] = useState<number | null>(null);
   const [rowLayout, setRowLayout] = useState<RowLayout | null>(null);
@@ -136,47 +147,27 @@ const CollapsibleTagList = ({
     return () => observer.disconnect();
   }, [isExpanded]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isExpanded) return;
-
-    const collapse = () => {
-      onExpandedChange(false);
-      if (listRef.current) listRef.current.scrollTop = 0;
+    const unit = unitRef.current;
+    if (!unit) return;
+    const measure = () => {
+      const bounds = unit.getBoundingClientRect();
+      setPanelPosition({
+        top: bounds.top,
+        left: bounds.left,
+        width: bounds.width,
+      });
     };
-
-    const handleClick = (event: MouseEvent) => {
-      if (
-        event.target instanceof Node &&
-        !panelRef.current?.contains(event.target)
-      ) {
-        collapse();
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      collapse();
-      if (panelRef.current?.contains(document.activeElement)) {
-        setFocusRequest("expand-button");
-      }
-    };
-    const handleFocusIn = (event: FocusEvent) => {
-      if (
-        event.target instanceof Node &&
-        !panelRef.current?.contains(event.target)
-      ) {
-        collapse();
-      }
-    };
-
-    document.addEventListener("click", handleClick, true);
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("focusin", handleFocusIn);
+    const observer = new ResizeObserver(measure);
+    observer.observe(unit);
+    window.addEventListener("resize", measure);
+    measure();
     return () => {
-      document.removeEventListener("click", handleClick, true);
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("focusin", handleFocusIn);
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
     };
-  }, [isExpanded, onExpandedChange]);
+  }, [isExpanded]);
 
   useEffect(() => {
     if (isExpanded || !rowLayout) return;
@@ -189,6 +180,7 @@ const CollapsibleTagList = ({
         candidate.contains(target),
       );
       if (item && isHiddenWhenCollapsed(list, item, rowLayout.coveredRowTop)) {
+        returnFocusRef.current = expandButtonRef.current;
         onExpandedChange(true);
       }
     };
@@ -200,13 +192,6 @@ const CollapsibleTagList = ({
   useEffect(() => {
     if (!focusRequest) return;
     setFocusRequest(null);
-    if (focusRequest === "expand-button") {
-      const focusTarget =
-        expandButtonRef.current ??
-        panelRef.current?.querySelector<HTMLElement>("input, button");
-      focusTarget?.focus();
-      return;
-    }
     const list = listRef.current;
     if (!list || !rowLayout) return;
     const firstHiddenItem = getItems(list).find((item) =>
@@ -218,12 +203,20 @@ const CollapsibleTagList = ({
     focusTarget?.focus();
   }, [focusRequest, rowLayout]);
 
+  const handleClose = () => {
+    onExpandedChange(false);
+    if (listRef.current) listRef.current.scrollTop = 0;
+  };
+
   const unitStyle: CollapsibleTagListStyle = {
-    ...(panelWidth !== null && {
-      "--tag-panel-kept-width": `${panelWidth}px`,
-    }),
+    "--tag-panel-top": `${panelPosition.top}px`,
+    "--tag-panel-left": `${panelPosition.left}px`,
+    "--tag-panel-width": `${panelPosition.width}px`,
     ...(panelHeight !== null && {
       "--tag-panel-kept-height": `${panelHeight}px`,
+    }),
+    ...(panelWidth !== null && {
+      "--tag-panel-kept-width": `${panelWidth}px`,
     }),
     ...(rowLayout && {
       "--tag-covered-row-top": `${rowLayout.coveredRowTop}px`,
@@ -235,61 +228,77 @@ const CollapsibleTagList = ({
 
   return (
     <div
+      ref={unitRef}
       className={styles["tag-panel-unit"]}
       style={unitStyle}
       data-expanded={isExpanded ? "true" : "false"}
     >
-      {isExpanded && <div className={styles["backdrop"]} aria-hidden="true" />}
-      <div ref={panelRef} className={styles["panel"]}>
-        <div className={styles["toolbar"]}>{toolbar}</div>
+      <Dialog
+        isOpen={isExpanded}
+        onClose={handleClose}
+        returnFocusRef={returnFocusRef}
+        className={styles["tag-dialog"]}
+        aria-label="タグの選択"
+        isBackdropPointer={(event) => event.target === event.currentTarget}
+      >
         <div
-          className={styles["tag-list-unit"]}
-          data-collapsible={rowLayout ? "true" : "false"}
-          data-expanded={isExpanded ? "true" : "false"}
+          ref={panelRef}
+          className={styles["panel"]}
+          onFocusCapture={(event) => {
+            if (!isExpanded) returnFocusRef.current = event.target;
+          }}
         >
-          <div ref={listRef} id={listID} className={styles["tag-list"]}>
-            {hasLeadingItems && (
-              <div className={styles["leading-row"]}>{leadingItems}</div>
-            )}
-            {children}
-          </div>
-          {rowLayout && !isExpanded && (
-            <button
-              ref={expandButtonRef}
-              type="button"
-              className={styles["expand-button"]}
-              aria-expanded={false}
-              aria-controls={listID}
-              onClick={() => {
-                onExpandedChange(true);
-                setFocusRequest("first-hidden-item");
-              }}
-            >
-              <span className={styles["expand-label"]}>
-                すべてのタグ
-                <span className={styles["expand-icon"]} aria-hidden="true">
-                  <ExpandMoreRoundedIcon fontSize="inherit" />
+          <div className={styles["toolbar"]}>{toolbar}</div>
+          <div
+            className={styles["tag-list-unit"]}
+            data-collapsible={rowLayout ? "true" : "false"}
+            data-expanded={isExpanded ? "true" : "false"}
+          >
+            <div ref={listRef} id={listID} className={styles["tag-list"]}>
+              {hasLeadingItems && (
+                <div className={styles["leading-row"]}>{leadingItems}</div>
+              )}
+              {children}
+            </div>
+            {rowLayout && !isExpanded && (
+              <button
+                ref={(button) => {
+                  expandButtonRef.current = button;
+                  if (button && !returnFocusRef.current?.isConnected) {
+                    returnFocusRef.current = button;
+                  }
+                }}
+                type="button"
+                className={styles["expand-button"]}
+                aria-expanded={false}
+                aria-controls={listID}
+                onClick={() => {
+                  onExpandedChange(true);
+                  setFocusRequest("first-hidden-item");
+                }}
+              >
+                <span className={styles["expand-label"]}>
+                  すべてのタグ
+                  <span className={styles["expand-icon"]} aria-hidden="true">
+                    <ExpandMoreRoundedIcon fontSize="inherit" />
+                  </span>
                 </span>
-              </span>
-            </button>
+              </button>
+            )}
+          </div>
+          {isExpanded && (
+            <Button
+              variant="ghost"
+              isIconOnly
+              className={styles["close-button"]}
+              icon={<CloseRoundedIcon />}
+              aria-label="タグの展開を閉じる"
+              aria-controls={listID}
+              onClick={handleClose}
+            />
           )}
         </div>
-        {isExpanded && (
-          <Button
-            variant="ghost"
-            isIconOnly
-            className={styles["close-button"]}
-            icon={<CloseRoundedIcon />}
-            aria-label="タグの展開を閉じる"
-            aria-controls={listID}
-            onClick={() => {
-              onExpandedChange(false);
-              if (listRef.current) listRef.current.scrollTop = 0;
-              setFocusRequest("expand-button");
-            }}
-          />
-        )}
-      </div>
+      </Dialog>
     </div>
   );
 };

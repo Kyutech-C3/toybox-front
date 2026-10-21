@@ -169,7 +169,7 @@
     border: 0;
     overflow: hidden;
     overscroll-behavior: none;
-    background: var(--overlay-dark-color);
+    background: transparent;
     color: var(--asset-font-color);
   }
 
@@ -177,10 +177,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  .image-dialog::backdrop {
-    background: transparent;
   }
 
   .image-dialog-viewport {
@@ -221,7 +217,7 @@
 
   /* Code */
   code {
-    background-color: var(--code-block-background-color);
+    background-color: var(--background-color);
     padding: 0.2em 0.4em;
     border-radius: 3px;
     font-family: "Consolas", "Monaco", "Courier New", monospace;
@@ -233,7 +229,7 @@
   pre {
     width: 100%;
     box-sizing: border-box;
-    background-color: var(--code-block-background-color);
+    background-color: var(--background-color);
     color: var(--font-color);
     border: 1px solid var(--border-color);
     border-radius: 6px;

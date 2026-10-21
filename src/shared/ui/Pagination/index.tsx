@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from "react";
+import MoreHorizRoundedIcon from "@mui/icons-material/MoreHorizRounded";
 
 import styles from "./index.module.css";
 
@@ -50,7 +51,9 @@ export const Pagination = ({
 
       if (startPage > 1) {
         pages.push({ type: "page", value: 1 });
-        if (startPage > 2) {
+        if (startPage === 3) {
+          pages.push({ type: "page", value: 2 });
+        } else if (startPage > 3) {
           const hiddenPages = Array.from(
             { length: startPage - 2 },
             (_, i) => i + 2,
@@ -64,7 +67,9 @@ export const Pagination = ({
       }
 
       if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
+        if (endPage === totalPages - 2) {
+          pages.push({ type: "page", value: totalPages - 1 });
+        } else if (endPage < totalPages - 2) {
           const hiddenPages = Array.from(
             { length: totalPages - endPage - 1 },
             (_, i) => endPage + i + 1,
@@ -103,8 +108,11 @@ export const Pagination = ({
 
           return (
             <div key={item.id} className={styles["listbox-container"]}>
-              <button
-                type="button"
+              <Button
+                variant="ghost"
+                size="small"
+                isIconOnly
+                icon={<MoreHorizRoundedIcon />}
                 className={styles["listbox-trigger"]}
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="隠れたページを表示"
@@ -112,9 +120,7 @@ export const Pagination = ({
                 aria-expanded={isOpen}
                 aria-controls={listboxID}
                 ref={listboxRef}
-              >
-                • • •
-              </button>
+              />
 
               <Listbox
                 id={listboxID}

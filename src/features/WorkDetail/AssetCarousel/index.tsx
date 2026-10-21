@@ -13,6 +13,8 @@ import styles from "./index.module.css";
 import ModelCard from "./ModelCard";
 import MovieCard from "./MovieCard";
 
+import { lockPageScroll } from "@/util/pageScroll";
+
 import type { Asset } from "@/shared/types/work";
 
 type AssetCarouselProps = {
@@ -59,12 +61,7 @@ const AssetCarousel = ({ assets }: AssetCarouselProps) => {
   useEffect(() => {
     if (!isPseudoFullscreen) return;
 
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
+    return lockPageScroll();
   }, [isPseudoFullscreen]);
 
   useEffect(() => {

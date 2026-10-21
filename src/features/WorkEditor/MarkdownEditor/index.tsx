@@ -37,6 +37,7 @@ import "./editor-custom.css";
 import MarkdownPreview from "@/features/MarkdownPreview";
 import Button from "@/shared/ui/Button";
 import Paper from "@/shared/ui/Paper";
+import { lockPageScroll } from "@/util/pageScroll";
 
 import type { ICommand } from "@uiw/react-md-editor";
 import type { CSSProperties } from "react";
@@ -119,14 +120,7 @@ const MarkdownEditor = () => {
 
   useLayoutEffect(() => {
     if (mode !== "live") return;
-    const { overflow: htmlOverflow } = document.documentElement.style;
-    const { overflow: bodyOverflow } = document.body.style;
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.documentElement.style.overflow = htmlOverflow;
-      document.body.style.overflow = bodyOverflow;
-    };
+    return lockPageScroll();
   }, [mode]);
 
   useLayoutEffect(() => {

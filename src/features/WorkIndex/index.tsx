@@ -19,6 +19,7 @@ import WorkCardGrid, {
   WorkListControls,
 } from "@/shared/ui/WorkCardGrid";
 import { getCanonicalUrl } from "@/util/getCanonicalUrl";
+import { getPageScroller } from "@/util/pageScroll";
 
 const WorkIndex = () => {
   const paginationRef = useRef<HTMLDivElement>(null);
@@ -122,7 +123,7 @@ const WorkIndex = () => {
       next.set("page", String(page));
       return next;
     });
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    getPageScroller().scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleScrollToPagination = () => {

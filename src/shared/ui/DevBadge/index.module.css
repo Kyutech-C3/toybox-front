@@ -1,0 +1,14 @@
+.dev-badge {
+  flex-shrink: 0;
+  padding: 2px var(--space-4);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  color: var(--font-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.dev-badge[data-color="on-primary"] {
+  color: var(--on-primary-color);
+}

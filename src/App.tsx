@@ -1,6 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import "./App.css";
 
+import AppLayout from "@/features/AppLayout";
 import AuthCallbackPage from "@/pages/AuthCallbackPage";
 import EditPage from "@/pages/EditPage";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -11,13 +12,15 @@ import WorkPage from "@/pages/WorkPage";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<TopPage />} />
-      <Route path="/auth/callback" element={<AuthCallbackPage />} />
-      <Route path="/works/:id" element={<WorkPage />} />
-      <Route path="/users/:id" element={<UserPage />} />
-      <Route path="/edit/new" element={<EditPage isNewWork />} />
-      <Route path="/edit/:id" element={<EditPage />} />
-      <Route path="*" element={<NotFoundPage />} />
+      <Route element={<AppLayout />}>
+        <Route path="/" element={<TopPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="/works/:id" element={<WorkPage />} />
+        <Route path="/users/:id" element={<UserPage />} />
+        <Route path="/edit/new" element={<EditPage isNewWork />} />
+        <Route path="/edit/:id" element={<EditPage />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   );
 }

@@ -9,7 +9,6 @@
   --on-primary-color: #000000;
   --primary-pale-color: #ffeeb7;
   --background-color: #f5f5f5;
-  --code-block-background-color: var(--paper-color);
   --asset-background: #222222;
   --asset-font-color: #ffffff;
   --font-color: #000000;
@@ -22,7 +21,7 @@
     var(--paper-color) 90%,
     transparent
   );
-  --overlay-dark-color: rgba(0, 0, 0, 0.3);
+  --overlay-dark-color: rgba(0, 0, 0, 0.5);
   --primary-soft-color: color-mix(
     in srgb,
     var(--primary-color) 10%,
@@ -74,7 +73,6 @@
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --code-block-background-color: #000000;
   --paper-color: #242424;
   --primary-pale-color: #4b3b0b;
   --background-color: #151515;
@@ -118,6 +116,15 @@ textarea {
   color: inherit;
 }
 
+/* ボタンの既定装飾を揃え、キーボード用のフォーカス表示は維持する。 */
+button {
+  appearance: none;
+}
+
+:where(button:not(:focus-visible)) {
+  outline: none;
+}
+
 a {
   font-weight: 500;
   color: var(--font-color);
@@ -129,10 +136,21 @@ a:hover {
 }
 
 body {
+  box-sizing: border-box;
   margin: 0;
-  min-width: 320px;
+  min-width: min(320px, 100%);
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+:root[data-scroll-locked="true"] body {
+  position: fixed;
+  inset-inline: 0;
+  top: calc(-1 * var(--page-scroll-top));
+}
+
+:root[data-scroll-locked="true"]::-webkit-scrollbar-thumb {
+  display: none;
 }
 
 @media (hover: none) {

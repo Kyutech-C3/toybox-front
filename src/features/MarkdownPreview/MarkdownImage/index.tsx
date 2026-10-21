@@ -12,6 +12,7 @@ import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import styles from "../index.module.css";
 
 import Button from "@/shared/ui/Button";
+import Dialog from "@/shared/ui/Dialog";
 import LoadingImage from "@/shared/ui/LoadingImage";
 
 import type { ComponentProps, PointerEvent, Ref } from "react";
@@ -127,7 +128,6 @@ const MarkdownImage = ({
 };
 
 export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const pointersRef = useRef(new Map<number, ImagePoint>());
@@ -147,15 +147,6 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
     },
     [],
   );
-
-  useEffect(() => {
-    if (!fullscreenImage) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [fullscreenImage]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -201,6 +192,26 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
     return () => observer.disconnect();
   }, [fullscreenImage, updateImageView]);
 
+  const isOutsideImage = (point: ImagePoint) => {
+    const image = imageRef.current;
+    if (!image?.naturalWidth || !image.naturalHeight) return true;
+    const bounds = image.getBoundingClientRect();
+    const fit = Math.min(
+      bounds.width / image.naturalWidth,
+      bounds.height / image.naturalHeight,
+    );
+    const width = image.naturalWidth * fit;
+    const height = image.naturalHeight * fit;
+    const left = bounds.left + (bounds.width - width) / 2;
+    const top = bounds.top + (bounds.height - height) / 2;
+    return (
+      point.x < left ||
+      point.x > left + width ||
+      point.y < top ||
+      point.y > top + height
+    );
+  };
+
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0 || pointersRef.current.size >= 2) return;
     event.preventDefault();
@@ -244,33 +255,29 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
       event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
+  const handleClose = () => {
+    pointersRef.current.clear();
+    setFullscreenImage(null);
+  };
+
   useImperativeHandle(ref, () => ({
     open(image) {
       pointersRef.current.clear();
       setImageView(INITIAL_IMAGE_VIEW);
       setFullscreenImage(image);
-      const dialog = dialogRef.current;
-      if (!dialog || dialog.open) return;
-      dialog.showModal();
     },
   }));
 
   return (
-    <dialog
-      ref={dialogRef}
+    <Dialog
+      isOpen={fullscreenImage !== null}
       className={styles["image-dialog"]}
       aria-label="画像の全画面表示"
-      onClose={() => {
-        if (!dialogRef.current?.open) {
-          pointersRef.current.clear();
-          setFullscreenImage(null);
-        }
-      }}
-      onKeyDown={(event) => {
-        if (event.key !== "Escape") return;
-        event.preventDefault();
-        dialogRef.current?.close();
-      }}
+      onClose={handleClose}
+      isBackdropPointer={(event) =>
+        event.target === viewportRef.current &&
+        isOutsideImage({ x: event.clientX, y: event.clientY })
+      }
     >
       <Button
         className={styles["image-dialog-close"]}
@@ -278,7 +285,7 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
         isIconOnly
         icon={<CloseRoundedIcon />}
         aria-label="全画面表示を閉じる"
-        onClick={() => dialogRef.current?.close()}
+        onClick={handleClose}
       />
       <div
         ref={viewportRef}
@@ -303,7 +310,7 @@ export function MarkdownImageDialog({ ref }: MarkdownImageDialogProps) {
           />
         )}
       </div>
-    </dialog>
+    </Dialog>
   );
 }
 

@@ -57,8 +57,8 @@ const CodeBlock = ({ language, fileName, children }: CodeBlockProps) => {
             fontFamily: "inherit",
             fontSize: "inherit",
             lineHeight: "inherit",
-            background: "var(--code-block-background-color)",
-            backgroundColor: "var(--code-block-background-color)",
+            background: "var(--background-color)",
+            backgroundColor: "var(--background-color)",
             padding: "0.5rem 2.75rem 0.5rem 0.5rem",
             margin: 0,
           }}

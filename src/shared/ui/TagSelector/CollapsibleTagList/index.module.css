@@ -15,7 +15,6 @@
 }
 
 .tag-panel-unit[data-expanded="true"] {
-  z-index: 30;
   width: var(--tag-panel-kept-width);
   max-width: 100%;
   height: var(--tag-panel-kept-height);
@@ -23,14 +22,18 @@
 
 .tag-panel-unit[data-expanded="true"] .panel {
   position: absolute;
-  top: calc(-1 * var(--tag-list-inset));
-  right: calc(-1 * var(--tag-list-inset));
-  left: calc(-1 * var(--tag-list-inset));
+  box-sizing: border-box;
+  top: max(var(--space-4), calc(var(--tag-panel-top) - var(--tag-list-inset)));
+  left: max(
+    var(--space-4),
+    calc(var(--tag-panel-left) - var(--tag-list-inset))
+  );
+  width: calc(var(--tag-panel-width) + 2 * var(--tag-list-inset));
+  max-width: calc(100vw - 2 * var(--space-4));
   padding: var(--tag-list-inset);
   border: 1px solid color-mix(in srgb, var(--border-color) 70%, transparent);
   border-radius: 16px;
   background: color-mix(in srgb, var(--paper-color) 82%, transparent);
-  backdrop-filter: blur(20px) saturate(1.6);
   box-shadow:
     0 24px 48px -12px var(--shadow-soft-color),
     0 8px 16px -8px var(--shadow-soft-color);
@@ -169,29 +172,37 @@
 .tag-list-unit[data-expanded="true"] .tag-list {
   max-height: min(400px, 60vh);
   overflow-y: auto;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: var(--border-color) transparent;
 }
 
-.backdrop {
+.tag-dialog {
   position: fixed;
   inset: 0;
-  background: color-mix(in srgb, var(--overlay-dark-color) 35%, transparent);
-  backdrop-filter: blur(2px);
-  animation: tag-backdrop-in 0.2s ease;
+  box-sizing: border-box;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--font-color);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.tag-dialog:not([open]) {
+  display: contents;
 }
 
 @keyframes tag-panel-open {
   from {
     opacity: 0;
     transform: translateY(-6px);
-  }
-}
-
-@keyframes tag-backdrop-in {
-  from {
-    opacity: 0;
   }
 }
 
@@ -209,13 +220,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .tag-panel-unit[data-expanded="true"] .panel,
-  .backdrop {
-    animation: none;
-  }
-}
-
 @media (max-width: 599px) {
   .tag-list {
     font-size: 0.75rem;
@@ -225,10 +229,6 @@
 :global(:root[data-theme="dark"]) .tag-panel-unit[data-expanded="true"] .panel {
   border-color: color-mix(in srgb, var(--font-color) 16%, transparent);
   background: color-mix(in srgb, var(--paper-color) 90%, transparent);
-}
-
-:global(:root[data-theme="dark"]) .backdrop {
-  background: color-mix(in srgb, var(--overlay-dark-color) 80%, transparent);
 }
 
 :global(:root[data-theme="dark"]) .expand-label {

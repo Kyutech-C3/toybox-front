@@ -266,12 +266,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .card-wrapper:hover .marquee-content[data-marquee="running"] {
-    animation: none;
-  }
-}
-
 .card-image-placeholder {
   width: 100%;
   height: 100%;

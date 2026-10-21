@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-import UploadPrompt from "../UploadPrompt";
+import UploadPrompt, { UPLOAD_PROMPT_LABEL } from "../UploadPrompt";
 import styles from "./index.module.css";
 
 import Button from "@/shared/ui/Button";
@@ -68,7 +68,11 @@ const UploadArea = ({
         data-dragging={isDragging && !isDisabled ? "true" : "false"}
         data-embedded={isEmbedded ? "true" : "false"}
         disabled={isDisabled}
-        aria-label={ariaLabel}
+        aria-label={
+          children === undefined || children === null
+            ? `${ariaLabel}：${UPLOAD_PROMPT_LABEL}`
+            : ariaLabel
+        }
       >
         {children ?? <UploadPrompt />}
       </Button>

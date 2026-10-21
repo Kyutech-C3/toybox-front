@@ -5,7 +5,6 @@ import { unstable_serialize, useSWRConfig } from "swr";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
-import Header from "@/features/Header";
 import WorkIndex from "@/features/WorkIndex";
 import { getWorkIndexSelection } from "@/features/WorkIndex/getWorkIndexSelection";
 import { getWorksSWRKey } from "@/features/WorkIndex/hook/useWorks";
@@ -53,16 +52,13 @@ const TopPage = () => {
   };
 
   return (
-    <>
-      <Header />
-      <main className={styles["main-wrapper"]}>
-        <PageErrorBoundary resetKey={locationKey} onRetry={handleRetry}>
-          <Suspense fallback={<PageLoading />}>
-            <WorkIndex />
-          </Suspense>
-        </PageErrorBoundary>
-      </main>
-    </>
+    <div className={styles["main-wrapper"]}>
+      <PageErrorBoundary resetKey={locationKey} onRetry={handleRetry}>
+        <Suspense fallback={<PageLoading />}>
+          <WorkIndex />
+        </Suspense>
+      </PageErrorBoundary>
+    </div>
   );
 };
 

@@ -18,19 +18,21 @@ initializeTheme();
 const ROOT = document.getElementById("root");
 if (!ROOT) throw new Error("Failed to find the root element");
 
+const AppRoot = () => (
+  <ToastProvider>
+    <AuthSessionProvider>
+      <SWRConfig value={{ suspense: true }}>
+        <App />
+      </SWRConfig>
+    </AuthSessionProvider>
+  </ToastProvider>
+);
+
 const ROUTER = createBrowserRouter([
   {
     path: "*",
     errorElement: <AppErrorFallback />,
-    element: (
-      <ToastProvider>
-        <AuthSessionProvider>
-          <SWRConfig value={{ suspense: true }}>
-            <App />
-          </SWRConfig>
-        </AuthSessionProvider>
-      </ToastProvider>
-    ),
+    element: <AppRoot />,
   },
 ]);
 
