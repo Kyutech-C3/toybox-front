@@ -45,11 +45,31 @@ export const LocalPreview: Story = {
     const source = await createImageFixture(1600, 1200);
     await userEvent.upload(input, source);
     let dialog = await findImageEditor(canvasElement);
-    await expect(
-      within(canvasElement.ownerDocument.body).getByRole("dialog", {
+    const editor = within(canvasElement.ownerDocument.body).getByRole(
+      "dialog",
+      {
         name: "アイコン画像を編集",
-      }),
-    ).toBeVisible();
+      },
+    );
+    await userEvent.keyboard("{Escape}");
+    await expect(editor).toBeVisible();
+    const cancel = new Event("cancel", { cancelable: true });
+    await act(() => {
+      editor.dispatchEvent(cancel);
+    });
+    await expect(cancel.defaultPrevented).toBe(true);
+    await expect(editor).toBeVisible();
+    const bounds = editor.getBoundingClientRect();
+    const point = {
+      pointerId: 1,
+      button: 0,
+      clientX: bounds.right + 10,
+      clientY: bounds.top,
+    };
+    await fireEvent.pointerDown(editor, point);
+    await fireEvent.pointerUp(editor, point);
+    await fireEvent.click(editor, point);
+    await expect(editor).toBeVisible();
     await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));
     await expect(
       canvas.queryByRole("button", { name: "アイコン画像を編集" }),

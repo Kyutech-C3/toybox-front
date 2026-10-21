@@ -11,6 +11,7 @@ type DialogProps = Omit<
   "open" | "ref" | "onClose"
 > & {
   isOpen: boolean;
+  isDismissible?: boolean;
   onClose: () => void;
   initialFocusRef?: RefObject<HTMLElement | null>;
   isInitialFocusOnDialog?: boolean;
@@ -35,6 +36,7 @@ const isNativeBackdrop = (event: PointerEvent<HTMLDialogElement>) => {
 
 const Dialog = ({
   isOpen,
+  isDismissible = true,
   onClose,
   initialFocusRef,
   isInitialFocusOnDialog = false,
@@ -108,21 +110,51 @@ const Dialog = ({
       onCancel={(event) => {
         event.preventDefault();
         event.stopPropagation();
+        if (!isDismissible) return;
         onCancel?.(event);
         onClose();
       }}
       onKeyDown={(event) => {
         onKeyDown?.(event);
-        if (
-          !isOpen ||
-          event.key !== "Escape" ||
-          event.defaultPrevented ||
-          event.nativeEvent.isComposing
-        )
+        if (!isOpen || event.defaultPrevented || event.nativeEvent.isComposing)
           return;
-        event.preventDefault();
-        event.stopPropagation();
-        onClose();
+        if (event.key === "Escape") {
+          event.preventDefault();
+          event.stopPropagation();
+          if (isDismissible) onClose();
+          return;
+        }
+        if (event.key !== "Tab") return;
+        const dialog = event.currentTarget;
+        const controls = Array.from(
+          dialog.querySelectorAll<HTMLElement>(
+            "a[href], button, input, select, textarea, [tabindex], [contenteditable='true']",
+          ),
+        ).filter(
+          (control) =>
+            control.tabIndex >= 0 &&
+            !control.matches(":disabled") &&
+            !control.closest("[inert]") &&
+            control.closest("dialog") === dialog &&
+            control.getClientRects().length > 0 &&
+            getComputedStyle(control).visibility !== "hidden",
+        );
+        const first = controls[0];
+        const last = controls.at(-1);
+        if (!first) {
+          event.preventDefault();
+          dialog.focus({ preventScroll: true });
+        } else if (
+          event.shiftKey &&
+          (document.activeElement === first ||
+            document.activeElement === dialog)
+        ) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
       }}
       onPointerDownCapture={(event) => {
         onPointerDownCapture?.(event);
@@ -164,7 +196,7 @@ const Dialog = ({
         isBackdropClickRef.current = false;
         event.preventDefault();
         event.stopPropagation();
-        onClose();
+        if (isDismissible) onClose();
       }}
     >
       {children}
