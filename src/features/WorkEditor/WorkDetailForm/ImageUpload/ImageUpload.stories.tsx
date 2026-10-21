@@ -121,7 +121,7 @@ export const SelectAndEdit: Story = {
       ).not.toBeInTheDocument();
       await userEvent.upload(input, source);
       dialog = await findImageEditor(canvasElement, "GIF保存");
-      await fireEvent.change(dialog.getByRole("slider"), {
+      await fireEvent.change(dialog.getByRole("slider", { name: "ズーム" }), {
         target: { value: "2" },
       });
       await userEvent.click(dialog.getByRole("button", { name: "GIF保存" }));
@@ -138,7 +138,10 @@ export const SelectAndEdit: Story = {
       dialog = await findImageEditor(canvasElement, "静止画保存");
       await waitFor(() =>
         expect(
-          Number((dialog.getByRole("slider") as HTMLInputElement).value),
+          Number(
+            (dialog.getByRole("slider", { name: "ズーム" }) as HTMLInputElement)
+              .value,
+          ),
         ).toBeCloseTo(2, 1),
       );
       await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));

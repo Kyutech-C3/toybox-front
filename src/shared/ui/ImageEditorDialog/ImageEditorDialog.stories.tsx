@@ -148,6 +148,14 @@ export const LowResolution: Story = {
   args: { width: 160, height: 120 },
   play: async ({ canvasElement }) => {
     const dialog = await openEditor(canvasElement);
+    await fireEvent.change(dialog.getByRole("slider", { name: "回転" }), {
+      target: { value: "37" },
+    });
+    await waitFor(() =>
+      expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(
+        "160 × 120px",
+      ),
+    );
     await userEvent.click(dialog.getByRole("button", { name: "保存" }));
     await waitFor(() =>
       expect(
@@ -157,12 +165,54 @@ export const LowResolution: Story = {
   },
 };
 
+export const OutsideImageBounds: Story = {
+  tags: ["test"],
+  args: { purpose: "avatar", width: 160, height: 120 },
+  play: async ({ canvasElement }) => {
+    const dialog = await openEditor(canvasElement);
+    const cropper = dialog.getByRole("group", { name: "画像の切り抜き位置" });
+    const bounds = cropper.getBoundingClientRect();
+    const start = {
+      clientX: bounds.left + bounds.width / 2,
+      clientY: bounds.top + bounds.height / 2,
+    };
+    await fireEvent.mouseDown(cropper, start);
+    await fireEvent.mouseMove(canvasElement.ownerDocument, {
+      ...start,
+      clientX: start.clientX + bounds.width * 10,
+    });
+    await new Promise(requestAnimationFrame);
+    await fireEvent.mouseUp(canvasElement.ownerDocument);
+    await userEvent.click(dialog.getByRole("button", { name: "保存" }));
+    const image = await within(canvasElement).findByRole<HTMLImageElement>(
+      "img",
+      { name: "加工後の画像" },
+    );
+    await waitFor(() => expect(image.naturalWidth).toBeGreaterThan(0));
+    const output = new OffscreenCanvas(image.naturalWidth, image.naturalHeight);
+    const context = output.getContext("2d");
+    if (!context) throw new Error("Canvas unavailable");
+    context.drawImage(image, 0, 0);
+    const sample = (fraction: number) =>
+      context.getImageData(
+        Math.floor(output.width * fraction),
+        Math.floor(output.height / 2),
+        1,
+        1,
+      ).data;
+    // 外側は黒く保存し、25%を超えて写真から離れない。
+    await expect(Array.from(sample(0.1))).toEqual([0, 0, 0, 255]);
+    await expect(Math.max(...sample(0.35).slice(0, 3))).toBeGreaterThan(32);
+    await expect(sample(0.35)[3]).toBe(255);
+  },
+};
+
 export const Avatar: Story = {
   tags: ["test"],
   args: { purpose: "avatar" },
   play: async ({ canvasElement }) => {
     const dialog = await openEditor(canvasElement);
-    const slider = dialog.getByRole("slider");
+    const slider = dialog.getByRole("slider", { name: "ズーム" });
     const cropper = dialog.getByRole("group", { name: "画像の切り抜き位置" });
     const bounds = cropper.getBoundingClientRect();
     const pointer = {
@@ -192,9 +242,17 @@ export const Avatar: Story = {
         expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(size),
       );
     }
-    await userEvent.click(dialog.getByRole("button", { name: "右に90度回転" }));
+    const rotation = dialog.getByRole("slider", { name: "回転" });
+    await fireEvent.change(rotation, { target: { value: "-37" } });
+    await expect(rotation).toHaveValue("-37");
+    await expect(slider).toHaveValue("2.14");
+    await userEvent.click(dialog.getByRole("button", { name: "左に1度回転" }));
+    await expect(rotation).toHaveValue("-38");
+    await userEvent.click(dialog.getByRole("button", { name: "右に1度回転" }));
+    await expect(rotation).toHaveValue("-37");
     await userEvent.click(dialog.getByRole("button", { name: "リセット" }));
     await waitFor(() => expect(slider).toHaveValue("1"));
+    await expect(rotation).toHaveValue("0");
     await userEvent.click(dialog.getByRole("button", { name: "保存" }));
     await waitFor(() =>
       expect(

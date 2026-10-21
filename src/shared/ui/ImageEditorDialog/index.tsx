@@ -20,6 +20,7 @@ import {
 } from "@/util/imageProcessing";
 
 import type { KeyboardEvent } from "react";
+import type { MediaSize, Point, Size } from "react-easy-crop";
 import type { ImageCropArea } from "@/util/imageProcessing";
 
 export type ImageEditState = {
@@ -36,6 +37,7 @@ type ImageEditorDialogProps = {
 };
 
 const MAX_ZOOM = 10;
+const MAX_IMAGE_OVERFLOW_RATIO = 0.25;
 type ImageSaveFormat = "still" | "gif";
 
 const ImageEditorDialog = ({
@@ -46,8 +48,13 @@ const ImageEditorDialog = ({
   onClose,
 }: ImageEditorDialogProps) => {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const cropContainerRef = useRef<HTMLDivElement>(null);
   const titleID = useId();
   const zoomID = useId();
+  const rotationID = useId();
+  const mediaSizeRef = useRef<MediaSize | null>(null);
+  const cropSizeRef = useRef<Size | null>(null);
+  const [cropSize, setCropSize] = useState<Size | null>(null);
   const isMountedRef = useRef(false);
   const isProcessingRef = useRef(false);
   const processingControllerRef = useRef<AbortController | null>(null);
@@ -62,7 +69,9 @@ const ImageEditorDialog = ({
   const hasGifSource = isGifFile(file);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [rotation, setRotation] = useState(initialEdit?.rotation ?? 0);
+  const [rotation, setRotation] = useState(
+    (((initialEdit?.rotation ?? 0) + 180) % 360) - 180,
+  );
   const [initialCrop, setInitialCrop] = useState(
     initialEdit?.croppedAreaPercentages,
   );
@@ -70,6 +79,7 @@ const ImageEditorDialog = ({
   const [area, setArea] = useState<ImageCropArea | null>(null);
   const [percentages, setPercentages] = useState<ImageCropArea | null>(null);
   const settings = IMAGE_EDIT_SETTINGS[purpose];
+  const hasCropper = image !== null && cropSize !== null;
   const outputSize = area
     ? getImageOutputSize({
         area,
@@ -101,6 +111,9 @@ const ImageEditorDialog = ({
     const sourceImage = new Image();
     let isActive = true;
     setImage(null);
+    mediaSizeRef.current = null;
+    cropSizeRef.current = null;
+    setCropSize(null);
     setArea(null);
     setProcessingFormat(null);
     isProcessingRef.current = false;
@@ -128,11 +141,41 @@ const ImageEditorDialog = ({
   }, [file, showToast]);
 
   useEffect(() => {
-    if (image)
+    if (!image || !cropContainerRef.current) return;
+    const container = cropContainerRef.current;
+    const updateCropSize = () => {
+      const { width, height } = container.getBoundingClientRect();
+      if (width <= 0 || height <= 0) return;
+      // 回転角には依存させず、元画像と編集領域の大きさから保存枠を決める。
+      const scale = Math.min(
+        1,
+        width / image.naturalWidth,
+        height / image.naturalHeight,
+      );
+      const cropHeight = Math.min(
+        image.naturalHeight * scale,
+        (image.naturalWidth * scale) / settings.aspect,
+      );
+      const size = { width: cropHeight * settings.aspect, height: cropHeight };
+      cropSizeRef.current = size;
+      setCropSize((current) =>
+        current?.width === size.width && current.height === size.height
+          ? current
+          : size,
+      );
+    };
+    updateCropSize();
+    const observer = new ResizeObserver(updateCropSize);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [image, settings.aspect]);
+
+  useEffect(() => {
+    if (hasCropper)
       dialogRef.current
         ?.querySelector<HTMLElement>("[role='group']")
         ?.focus({ preventScroll: true });
-  }, [image]);
+  }, [hasCropper]);
 
   useEffect(() => {
     if (isProcessing)
@@ -222,11 +265,11 @@ const ImageEditorDialog = ({
     }
   };
 
-  const handleReset = (nextRotation = 0) => {
+  const handleReset = () => {
     setInitialCrop(undefined);
     setCrop({ x: 0, y: 0 });
     setZoom(1);
-    setRotation(nextRotation);
+    setRotation(0);
     setArea(null);
     setPercentages(null);
     setCropVersion((version) => version + 1);
@@ -234,6 +277,49 @@ const ImageEditorDialog = ({
 
   const handleZoom = (change: number) => {
     setZoom((value) => Math.min(MAX_ZOOM, Math.max(1, value + change)));
+  };
+
+  const handleCropChange = (nextCrop: Point) => {
+    const media = mediaSizeRef.current;
+    const frame = cropSizeRef.current;
+    if (!media || !frame) {
+      setCrop(nextCrop);
+      return;
+    }
+    const radians = (rotation * Math.PI) / 180;
+    const cosine = Math.cos(radians);
+    const sine = Math.sin(radians);
+    // 写真の向きで制限し、斜めに動かしても写真から離れすぎないようにする。
+    const projectedWidth =
+      Math.abs(cosine) * frame.width + Math.abs(sine) * frame.height;
+    const projectedHeight =
+      Math.abs(sine) * frame.width + Math.abs(cosine) * frame.height;
+    const maxX = Math.max(
+      0,
+      (media.width * zoom - projectedWidth) / 2 +
+        projectedWidth * MAX_IMAGE_OVERFLOW_RATIO,
+    );
+    const maxY = Math.max(
+      0,
+      (media.height * zoom - projectedHeight) / 2 +
+        projectedHeight * MAX_IMAGE_OVERFLOW_RATIO,
+    );
+    const x = Math.min(
+      maxX,
+      Math.max(-maxX, nextCrop.x * cosine + nextCrop.y * sine),
+    );
+    const y = Math.min(
+      maxY,
+      Math.max(-maxY, -nextCrop.x * sine + nextCrop.y * cosine),
+    );
+    setCrop({
+      x: x * cosine - y * sine,
+      y: x * sine + y * cosine,
+    });
+  };
+
+  const handleRotation = (change: number) => {
+    setRotation((value) => Math.min(180, Math.max(-180, value + change)));
   };
 
   return createPortal(
@@ -259,8 +345,12 @@ const ImageEditorDialog = ({
         </output>
       </header>
       <div className={styles["workspace"]}>
-        <div className={styles["crop-container"]} inert={isProcessing}>
-          {image ? (
+        <div
+          ref={cropContainerRef}
+          className={styles["crop-container"]}
+          inert={isProcessing}
+        >
+          {image && cropSize ? (
             <Cropper
               key={cropVersion}
               image={sourceURL}
@@ -269,9 +359,14 @@ const ImageEditorDialog = ({
               maxZoom={MAX_ZOOM}
               rotation={rotation}
               aspect={settings.aspect}
+              cropSize={cropSize}
               cropShape={settings.cropShape}
               initialCroppedAreaPercentages={initialCrop}
-              onCropChange={setCrop}
+              restrictPosition={false}
+              onCropChange={handleCropChange}
+              setMediaSize={(size) => {
+                mediaSizeRef.current = size;
+              }}
               onZoomChange={setZoom}
               onCropAreaChange={(croppedPercentages, pixels) => {
                 setArea(pixels);
@@ -289,14 +384,21 @@ const ImageEditorDialog = ({
           ) : (
             <LoadingSpinner />
           )}
+          {image && cropSize && (
+            <div
+              className={styles["output-frame"]}
+              style={{ width: cropSize.width, height: cropSize.height }}
+              aria-hidden="true"
+            />
+          )}
         </div>
       </div>
       <div className={styles["controls"]}>
-        <div className={styles["zoom-label"]}>
+        <div className={styles["slider-label"]}>
           <label htmlFor={zoomID}>ズーム</label>
           <output htmlFor={zoomID}>{Math.round(zoom * 100)}%</output>
         </div>
-        <div className={styles["zoom-controls"]}>
+        <div className={styles["slider-controls"]}>
           <Button
             variant="secondary"
             isIconOnly
@@ -307,7 +409,7 @@ const ImageEditorDialog = ({
           />
           <input
             id={zoomID}
-            className={styles["zoom"]}
+            className={styles["slider"]}
             aria-label="ズーム"
             type="range"
             min="1"
@@ -326,36 +428,52 @@ const ImageEditorDialog = ({
             onClick={() => handleZoom(0.1)}
           />
         </div>
-        <div className={styles["tools"]}>
+        <div className={styles["slider-label"]}>
+          <label htmlFor={rotationID}>回転</label>
+          <output htmlFor={rotationID}>{rotation}°</output>
+        </div>
+        <div className={styles["slider-controls"]}>
           <Button
             variant="secondary"
+            isIconOnly
             icon={<RotateLeftRoundedIcon />}
-            ariaLabel="左に90度回転"
+            ariaLabel="左に1度回転"
+            disabled={!image || isProcessing || rotation <= -180}
+            onClick={() => handleRotation(-1)}
+          />
+          <input
+            id={rotationID}
+            className={styles["slider"]}
+            aria-label="回転"
+            aria-valuetext={`${rotation}度`}
+            type="range"
+            min="-180"
+            max="180"
+            step="1"
+            value={rotation}
             disabled={!image || isProcessing}
-            onClick={() => handleReset((rotation + 270) % 360)}
-          >
-            左回転
-          </Button>
+            onChange={(event) => setRotation(Number(event.target.value))}
+          />
           <Button
             variant="secondary"
+            isIconOnly
             icon={<RotateRightRoundedIcon />}
-            ariaLabel="右に90度回転"
-            disabled={!image || isProcessing}
-            onClick={() => handleReset((rotation + 90) % 360)}
-          >
-            右回転
-          </Button>
-          <Button
-            variant="ghost"
-            icon={<RestartAltRoundedIcon />}
-            disabled={!image || isProcessing}
-            onClick={() => handleReset()}
-          >
-            リセット
-          </Button>
+            ariaLabel="右に1度回転"
+            disabled={!image || isProcessing || rotation >= 180}
+            onClick={() => handleRotation(1)}
+          />
         </div>
       </div>
       <div className={styles["actions"]} data-gif={hasGifSource || undefined}>
+        <Button
+          variant="ghost"
+          className={styles["reset-button"]}
+          icon={<RestartAltRoundedIcon />}
+          disabled={!image || isProcessing}
+          onClick={handleReset}
+        >
+          リセット
+        </Button>
         <Button variant="secondary" onClick={onClose}>
           キャンセル
         </Button>

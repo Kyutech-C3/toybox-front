@@ -52,8 +52,11 @@ export const LocalPreview: Story = {
     await expect(args.onFileChange).toHaveBeenLastCalledWith(null);
     await userEvent.upload(input, source);
     dialog = await findImageEditor(canvasElement);
-    await fireEvent.change(dialog.getByRole("slider"), {
+    await fireEvent.change(dialog.getByRole("slider", { name: "ズーム" }), {
       target: { value: "2" },
+    });
+    await fireEvent.change(dialog.getByRole("slider", { name: "回転" }), {
+      target: { value: "-17" },
     });
     await userEvent.click(dialog.getByRole("button", { name: "保存" }));
     await waitFor(() =>
@@ -67,9 +70,15 @@ export const LocalPreview: Story = {
     const edit = canvas.getByRole("button", { name: "アイコン画像を編集" });
     await userEvent.click(edit);
     dialog = await findImageEditor(canvasElement);
+    await expect(dialog.getByRole("slider", { name: "回転" })).toHaveValue(
+      "-17",
+    );
     await waitFor(() =>
       expect(
-        Number((dialog.getByRole("slider") as HTMLInputElement).value),
+        Number(
+          (dialog.getByRole("slider", { name: "ズーム" }) as HTMLInputElement)
+            .value,
+        ),
       ).toBeCloseTo(2, 1),
     );
     await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));

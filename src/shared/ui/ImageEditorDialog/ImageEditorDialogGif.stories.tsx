@@ -95,8 +95,10 @@ export const AnimatedAvatarCropAndRotation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const dialog = await openEditor(canvasElement);
-    await userEvent.click(dialog.getByRole("button", { name: "右に90度回転" }));
-    await fireEvent.change(dialog.getByRole("slider"), {
+    await fireEvent.change(dialog.getByRole("slider", { name: "回転" }), {
+      target: { value: "90" },
+    });
+    await fireEvent.change(dialog.getByRole("slider", { name: "ズーム" }), {
       target: { value: "2" },
     });
     await waitFor(() =>
@@ -168,6 +170,44 @@ export const TransparencyAndDisposal: Story = {
       await expect(frames[sample.frame].patch[offset + 3]).toBe(255);
     }
     await expect(frames[3].patch[(20 * 160 + 30) * 4 + 3]).toBe(0);
+  },
+};
+
+export const OutsideImageBounds: Story = {
+  tags: ["test"],
+  args: { purpose: "avatar" },
+  play: async ({ canvasElement }) => {
+    const dialog = await openEditor(canvasElement);
+    const cropper = dialog.getByRole("group", { name: "画像の切り抜き位置" });
+    const bounds = cropper.getBoundingClientRect();
+    const start = {
+      clientX: bounds.left + bounds.width / 2,
+      clientY: bounds.top + bounds.height / 2,
+    };
+    await fireEvent.mouseDown(cropper, start);
+    await fireEvent.mouseMove(canvasElement.ownerDocument, {
+      ...start,
+      clientX: start.clientX + bounds.width * 10,
+    });
+    await new Promise(requestAnimationFrame);
+    await fireEvent.mouseUp(canvasElement.ownerDocument);
+    await userEvent.click(dialog.getByRole("button", { name: "GIF保存" }));
+    await waitFor(() =>
+      expect(
+        within(canvasElement).getByLabelText("加工結果"),
+      ).toHaveTextContent("image/gif"),
+    );
+    const { gif, frames } = await readResult(canvasElement);
+    const sample = (fraction: number) => {
+      const offset =
+        (Math.floor(gif.lsd.height / 2) * gif.lsd.width +
+          Math.floor(gif.lsd.width * fraction)) *
+        4;
+      return frames[0].patch.slice(offset, offset + 4);
+    };
+    await expect(Array.from(sample(0.1))).toEqual([0, 0, 0, 255]);
+    await expect(Math.max(...sample(0.35).slice(0, 3))).toBeGreaterThan(32);
+    await expect(sample(0.35)[3]).toBe(255);
   },
 };
 

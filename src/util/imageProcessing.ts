@@ -52,10 +52,13 @@ export const drawImageCrop = (
 ) => {
   canvas.width = size.width;
   canvas.height = size.height;
-  const context = canvas.getContext("2d");
+  const context =
+    "toBlob" in canvas ? canvas.getContext("2d") : canvas.getContext("2d");
   if (!context) throw new Error("画像の加工に対応していません");
   context.imageSmoothingEnabled = true;
   context.imageSmoothingQuality = "high";
+  // サイズ変更直後の Canvas の塗り色は黒。画像の外側を不透明にする。
+  context.fillRect(0, 0, size.width, size.height);
   const radians = (rotation * Math.PI) / 180;
   const width = "naturalWidth" in image ? image.naturalWidth : image.width;
   const height = "naturalHeight" in image ? image.naturalHeight : image.height;
@@ -69,6 +72,8 @@ export const drawImageCrop = (
   context.translate(-area.x, -area.y);
   context.translate(rotatedWidth / 2, rotatedHeight / 2);
   context.rotate(radians);
+  // 元画像内の透過は維持し、写真の範囲外だけを黒く残す。
+  context.clearRect(-width / 2, -height / 2, width, height);
   context.drawImage(image, -width / 2, -height / 2);
   context.restore();
 };

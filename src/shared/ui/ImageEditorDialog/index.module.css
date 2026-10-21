@@ -44,11 +44,21 @@
   height: clamp(160px, 45dvh, 400px);
   min-width: 0;
   overflow: hidden;
-  background: var(--asset-background);
+  background: var(--image-editor-background);
 }
 
 .crop-container .crop-surface {
-  background: var(--asset-background);
+  background: var(--image-editor-background);
+}
+
+.output-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--asset-font-color);
+  pointer-events: none;
 }
 
 .crop-container .crop-frame {
@@ -75,24 +85,24 @@
   gap: var(--space-8);
 }
 
-.zoom-label {
+.slider-label {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
 }
 
-.zoom-label output {
+.slider-label output {
   font-variant-numeric: tabular-nums;
   color: var(--font-muted-color);
 }
 
-.zoom-controls {
+.slider-controls {
   display: flex;
   align-items: center;
   gap: var(--space-12);
 }
 
-.zoom {
+.slider {
   flex: 1;
   width: 100%;
   min-width: 0;
@@ -101,13 +111,8 @@
   accent-color: var(--primary-color);
 }
 
-.tools {
-  display: flex;
-  gap: var(--space-8);
-}
-
-.tools > :last-child {
-  margin-left: auto;
+.reset-button {
+  margin-right: auto;
 }
 
 .actions {
@@ -168,26 +173,16 @@
     width: 44px;
   }
 
-  .tools {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .tools > :last-child {
-    margin-left: 0;
-  }
-
   .dialog .actions button[data-size] {
-    flex: 1;
+    flex: 1 0 auto;
     height: 48px;
+    padding-inline: var(--space-8);
   }
 
   .actions[data-gif] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-8);
-  }
-
-  .dialog .actions[data-gif] button[data-size] {
-    padding-inline: var(--space-8);
   }
 }
 
@@ -242,25 +237,15 @@
     width: 44px;
   }
 
-  .tools {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .tools > :last-child {
-    margin-left: 0;
-  }
-
   .dialog .actions button[data-size] {
-    flex: 1;
+    flex: 1 0 auto;
     height: 48px;
+    padding-inline: var(--space-8);
   }
 
   .actions[data-gif] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--space-8);
-  }
-
-  .dialog .actions[data-gif] button[data-size] {
-    padding-inline: var(--space-8);
   }
 }
