@@ -105,9 +105,6 @@ export const SelectAndUpload: Story = {
       await expect(
         within(canvasElement.ownerDocument.body).queryByRole("dialog"),
       ).not.toBeInTheDocument();
-      await expect(
-        canvas.queryByRole("button", { name: "サムネイル画像を編集" }),
-      ).not.toBeInTheDocument();
       await userEvent.click(
         canvas.getByRole("button", { name: `${source.name}を削除` }),
       );

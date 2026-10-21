@@ -9,7 +9,10 @@ import ImageEditorDialog from "@/shared/ui/ImageEditorDialog";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import UploadArea from "@/shared/ui/UploadArea";
 
-import type { ImageEditState } from "@/shared/ui/ImageEditorDialog";
+import type {
+  ImageEditSettings,
+  ImageEditState,
+} from "@/shared/ui/ImageEditorDialog";
 
 type AvatarEditorProps = {
   avatarURL: string;
@@ -29,6 +32,12 @@ type PendingAvatarEdit = {
   file: File;
   initialEdit?: ImageEditState;
 };
+
+const AVATAR_EDIT_SETTINGS = {
+  aspect: 1,
+  longSide: 256,
+  cropShape: "round",
+} satisfies ImageEditSettings;
 
 const AVATAR_ACCEPT = ".png,.jpg,.jpeg,.gif,.webp";
 
@@ -121,7 +130,8 @@ const AvatarEditorSession = ({
       {pendingEdit && (
         <ImageEditorDialog
           file={pendingEdit.file}
-          purpose="avatar"
+          title="アイコン画像を編集"
+          settings={AVATAR_EDIT_SETTINGS}
           initialEdit={pendingEdit.initialEdit}
           onConfirm={handleApply}
           onClose={() => setPendingEdit(null)}

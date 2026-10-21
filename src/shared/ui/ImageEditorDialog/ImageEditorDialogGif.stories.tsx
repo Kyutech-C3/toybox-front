@@ -19,14 +19,10 @@ import { findImageEditor } from "@/stories/imageEditorHelpers";
 import type { Meta, StoryObj } from "@storybook/react";
 
 type GifEditorExampleProps = {
-  purpose: "avatar" | "thumbnail";
   hasDisposalFrames: boolean;
 };
 
-const GifEditorExample = ({
-  purpose,
-  hasDisposalFrames,
-}: GifEditorExampleProps) => {
+const GifEditorExample = ({ hasDisposalFrames }: GifEditorExampleProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<File | null>(null);
   const [resultURL, setResultURL] = useState("");
@@ -45,7 +41,7 @@ const GifEditorExample = ({
       {file && (
         <ImageEditorDialog
           file={file}
-          purpose={purpose}
+          settings={{ aspect: 1, longSide: 256, cropShape: "round" }}
           onClose={() => setFile(null)}
           onConfirm={(edited) => {
             setResult(edited);
@@ -62,7 +58,7 @@ const GifEditorExample = ({
 const META = {
   title: "Shared/ImageEditorDialog/GIF",
   component: GifEditorExample,
-  args: { purpose: "thumbnail", hasDisposalFrames: false },
+  args: { hasDisposalFrames: false },
   decorators: [
     (Story) => (
       <ToastProvider>
@@ -91,7 +87,6 @@ const readResult = async (canvasElement: HTMLElement) => {
 
 export const AnimatedAvatarCropAndRotation: Story = {
   tags: ["test"],
-  args: { purpose: "avatar" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const dialog = await openEditor(canvasElement);
@@ -159,9 +154,9 @@ export const TransparencyAndDisposal: Story = {
     for (const sample of [
       { frame: 1, x: 20, y: 20, color: palette[1] },
       { frame: 2, x: 60, y: 45, color: palette[0] },
-      { frame: 3, x: 10, y: 10, color: palette[0] },
+      { frame: 3, x: 60, y: 45, color: palette[0] },
     ]) {
-      const offset = (sample.y * 160 + sample.x) * 4;
+      const offset = (sample.y * 120 + sample.x) * 4;
       sample.color.forEach((channel, index) => {
         expect(
           Math.abs(frames[sample.frame].patch[offset + index] - channel),
@@ -169,13 +164,12 @@ export const TransparencyAndDisposal: Story = {
       });
       await expect(frames[sample.frame].patch[offset + 3]).toBe(255);
     }
-    await expect(frames[3].patch[(20 * 160 + 30) * 4 + 3]).toBe(0);
+    await expect(frames[3].patch[(20 * 120 + 10) * 4 + 3]).toBe(0);
   },
 };
 
 export const OutsideImageBounds: Story = {
   tags: ["test"],
-  args: { purpose: "avatar" },
   play: async ({ canvasElement }) => {
     const dialog = await openEditor(canvasElement);
     const cropper = dialog.getByRole("group", { name: "画像の切り抜き位置" });

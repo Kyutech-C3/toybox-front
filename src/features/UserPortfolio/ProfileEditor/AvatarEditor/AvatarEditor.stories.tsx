@@ -45,6 +45,11 @@ export const LocalPreview: Story = {
     const source = await createImageFixture(1600, 1200);
     await userEvent.upload(input, source);
     let dialog = await findImageEditor(canvasElement);
+    await expect(
+      within(canvasElement.ownerDocument.body).getByRole("dialog", {
+        name: "アイコン画像を編集",
+      }),
+    ).toBeVisible();
     await userEvent.click(dialog.getByRole("button", { name: "キャンセル" }));
     await expect(
       canvas.queryByRole("button", { name: "アイコン画像を編集" }),

@@ -13,11 +13,7 @@ import Button from "@/shared/ui/Button";
 import LoadingSpinner from "@/shared/ui/LoadingSpinner";
 import useToast from "@/shared/ui/Toast/hook/useToast";
 import { createEditedGif, isGifFile } from "@/util/createEditedGif";
-import {
-  createEditedImage,
-  getImageOutputSize,
-  IMAGE_EDIT_SETTINGS,
-} from "@/util/imageProcessing";
+import { createEditedImage, getImageOutputSize } from "@/util/imageProcessing";
 
 import type { KeyboardEvent } from "react";
 import type { MediaSize, Point, Size } from "react-easy-crop";
@@ -28,9 +24,16 @@ export type ImageEditState = {
   rotation?: number;
 };
 
+export type ImageEditSettings = {
+  aspect: number;
+  longSide: number;
+  cropShape: "rect" | "round";
+};
+
 type ImageEditorDialogProps = {
   file: File;
-  purpose: "avatar" | "thumbnail";
+  title?: string;
+  settings: ImageEditSettings;
   initialEdit?: ImageEditState;
   onConfirm: (file: File, edit: ImageEditState) => void;
   onClose: () => void;
@@ -42,7 +45,8 @@ type ImageSaveFormat = "still" | "gif";
 
 const ImageEditorDialog = ({
   file,
-  purpose,
+  title = "画像を編集",
+  settings,
   initialEdit,
   onConfirm,
   onClose,
@@ -78,7 +82,6 @@ const ImageEditorDialog = ({
   const [cropVersion, setCropVersion] = useState(0);
   const [area, setArea] = useState<ImageCropArea | null>(null);
   const [percentages, setPercentages] = useState<ImageCropArea | null>(null);
-  const settings = IMAGE_EDIT_SETTINGS[purpose];
   const hasCropper = image !== null && cropSize !== null;
   const outputSize = area
     ? getImageOutputSize({
@@ -335,9 +338,7 @@ const ImageEditorDialog = ({
       }}
     >
       <header className={styles["header"]}>
-        <h2 id={titleID}>
-          {purpose === "avatar" ? "アイコン画像を編集" : "サムネイル画像を編集"}
-        </h2>
+        <h2 id={titleID}>{title}</h2>
         <output className={styles["output-size"]} aria-label="出力サイズ">
           {outputSize
             ? `${outputSize.width} × ${outputSize.height}px`

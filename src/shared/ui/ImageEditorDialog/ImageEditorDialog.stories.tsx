@@ -14,19 +14,19 @@ import Button from "@/shared/ui/Button";
 import ToastProvider from "@/shared/ui/Toast/ToastProvider";
 import { findImageEditor } from "@/stories/imageEditorHelpers";
 import { createImageFixture } from "@/stories/imageFixture";
-import { IMAGE_EDIT_SETTINGS } from "@/util/imageProcessing";
 
 import type { Meta, StoryObj } from "@storybook/react";
+import type { ImageEditSettings } from "./index";
 
 type ImageEditorExampleProps = {
-  purpose: "avatar" | "thumbnail";
+  settings: ImageEditSettings;
   width: number;
   height: number;
   isInvalid?: boolean;
 };
 
 const ImageEditorExample = ({
-  purpose,
+  settings,
   width,
   height,
   isInvalid = false,
@@ -58,7 +58,7 @@ const ImageEditorExample = ({
       {file && (
         <ImageEditorDialog
           file={file}
-          purpose={purpose}
+          settings={settings}
           onClose={() => setFile(null)}
           onConfirm={async (edited) => {
             setFile(null);
@@ -73,10 +73,16 @@ const ImageEditorExample = ({
   );
 };
 
+const DEFAULT_SETTINGS = {
+  aspect: 1,
+  longSide: 256,
+  cropShape: "round",
+} satisfies ImageEditSettings;
+
 const META = {
   title: "Shared/ImageEditorDialog",
   component: ImageEditorExample,
-  args: { purpose: "thumbnail", width: 1600, height: 1200 },
+  args: { settings: DEFAULT_SETTINGS, width: 1600, height: 1200 },
   decorators: [
     (Story) => (
       <ToastProvider>
@@ -88,9 +94,6 @@ const META = {
 export default META;
 type Story = StoryObj<typeof META>;
 
-const THUMBNAIL_WIDTH = Math.min(1600, IMAGE_EDIT_SETTINGS.thumbnail.longSide);
-const THUMBNAIL_SIZE = `${THUMBNAIL_WIDTH} × ${(THUMBNAIL_WIDTH * 3) / 4}px`;
-
 const openEditor = async (canvasElement: HTMLElement) => {
   await userEvent.click(
     within(canvasElement).getByRole("button", { name: "画像を編集" }),
@@ -98,8 +101,9 @@ const openEditor = async (canvasElement: HTMLElement) => {
   return findImageEditor(canvasElement);
 };
 
-export const Thumbnail: Story = {
+export const CustomSettings: Story = {
   tags: ["test"],
+  args: { settings: { aspect: 16 / 9, longSide: 640, cropShape: "rect" } },
   decorators: [
     (Story) => (
       <StrictMode>
@@ -130,7 +134,7 @@ export const Thumbnail: Story = {
       await waitFor(() =>
         expect(
           within(canvasElement).getByLabelText("加工結果"),
-        ).toHaveTextContent(`${THUMBNAIL_SIZE} / image/webp`),
+        ).toHaveTextContent("640 × 360px / image/webp"),
       );
       const reopenedDialog = await openEditor(canvasElement);
       await userEvent.click(
@@ -153,21 +157,21 @@ export const LowResolution: Story = {
     });
     await waitFor(() =>
       expect(dialog.getByLabelText("出力サイズ")).toHaveTextContent(
-        "160 × 120px",
+        "120 × 120px",
       ),
     );
     await userEvent.click(dialog.getByRole("button", { name: "保存" }));
     await waitFor(() =>
       expect(
         within(canvasElement).getByLabelText("加工結果"),
-      ).toHaveTextContent("160 × 120px / image/webp"),
+      ).toHaveTextContent("120 × 120px / image/webp"),
     );
   },
 };
 
 export const OutsideImageBounds: Story = {
   tags: ["test"],
-  args: { purpose: "avatar", width: 160, height: 120 },
+  args: { width: 160, height: 120 },
   play: async ({ canvasElement }) => {
     const dialog = await openEditor(canvasElement);
     const cropper = dialog.getByRole("group", { name: "画像の切り抜き位置" });
@@ -209,7 +213,6 @@ export const OutsideImageBounds: Story = {
 
 export const Avatar: Story = {
   tags: ["test"],
-  args: { purpose: "avatar" },
   play: async ({ canvasElement }) => {
     const dialog = await openEditor(canvasElement);
     const slider = dialog.getByRole("slider", { name: "ズーム" });
@@ -227,7 +230,7 @@ export const Avatar: Story = {
     await waitFor(() => expect(slider).toHaveValue("10"));
     await fireEvent.wheel(cropper, { ...pointer, deltaY: 10000 });
     await waitFor(() => expect(slider).toHaveValue("1"));
-    const maxSize = IMAGE_EDIT_SETTINGS.avatar.longSide;
+    const maxSize = DEFAULT_SETTINGS.longSide;
     // 561pxの切り抜き範囲から上限サイズに縮小するときの浮動小数誤差も確認する。
     for (const { zoom, size } of [
       { zoom: "2.14", size: `${maxSize} × ${maxSize}px` },
@@ -258,7 +261,7 @@ export const Avatar: Story = {
       expect(
         within(canvasElement).getByLabelText("加工結果"),
       ).toHaveTextContent(
-        `${IMAGE_EDIT_SETTINGS.avatar.longSide} × ${IMAGE_EDIT_SETTINGS.avatar.longSide}px / image/webp`,
+        `${DEFAULT_SETTINGS.longSide} × ${DEFAULT_SETTINGS.longSide}px / image/webp`,
       ),
     );
   },
