@@ -70,7 +70,7 @@ const AppLayoutPreview = ({ children }: AppLayoutPreviewProps) => {
   const [router] = useState<DataRouter>(() => {
     const router = createMemoryRouter([
       {
-        Component: () => <ToastProvider>{children}</ToastProvider>,
+        element: <ToastProvider>{children}</ToastProvider>,
         children: [
           {
             path: "/",
