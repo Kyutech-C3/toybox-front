@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: dockerfile
+      pull: true
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
     ports:

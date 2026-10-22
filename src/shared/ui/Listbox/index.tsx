@@ -73,7 +73,7 @@ const Listbox = <T,>({
       return;
     }
 
-    focusOption(selectedIndex >= 0 ? selectedIndex : 0);
+    focusOption(Math.max(selectedIndex, 0));
   }, [focusOption, isOpen, options.length, selectedIndex, triggerRef]);
 
   useEffect(() => {
