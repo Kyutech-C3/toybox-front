@@ -47,13 +47,6 @@ const WorkIndex = () => {
   });
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
-  const canonicalParams = new URLSearchParams({
-    tags: normalizedTags,
-    sort: sortOrder,
-  });
-  if (accessToken && visibility) {
-    canonicalParams.set("visibility", visibility);
-  }
 
   useEffect(() => {
     const nextPage = Math.min(currentPage, Math.max(totalPages, 1));
@@ -137,7 +130,7 @@ const WorkIndex = () => {
     <>
       <PageMetadata
         title="作品一覧"
-        canonicalUrl={getCanonicalUrl("/", canonicalParams)}
+        canonicalUrl={getCanonicalUrl("/")}
         isNoIndex={currentPage > 1}
       />
       <div className={styles["work-index-header"]}>
