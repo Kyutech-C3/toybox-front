@@ -660,33 +660,35 @@ sample@example.com
 
 ### 動画
 
-<video controls title="花の動画">
-  <source src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" type="video/mp4">
-</video>
+<video controls src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" title="花の動画"></video>
 
 ```html
-<video controls title="花の動画">
-  <source src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" type="video/mp4">
-</video>
+<video controls src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" title="花の動画"></video>
 ```
+
+### サムネイル画像付きの動画
+
+<video controls src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" poster="https://placehold.co/600x338/png?text=Video+Sample" title="サムネイル画像付きの動画"></video>
+
+```html
+<video controls src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" poster="https://placehold.co/600x338/png?text=Video+Sample" title="サムネイル画像付きの動画"></video>
+```
+
+`poster` には再生前に表示する画像のURLを指定します。この例ではサンプル画像を使っています。自分の動画では、サムネイルとして使いたい画像のURLに置き換えてください。
 
 ### 音声・音楽
 
-<audio controls title="T-Rexの鳴き声">
-  <source src="https://developer.mozilla.org/shared-assets/audio/t-rex-roar.mp3" type="audio/mpeg">
-</audio>
+<audio controls src="https://developer.mozilla.org/shared-assets/audio/t-rex-roar.mp3" title="T-Rexの鳴き声"></audio>
 
 ```html
-<audio controls title="T-Rexの鳴き声">
-  <source src="https://developer.mozilla.org/shared-assets/audio/t-rex-roar.mp3" type="audio/mpeg">
-</audio>
+<audio controls src="https://developer.mozilla.org/shared-assets/audio/t-rex-roar.mp3" title="T-Rexの鳴き声"></audio>
 ```
 
 サンプルは MDN の花の動画と T-Rex の鳴き声です。自分のファイルは、編集画面でアセットをアップロードし、説明欄の一覧から選んで「挿入」できます。説明欄のツールバーから画像・動画・音声を選んでアップロードすることもできます。外部ファイルを載せる場合は `src` をそのファイルのURLに置き換えます。
 
 出典：[MDN の動画サンプル](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)、[音声サンプル](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/audio)。元サンプルは [CC0](https://github.com/mdn/interactive-examples/blob/main/LICENSE) で公開されています。
 
-`<video src="…">` / `<audio src="…">` の直接指定も使えます。動画の静止画は `poster="画像のURL"`、字幕は `<track kind="captions" src="字幕.vtt" srclang="ja" label="日本語">` で指定できます。
+編集画面の挿入ボタンも、上記と同じ `src` の直接指定を使います。複数形式の候補を指定する場合は、`<video>` / `<audio>` の中に `<source src="…" type="…">` を並べる書き方も使えます。動画の静止画は `poster="画像のURL"`、字幕は `<track kind="captions" src="字幕.vtt" srclang="ja" label="日本語">` で指定できます。
 
 プレーヤーには常に再生操作が付き、自動再生はしません。事前読み込みを抑え、再生時に読み込む設定です。再生できる形式は利用するブラウザに依存します。
 
