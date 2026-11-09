@@ -140,6 +140,29 @@ export const CodeFilesAndCopy: Story = {
   },
 };
 
+export const MathRendering: Story = {
+  tags: ["test"],
+  args: {
+    content: "$E = mc^2$\n\n$$ E = mc^2 $$。\n\n$$\nE = mc^2\n$$",
+  },
+  play: async ({ canvasElement }) => {
+    const formulas = canvasElement.querySelectorAll(".katex-html");
+    await expect(formulas).toHaveLength(3);
+    for (const formula of formulas) {
+      const leaves = [...formula.querySelectorAll("span")].filter(
+        (element) => element.childElementCount === 0,
+      );
+      const base = leaves.find((element) => element.textContent === "c");
+      const exponent = leaves.find((element) => element.textContent === "2");
+      if (!base || !exponent) throw new Error("数式の底または指数がありません");
+      // 描画エンジンとCSSの不一致で指数が本文サイズになる回帰を検出する。
+      await expect(
+        Number.parseFloat(getComputedStyle(exponent).fontSize),
+      ).toBeLessThan(Number.parseFloat(getComputedStyle(base).fontSize));
+    }
+  },
+};
+
 export const MediaPlayback: Story = {
   tags: ["test"],
   args: {
