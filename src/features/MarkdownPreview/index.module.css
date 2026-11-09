@@ -126,6 +126,18 @@
     color: var(--font-muted-color);
   }
 
+  /* Media */
+  video,
+  audio {
+    display: block;
+    max-width: 100%;
+    margin-block: 1rem;
+  }
+
+  video {
+    height: auto;
+  }
+
   /* Horizontal Rule */
   hr {
     margin: 2rem 0;

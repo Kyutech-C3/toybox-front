@@ -208,6 +208,26 @@ H<sub>2</sub>O
 2<sup>10</sup>
 ```
 
+### 文字色と文字サイズ
+
+<span style="color: firebrick;">赤い文字</span>、<span style="color: #663399;">色コードで指定した文字</span>。
+
+<span style="font-size: 24px;">大きい文字</span>、<span style="font-size: 120%;">120%の文字</span>。
+
+<span style="color: darkslateblue; font-size: 1.5em;">色とサイズを組み合わせた文字</span>。
+
+```html
+<span style="color: firebrick;">赤い文字</span>
+<span style="color: #663399;">色コードで指定した文字</span>
+<span style="font-size: 24px;">大きい文字</span>
+<span style="font-size: 120%;">120%の文字</span>
+<span style="color: darkslateblue; font-size: 1.5em;">色とサイズを組み合わせた文字</span>
+```
+
+`span` の `style` では `color` と `font-size` だけを使えます。色は色名、16進数、`rgb()` / `rgba()`、`hsl()` / `hsla()` に対応しています。
+
+文字サイズは `px`・`%`・`em`・`rem` を指定でき、8〜32px の範囲に収まります。`100%`・`1em`・`1rem` は16pxとして換算し、入れ子でも32pxを超えません。その他のCSSは除去されます。色を指定するときは、ライト・ダーク両方のテーマで読みやすいか確認してください。
+
 ## インラインコード
 
 コマンドは `npm run build` です。
@@ -635,6 +655,40 @@ sample@example.com
 ```
 
 幅は 1〜2000px の整数を指定できます。併用すると `style` の幅を優先します。表示枠より広い画像は縮みます。`style` は `width:数値px` のみ使えます。
+
+## 動画と音声
+
+### 動画
+
+<video controls title="花の動画">
+  <source src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" type="video/mp4">
+</video>
+
+```html
+<video controls title="花の動画">
+  <source src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" type="video/mp4">
+</video>
+```
+
+### 音声・音楽
+
+<audio controls title="T-Rexの鳴き声">
+  <source src="https://developer.mozilla.org/shared-assets/audio/t-rex-roar.mp3" type="audio/mpeg">
+</audio>
+
+```html
+<audio controls title="T-Rexの鳴き声">
+  <source src="https://developer.mozilla.org/shared-assets/audio/t-rex-roar.mp3" type="audio/mpeg">
+</audio>
+```
+
+サンプルは MDN の花の動画と T-Rex の鳴き声です。自分のファイルを載せる場合は `src` をそのファイルのURLに置き換えます。
+
+出典：[MDN の動画サンプル](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)、[音声サンプル](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/audio)。元サンプルは [CC0](https://github.com/mdn/interactive-examples/blob/main/LICENSE) で公開されています。
+
+`<video src="…">` / `<audio src="…">` の直接指定も使えます。動画の静止画は `poster="画像のURL"`、字幕は `<track kind="captions" src="字幕.vtt" srclang="ja" label="日本語">` で指定できます。
+
+プレーヤーには常に再生操作が付き、自動再生はしません。事前読み込みを抑え、再生時に読み込む設定です。再生できる形式は利用するブラウザに依存します。
 
 ## コードブロック
 
@@ -1262,7 +1316,7 @@ HTML コメントは表示されません。入力した原文には残ります
 
 ## 収録項目
 
-見出し、段落、改行、文字装飾、インラインコード、引用、リスト、タスク、リンク、画像、コードブロック、表、水平線、脚注、折りたたみ、アラート、数式、エスケープ、文字参照、絵文字、コメントを収録しています。
+見出し、段落、改行、文字装飾、インラインコード、引用、リスト、タスク、リンク、画像、動画・音声、コードブロック、表、水平線、脚注、折りたたみ、アラート、数式、エスケープ、文字参照、絵文字、コメントを収録しています。
 
 ## 未対応記法と安全性の表示テスト
 
@@ -1308,22 +1362,19 @@ https://qiita.com/Qiita/items/c686397e4a0f4f11683d
 
 Zenn のカード指定も埋め込みにはなりません：@[card](https://example.com)。リンクの表示名を指定する場合は [Example Domain](https://example.com) と書きます。
 
-### 未対応：文字色と旧式の HTML
+### 未対応：旧式の HTML と自由なレイアウト
 
 `<font>` は旧式の HTML です。色の指定は反映されず、文字だけが残ります：**<font color="#B2C42D">抹茶</font>**。
 
-`<span style="color:...">` などの任意の CSS も使えません：<span style="color:#B2C42D">色を指定した文字</span>。
+`span` の文字色・文字サイズは使えますが、自由なレイアウトや任意のCSSは使えません。次の文字は残り、配置・背景の指定は除去されます：<span style="position:fixed; background:red;">装飾を制限した文字</span>。
 
 キーボード風の `<kbd>`、ルビの `<ruby>` も専用の見た目にはなりません：<kbd>Ctrl</kbd>、<ruby>抹茶<rt>まっちゃ</rt></ruby>。
 
 ハイライトを付ける場合は `<mark>` を使います。`==この記法==` は変換されません：==この記法はそのまま==。
 
-### 未対応：HTML のメディアと埋め込み
+### 未対応：埋め込みとフォーム
 
-`<video>`、`<audio>`、`<iframe>`、フォームは作品説明のプレーヤーや入力欄として使えません。動画・音声ファイルは作品のアセットとして登録してください。
-
-<video controls src="https://example.com/movie.mp4">動画の代替文字</video>
-<audio controls src="https://example.com/sound.mp3">音声の代替文字</audio>
+動画・音声は上記のプレーヤーで再生できます。`<iframe>` による外部サイトの埋め込みやフォームは使えません。
 
 ### 未対応：他の Markdown 方言
 
@@ -1347,7 +1398,7 @@ MDX のコンポーネント、画像サイズを URL の末尾に書く方言�
 
 ### 安全性：危険な入力の確認
 
-以下は安全性を確認するための入力です。スクリプト、埋め込み、SVG は表示されず、イベント属性、CSS、危険な URL は使えない状態になる想定です。この段落の文字は残ります。
+以下は安全性を確認するための入力です。スクリプト、埋め込み、SVG は表示されず、イベント属性、許可範囲外のCSS、危険な URL は使えない状態になる想定です。この段落の文字は残ります。
 
 <script>window.__toyboxMarkdownSampleExecuted = true</script>
 <iframe src="https://example.com" onload="window.__toyboxMarkdownSampleExecuted = true"></iframe>
