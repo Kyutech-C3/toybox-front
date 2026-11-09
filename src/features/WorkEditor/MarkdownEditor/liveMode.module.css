@@ -34,7 +34,7 @@
 .live-preview-content {
   box-sizing: border-box;
   flex: 1;
-  padding: var(--paper-padding);
+  padding: var(--space-16);
 }
 
 .live-preview-content > * {
@@ -49,6 +49,13 @@
   top: var(--space-8);
   right: var(--space-16);
   box-shadow: 0 2px 8px var(--shadow-soft-color);
+}
+
+@media (min-width: 600px) {
+  .live-preview-content {
+    /* 見出しリンクの幅・間隔と、フォーカス枠の分だけ確保する。 */
+    padding-left: calc(1.5rem + 0.125rem + 5px);
+  }
 }
 
 @media (max-width: 599px) {
