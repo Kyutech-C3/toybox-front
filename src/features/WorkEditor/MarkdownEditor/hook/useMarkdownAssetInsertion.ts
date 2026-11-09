@@ -1,5 +1,13 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import {
+  cloneElement,
+  createElement,
+  isValidElement,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { flushSync } from "react-dom";
+import PermMediaRoundedIcon from "@mui/icons-material/PermMediaRounded";
 
 import { getExtension } from "../../editorAsset";
 import {
@@ -7,9 +15,9 @@ import {
   useWorkEditorStoreApi,
 } from "../../store/useWorkEditorStore";
 import useAssetUpload, {
-  IMAGE_ASSET_ACCEPT,
+  MEDIA_ASSET_ACCEPT,
 } from "../../WorkDetailForm/hook/useAssetUpload";
-import { getAssetImageMarkdown } from "../MarkdownImagePicker";
+import { getAssetMarkdown } from "../MarkdownAssetPicker";
 
 import { getPageScroller } from "@/util/pageScroll";
 
@@ -31,7 +39,7 @@ const CLIPBOARD_IMAGE_EXTENSIONS: Record<string, string[]> = {
   "image/webp": [".webp"],
 };
 
-type ImageInsertionSelection = {
+type AssetInsertionSelection = {
   textarea: HTMLTextAreaElement;
   start: number;
   end: number;
@@ -49,30 +57,34 @@ type PendingInsertion = {
   textareaScrollTop: number | null;
 };
 
-type UseMarkdownImageInsertionParams = {
+type UseMarkdownAssetInsertionParams = {
   editorRef: RefObject<HTMLDivElement | null>;
   sourceRef: RefObject<HTMLDivElement | null>;
   previewRef: RefObject<HTMLDivElement | null>;
 };
 
-type UseMarkdownImageInsertionReturn = {
+type UseMarkdownAssetInsertionReturn = {
   fileInputRef: RefObject<HTMLInputElement | null>;
-  images: EditorAsset[];
-  selectedImage: EditorAsset | undefined;
-  setSelectedImageKey: (key: string) => void;
-  imageInsertNotice: string;
-  clearImageInsertNotice: () => void;
+  insertableAssets: EditorAsset[];
+  selectedAsset: EditorAsset | undefined;
+  setSelectedAssetKey: (key: string) => void;
+  assetInsertNotice: string;
+  clearAssetInsertNotice: () => void;
   handleTextSelection: (event: SyntheticEvent<HTMLTextAreaElement>) => void;
-  handleInsertImage: (markdown: string) => boolean;
-  handleImageFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  handleInsertAsset: (markdown: string) => boolean;
+  handleMediaFileChange: (event: ChangeEvent<HTMLInputElement>) => void;
   handleImagePaste: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
-  handleImageDragOver: (event: DragEvent<HTMLTextAreaElement>) => void;
-  handleImageDrop: (event: DragEvent<HTMLTextAreaElement>) => void;
+  handleMediaDragOver: (event: DragEvent<HTMLTextAreaElement>) => void;
+  handleMediaDrop: (event: DragEvent<HTMLTextAreaElement>) => void;
   handleCommandFilter: (command: ICommand, isExtra: boolean) => ICommand;
 };
 
-const isInsertableImage = (asset: EditorAsset) => {
-  if (asset.kind !== "画像" || asset.status !== "success" || !asset.assetURL)
+const isInsertableAsset = (asset: EditorAsset) => {
+  if (
+    !["画像", "動画", "音声"].includes(asset.kind) ||
+    asset.status !== "success" ||
+    !asset.assetURL
+  )
     return false;
   try {
     const protocol = new URL(asset.assetURL).protocol;
@@ -82,24 +94,25 @@ const isInsertableImage = (asset: EditorAsset) => {
   }
 };
 
-const useMarkdownImageInsertion = ({
+const useMarkdownAssetInsertion = ({
   editorRef,
   sourceRef,
   previewRef,
-}: UseMarkdownImageInsertionParams): UseMarkdownImageInsertionReturn => {
+}: UseMarkdownAssetInsertionParams): UseMarkdownAssetInsertionReturn => {
   const assets = useWorkEditorStore((state) => state.current.assets);
   const setDescription = useWorkEditorStore((state) => state.setDescription);
   const editorStore = useWorkEditorStoreApi();
-  const { handleAddImageFile } = useAssetUpload();
-  const [selectedImageKey, setSelectedImageKey] = useState("");
-  const [imageInsertNotice, setImageInsertNotice] = useState("");
+  const { handleAddMediaFile } = useAssetUpload();
+  const [selectedAssetKey, setSelectedAssetKey] = useState("");
+  const [assetInsertNotice, setAssetInsertNotice] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadSelectionRef = useRef<ImageInsertionSelection | null>(null);
+  const uploadSelectionRef = useRef<AssetInsertionSelection | null>(null);
   const pendingInsertionRef = useRef<PendingInsertion | null>(null);
-  const images = assets.filter(isInsertableImage);
-  const selectedImage =
-    images.find((asset) => asset.key === selectedImageKey) ?? images[0];
+  const insertableAssets = assets.filter(isInsertableAsset);
+  const selectedAsset =
+    insertableAssets.find((asset) => asset.key === selectedAssetKey) ??
+    insertableAssets[0];
 
   useLayoutEffect(() => {
     const pending = pendingInsertionRef.current;
@@ -128,9 +141,9 @@ const useMarkdownImageInsertion = ({
     textareaRef.current = event.currentTarget;
   };
 
-  const insertImage = (
+  const insertMarkdown = (
     markdown: string,
-    savedSelection?: ImageInsertionSelection,
+    savedSelection?: AssetInsertionSelection,
   ) => {
     const hasActiveTextarea = textareaRef.current?.isConnected ?? false;
     const textarea = savedSelection?.textarea?.isConnected
@@ -150,7 +163,25 @@ const useMarkdownImageInsertion = ({
         : { start: currentDescription.length, end: currentDescription.length };
     const start = Math.min(selection.start, currentDescription.length);
     const end = Math.min(selection.end, currentDescription.length);
-    const nextCaretPosition = start + markdown.length;
+    let insertion = markdown;
+    if (/<(?:video|audio)\b/.test(markdown)) {
+      const before = currentDescription.slice(0, start);
+      const after = currentDescription.slice(end);
+      const prefix =
+        !before || before.endsWith("\n\n")
+          ? ""
+          : before.endsWith("\n")
+            ? "\n"
+            : "\n\n";
+      const suffix =
+        !after || after.startsWith("\n\n")
+          ? ""
+          : after.startsWith("\n")
+            ? "\n"
+            : "\n\n";
+      insertion = `${prefix}${markdown}${suffix}`;
+    }
+    const nextCaretPosition = start + insertion.length;
     pendingInsertionRef.current = {
       selectionStart: nextCaretPosition,
       selectionEnd: nextCaretPosition,
@@ -164,64 +195,64 @@ const useMarkdownImageInsertion = ({
     textarea.setSelectionRange(start, end);
     let didInsert = false;
     try {
-      didInsert = document.execCommand("insertText", false, markdown);
+      didInsert = document.execCommand("insertText", false, insertion);
     } catch {
       // 入力コマンドを使えない環境でも挿入は続ける
     }
-    if (!didInsert) textarea.setRangeText(markdown, start, end, "end");
+    if (!didInsert) textarea.setRangeText(insertion, start, end, "end");
     flushSync(() => setDescription(textarea.value));
     textareaRef.current = textarea;
     return textarea.value !== previousValue;
   };
 
-  const insertImageRef = useRef(insertImage);
-  insertImageRef.current = insertImage;
-  const captureImageSelection = (textarea: HTMLTextAreaElement) => ({
+  const insertMarkdownRef = useRef(insertMarkdown);
+  insertMarkdownRef.current = insertMarkdown;
+  const captureAssetSelection = (textarea: HTMLTextAreaElement) => ({
     textarea,
     start: textarea.selectionStart,
     end: textarea.selectionEnd,
     description: editorStore.getState().current.description,
     sessionVersion: editorStore.getState().sessionVersion,
   });
-  const handleOpenImagePicker = () => {
+  const handleOpenAssetPicker = () => {
     const textarea = editorRef.current?.querySelector<HTMLTextAreaElement>(
       ".w-md-editor-text-input",
     );
     if (!textarea) return;
-    setImageInsertNotice("");
-    uploadSelectionRef.current = captureImageSelection(textarea);
+    setAssetInsertNotice("");
+    uploadSelectionRef.current = captureAssetSelection(textarea);
     fileInputRef.current?.click();
   };
-  const openImagePickerRef = useRef(handleOpenImagePicker);
-  openImagePickerRef.current = handleOpenImagePicker;
-  const uploadAndInsertImages = async (
+  const openAssetPickerRef = useRef(handleOpenAssetPicker);
+  openAssetPickerRef.current = handleOpenAssetPicker;
+  const uploadAndInsertAssets = async (
     files: File[],
-    selection: ImageInsertionSelection,
+    selection: AssetInsertionSelection,
   ) => {
     if (files.length === 0) return;
     if (selection.sessionVersion !== editorStore.getState().sessionVersion)
       return;
-    setImageInsertNotice("");
-    const uploaded = await Promise.all(files.map(handleAddImageFile));
+    setAssetInsertNotice("");
+    const uploaded = await Promise.all(files.map(handleAddMediaFile));
     if (selection.sessionVersion !== editorStore.getState().sessionVersion)
       return;
-    const images = uploaded.filter((asset): asset is EditorAsset =>
+    const uploadedAssets = uploaded.filter((asset): asset is EditorAsset =>
       Boolean(asset?.assetURL),
     );
-    if (images.length === 0) return;
-    setSelectedImageKey(images[images.length - 1].key);
-    const markdown = images.map(getAssetImageMarkdown).join("\n");
+    if (uploadedAssets.length === 0) return;
+    setSelectedAssetKey(uploadedAssets[uploadedAssets.length - 1].key);
+    const markdown = uploadedAssets.map(getAssetMarkdown).join("\n\n");
     const isDescriptionUnchanged =
       editorStore.getState().current.description === selection.description;
-    insertImage(markdown, isDescriptionUnchanged ? selection : undefined);
+    insertMarkdown(markdown, isDescriptionUnchanged ? selection : undefined);
   };
-  const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleMediaFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.currentTarget.files ?? []);
     event.currentTarget.value = "";
     const selection = uploadSelectionRef.current;
     uploadSelectionRef.current = null;
     if (selection)
-      queueMicrotask(() => uploadAndInsertImages(files, selection));
+      queueMicrotask(() => uploadAndInsertAssets(files, selection));
   };
   const handleImagePaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
     const clipboard = event.clipboardData;
@@ -255,14 +286,14 @@ const useMarkdownImageInsertion = ({
         { type: image.type },
       );
     });
-    const selection = captureImageSelection(event.currentTarget);
-    queueMicrotask(() => uploadAndInsertImages(files, selection));
+    const selection = captureAssetSelection(event.currentTarget);
+    queueMicrotask(() => uploadAndInsertAssets(files, selection));
   };
-  const handleImageDragOver = (event: DragEvent<HTMLTextAreaElement>) => {
+  const handleMediaDragOver = (event: DragEvent<HTMLTextAreaElement>) => {
     if (Array.from(event.dataTransfer.types).includes("Files"))
       event.preventDefault();
   };
-  const handleImageDrop = (event: DragEvent<HTMLTextAreaElement>) => {
+  const handleMediaDrop = (event: DragEvent<HTMLTextAreaElement>) => {
     if (
       !Array.from(event.dataTransfer.types).includes("Files") &&
       event.dataTransfer.files.length === 0
@@ -272,42 +303,50 @@ const useMarkdownImageInsertion = ({
     const files = Array.from(event.dataTransfer.files).filter(
       (file) =>
         file.type.startsWith("image/") ||
-        IMAGE_ASSET_ACCEPT.split(",").includes(getExtension(file.name)),
+        MEDIA_ASSET_ACCEPT.split(",").includes(getExtension(file.name)),
     );
-    const selection = captureImageSelection(event.currentTarget);
-    queueMicrotask(() => uploadAndInsertImages(files, selection));
+    const selection = captureAssetSelection(event.currentTarget);
+    queueMicrotask(() => uploadAndInsertAssets(files, selection));
   };
   const handleCommandFilter = (
     command: ICommand,
     isExtra: boolean,
   ): ICommand => {
-    if (isExtra || command.name !== "image") return command;
-    return {
+    // 操作名はボタンが持つため、ツールバーのアイコンは装飾として扱う。
+    const accessibleCommand = {
       ...command,
+      icon: isValidElement<{ "aria-hidden"?: boolean }>(command.icon)
+        ? cloneElement(command.icon, { "aria-hidden": true })
+        : command.icon,
+    };
+    if (isExtra || command.name !== "image") return accessibleCommand;
+    return {
+      ...accessibleCommand,
+      icon: createElement(PermMediaRoundedIcon, { "aria-hidden": true }),
       buttonProps: {
         ...command.buttonProps,
-        "aria-label": "画像を選んで挿入",
-        title: "画像を選んで挿入",
+        "aria-label": "画像・動画・音声を選んで挿入",
+        title: "画像・動画・音声を選んで挿入",
       },
-      execute: () => openImagePickerRef.current(),
+      execute: () => openAssetPickerRef.current(),
     };
   };
 
   return {
     fileInputRef,
-    images,
-    selectedImage,
-    setSelectedImageKey,
-    imageInsertNotice,
-    clearImageInsertNotice: () => setImageInsertNotice(""),
+    insertableAssets,
+    selectedAsset,
+    setSelectedAssetKey,
+    assetInsertNotice,
+    clearAssetInsertNotice: () => setAssetInsertNotice(""),
     handleTextSelection,
-    handleInsertImage: (markdown) => insertImage(markdown),
-    handleImageFileChange,
+    handleInsertAsset: (markdown) => insertMarkdown(markdown),
+    handleMediaFileChange,
     handleImagePaste,
-    handleImageDragOver,
-    handleImageDrop,
+    handleMediaDragOver,
+    handleMediaDrop,
     handleCommandFilter,
   };
 };
 
-export default useMarkdownImageInsertion;
+export default useMarkdownAssetInsertion;

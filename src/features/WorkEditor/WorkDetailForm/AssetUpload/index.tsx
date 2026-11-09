@@ -5,7 +5,7 @@ import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
 
 import { useWorkEditorStoreApi } from "../../store/useWorkEditorStore";
 import useAssetUpload, { ASSET_ACCEPT } from "../hook/useAssetUpload";
-import { getReferencedAssetURLs } from "../removeAssetImageMarkdown";
+import { getReferencedAssetURLs } from "../removeAssetMarkdown";
 import UploadCard from "../UploadCard";
 import styles from "./index.module.css";
 

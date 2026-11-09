@@ -1,8 +1,8 @@
-.image-picker {
+.asset-picker {
   min-width: 0;
 }
 
-.image-list {
+.asset-list {
   display: flex;
   gap: var(--space-8);
   overflow-x: auto;
@@ -10,19 +10,18 @@
   padding: 2px;
 }
 
-.image-item {
+.asset-item {
   position: relative;
   flex: 0 0 auto;
   width: 80px;
-  aspect-ratio: 4 / 3;
 }
 
-.image-button {
+.asset-button {
   box-sizing: border-box;
   display: grid;
   place-items: center;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 4 / 3;
   padding: 0;
   border: 2px solid transparent;
   border-radius: 8px;
@@ -33,31 +32,41 @@
   opacity: 0.6;
 }
 
-.image-button[data-active="true"],
-.image-button:hover {
+.asset-button[data-active="true"],
+.asset-button:hover {
   border-color: var(--primary-color);
   opacity: 1;
 }
 
-.image-button:focus-visible {
+.asset-button:focus-visible {
   outline: 2px solid var(--font-color);
 }
 
-.image-button > span {
+.asset-button > span {
   width: 100%;
   height: 100%;
 }
 
-.image-button img {
+.asset-button img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.image-copy-button {
+.asset-copy-button {
   position: absolute;
   top: 4px;
   right: 4px;
+}
+
+.asset-file-name {
+  display: block;
+  margin-top: var(--space-4);
+  overflow: hidden;
+  color: var(--font-muted-color);
+  font-size: 0.75rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .action-row {
@@ -66,10 +75,4 @@
   justify-content: flex-start;
   gap: var(--space-8);
   min-width: 0;
-}
-
-@media (max-width: 599px) {
-  .image-item {
-    width: 64px;
-  }
 }

@@ -19,15 +19,15 @@ import rehypeSanitize from "rehype-sanitize";
 import { useWorkEditorStore } from "../store/useWorkEditorStore";
 import ValidationMessage from "../ValidationMessage";
 import { validateWork } from "../validateWork";
-import { IMAGE_ASSET_ACCEPT } from "../WorkDetailForm/hook/useAssetUpload";
+import { MEDIA_ASSET_ACCEPT } from "../WorkDetailForm/hook/useAssetUpload";
 import EditorModeTabs, { getEditorTabID } from "./EditorModeTabs";
 import useLiveScrollSync from "./hook/useLiveScrollSync";
-import useMarkdownImageInsertion from "./hook/useMarkdownImageInsertion";
+import useMarkdownAssetInsertion from "./hook/useMarkdownAssetInsertion";
 import styles from "./index.module.css";
 import liveStyles from "./liveMode.module.css";
-import MarkdownImagePicker, {
-  MarkdownImageActions,
-} from "./MarkdownImagePicker";
+import MarkdownAssetPicker, {
+  MarkdownAssetActions,
+} from "./MarkdownAssetPicker";
 
 import CharacterCount from "@/shared/ui/CharacterCount";
 import inputStyles from "@/shared/ui/Input/index.module.css";
@@ -99,19 +99,19 @@ const MarkdownEditor = () => {
   });
   const {
     fileInputRef,
-    images,
-    selectedImage,
-    setSelectedImageKey,
-    imageInsertNotice,
-    clearImageInsertNotice,
+    insertableAssets,
+    selectedAsset,
+    setSelectedAssetKey,
+    assetInsertNotice,
+    clearAssetInsertNotice,
     handleTextSelection,
-    handleInsertImage,
-    handleImageFileChange,
+    handleInsertAsset,
+    handleMediaFileChange,
     handleImagePaste,
-    handleImageDragOver,
-    handleImageDrop,
+    handleMediaDragOver,
+    handleMediaDrop,
     handleCommandFilter,
-  } = useMarkdownImageInsertion({ editorRef, sourceRef, previewRef });
+  } = useMarkdownAssetInsertion({ editorRef, sourceRef, previewRef });
   const markdownLines = description.split("\n");
   const lineNumberWidth = Math.max(
     56,
@@ -179,20 +179,20 @@ const MarkdownEditor = () => {
     setMode(nextMode);
   };
 
-  const markdownImagePicker = selectedImage && (
-    <MarkdownImagePicker
-      images={images}
-      selectedKey={selectedImage.key}
-      onSelect={(asset) => setSelectedImageKey(asset.key)}
+  const markdownAssetPicker = selectedAsset && (
+    <MarkdownAssetPicker
+      assets={insertableAssets}
+      selectedKey={selectedAsset.key}
+      onSelect={(asset) => setSelectedAssetKey(asset.key)}
     />
   );
-  const markdownImageActions = selectedImage && (
-    <MarkdownImageActions
-      key={selectedImage.key}
-      selectedImage={selectedImage}
+  const markdownAssetActions = selectedAsset && (
+    <MarkdownAssetActions
+      key={selectedAsset.key}
+      selectedAsset={selectedAsset}
       onInsert={(markdown) => {
-        const didInsert = handleInsertImage(markdown);
-        if (didInsert) clearImageInsertNotice();
+        const didInsert = handleInsertAsset(markdown);
+        if (didInsert) clearAssetInsertNotice();
         return didInsert;
       }}
     />
@@ -203,11 +203,11 @@ const MarkdownEditor = () => {
       <input
         ref={fileInputRef}
         type="file"
-        accept={`${IMAGE_ASSET_ACCEPT},image/png,image/jpeg,image/bmp,image/gif,image/webp`}
+        accept={MEDIA_ASSET_ACCEPT}
         multiple
-        aria-label="説明に挿入する画像を選択"
+        aria-label="説明に挿入する画像・動画・音声を選択"
         hidden
-        onChange={handleImageFileChange}
+        onChange={handleMediaFileChange}
       />
       <MDEditor
         className={inputStyles["input-surface"]}
@@ -234,8 +234,8 @@ const MarkdownEditor = () => {
           onKeyUp: handleTextSelection,
           onClick: handleTextSelection,
           onPaste: handleImagePaste,
-          onDragOver: handleImageDragOver,
-          onDrop: handleImageDrop,
+          onDragOver: handleMediaDragOver,
+          onDrop: handleMediaDrop,
         }}
       />
     </CharacterCount>
@@ -306,7 +306,7 @@ const MarkdownEditor = () => {
               panelID={panelID}
               onChange={handleModeChange}
             />
-            {mode !== "preview" && markdownImageActions}
+            {mode !== "preview" && markdownAssetActions}
             {mode === "live" && (
               <Button
                 isIconOnly
@@ -320,10 +320,10 @@ const MarkdownEditor = () => {
               />
             )}
           </div>
-          {mode !== "preview" && markdownImagePicker}
-          {mode !== "preview" && imageInsertNotice && (
+          {mode !== "preview" && markdownAssetPicker}
+          {mode !== "preview" && assetInsertNotice && (
             <p className={styles["image-insert-notice"]} role="status">
-              {imageInsertNotice}
+              {assetInsertNotice}
             </p>
           )}
           <div

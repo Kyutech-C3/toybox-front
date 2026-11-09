@@ -107,6 +107,7 @@ const MarkdownImage = ({
       {...props}
       src={src}
       alt={alt}
+      loading="lazy"
       width={displayWidth}
       style={displayWidth ? { width: displayWidth } : undefined}
       isIntrinsic

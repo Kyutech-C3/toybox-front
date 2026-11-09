@@ -1,5 +1,7 @@
 import { defaultSchema } from "rehype-sanitize";
 
+import { MARKDOWN_TEXT_STYLE_PATTERN } from "./rehypeMarkdownStyles";
+
 import type { Options } from "rehype-sanitize";
 
 // Markdown/GFM の出力と折りたたみに必要な要素だけを許可する。
@@ -8,6 +10,7 @@ export const MARKDOWN_SCHEMA: Options = {
   ...defaultSchema,
   tagNames: [
     "a",
+    "audio",
     "blockquote",
     "br",
     "code",
@@ -29,6 +32,8 @@ export const MARKDOWN_SCHEMA: Options = {
     "p",
     "pre",
     "section",
+    "source",
+    "span",
     "strong",
     "summary",
     "sub",
@@ -39,11 +44,14 @@ export const MARKDOWN_SCHEMA: Options = {
     "th",
     "thead",
     "tr",
+    "track",
     "ul",
     "u",
+    "video",
   ],
   attributes: {
     a: defaultSchema.attributes?.a ?? [],
+    audio: ["src"],
     code: [
       ...(defaultSchema.attributes?.code ?? []),
       // remark-math の数式マーカーだけを通し、KaTeX の描画より前に入力を検査する。
@@ -61,10 +69,18 @@ export const MARKDOWN_SCHEMA: Options = {
     li: defaultSchema.attributes?.li ?? [],
     ol: ["start", ...(defaultSchema.attributes?.ol ?? [])],
     section: defaultSchema.attributes?.section ?? [],
+    source: ["src", "type"],
+    span: [["style", MARKDOWN_TEXT_STYLE_PATTERN]],
     td: ["align"],
     th: ["align"],
+    track: ["src", "kind", "srcLang", "label", "default"],
     ul: defaultSchema.attributes?.ul ?? [],
+    video: ["src", "poster"],
     "*": ["id", "title"],
+  },
+  protocols: {
+    ...defaultSchema.protocols,
+    poster: ["http", "https"],
   },
   strip: ["script", "style", "iframe", "object", "embed", "svg", "math"],
 };

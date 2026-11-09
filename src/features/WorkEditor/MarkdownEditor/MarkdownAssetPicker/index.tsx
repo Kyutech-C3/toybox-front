@@ -1,8 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import AddPhotoAlternateRoundedIcon from "@mui/icons-material/AddPhotoAlternateRounded";
+import AddRoundedIcon from "@mui/icons-material/AddRounded";
+import AudiotrackRoundedIcon from "@mui/icons-material/AudiotrackRounded";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import ContentCopyRoundedIcon from "@mui/icons-material/ContentCopyRounded";
 import ImageOutlinedIcon from "@mui/icons-material/ImageOutlined";
+import MovieOutlinedIcon from "@mui/icons-material/MovieOutlined";
 
 import styles from "./index.module.css";
 
@@ -12,14 +14,14 @@ import { copyTextToClipboard } from "@/util/copyTextToClipboard";
 
 import type { EditorAsset } from "../../types";
 
-type MarkdownImagePickerProps = {
-  images: EditorAsset[];
+type MarkdownAssetPickerProps = {
+  assets: EditorAsset[];
   selectedKey: string;
   onSelect: (asset: EditorAsset) => void;
 };
 
-type MarkdownImageActionsProps = {
-  selectedImage: EditorAsset;
+type MarkdownAssetActionsProps = {
+  selectedAsset: EditorAsset;
   onInsert: (markdown: string) => boolean;
 };
 
@@ -38,18 +40,31 @@ const getImageMarkdown = (altText: string, url: string) => {
 export const getAssetImageMarkdown = (asset: EditorAsset) =>
   getImageMarkdown(getDefaultAltText(asset.fileName), asset.assetURL ?? "");
 
-const MarkdownImagePicker = ({
-  images,
+const escapeHTMLAttribute = (value: string) =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+
+export const getAssetMarkdown = (asset: EditorAsset) => {
+  if (asset.kind === "画像") return getAssetImageMarkdown(asset);
+  const tag = asset.kind === "動画" ? "video" : "audio";
+  return `<${tag} controls src="${escapeHTMLAttribute(asset.assetURL ?? "")}" title="${escapeHTMLAttribute(getDefaultAltText(asset.fileName))}"></${tag}>`;
+};
+
+const MarkdownAssetPicker = ({
+  assets,
   selectedKey,
   onSelect,
-}: MarkdownImagePickerProps) => {
+}: MarkdownAssetPickerProps) => {
   const listRef = useRef<HTMLDivElement>(null);
   const activeButtonRef = useRef<HTMLButtonElement>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const copyResetTimerRef = useRef<number | null>(null);
-  const selectedImage =
-    images.find((asset) => asset.key === selectedKey) ?? images[0];
-  const activeImageKey = selectedImage?.key;
+  const selectedAsset =
+    assets.find((asset) => asset.key === selectedKey) ?? assets[0];
+  const activeAssetKey = selectedAsset?.key;
 
   useEffect(
     () => () => {
@@ -61,7 +76,7 @@ const MarkdownImagePicker = ({
   );
 
   const handleCopy = async (asset: EditorAsset) => {
-    if (!(await copyTextToClipboard(getAssetImageMarkdown(asset)))) return;
+    if (!(await copyTextToClipboard(getAssetMarkdown(asset)))) return;
     if (copyResetTimerRef.current !== null) {
       window.clearTimeout(copyResetTimerRef.current);
     }
@@ -75,7 +90,7 @@ const MarkdownImagePicker = ({
   useLayoutEffect(() => {
     const list = listRef.current;
     const button = activeButtonRef.current;
-    if (!list || !button || !activeImageKey) return;
+    if (!list || !button || !activeAssetKey) return;
     const listBounds = list.getBoundingClientRect();
     const buttonBounds = button.getBoundingClientRect();
     const nextLeft =
@@ -91,35 +106,45 @@ const MarkdownImagePicker = ({
       ),
       behavior: "instant",
     });
-  }, [activeImageKey]);
+  }, [activeAssetKey]);
 
-  if (!selectedImage?.assetURL) return null;
+  if (!selectedAsset?.assetURL) return null;
 
   return (
-    <section className={styles["image-picker"]} aria-label="説明に画像を入れる">
-      <div ref={listRef} className={styles["image-list"]}>
-        {images.map((asset) => (
-          <div key={asset.key} className={styles["image-item"]}>
+    <section
+      className={styles["asset-picker"]}
+      aria-label="説明に画像・動画・音声を入れる"
+    >
+      <div ref={listRef} className={styles["asset-list"]}>
+        {assets.map((asset) => (
+          <div key={asset.key} className={styles["asset-item"]}>
             <button
               ref={
-                selectedImage.key === asset.key ? activeButtonRef : undefined
+                selectedAsset.key === asset.key ? activeButtonRef : undefined
               }
               type="button"
-              className={styles["image-button"]}
-              data-active={selectedImage.key === asset.key}
-              aria-pressed={selectedImage.key === asset.key}
+              className={styles["asset-button"]}
+              data-active={selectedAsset.key === asset.key}
+              aria-pressed={selectedAsset.key === asset.key}
               aria-label={`${asset.fileName}を選択`}
-              title={asset.fileName}
+              title={`${asset.kind}：${asset.fileName}`}
               onClick={() => onSelect(asset)}
             >
-              {asset.previewURL ? (
+              {asset.kind === "画像" && asset.previewURL ? (
                 <LoadingImage src={asset.previewURL} alt="" loading="lazy" />
+              ) : asset.kind === "動画" ? (
+                <MovieOutlinedIcon aria-hidden="true" />
+              ) : asset.kind === "音声" ? (
+                <AudiotrackRoundedIcon aria-hidden="true" />
               ) : (
                 <ImageOutlinedIcon aria-hidden="true" />
               )}
             </button>
+            <span className={styles["asset-file-name"]} title={asset.fileName}>
+              {asset.fileName}
+            </span>
             <Button
-              className={styles["image-copy-button"]}
+              className={styles["asset-copy-button"]}
               size="compact"
               variant="secondary"
               isIconOnly
@@ -138,7 +163,7 @@ const MarkdownImagePicker = ({
               title={
                 copiedKey === asset.key
                   ? "コピーしました"
-                  : "画像の Markdown をコピー"
+                  : `${asset.kind}の Markdown をコピー`
               }
               onClick={() => void handleCopy(asset)}
             />
@@ -149,10 +174,10 @@ const MarkdownImagePicker = ({
   );
 };
 
-export const MarkdownImageActions = ({
-  selectedImage,
+export const MarkdownAssetActions = ({
+  selectedAsset,
   onInsert,
-}: MarkdownImageActionsProps) => {
+}: MarkdownAssetActionsProps) => {
   const [isInserted, setInserted] = useState(false);
   const insertResetTimerRef = useRef<number | null>(null);
 
@@ -165,7 +190,7 @@ export const MarkdownImageActions = ({
     [],
   );
 
-  const markdown = getAssetImageMarkdown(selectedImage);
+  const markdown = getAssetMarkdown(selectedAsset);
   const handleInsert = () => {
     if (!onInsert(markdown)) return;
     if (insertResetTimerRef.current !== null) {
@@ -182,10 +207,10 @@ export const MarkdownImageActions = ({
     <div className={styles["action-row"]}>
       <Button
         size="small"
-        icon={
-          isInserted ? <CheckRoundedIcon /> : <AddPhotoAlternateRoundedIcon />
+        icon={isInserted ? <CheckRoundedIcon /> : <AddRoundedIcon />}
+        aria-label={
+          isInserted ? `${selectedAsset.kind}を挿入しました` : undefined
         }
-        aria-label={isInserted ? "画像を挿入しました" : undefined}
         onClick={handleInsert}
       >
         挿入
@@ -194,4 +219,4 @@ export const MarkdownImageActions = ({
   );
 };
 
-export default MarkdownImagePicker;
+export default MarkdownAssetPicker;
