@@ -285,8 +285,8 @@
   }
 
   mark {
-    background-color: var(--primary-soft-color);
-    color: var(--font-color);
+    background-color: var(--primary-color);
+    color: var(--on-primary-color);
   }
 
   :global(.katex-display) {
