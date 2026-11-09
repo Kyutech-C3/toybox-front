@@ -682,7 +682,7 @@ sample@example.com
 </audio>
 ```
 
-サンプルは MDN の花の動画と T-Rex の鳴き声です。自分のファイルを載せる場合は `src` をそのファイルのURLに置き換えます。
+サンプルは MDN の花の動画と T-Rex の鳴き声です。自分のファイルは、編集画面でアセットをアップロードし、説明欄の一覧から選んで「挿入」できます。説明欄のツールバーから画像・動画・音声を選んでアップロードすることもできます。外部ファイルを載せる場合は `src` をそのファイルのURLに置き換えます。
 
 出典：[MDN の動画サンプル](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/video)、[音声サンプル](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/audio)。元サンプルは [CC0](https://github.com/mdn/interactive-examples/blob/main/LICENSE) で公開されています。
 
