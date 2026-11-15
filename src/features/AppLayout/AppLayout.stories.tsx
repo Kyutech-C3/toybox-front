@@ -184,11 +184,27 @@ export const SidebarNavigation: Story = {
       canvas.getByRole("button", { name: "サイドバーを開く" }),
     );
     const sidebar = canvas.getByRole("dialog", { name: "サイドバー" });
-    await userEvent.click(
-      within(sidebar).getByRole("link", { name: "ホーム" }),
-    );
-    await expect(canvas.getByText("スクロールする本文")).toBeVisible();
-    await waitFor(() => expect(sidebar).not.toBeVisible());
+    const release = lockPageScroll();
+    try {
+      await userEvent.click(
+        within(sidebar).getByRole("link", { name: "ホーム" }),
+      );
+      await expect(canvas.getByText("スクロールする本文")).toBeVisible();
+      await expect(content).toHaveAttribute("data-scroll-locked", "true");
+      await expect(getComputedStyle(document.body).top).toBe("0px");
+      await waitFor(() => expect(sidebar).not.toBeVisible());
+      await expect(content).toHaveAttribute("data-scroll-locked", "true");
+    } finally {
+      release();
+    }
+    await expect(content).not.toHaveAttribute("data-scroll-locked");
+    await expect(content.scrollTop).toBe(0);
+
+    // メニュー以外からの遷移も AppLayout の同じ方針を使う。
+    content.scrollTop = 400;
+    await expect(content.scrollTop).toBe(400);
+    await userEvent.click(canvas.getByRole("link", { name: "長いページへ" }));
+    await expect(canvas.getByText("長いページ")).toBeVisible();
     await expect(content.scrollTop).toBe(0);
   },
 };

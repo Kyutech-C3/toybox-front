@@ -1,5 +1,5 @@
-import { useId, useLayoutEffect, useRef, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { useId, useRef, useState } from "react";
+import { Link, NavLink } from "react-router-dom";
 import BookRoundedIcon from "@mui/icons-material/BookRounded";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
@@ -14,7 +14,6 @@ import Copyright from "@/shared/ui/Copyright";
 import DevBadge from "@/shared/ui/DevBadge";
 import Dialog from "@/shared/ui/Dialog";
 import { EXTERNAL_LINKS } from "@/shared/ui/ExternalLinks";
-import { getPageScroller } from "@/util/pageScroll";
 
 import type { ExternalLinkItem } from "@/shared/ui/ExternalLinks";
 
@@ -33,8 +32,6 @@ const SIDEBAR_EXTERNAL_LINKS = [
 const Sidebar = () => {
   const dialogId = useId();
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const openedLocationKeyRef = useRef<string | null>(null);
-  const { key: locationKey } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [isPointerOpen, setIsPointerOpen] = useState(false);
@@ -43,16 +40,6 @@ const Sidebar = () => {
   const user = useUserStore((state) => state.user);
 
   const handleClose = () => setIsClosing(true);
-
-  useLayoutEffect(() => {
-    if (isOpen || openedLocationKeyRef.current === null) return;
-    const hasNavigated = openedLocationKeyRef.current !== locationKey;
-    openedLocationKeyRef.current = null;
-    // Dialog のスクロール固定解除後、成立した遷移の表示位置を確定する。
-    if (hasNavigated) {
-      getPageScroller().scrollTo({ top: 0, left: 0, behavior: "instant" });
-    }
-  }, [isOpen, locationKey]);
 
   return (
     <>
@@ -71,7 +58,6 @@ const Sidebar = () => {
         onBlur={() => setIsPointerFocus(false)}
         onKeyDown={() => setIsPointerFocus(false)}
         onClick={(event) => {
-          openedLocationKeyRef.current = locationKey;
           setIsPointerOpen(event.detail > 0);
           setIsClosing(false);
           setIsOpen(true);
