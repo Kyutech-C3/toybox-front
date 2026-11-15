@@ -54,13 +54,14 @@
   right: 0;
   bottom: calc(100% + var(--space-8));
   width: max-content;
-  max-width: min(320px, calc(100vw - 32px));
+  max-width: calc(100vw - var(--space-32));
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: var(--space-4);
   font-size: 13px;
   text-align: right;
+  text-wrap: balance;
 }
 
 @media (max-width: 599px) {

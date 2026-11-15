@@ -27,6 +27,7 @@ import "@/App.css";
 const HomeContent = () => (
   <div style={{ minHeight: 1600, paddingTop: 500, boxSizing: "border-box" }}>
     <Link to="/other">別のページへ</Link>
+    <Link to="/scrollable">長いページへ</Link>
     <Link to="/edit/new">未保存の編集へ</Link>
     <MarkdownPreview content="![画像](/favicon-192.png)" />
     <p>スクロールする本文</p>
@@ -50,7 +51,7 @@ const UnsavedPage = () => {
     return lockPageScroll();
   }, [isScrollLocked]);
   return (
-    <>
+    <div style={{ minHeight: 1600 }}>
       <p>保存していない作品</p>
       <button type="button" onClick={() => navigate(-1)}>
         戻る
@@ -58,7 +59,7 @@ const UnsavedPage = () => {
       <button type="button" onClick={() => setIsScrollLocked(false)}>
         スクロールロックを解除
       </button>
-    </>
+    </div>
   );
 };
 
@@ -77,6 +78,10 @@ const AppLayoutPreview = ({ children }: AppLayoutPreviewProps) => {
             element: <HomeContent />,
           },
           { path: "/other", element: <OtherContent /> },
+          {
+            path: "/scrollable",
+            element: <div style={{ minHeight: 1600 }}>長いページ</div>,
+          },
           {
             path: "/edit/new",
             element: (
@@ -166,6 +171,44 @@ export const ContentScroll: Story = {
   },
 };
 
+export const SidebarNavigation: Story = {
+  tags: ["test"],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("link", { name: "長いページへ" }));
+    await expect(canvas.getByText("長いページ")).toBeVisible();
+    const content = getPageScroller();
+    content.scrollTop = 400;
+    await expect(content.scrollTop).toBe(400);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "サイドバーを開く" }),
+    );
+    const sidebar = canvas.getByRole("dialog", { name: "サイドバー" });
+    const release = lockPageScroll();
+    try {
+      await userEvent.click(
+        within(sidebar).getByRole("link", { name: "ホーム" }),
+      );
+      await expect(canvas.getByText("スクロールする本文")).toBeVisible();
+      await expect(content).toHaveAttribute("data-scroll-locked", "true");
+      await expect(getComputedStyle(document.body).top).toBe("0px");
+      await waitFor(() => expect(sidebar).not.toBeVisible());
+      await expect(content).toHaveAttribute("data-scroll-locked", "true");
+    } finally {
+      release();
+    }
+    await expect(content).not.toHaveAttribute("data-scroll-locked");
+    await expect(content.scrollTop).toBe(0);
+
+    // メニュー以外からの遷移も AppLayout の同じ方針を使う。
+    content.scrollTop = 400;
+    await expect(content.scrollTop).toBe(400);
+    await userEvent.click(canvas.getByRole("link", { name: "長いページへ" }));
+    await expect(canvas.getByText("長いページ")).toBeVisible();
+    await expect(content.scrollTop).toBe(0);
+  },
+};
+
 export const CanceledNavigation: Story = {
   tags: ["test"],
   play: async ({ canvasElement }) => {
@@ -198,6 +241,20 @@ export const CanceledNavigation: Story = {
           "data-scroll-locked",
         ),
       );
+      const content = getPageScroller();
+      content.scrollTop = 400;
+      await expect(content.scrollTop).toBe(400);
+      await userEvent.click(
+        canvas.getByRole("button", { name: "サイドバーを開く" }),
+      );
+      const sidebar = canvas.getByRole("dialog", { name: "サイドバー" });
+      await userEvent.click(
+        within(sidebar).getByRole("link", { name: "ホーム" }),
+      );
+      await waitFor(() => expect(confirm).toHaveBeenCalledTimes(2));
+      await waitFor(() => expect(sidebar).not.toBeVisible());
+      await expect(canvas.getByText("保存していない作品")).toBeVisible();
+      await expect(content.scrollTop).toBe(400);
     } finally {
       confirm.mockRestore();
     }
