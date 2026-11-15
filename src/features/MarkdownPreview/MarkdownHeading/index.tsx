@@ -4,8 +4,8 @@ import { toString as getText } from "hast-util-to-string";
 
 import styles from "../index.module.css";
 import {
-  getHeadingSlug,
-  PROTECTED_HEADING_ID_PREFIX,
+  HEADING_ID_PREFIX,
+  PROTECTED_ID_PREFIX,
 } from "../rehypeMarkdownFeatures";
 
 import useToast from "@/shared/ui/Toast/hook/useToast";
@@ -26,17 +26,38 @@ export const findMarkdownTarget = (
   container: HTMLElement,
   fragment: string,
 ) => {
-  const directTarget = document.getElementById(fragment);
-  if (directTarget && container.contains(directTarget)) return directTarget;
-
-  const heading = document.getElementById(
-    `${PROTECTED_HEADING_ID_PREFIX}${fragment}`,
+  const targets = [...container.querySelectorAll<HTMLElement>("[id]")];
+  const legacyAnchors: string[] = [];
+  let legacyAnchor = fragment;
+  while (
+    legacyAnchor.startsWith(PROTECTED_ID_PREFIX) ||
+    legacyAnchor.startsWith(HEADING_ID_PREFIX)
+  ) {
+    legacyAnchor = legacyAnchor.slice(
+      legacyAnchor.startsWith(PROTECTED_ID_PREFIX)
+        ? PROTECTED_ID_PREFIX.length
+        : HEADING_ID_PREFIX.length,
+    );
+    legacyAnchors.push(legacyAnchor);
+  }
+  return (
+    targets.find((target) => target.dataset.markdownAnchor === fragment) ??
+    targets.find((target) => target.id === fragment) ??
+    legacyAnchors
+      .map((anchor) =>
+        targets.find((target) => target.dataset.markdownAnchor === anchor),
+      )
+      .find((target) => target !== undefined) ??
+    null
   );
-  return heading &&
-    /^H[1-6]$/.test(heading.tagName) &&
-    container.contains(heading)
-    ? heading
-    : null;
+};
+
+export const navigateMarkdownTarget = (target: HTMLElement, hash: string) => {
+  openContainingDetails(target);
+  if (window.location.hash !== hash)
+    window.history.pushState(window.history.state, "", hash);
+  target.focus({ preventScroll: true });
+  target.scrollIntoView();
 };
 
 type MarkdownHeadingProps = ComponentProps<"h1"> & ExtraProps;
@@ -49,7 +70,10 @@ const MarkdownHeading = ({
 }: MarkdownHeadingProps) => {
   const { showToast } = useToast();
   const titleID = useId();
-  const headingSlug = id ? getHeadingSlug(id) : undefined;
+  const headingSlug =
+    typeof node?.properties.dataMarkdownHeading === "string"
+      ? node.properties.dataMarkdownHeading
+      : undefined;
   const name = node?.tagName;
   const Tag =
     name === "h1" ||
@@ -80,9 +104,10 @@ const MarkdownHeading = ({
             const href = event.currentTarget.href;
             const target = event.currentTarget.parentElement;
             if (target) {
-              openContainingDetails(target);
-              window.location.hash = `#${encodeURIComponent(headingSlug)}`;
-              target.scrollIntoView();
+              navigateMarkdownTarget(
+                target,
+                `#${encodeURIComponent(headingSlug)}`,
+              );
             }
             void copyTextToClipboard(href).then((isCopied) => {
               showToast({
