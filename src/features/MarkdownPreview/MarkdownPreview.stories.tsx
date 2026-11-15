@@ -140,6 +140,89 @@ export const CodeFilesAndCopy: Story = {
   },
 };
 
+export const MathRendering: Story = {
+  tags: ["test"],
+  args: {
+    content: "$E = mc^2$\n\n$$ E = mc^2 $$。\n\n$$\nE = mc^2\n$$",
+  },
+  play: async ({ canvasElement }) => {
+    const formulas = canvasElement.querySelectorAll(".katex-html");
+    await expect(formulas).toHaveLength(3);
+    for (const formula of formulas) {
+      const leaves = [...formula.querySelectorAll("span")].filter(
+        (element) => element.childElementCount === 0,
+      );
+      const base = leaves.find((element) => element.textContent === "c");
+      const exponent = leaves.find((element) => element.textContent === "2");
+      if (!base || !exponent) throw new Error("数式の底または指数がありません");
+      // 描画エンジンとCSSの不一致で指数が本文サイズになる回帰を検出する。
+      await expect(
+        Number.parseFloat(getComputedStyle(exponent).fontSize),
+      ).toBeLessThan(Number.parseFloat(getComputedStyle(base).fontSize));
+    }
+  },
+};
+
+export const MediaPlayback: Story = {
+  tags: ["test"],
+  args: {
+    content:
+      '<video title="花の動画" autoplay loop onplay="alert(1)"><source src="https://developer.mozilla.org/shared-assets/videos/flower.mp4" type="video/mp4"><track kind="captions" src="javascript:alert(1)" srclang="ja" label="日本語"></video>\n\n<audio title="T-Rexの鳴き声" src="https://developer.mozilla.org/shared-assets/audio/t-rex-roar.mp3" autoplay></audio>\n\n<video src="javascript:alert(1)" poster="javascript:alert(1)"><source src="data:text/html,unsafe"></video>',
+  },
+  play: async ({ canvasElement }) => {
+    const video = canvasElement.querySelector("video");
+    const audio = canvasElement.querySelector("audio");
+    if (!video || !audio) throw new Error("動画・音声が表示されていません");
+    await expect(video).toHaveAttribute("aria-label", "花の動画");
+    await expect(video.querySelector("source")).toHaveAttribute(
+      "src",
+      "https://developer.mozilla.org/shared-assets/videos/flower.mp4",
+    );
+    await expect(video.querySelector("track")).not.toHaveAttribute("src");
+    await expect(
+      canvasElement.querySelector("[autoplay], [loop], [onplay], [poster]"),
+    ).toBeNull();
+    const unsafeVideo = canvasElement.querySelectorAll("video")[1];
+    await expect(unsafeVideo).not.toHaveAttribute("src");
+    await expect(unsafeVideo.querySelector("source")).not.toHaveAttribute(
+      "src",
+    );
+    for (const media of [video, audio]) {
+      await expect(media).toHaveAttribute("controls");
+      await expect(media).toHaveAttribute("preload", "none");
+      await expect(media.paused).toBe(true);
+    }
+  },
+};
+
+export const LimitedTextStyles: Story = {
+  tags: ["test"],
+  args: {
+    content:
+      '<span style="color: darkslateblue; font-size: 120%; position:fixed; background:url(javascript:alert(1))" onmouseover="alert(1)">色とサイズ</span>\n\n<span style="color: #663399; font-size: 9999px">上限サイズ</span>\n\n<span style="font-size:200%"><span style="font-size:2em">入れ子サイズ</span></span>\n\n<span style="font-size:0.1rem">下限サイズ</span>\n\n<span style="color:expression(alert(1)); font-size:var(--unsafe); display:none">危険な装飾</span>',
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const styled = canvas.getByText("色とサイズ");
+    await expect(styled.style.color).toBe("darkslateblue");
+    await expect(getComputedStyle(styled).fontSize).toBe("19.2px");
+    await expect(styled).not.toHaveAttribute("onmouseover");
+    await expect(styled.getAttribute("style")).not.toMatch(
+      /position|background/,
+    );
+    await expect(
+      getComputedStyle(canvas.getByText("上限サイズ")).fontSize,
+    ).toBe("32px");
+    await expect(
+      getComputedStyle(canvas.getByText("入れ子サイズ")).fontSize,
+    ).toBe("32px");
+    await expect(
+      getComputedStyle(canvas.getByText("下限サイズ")).fontSize,
+    ).toBe("8px");
+    await expect(canvas.getByText("危険な装飾")).not.toHaveAttribute("style");
+  },
+};
+
 export const SanitizedHtml: Story = {
   tags: ["test"],
   args: {

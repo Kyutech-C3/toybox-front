@@ -5,13 +5,14 @@ import { visit } from "unist-util-visit";
 
 import type { Root } from "mdast";
 
-type AssetImageMarkdownAnalysis = {
+type AssetMarkdownAnalysis = {
   nextDescription: string;
-  hasImageReferences: boolean;
+  hasAssetReferences: boolean;
   hasUnsupportedReferences: boolean;
 };
 
 const MARKDOWN_PARSER = unified().use(remarkParse).use(remarkGfm);
+const ASSET_REFERENCE_SELECTOR = "img, video, audio, source";
 
 const matchesAssetURL = (candidate: string, assetURL: string) =>
   candidate === assetURL ||
@@ -55,19 +56,23 @@ export const getReferencedAssetURLs = (
     } else if (node.type === "html" && typeof document !== "undefined") {
       const template = document.createElement("template");
       template.innerHTML = node.value;
-      for (const image of template.content.querySelectorAll("img")) {
-        addReference(image.getAttribute("src") ?? "");
+      for (const media of template.content.querySelectorAll(
+        ASSET_REFERENCE_SELECTOR,
+      )) {
+        addReference(media.getAttribute("src") ?? "");
       }
+      for (const video of template.content.querySelectorAll("video[poster]"))
+        addReference(video.getAttribute("poster") ?? "");
     }
   });
 
   return referencedURLs;
 };
 
-export const removeAssetImageMarkdown = (
+export const removeAssetMarkdown = (
   description: string,
   assetURL: string,
-): AssetImageMarkdownAnalysis => {
+): AssetMarkdownAnalysis => {
   const tree = MARKDOWN_PARSER.parse(description) as Root;
   const definitions = new Map<string, string>();
   const ranges: { start: number; end: number }[] = [];
@@ -77,7 +82,8 @@ export const removeAssetImageMarkdown = (
     definitions.set(node.identifier, node.url);
   });
 
-  visit(tree, (node) => {
+  visit(tree, (node, index, parent) => {
+    let referenceEnd: number | undefined;
     if (node.type === "image") {
       if (!matchesAssetURL(node.url, assetURL)) return;
     } else if (node.type === "imageReference") {
@@ -87,14 +93,35 @@ export const removeAssetImageMarkdown = (
       if (typeof document === "undefined") return;
       const template = document.createElement("template");
       template.innerHTML = node.value;
-      const hasMatchingImage = Array.from(
-        template.content.querySelectorAll("img"),
-      ).some((image) =>
-        matchesAssetURL(image.getAttribute("src") ?? "", assetURL),
+      const hasMatchingAsset = Array.from(
+        template.content.querySelectorAll(ASSET_REFERENCE_SELECTOR),
+      ).some((media) =>
+        matchesAssetURL(media.getAttribute("src") ?? "", assetURL),
       );
-      if (!hasMatchingImage) return;
+      const hasMatchingPoster = Array.from(
+        template.content.querySelectorAll("video[poster]"),
+      ).some((video) =>
+        matchesAssetURL(video.getAttribute("poster") ?? "", assetURL),
+      );
+      if (!hasMatchingAsset && !hasMatchingPoster) return;
       // 複数要素を含む HTML は、周囲の内容を巻き込まないよう手動編集を促す。
-      if (!/^<img\b[^>]*\/?>\s*$/is.test(node.value)) {
+      const isSingleImage = /^<img\b[^>]*\/?>\s*$/is.test(node.value);
+      // CommonMark は video/audio の開始・終了タグを別々の HTML ノードにする。
+      // 直後の空要素の終了タグまでを一緒に削除し、周囲の文章は残す。
+      const following =
+        index === undefined ? undefined : parent?.children[index + 1];
+      const openingMedia = /^<(video|audio)\b[^>]*>$/is.exec(node.value);
+      const hasAdjacentClosingTag =
+        openingMedia &&
+        following?.type === "html" &&
+        following.value.toLowerCase() ===
+          `</${openingMedia[1].toLowerCase()}>` &&
+        node.position?.end.offset === following.position?.start.offset;
+      if (hasAdjacentClosingTag) referenceEnd = following.position?.end.offset;
+      const isSingleMedia =
+        hasAdjacentClosingTag ||
+        /^<(video|audio)\b[^>]*>\s*<\/\1>\s*$/is.test(node.value);
+      if (hasMatchingPoster || (!isSingleImage && !isSingleMedia)) {
         hasUnsupportedReferences = true;
         return;
       }
@@ -103,7 +130,7 @@ export const removeAssetImageMarkdown = (
     }
 
     const start = node.position?.start.offset;
-    const end = node.position?.end.offset;
+    const end = referenceEnd ?? node.position?.end.offset;
     if (start === undefined || end === undefined) {
       hasUnsupportedReferences = true;
       return;
@@ -119,7 +146,7 @@ export const removeAssetImageMarkdown = (
 
   return {
     nextDescription,
-    hasImageReferences: ranges.length > 0 || hasUnsupportedReferences,
+    hasAssetReferences: ranges.length > 0 || hasUnsupportedReferences,
     hasUnsupportedReferences,
   };
 };

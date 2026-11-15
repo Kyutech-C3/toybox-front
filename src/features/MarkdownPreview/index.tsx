@@ -26,6 +26,7 @@ import { MARKDOWN_SCHEMA } from "./markdownSchema";
 import rehypeMarkdownFeatures, {
   HEADING_ID_PREFIX,
 } from "./rehypeMarkdownFeatures";
+import rehypeMarkdownStyles from "./rehypeMarkdownStyles";
 import remarkSoftBreaks from "./remarkSoftBreaks";
 
 import type { MouseEvent } from "react";
@@ -106,6 +107,7 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
         rehypePlugins={[
           rehypeRaw,
           [rehypeSlug, { prefix: HEADING_ID_PREFIX }],
+          rehypeMarkdownStyles,
           [rehypeSanitize, MARKDOWN_SCHEMA],
           // 入力を検査してから、KaTeX が必要とする MathML と装飾を生成する。
           [rehypeKatex, { trust: false, errorColor: "var(--error-color)" }],

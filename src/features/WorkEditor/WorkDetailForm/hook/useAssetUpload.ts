@@ -12,7 +12,7 @@ import {
   useWorkEditorStore,
   useWorkEditorStoreApi,
 } from "../../store/useWorkEditorStore";
-import { removeAssetImageMarkdown } from "../removeAssetImageMarkdown";
+import { removeAssetMarkdown } from "../removeAssetMarkdown";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { getPageScroller } from "@/util/pageScroll";
@@ -22,13 +22,14 @@ import type { EditorAsset } from "../../types";
 export const ASSET_ACCEPT =
   ".png,.jpg,.jpeg,.bmp,.gif,.webp,.mp4,.mov,.mp3,.wav,.m4a,.zip";
 export const IMAGE_ASSET_ACCEPT = ".png,.jpg,.jpeg,.bmp,.gif,.webp";
+export const MEDIA_ASSET_ACCEPT = `${IMAGE_ASSET_ACCEPT},.mp4,.mov,.mp3,.wav,.m4a`;
 const MAX_ASSET_SIZE = 2000 * 1024 * 1024;
 
 type UseAssetUploadReturn = {
   assets: EditorAsset[];
   validationError: string;
   handleAddFiles: (files: File[]) => void;
-  handleAddImageFile: (file: File) => Promise<EditorAsset | null>;
+  handleAddMediaFile: (file: File) => Promise<EditorAsset | null>;
   handleRetry: (key: string) => void;
   handleRemove: (key: string) => void;
 };
@@ -103,11 +104,13 @@ const useAssetUpload = (): UseAssetUploadReturn => {
     }
   };
 
-  const handleAddImageFile = async (
+  const handleAddMediaFile = async (
     file: File,
   ): Promise<EditorAsset | null> => {
-    if (!IMAGE_ASSET_ACCEPT.split(",").includes(getExtension(file.name))) {
-      setValidationError(`${file.name} は対応していない画像形式です`);
+    if (!MEDIA_ASSET_ACCEPT.split(",").includes(getExtension(file.name))) {
+      setValidationError(
+        `${file.name} は対応していない画像・動画・音声形式です`,
+      );
       return null;
     }
     if (file.size > MAX_ASSET_SIZE) {
@@ -175,19 +178,19 @@ const useAssetUpload = (): UseAssetUploadReturn => {
     const current = store.getState().current;
     const target = current.assets.find((asset) => asset.key === key);
     if (!target || target.status === "uploading") return;
-    const imageUsage = target.assetURL
-      ? removeAssetImageMarkdown(current.description, target.assetURL)
+    const assetUsage = target.assetURL
+      ? removeAssetMarkdown(current.description, target.assetURL)
       : null;
-    if (imageUsage?.hasUnsupportedReferences) {
+    if (assetUsage?.hasUnsupportedReferences) {
       setValidationError(
-        `${target.fileName} は説明文の HTML 画像で使用されています。説明文から画像を削除してからアセットを削除してください。`,
+        `${target.fileName} は説明文の HTML で使用されています。説明文から参照を削除してからアセットを削除してください。`,
       );
       return;
     }
-    if (imageUsage?.hasImageReferences) {
+    if (assetUsage?.hasAssetReferences) {
       if (
         !window.confirm(
-          `${target.fileName} は下の説明文でも使用されています。削除すると説明文からも画像を削除します。`,
+          `${target.fileName} は下の説明文でも使用されています。削除すると説明文からも参照を削除します。`,
         )
       )
         return;
@@ -198,7 +201,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
         "[data-markdown-editor] .w-md-editor-text-input",
       );
       if (!textarea || textarea.value !== current.description) {
-        setValidationError("説明文から画像を削除できませんでした");
+        setValidationError("説明文から参照を削除できませんでした");
         return;
       }
       const pageScroller = getPageScroller();
@@ -208,19 +211,19 @@ const useAssetUpload = (): UseAssetUploadReturn => {
       const selectionEnd = textarea.selectionEnd;
       textarea.focus({ preventScroll: true });
       textarea.setSelectionRange(0, textarea.value.length);
-      const command = imageUsage.nextDescription ? "insertText" : "delete";
+      const command = assetUsage.nextDescription ? "insertText" : "delete";
       let didReplace = false;
       try {
         didReplace = document.execCommand(
           command,
           false,
-          imageUsage.nextDescription,
+          assetUsage.nextDescription,
         );
       } catch {
         // 入力履歴を保持できない場合はアセットも削除しない
       }
       if (!didReplace) {
-        setValidationError("説明文から画像を削除できませんでした");
+        setValidationError("説明文から参照を削除できませんでした");
         return;
       }
       flushSync(() => setDescription(textarea.value));
@@ -238,7 +241,7 @@ const useAssetUpload = (): UseAssetUploadReturn => {
     assets,
     validationError,
     handleAddFiles,
-    handleAddImageFile,
+    handleAddMediaFile,
     handleRetry,
     handleRemove,
   };

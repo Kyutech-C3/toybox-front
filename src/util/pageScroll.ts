@@ -7,6 +7,17 @@ const PAGE_SCROLL_LOCK = {
 
 export const getPageScroller = (): HTMLElement => document.documentElement;
 
+export const scrollPageToTop = (): void => {
+  if (PAGE_SCROLL_LOCK.count > 0) {
+    // 閉じるアニメーション中も本文を先頭に表示し、解除時の位置も揃える。
+    PAGE_SCROLL_LOCK.scrollTop = 0;
+    PAGE_SCROLL_LOCK.scrollLeft = 0;
+    getPageScroller().style.setProperty("--page-scroll-top", "0px");
+    return;
+  }
+  getPageScroller().scrollTo({ top: 0, left: 0, behavior: "instant" });
+};
+
 export const lockPageScroll = (): (() => void) => {
   const scroller = getPageScroller();
   if (PAGE_SCROLL_LOCK.count === 0) {

@@ -17,6 +17,14 @@ const ALERT_TYPES = new Set(["NOTE", "TIP", "IMPORTANT", "WARNING", "CAUTION"]);
 const rehypeMarkdownFeatures = () => (tree: Root) => {
   const targets = new Map<string, string>();
   visit(tree, "element", (node) => {
+    if (node.tagName === "video" || node.tagName === "audio") {
+      node.properties.controls = true;
+      node.properties.preload = "none";
+      node.properties.ariaLabel =
+        node.properties.title || (node.tagName === "video" ? "動画" : "音声");
+      if (node.tagName === "video") node.properties.playsInline = true;
+    }
+
     const id = node.properties.id;
     if (typeof id === "string") {
       targets.set(id, id);

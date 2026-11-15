@@ -1,3 +1,8 @@
 .submit-error {
   color: var(--error-color);
+
+  > span {
+    display: inline-block;
+    max-width: 100%;
+  }
 }

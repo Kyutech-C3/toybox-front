@@ -230,8 +230,11 @@ const PublishButton = () => {
             !submitError &&
             !isSubmitDisabled && (
               <span className={styles["submit-error"]} role="alert">
-                入力内容に{Object.keys(validationErrors).length}
-                件のエラーがあります。各項目を確認してください。
+                <span>
+                  入力内容に{Object.keys(validationErrors).length}
+                  件のエラーがあります。
+                </span>
+                <span>各項目を確認してください。</span>
               </span>
             )}
           {submitError && (
