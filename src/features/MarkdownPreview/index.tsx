@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useId, useRef } from "react";
 import Markdown from "react-markdown";
 import { toString as getText } from "hast-util-to-string";
 import rehypeKatex from "rehype-katex";
@@ -15,6 +15,7 @@ import styles from "./index.module.css";
 import MarkdownAlert from "./MarkdownAlert";
 import MarkdownHeading, {
   findMarkdownTarget,
+  navigateMarkdownTarget,
   openContainingDetails,
 } from "./MarkdownHeading";
 import MarkdownImage, {
@@ -24,7 +25,7 @@ import MarkdownImage, {
 import { MarkdownInput, MarkdownListItem } from "./MarkdownTaskList";
 import { MARKDOWN_SCHEMA } from "./markdownSchema";
 import rehypeMarkdownFeatures, {
-  HEADING_ID_PREFIX,
+  PROTECTED_ID_PREFIX,
 } from "./rehypeMarkdownFeatures";
 import rehypeMarkdownStyles from "./rehypeMarkdownStyles";
 import remarkSoftBreaks from "./remarkSoftBreaks";
@@ -37,16 +38,19 @@ interface MarkdownPreviewProps {
 }
 
 const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
+  const previewId = useId();
+  const clobberPrefix = `${PROTECTED_ID_PREFIX}${previewId}-`;
   const containerRef = useRef<HTMLDivElement>(null);
   const imageDialogRef = useRef<MarkdownImageDialogHandle>(null);
   const restoredHashRef = useRef<string | undefined>(undefined);
+  const restoredTargetRef = useRef<HTMLElement | null>(null);
 
   const handleOpenImage = (image: PreviewImage) => {
     imageDialogRef.current?.open(image);
   };
 
   useEffect(() => {
-    // 本文が非同期で読み込まれたときも共有 URL の見出しへ移動する。
+    // 非同期本文・手動ID・脚注でも公開URLのアンカーを復元する。
     if (!content.trim()) return;
     const restoreHash = () => {
       let fragment = "";
@@ -55,13 +59,25 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
       } catch {
         return;
       }
-      if (!fragment || restoredHashRef.current === fragment) return;
+      if (!fragment) return;
       const container = containerRef.current;
       const target = container && findMarkdownTarget(container, fragment);
       if (target) {
+        // A public fragment may occur in multiple previews. Direct navigation
+        // selects the first matching preview; clicks use their own container.
+        const owner = [
+          ...document.querySelectorAll<HTMLElement>("[data-markdown-preview]"),
+        ].find((preview) => findMarkdownTarget(preview, fragment));
+        if (owner !== container) return;
+        if (
+          restoredHashRef.current === fragment &&
+          restoredTargetRef.current === target
+        )
+          return;
         openContainingDetails(target);
         target.scrollIntoView();
         restoredHashRef.current = fragment;
+        restoredTargetRef.current = target;
       }
     };
     restoreHash();
@@ -76,42 +92,50 @@ const MarkdownPreview = ({ content }: MarkdownPreviewProps) => {
   const handleLinkClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey)
       return;
-    const href = event.currentTarget.getAttribute("href");
-    if (!href?.startsWith("#")) return;
+    const url = new URL(event.currentTarget.href);
+    if (
+      url.origin !== window.location.origin ||
+      url.pathname !== window.location.pathname ||
+      url.search !== window.location.search ||
+      !url.hash
+    )
+      return;
     let fragment = "";
     try {
-      fragment = decodeURIComponent(href.slice(1));
+      fragment = decodeURIComponent(url.hash.slice(1));
     } catch {
       return;
     }
     const container = containerRef.current;
     const target = container && findMarkdownTarget(container, fragment);
     if (!target) return;
-    openContainingDetails(target);
-    if (target.id !== fragment) {
-      event.preventDefault();
-      window.location.hash = href;
-      target.scrollIntoView();
-    }
+    event.preventDefault();
+    navigateMarkdownTarget(target, url.hash);
   };
 
   return (
-    <div className={styles["markdown-preview"]} ref={containerRef}>
+    <div
+      className={styles["markdown-preview"]}
+      ref={containerRef}
+      data-markdown-preview
+    >
       <Markdown
         remarkPlugins={[remarkGfm, remarkMath, remarkSoftBreaks]}
         remarkRehypeOptions={{
+          // rehype-sanitize protects all IDs once after raw HTML is parsed.
+          clobberPrefix: "",
           footnoteLabel: "脚注",
           footnoteBackLabel: (_referenceIndex, rereferenceIndex) =>
             `本文へ戻る${rereferenceIndex > 1 ? ` ${rereferenceIndex}` : ""}`,
         }}
         rehypePlugins={[
           rehypeRaw,
-          [rehypeSlug, { prefix: HEADING_ID_PREFIX }],
+          rehypeSlug,
           rehypeMarkdownStyles,
-          [rehypeSanitize, MARKDOWN_SCHEMA],
+          [rehypeSanitize, { ...MARKDOWN_SCHEMA, clobberPrefix }],
           // 入力を検査してから、KaTeX が必要とする MathML と装飾を生成する。
           [rehypeKatex, { trust: false, errorColor: "var(--error-color)" }],
-          rehypeMarkdownFeatures,
+          [rehypeMarkdownFeatures, { clobberPrefix }],
         ]}
         components={{
           h1: MarkdownHeading,

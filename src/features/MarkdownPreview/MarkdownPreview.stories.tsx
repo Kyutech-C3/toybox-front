@@ -111,10 +111,153 @@ export const HeadingLinksAndFootnotes: Story = {
           canvas.getByText("リンクをコピーできませんでした"),
         ).toBeVisible(),
       );
+      const references = [
+        ...canvasElement.querySelectorAll<HTMLAnchorElement>(
+          "[data-footnote-ref]",
+        ),
+      ];
+      const backReferences = [
+        ...canvasElement.querySelectorAll<HTMLAnchorElement>(
+          "[data-footnote-backref]",
+        ),
+      ];
+      await expect(references).toHaveLength(2);
+      await expect(backReferences).toHaveLength(2);
+      const note = canvas.getByText("脚注の内容").closest("li");
+      if (!note) throw new Error("脚注の移動先がありません");
+      const scroll = spyOn(note, "scrollIntoView");
+      try {
+        for (const reference of references) {
+          await expect(reference).toHaveAttribute("href", "#fn-note");
+          await expect(reference).toHaveAttribute(
+            "aria-describedby",
+            canvas.getByRole("heading", { name: "脚注" }).id,
+          );
+          await userEvent.click(reference);
+          await expect(window.location.hash).toBe("#fn-note");
+        }
+        await expect(scroll).toHaveBeenCalled();
+        for (let index = 0; index < backReferences.length; index++) {
+          const backReference = backReferences[index];
+          await expect(backReference).toHaveAttribute(
+            "href",
+            `#fnref-note${index ? "-2" : ""}`,
+          );
+          await userEvent.click(backReference);
+          await expect(references[index]).toHaveFocus();
+        }
+        window.history.replaceState(originalState, "", "#fn-note");
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
+        await expect(scroll).toHaveBeenCalledTimes(3);
+        window.history.replaceState(
+          originalState,
+          "",
+          "#user-content-user-content-fn-note",
+        );
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
+        await expect(scroll).toHaveBeenCalledTimes(4);
+      } finally {
+        scroll.mockRestore();
+      }
     } finally {
       copy.mockRestore();
       legacyCopy.mockRestore();
       window.history.replaceState(originalState, "", originalURL);
+    }
+  },
+};
+
+export const ProtectedAnchors: Story = {
+  tags: ["test"],
+  beforeEach: () => {
+    const url = window.location.href;
+    const state = window.history.state;
+    window.history.replaceState(state, "", "#custom-anchor");
+    return () => window.history.replaceState(state, "", url);
+  },
+  args: {
+    content:
+      '<details><summary>外側</summary><details><summary>内側</summary><p id="custom-anchor">手動IDの本文</p></details></details>\n\n<p id="user-content-custom-anchor">接頭辞を含む手動ID</p>\n\n<p id="日本語のID">日本語IDの本文</p>\n\n<h2 id="manual-heading">手動見出し</h2>\n\n[手動IDへ](#custom-anchor) / [接頭辞IDへ](#user-content-custom-anchor) / [日本語IDへ](#日本語のID)\n\n本文[^note]\n\n[^note]: 脚注の内容',
+  },
+  render: (args) => (
+    <>
+      <section aria-label="最初のプレビュー">
+        <MarkdownPreview {...args} />
+      </section>
+      <section aria-label="次のプレビュー">
+        <MarkdownPreview {...args} />
+      </section>
+    </>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const first = within(
+      canvas.getByRole("region", { name: "最初のプレビュー" }),
+    );
+    const second = within(
+      canvas.getByRole("region", { name: "次のプレビュー" }),
+    );
+    const target = first.getByText("手動IDの本文");
+    const secondTarget = second.getByText("手動IDの本文");
+    await expect(target).toBeVisible();
+    await expect(secondTarget).not.toBeVisible();
+    const ids = [...canvasElement.querySelectorAll("[id]")].map(
+      (element) => element.id,
+    );
+    await expect(new Set(ids).size).toBe(ids.length);
+    await expect(target.id).toMatch(/^user-content-/);
+    const scroll = spyOn(target, "scrollIntoView");
+    const otherScroll = spyOn(secondTarget, "scrollIntoView");
+    const prefixedScroll = spyOn(
+      first.getByText("接頭辞を含む手動ID"),
+      "scrollIntoView",
+    );
+    const outer = target.closest("details")?.parentElement?.closest("details");
+    if (!outer) throw new Error("入れ子の折りたたみがありません");
+    try {
+      outer.open = false;
+      await userEvent.click(first.getByRole("link", { name: "手動IDへ" }));
+      await expect(target).toBeVisible();
+      await expect(window.location.hash).toBe("#custom-anchor");
+      await expect(scroll).toHaveBeenCalled();
+      await expect(otherScroll).not.toHaveBeenCalled();
+      outer.open = false;
+      const absolute = first.getByRole("link", {
+        name: "手動IDへ",
+      });
+      absolute.setAttribute(
+        "href",
+        new URL("#custom-anchor", window.location.href).href,
+      );
+      await userEvent.click(absolute);
+      await expect(target).toBeVisible();
+      await userEvent.click(first.getByRole("link", { name: "接頭辞IDへ" }));
+      await expect(window.location.hash).toBe("#user-content-custom-anchor");
+      await expect(prefixedScroll).toHaveBeenCalledTimes(1);
+      await expect(
+        first.getByRole("link", { name: "接頭辞IDへ" }),
+      ).toHaveAttribute("href", "#user-content-custom-anchor");
+      await userEvent.click(first.getByRole("link", { name: "日本語IDへ" }));
+      await expect(decodeURIComponent(window.location.hash)).toBe(
+        "#日本語のID",
+      );
+      const footnote = canvas
+        .getByRole("region", { name: "最初のプレビュー" })
+        .querySelector("[data-footnote-ref]");
+      const labelId = footnote?.getAttribute("aria-describedby");
+      await expect(first.getByRole("heading", { name: "脚注" }).id).toBe(
+        labelId,
+      );
+      await expect(second.getByRole("heading", { name: "脚注" }).id).not.toBe(
+        labelId,
+      );
+      await expect(
+        first.getByRole("link", { name: "「手動見出し」へのリンクをコピー" }),
+      ).toHaveAttribute("href", "#manual-heading");
+    } finally {
+      scroll.mockRestore();
+      otherScroll.mockRestore();
+      prefixedScroll.mockRestore();
     }
   },
 };
@@ -251,9 +394,13 @@ export const SanitizedHtml: Story = {
     );
     await expect(canvas.getByText("HTML リンク")).toHaveAttribute(
       "id",
-      "user-content-current",
+      expect.stringMatching(/^user-content-.+-current$/),
     );
     await expect(canvasElement.querySelector("#current")).toBeNull();
+    await expect(canvas.getByText("HTML リンク")).toHaveAttribute(
+      "data-markdown-anchor",
+      "current",
+    );
     const image = canvas.getByAltText("危険な画像属性");
     await expect(image).not.toHaveAttribute("width");
     await expect(image).not.toHaveAttribute("style");
