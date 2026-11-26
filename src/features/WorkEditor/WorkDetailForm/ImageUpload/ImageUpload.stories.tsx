@@ -45,7 +45,7 @@ const META = {
     ),
   ],
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: "storybook-token" });
+    useAuthStore.setState({ isAuthenticated: true });
   },
 } satisfies Meta<typeof ImageUpload>;
 export default META;

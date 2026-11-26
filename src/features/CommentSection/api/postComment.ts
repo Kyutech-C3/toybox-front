@@ -3,7 +3,6 @@ import { postDataWithAuth } from "@/util/fetchData";
 const postComment = async (
   workID: string,
   content: string,
-  accessToken: string,
   replyAt?: string,
 ) => {
   const response = await postDataWithAuth(
@@ -12,7 +11,6 @@ const postComment = async (
       content: content,
       reply_at: replyAt,
     }),
-    accessToken,
   );
 
   return response;

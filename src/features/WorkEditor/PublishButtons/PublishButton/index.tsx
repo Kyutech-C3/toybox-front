@@ -91,7 +91,7 @@ const PublishButton = () => {
   );
   const isSubmitting = useWorkEditorStore((state) => state.isSubmitting);
   const setIsSubmitting = useWorkEditorStore((state) => state.setIsSubmitting);
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const storeApi = useWorkEditorStoreApi();
   const { showToast } = useToast();
   const [submitError, setSubmitError] = useState("");
@@ -114,13 +114,13 @@ const PublishButton = () => {
   const deleteOrphanedResources = () => {
     const orphaned = selectOrphanedBackendResources(storeApi.getState());
     if (orphaned.assetIDs.length === 0 && orphaned.tagIDs.length === 0) return;
-    if (!accessToken) return;
-    void deletePendingResources(orphaned, accessToken);
+    if (!isAuthenticated) return;
+    void deletePendingResources(orphaned);
   };
 
   const handleSubmit = async () => {
     if (isSubmitDisabled) return;
-    if (!accessToken) {
+    if (!isAuthenticated) {
       setSubmitError("ログインが必要です");
       return;
     }
@@ -149,18 +149,16 @@ const PublishButton = () => {
           navigate(`/works/${workID}`);
           return;
         }
-        const updatedWork = await updateWork(
-          workID,
-          updatePayload,
-          accessToken,
-        );
+        const updatedWork = await updateWork(workID, updatePayload);
         await Promise.all([
-          mutate(getWorkDetailSWRKey(workID, accessToken), updatedWork, {
+          mutate(getWorkDetailSWRKey(workID, isAuthenticated), updatedWork, {
             revalidate: false,
           }),
-          mutate(getWorkEditorSWRKey({ workID, accessToken }), updatedWork, {
-            revalidate: false,
-          }),
+          mutate(
+            getWorkEditorSWRKey({ workID, isAuthenticated }),
+            updatedWork,
+            { revalidate: false },
+          ),
         ]);
 
         deleteOrphanedResources();
@@ -177,7 +175,7 @@ const PublishButton = () => {
         navigate(`/works/${workID}`);
         return;
       }
-      await postWork(payload, accessToken);
+      await postWork(payload);
       deleteOrphanedResources();
       markSaved();
       showToast({

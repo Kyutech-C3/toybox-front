@@ -111,7 +111,7 @@ const META = {
   parameters: { layout: "fullscreen" },
   tags: ["autodocs"],
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: null, hasRestoreFailed: false });
+    useAuthStore.setState({ isAuthenticated: false, hasRestoreFailed: false });
     useUserStore.getState().clearUser();
   },
 } satisfies Meta<typeof AppLayout>;

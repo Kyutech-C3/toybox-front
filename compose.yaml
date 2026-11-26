@@ -6,6 +6,7 @@ services:
       pull: true
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8080}
+        VITE_AUTH_BASE_URL: ${VITE_AUTH_BASE_URL:-http://localhost:8081}
     ports:
       - "5173:80"
     restart: unless-stopped

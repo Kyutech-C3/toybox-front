@@ -45,21 +45,10 @@ const buildWorksUrl = ({
 
 export const getWorksSWRKey = (
   params: UseWorksParams,
-  accessToken: string | null,
+  isAuthenticated: boolean,
 ) => {
   const url = buildWorksUrl(params);
-  return accessToken ? ([url, accessToken] as const) : url;
-};
-
-const fetchWorks = async (
-  url: string,
-  accessToken?: string,
-): Promise<WorkListResponse> => {
-  if (!accessToken) {
-    return fetchData(url);
-  }
-
-  return fetchDataWithAuth(url, accessToken);
+  return isAuthenticated ? ([url, true] as const) : url;
 };
 
 const useWorks = ({
@@ -69,13 +58,16 @@ const useWorks = ({
   sortOrder = "newest",
   visibility = null,
 }: UseWorksParams = {}): UseWorksReturn => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const { data: response } = useSWR<WorkListResponse>(
-    getWorksSWRKey({ page, limit, tags, sortOrder, visibility }, accessToken),
-    accessToken
-      ? ([requestUrl, token]) => fetchWorks(requestUrl, token)
-      : (requestUrl) => fetchWorks(requestUrl),
+    getWorksSWRKey(
+      { page, limit, tags, sortOrder, visibility },
+      isAuthenticated,
+    ),
+    isAuthenticated
+      ? ([requestUrl]: [string]) => fetchDataWithAuth(requestUrl)
+      : (requestUrl: string) => fetchData(requestUrl),
     { suspense: true },
   );
 

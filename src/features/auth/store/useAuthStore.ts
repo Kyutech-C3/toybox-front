@@ -1,35 +1,36 @@
 import { create } from "zustand";
 
+// JWTはHttpOnly CookieでやりとりするためJSからは読めない。storeはログイン状態のみを持つ。
 type AuthStore = {
-  accessToken: string | null;
+  isAuthenticated: boolean;
   sessionVersion: number;
   isInitialized: boolean;
   hasRestoreFailed: boolean;
-  startSession: (accessToken: string) => void;
-  setAccessToken: (accessToken: string) => void;
+  startSession: () => void;
+  setAuthenticated: () => void;
   clearAuth: () => void;
   setInitialized: () => void;
   setRestoreFailed: (hasRestoreFailed: boolean) => void;
 };
 
 export const useAuthStore = create<AuthStore>()((set) => ({
-  accessToken: null,
+  isAuthenticated: false,
   sessionVersion: 0,
   isInitialized: false,
   hasRestoreFailed: false,
-  startSession: (accessToken) => {
+  startSession: () => {
     set((state) => ({
-      accessToken,
+      isAuthenticated: true,
       hasRestoreFailed: false,
       sessionVersion: state.sessionVersion + 1,
     }));
   },
-  setAccessToken: (accessToken) => {
-    set({ accessToken, hasRestoreFailed: false });
+  setAuthenticated: () => {
+    set({ isAuthenticated: true, hasRestoreFailed: false });
   },
   clearAuth: () => {
     set((state) => ({
-      accessToken: null,
+      isAuthenticated: false,
       hasRestoreFailed: false,
       sessionVersion: state.sessionVersion + 1,
     }));

@@ -23,9 +23,9 @@ export default META;
 type Story = StoryObj<typeof META>;
 
 export const LoginRequired: Story = {
-  beforeEach: () => useAuthStore.setState({ accessToken: null }),
+  beforeEach: () => useAuthStore.setState({ isAuthenticated: false }),
 };
 
 export const Authenticated: Story = {
-  beforeEach: () => useAuthStore.setState({ accessToken: "storybook-token" }),
+  beforeEach: () => useAuthStore.setState({ isAuthenticated: true }),
 };

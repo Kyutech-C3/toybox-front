@@ -96,18 +96,15 @@ const useWorkTags = (): UseWorkTagsReturn => {
     const existingTag = findTag(availableTags, normalizedName);
     if (existingTag) return { tag: existingTag, isCreated: false };
 
-    const { accessToken, sessionVersion: authSessionVersion } =
+    const { isAuthenticated, sessionVersion: authSessionVersion } =
       useAuthStore.getState();
-    if (!accessToken) {
-      throw new Error("No access token available");
+    if (!isAuthenticated) {
+      throw new Error("Not authenticated");
     }
-    const newTag = await createTag(tagName, accessToken);
+    const newTag = await createTag(tagName);
     if (!isCurrentRequest()) {
       if (useAuthStore.getState().sessionVersion === authSessionVersion) {
-        void deletePendingResources(
-          { assetIDs: [], tagIDs: [newTag.id] },
-          accessToken,
-        );
+        void deletePendingResources({ assetIDs: [], tagIDs: [newTag.id] });
       }
       return null;
     }

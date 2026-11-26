@@ -5,6 +5,7 @@ import { unstable_serialize, useSWRConfig } from "swr";
 import styles from "./index.module.css";
 
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { getTagOptionsSWRKey } from "@/features/Tag/hook/useTagOptions";
 import WorkIndex from "@/features/WorkIndex";
 import { getWorkIndexSelection } from "@/features/WorkIndex/getWorkIndexSelection";
 import { getWorksSWRKey } from "@/features/WorkIndex/hook/useWorks";
@@ -18,12 +19,12 @@ const TopPage = () => {
   const { key: locationKey } = useLocation();
 
   const [searchParams] = useSearchParams();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { itemsPerPage } = useWorkPageSize();
   const { cache, mutate } = useSWRConfig();
 
   const handleRetry = async () => {
-    const tagKey = accessToken ? ["/tags", accessToken] : "/tags";
+    const tagKey = getTagOptionsSWRKey(isAuthenticated);
     const tagResponse = cache.get(unstable_serialize(tagKey))?.data as
       | TagListResponse
       | undefined;
@@ -41,9 +42,9 @@ const TopPage = () => {
             limit: itemsPerPage,
             tags: selectedTags,
             sortOrder,
-            visibility: accessToken ? visibility : null,
+            visibility: isAuthenticated ? visibility : null,
           },
-          accessToken,
+          isAuthenticated,
         ),
         undefined,
         { revalidate: true },

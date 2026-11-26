@@ -16,7 +16,7 @@ type ProtectedRouteProps = {
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState<string | undefined>();
 
@@ -44,7 +44,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
     }
   };
 
-  if (!accessToken) {
+  if (!isAuthenticated) {
     return (
       <PageErrorState
         title="ログインが必要です"

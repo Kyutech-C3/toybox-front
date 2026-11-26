@@ -9,7 +9,6 @@ type UpdateUserProfileParams = {
   xUsername: string;
   githubUsername: string;
   avatar?: File | null;
-  accessToken: string;
 };
 
 const MAX_PROFILE_REQUEST_SIZE = 5 * 1024 * 1024;
@@ -20,7 +19,6 @@ export const updateUserProfile = async ({
   xUsername,
   githubUsername: githubID,
   avatar,
-  accessToken,
 }: UpdateUserProfileParams): Promise<UserProfileData> => {
   const { sessionVersion } = useAuthStore.getState();
   const data = new FormData();
@@ -37,5 +35,5 @@ export const updateUserProfile = async ({
     throw new ApiError(401);
   }
 
-  return patchDataWithAuth("/auth/users", data, accessToken);
+  return patchDataWithAuth("/auth/users", data);
 };

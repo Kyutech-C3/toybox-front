@@ -128,7 +128,7 @@ const EditPageFrame = ({ path, isNewWork = false }: EditPageFrameProps) => {
             <SWRConfig
               value={{
                 fallback: {
-                  [unstable_serialize(["/tags", "storybook-token"])]: {
+                  [unstable_serialize(["/tags", true])]: {
                     tags: [],
                   },
                 },
@@ -159,7 +159,7 @@ const META = {
   parameters: { layout: "fullscreen" },
   tags: ["autodocs"],
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: null });
+    useAuthStore.setState({ isAuthenticated: false });
     useUserStore.getState().clearUser();
     useWorkPageSizeStore.setState({ pageSize: 30 });
   },
@@ -220,7 +220,7 @@ export const WorkDetail: Story = {
 export const WorkEdit: Story = {
   render: () => <EditPageFrame path="/edit/new" isNewWork />,
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: "storybook-token" });
+    useAuthStore.setState({ isAuthenticated: true });
     useUserStore.setState({
       user: { id: "owner", display_name: "作者", icon_url: "" },
       hasLoadFailed: false,
@@ -246,7 +246,7 @@ export const WorkEditForbidden: Story = {
       display_name: "閲覧者",
       icon_url: "",
     };
-    useAuthStore.setState({ accessToken: "storybook-token" });
+    useAuthStore.setState({ isAuthenticated: true });
     useUserStore.setState({ user: viewer, hasLoadFailed: false });
     const originalFetch = window.fetch;
     window.fetch = fn(async (input: RequestInfo | URL) => {
@@ -314,7 +314,7 @@ export const OwnerProfileEditing: Story = {
         [unstable_serialize([
           "/users/owner",
           "/works/users/owner?page=1&limit=30",
-          "storybook-token",
+          true,
         ])]: {
           userProfile: PROFILE,
           worksResponse: { works: [WORK], total_count: 1, page: 1, limit: 30 },
@@ -331,7 +331,7 @@ export const OwnerProfileEditing: Story = {
       String(resource).endsWith("/auth/users/me")
         ? Promise.resolve(new Response(JSON.stringify(user), { status: 200 }))
         : originalFetch(resource, init);
-    useAuthStore.setState({ accessToken: "storybook-token" });
+    useAuthStore.setState({ isAuthenticated: true });
     useUserStore.setState({ user, hasLoadFailed: false });
     return () => {
       globalThis.fetch = originalFetch;

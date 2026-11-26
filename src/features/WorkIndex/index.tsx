@@ -35,7 +35,7 @@ const WorkIndex = () => {
   } = getWorkIndexSelection({ searchParams, allTags });
   const normalizedTags = selectedTagIDs.join(",");
   const viewerUserID = useUserStore((state) => state.user?.id);
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { itemsPerPage } = useWorkPageSize();
 
   const { data, totalCount } = useWorks({
@@ -43,7 +43,7 @@ const WorkIndex = () => {
     limit: itemsPerPage,
     tags: selectedTags,
     sortOrder,
-    visibility: accessToken ? visibility : null,
+    visibility: isAuthenticated ? visibility : null,
   });
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -148,7 +148,7 @@ const WorkIndex = () => {
           totalPages={totalPages}
           onPagePositionClick={handleScrollToPagination}
           filterControls={
-            accessToken && (
+            isAuthenticated && (
               <VisibilityFilter
                 value={visibility}
                 onChange={handleVisibilityChange}

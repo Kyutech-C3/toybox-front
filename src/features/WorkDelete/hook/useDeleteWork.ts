@@ -49,22 +49,22 @@ const useDeleteWork = ({
   ownerID,
   onDeleted,
 }: UseDeleteWorkParams): UseDeleteWorkReturn => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentUser = useUserStore((state) => state.user);
   const { showToast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const canDelete = Boolean(
-    accessToken && currentUser && currentUser.id === ownerID,
+    isAuthenticated && currentUser && currentUser.id === ownerID,
   );
 
   const handleDelete = async () => {
-    if (!canDelete || !accessToken || isDeleting) return;
+    if (!canDelete || !isAuthenticated || isDeleting) return;
     if (!window.confirm(DELETE_CONFIRM_MESSAGE)) return;
 
     setIsDeleting(true);
     try {
-      await deleteWork(workID, accessToken);
+      await deleteWork(workID);
       // 先に離脱してからキャッシュを落とす（削除済みの作品を再取得させないため）
       onDeleted?.();
       showToast({ message: "作品を削除しました", severity: "success" });

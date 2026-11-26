@@ -24,23 +24,15 @@ export const getFavoriteCount = async (
 
 export const getFavoriteStatus = async (
   workID: string,
-  accessToken: string,
 ): Promise<FavoriteStatusResponse> => {
   const response: FavoriteStatusApiResponse = await fetchDataWithAuth(
     `/auth/works/${workID}/favorite/is-favorite`,
-    accessToken,
   );
   return { isFavorite: response.is_favorite };
 };
 
-export const createFavorite = async (
-  workID: string,
-  accessToken: string,
-): Promise<void> =>
-  postDataWithAuthNoContent(`/auth/works/${workID}/favorite`, accessToken);
+export const createFavorite = async (workID: string): Promise<void> =>
+  postDataWithAuthNoContent(`/auth/works/${workID}/favorite`);
 
-export const deleteFavorite = async (
-  workID: string,
-  accessToken: string,
-): Promise<void> =>
-  deleteDataWithAuth(`/auth/works/${workID}/favorite`, accessToken);
+export const deleteFavorite = async (workID: string): Promise<void> =>
+  deleteDataWithAuth(`/auth/works/${workID}/favorite`);

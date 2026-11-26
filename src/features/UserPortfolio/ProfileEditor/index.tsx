@@ -130,8 +130,8 @@ const ProfileEditor = ({
   };
 
   const handleSubmit = async () => {
-    const { accessToken, sessionVersion } = useAuthStore.getState();
-    if (isSubmitDisabled || isSubmittingRef.current || !accessToken) return;
+    const { isAuthenticated, sessionVersion } = useAuthStore.getState();
+    if (isSubmitDisabled || isSubmittingRef.current || !isAuthenticated) return;
 
     const isRequestCurrent = () =>
       isMountedRef.current &&
@@ -146,7 +146,6 @@ const ProfileEditor = ({
         githubUsername: normalizedGithubUsername,
         xUsername: normalizedXUsername,
         avatar,
-        accessToken,
       });
       if (!isRequestCurrent()) return;
       await mutate(userPortfolioSWRKeyRef.current);

@@ -10,14 +10,14 @@ export const WORK_EDITOR_SWR_KEY_PREFIX = "work-editor";
 
 type GetWorkEditorSWRKeyParams = {
   workID: string;
-  accessToken: string | null;
+  isAuthenticated: boolean;
 };
 
 export const getWorkEditorSWRKey = ({
   workID,
-  accessToken,
+  isAuthenticated,
 }: GetWorkEditorSWRKeyParams) =>
-  [WORK_EDITOR_SWR_KEY_PREFIX, workID, accessToken] as const;
+  [WORK_EDITOR_SWR_KEY_PREFIX, workID, isAuthenticated] as const;
 
 export const isWorkEditorSWRKey = (key: unknown) =>
   Array.isArray(key) && key[0] === WORK_EDITOR_SWR_KEY_PREFIX;
@@ -33,12 +33,13 @@ type UseWorkForEditReturn = {
 const useWorkForEdit = ({
   workID,
 }: UseWorkForEditParams): UseWorkForEditReturn => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const { data, isValidating } = useSWR<Work>(
-    workID ? getWorkEditorSWRKey({ workID, accessToken }) : null,
-    ([, swrWorkID, token]: ReturnType<typeof getWorkEditorSWRKey>) =>
-      getWork(swrWorkID, token ?? undefined),
+    workID ? getWorkEditorSWRKey({ workID, isAuthenticated }) : null,
+    ([, swrWorkID, swrIsAuthenticated]: ReturnType<
+      typeof getWorkEditorSWRKey
+    >) => getWork(swrWorkID, swrIsAuthenticated),
     {
       revalidateOnMount: true,
       revalidateOnFocus: false,
