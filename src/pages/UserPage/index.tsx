@@ -18,7 +18,7 @@ const UserPage = () => {
   const { key: locationKey } = useLocation();
   const [searchParams] = useSearchParams();
   const { mutate } = useSWRConfig();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentPage = Math.max(Number(searchParams.get("page")) || 1, 1);
 
   const getErrorMessage = (error: Error) => {
@@ -37,7 +37,7 @@ const UserPage = () => {
     await mutate(
       getUserPortfolioSWRKey({
         userID: id,
-        accessToken,
+        isAuthenticated,
         page: currentPage,
       }),
       undefined,

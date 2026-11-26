@@ -35,7 +35,7 @@ const AuthCallback = () => {
         message: isSuccessful ? "ログインしました" : "ログインに失敗しました",
         severity: isSuccessful ? "success" : "error",
       });
-      if (isSuccessful || useAuthStore.getState().accessToken) {
+      if (isSuccessful || useAuthStore.getState().isAuthenticated) {
         useAuthStore.getState().setInitialized();
       }
       // 失敗時のCookieからの復元は、戻り先のProviderに任せる。

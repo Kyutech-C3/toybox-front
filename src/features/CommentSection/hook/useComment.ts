@@ -13,22 +13,19 @@ interface UseCommentReturn {
   data: Comment[];
 }
 
-export const getCommentSWRKey = (
-  workId: string,
-  accessToken: string | null,
-) => {
+export const getCommentSWRKey = (workId: string, isAuthenticated: boolean) => {
   const url = `/works/${workId}/comments`;
-  return accessToken ? ([url, accessToken] as const) : url;
+  return isAuthenticated ? ([url, true] as const) : url;
 };
 
 const useComment = ({ workId }: UseCommentParams): UseCommentReturn => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const { data: response } = useSWR<Comment[]>(
-    getCommentSWRKey(workId, accessToken),
+    getCommentSWRKey(workId, isAuthenticated),
     () =>
-      accessToken
-        ? fetchDataWithAuth(`/works/${workId}/comments`, accessToken)
+      isAuthenticated
+        ? fetchDataWithAuth(`/works/${workId}/comments`)
         : fetchData(`/works/${workId}/comments`),
     { suspense: true },
   );

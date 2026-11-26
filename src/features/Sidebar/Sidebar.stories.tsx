@@ -37,14 +37,14 @@ type Story = StoryObj<typeof META>;
 export const LoggedIn: Story = {
   tags: ["test"],
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: "sidebar-story-token" });
+    useAuthStore.setState({ isAuthenticated: true });
     useUserStore.getState().setUser({
       id: "sidebar-user",
       display_name: "テストユーザー",
       icon_url: "",
     });
     return () => {
-      useAuthStore.setState({ accessToken: null });
+      useAuthStore.setState({ isAuthenticated: false });
       useUserStore.getState().clearUser();
     };
   },

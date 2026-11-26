@@ -182,7 +182,7 @@ export const ToolbarImageInsertion: Story = {
             Response.json({ id: "new", url: "https://example.com/new.png" }),
           )
         : originalFetch(resource, init);
-    useAuthStore.getState().startSession("storybook-token");
+    useAuthStore.getState().startSession();
     try {
       await userEvent.click(
         canvas.getByRole("button", { name: "画像・動画・音声を選んで挿入" }),
@@ -294,7 +294,7 @@ export const ToolbarMediaUpload: Story = {
         }),
       );
     };
-    useAuthStore.getState().startSession("storybook-token");
+    useAuthStore.getState().startSession();
     try {
       await userEvent.click(
         canvas.getByRole("button", { name: "画像・動画・音声を選んで挿入" }),

@@ -6,16 +6,16 @@ type GetUserWorksParams = {
   userID: string;
   page: number;
   limit: number;
-  accessToken?: string;
+  isAuthenticated: boolean;
 };
 
 export const getUserWorks = async ({
   userID,
   page,
   limit,
-  accessToken,
+  isAuthenticated,
 }: GetUserWorksParams): Promise<WorkListResponse> => {
   const path = `/works/users/${userID}?page=${page}&limit=${limit}`;
 
-  return accessToken ? fetchDataWithAuth(path, accessToken) : fetchData(path);
+  return isAuthenticated ? fetchDataWithAuth(path) : fetchData(path);
 };

@@ -5,14 +5,13 @@ type UploadAssetResponse = {
   url: string;
 };
 
-const uploadAsset = async (file: File, accessToken: string) => {
+const uploadAsset = async (file: File) => {
   const formData = new FormData();
   formData.append("file", file.slice(0, file.size, file.type), file.name);
 
   const response: UploadAssetResponse = await postDataWithAuth(
     "/auth/works/asset",
     formData,
-    accessToken,
   );
 
   return response;

@@ -82,7 +82,7 @@ const META = {
     userPortfolioSWRKey: [
       "/users/user-1",
       "/works/users/user-1?page=1&limit=30",
-      null,
+      false,
     ],
     onClose: () => undefined,
   },
@@ -96,7 +96,7 @@ export const Default: Story = {};
 const SAVE_KEY: UserPortfolioSWRKey = [
   "/profile-save",
   "/profile-save-works",
-  "storybook-profile-token",
+  true,
 ];
 const SAVE = {
   onClose: fn(),
@@ -128,7 +128,7 @@ const SAVE_STORY = {
     const originalFetch = window.fetch;
     const originalAuth = useAuthStore.getState();
     const originalUser = useUserStore.getState();
-    useAuthStore.getState().startSession("storybook-profile-token");
+    useAuthStore.getState().startSession();
     useUserStore.getState().setUser({
       id: PROFILE.id,
       display_name: PROFILE.display_name,
@@ -216,8 +216,9 @@ export const SaveProfile: Story = {
     await expect(SAVE.onClose).not.toHaveBeenCalled();
     await expect(SAVE.revalidate).not.toHaveBeenCalled();
     const request = SAVE.save.mock.calls[0][0];
-    await expect(request.headers).toEqual({
-      Authorization: "Bearer storybook-profile-token",
+    await expect(request).toMatchObject({
+      credentials: "include",
+      headers: {},
     });
     await expect(request.body).toBeInstanceOf(FormData);
     const data = await readProfileRequest(request);
@@ -235,7 +236,7 @@ export const SaveProfile: Story = {
     await expect(
       canvas.getByRole("button", { name: "保存中..." }),
     ).toBeDisabled();
-    useAuthStore.getState().setAccessToken("storybook-refreshed-token");
+    useAuthStore.getState().setAuthenticated();
     useUserStore.getState().setUser({
       id: PROFILE.id,
       display_name: PROFILE.display_name,
@@ -265,9 +266,7 @@ export const SaveProfile: Story = {
         })
       )?.userProfile,
     ).toEqual(updatedProfile);
-    await expect(useAuthStore.getState().accessToken).toBe(
-      "storybook-refreshed-token",
-    );
+    await expect(useAuthStore.getState().isAuthenticated).toBe(true);
   },
 };
 
@@ -433,7 +432,7 @@ export const SessionChangeDuringSizeCheck: Story = {
       await submitProfile(canvasElement);
       await waitFor(() => expect(complete).toBeDefined());
       await clearAuthSession();
-      useAuthStore.getState().startSession("storybook-new-session-token");
+      useAuthStore.getState().startSession();
       await act(async () => {
         complete?.(new Blob());
       });
@@ -447,7 +446,7 @@ export const SessionChangeDuringSizeCheck: Story = {
   },
 };
 
-export const SaveAcrossTokenRefresh: Story = {
+export const SaveAcrossSessionRefresh: Story = {
   ...SAVE_STORY,
   render: () => (
     <Suspense fallback={<p>プロフィールを読み込み中</p>}>
@@ -464,9 +463,7 @@ export const SaveAcrossTokenRefresh: Story = {
     window.fetch = (resource, init) => {
       const path = new URL(String(resource)).pathname;
       if (path === "/auth/refresh")
-        return Promise.resolve(
-          Response.json({ access_token: "storybook-refreshed-token" }),
-        );
+        return Promise.resolve(new Response(null, { status: 200 }));
       if (path === `/users/${PROFILE.id}`)
         return SAVE.revalidate().then((data) =>
           Response.json(data.userProfile),
@@ -478,16 +475,15 @@ export const SaveAcrossTokenRefresh: Story = {
       return originalFetch(resource, init);
     };
     return async () => {
-      for (const accessToken of [
-        "storybook-profile-token",
-        "storybook-refreshed-token",
-      ]) {
-        await mutate(
-          getUserPortfolioSWRKey({ userID: PROFILE.id, page: 1, accessToken }),
-          undefined,
-          { revalidate: false },
-        );
-      }
+      await mutate(
+        getUserPortfolioSWRKey({
+          userID: PROFILE.id,
+          page: 1,
+          isAuthenticated: true,
+        }),
+        undefined,
+        { revalidate: false },
+      );
       await cleanup?.();
     };
   },
@@ -500,7 +496,6 @@ export const SaveAcrossTokenRefresh: Story = {
     SAVE.save.mockResolvedValueOnce(new Response(null, { status: 401 }));
     await submitProfile(canvasElement);
     await waitFor(() => expect(SAVE.save).toHaveBeenCalledTimes(2));
-    await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(2));
     await expect(
       await canvas.findByRole("button", { name: "保存中..." }),
     ).toBeVisible();
@@ -531,8 +526,8 @@ export const RevalidationAfterNewSession: Story = {
     SAVE.completeSave(Response.json(PROFILE));
     await waitFor(() => expect(SAVE.revalidate).toHaveBeenCalledTimes(1));
     await clearAuthSession();
-    // 同じトークン・ユーザーでも、新しいログインの結果は上書きしない。
-    useAuthStore.getState().startSession("storybook-profile-token");
+    // 同じユーザーでも、新しいログインの結果は上書きしない。
+    useAuthStore.getState().startSession();
     useUserStore.getState().setUser({
       id: PROFILE.id,
       display_name: "再ログイン後の名前",

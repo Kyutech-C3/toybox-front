@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 
 import {
   AuthRefreshError,
-  refreshAccessToken,
+  refreshSession,
   removeLegacyAuthStorage,
 } from "../auth";
 import { useAuthStore } from "../store/useAuthStore";
@@ -35,7 +35,7 @@ const AuthSessionProvider = ({ children }: AuthSessionProviderProps) => {
     setRestoreFailed(false);
     removeLegacyAuthStorage();
 
-    refreshAccessToken()
+    refreshSession()
       .catch((error: unknown) => {
         if (!(error instanceof AuthRefreshError && error.isSessionInvalid)) {
           setRestoreFailed(true);

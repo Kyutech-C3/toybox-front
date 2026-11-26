@@ -20,7 +20,7 @@ const META = {
   parameters: { layout: "centered" },
   tags: ["autodocs"],
   args: { workID: "work-1", isInitiallyLiked: false, isCountVisible: true },
-  beforeEach: () => useAuthStore.setState({ accessToken: null }),
+  beforeEach: () => useAuthStore.setState({ isAuthenticated: false }),
 } satisfies Meta<typeof FavoriteButton>;
 
 export default META;

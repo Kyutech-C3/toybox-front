@@ -7,10 +7,6 @@ import { useUserStore } from "./store/useUserStore";
 
 import { API_BASE_URL, AUTH_BASE_URL } from "@/util/apiConfig";
 
-// JWTはHttpOnly Cookieで送られるためJSからは読めない。
-// storeのaccessTokenはログイン中であることを示す印として使う。
-const COOKIE_SESSION = "cookie";
-
 type LoginURLResponse = {
   url?: string;
 };
@@ -22,7 +18,7 @@ export class AuthRefreshError extends Error {
   status: number | null;
 
   constructor(status: number | null) {
-    super("Failed to refresh access token");
+    super("Failed to refresh session");
     this.name = "AuthRefreshError";
     this.status = status;
   }
@@ -33,8 +29,8 @@ export class AuthRefreshError extends Error {
   }
 }
 
-let REFRESH_REQUEST: Promise<string> | null = null;
-let CALLBACK_REQUEST: Promise<string> | null = null;
+let REFRESH_REQUEST: Promise<void> | null = null;
+let CALLBACK_REQUEST: Promise<void> | null = null;
 let AUTH_REQUEST_GENERATION = 0;
 
 const invalidateAuthRequests = () => {
@@ -87,7 +83,7 @@ const getLoginUrl = async (
   return response.url;
 };
 
-const requestCallbackAccessToken = async (code: string, generation: number) => {
+const requestCallback = async (code: string, generation: number) => {
   const searchParams = new URLSearchParams({ code });
   const controller = new AbortController();
   const timeoutID = window.setTimeout(
@@ -119,14 +115,13 @@ const requestCallbackAccessToken = async (code: string, generation: number) => {
   }
 
   assertAuthRequestIsCurrent(generation);
-  useAuthStore.getState().startSession(COOKIE_SESSION);
-  return COOKIE_SESSION;
+  useAuthStore.getState().startSession();
 };
 
 const authenticateWithCode = (code: string) => {
   if (!CALLBACK_REQUEST) {
     const generation = AUTH_REQUEST_GENERATION;
-    const request = requestCallbackAccessToken(code, generation).finally(() => {
+    const request = requestCallback(code, generation).finally(() => {
       if (CALLBACK_REQUEST === request) CALLBACK_REQUEST = null;
     });
     CALLBACK_REQUEST = request;
@@ -135,7 +130,7 @@ const authenticateWithCode = (code: string) => {
   return CALLBACK_REQUEST;
 };
 
-const requestAccessToken = async (generation: number) => {
+const requestRefresh = async (generation: number) => {
   assertAuthRequestIsCurrent(generation);
   const controller = new AbortController();
   const timeoutID = window.setTimeout(
@@ -159,19 +154,18 @@ const requestAccessToken = async (generation: number) => {
   }
 
   assertAuthRequestIsCurrent(generation);
-  useAuthStore.getState().setAccessToken(COOKIE_SESSION);
-  return COOKIE_SESSION;
+  useAuthStore.getState().setAuthenticated();
 };
 
-const refreshAccessToken = () => {
+const refreshSession = () => {
   if (!REFRESH_REQUEST) {
     const generation = AUTH_REQUEST_GENERATION;
     // Cookieはタブ間で共有されるため、対応ブラウザでは更新を直列化する。
     const refreshRequest = navigator.locks
       ? navigator.locks.request("toybox-auth-refresh", () =>
-          requestAccessToken(generation),
+          requestRefresh(generation),
         )
-      : requestAccessToken(generation);
+      : requestRefresh(generation);
     const request = refreshRequest
       .catch(async (error: unknown) => {
         if (
@@ -206,6 +200,6 @@ export {
   clearAuthSession,
   getLoginUrl,
   logout,
-  refreshAccessToken,
+  refreshSession,
   removeLegacyAuthStorage,
 };

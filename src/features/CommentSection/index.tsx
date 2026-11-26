@@ -19,7 +19,7 @@ interface CommentSectionProps {
 
 const CommentSection = ({ postId }: CommentSectionProps) => {
   const { data } = useComment({ workId: postId });
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { showToast } = useToast();
 
   const [replyingTo, setReplyingTo] = useState<Comment | undefined>(undefined);
@@ -36,15 +36,15 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
 
   const handleSubmit = async (message: string) => {
     const trimmed = message.trim();
-    if (!trimmed || !accessToken || isSubmittingRef.current) return false;
+    if (!trimmed || !isAuthenticated || isSubmittingRef.current) return false;
 
     isSubmittingRef.current = true;
     setIsSubmitting(true);
     try {
-      await postComment(postId, trimmed, accessToken, replyingTo?.id);
+      await postComment(postId, trimmed, replyingTo?.id);
       setReplyingTo(undefined);
       try {
-        await mutate(getCommentSWRKey(postId, accessToken));
+        await mutate(getCommentSWRKey(postId, isAuthenticated));
       } catch {
         showToast({
           message: "コメント一覧を更新できませんでした",
@@ -78,13 +78,13 @@ const CommentSection = ({ postId }: CommentSectionProps) => {
             comments={data}
             onReply={handleReply}
             replyingTo={replyingTo}
-            isReplyEnabled={!!accessToken}
+            isReplyEnabled={isAuthenticated}
             isSubmitting={isSubmitting}
             onSubmitReply={handleSubmit}
             onCancelReply={handleCancelReply}
           />
         )}
-        {accessToken ? (
+        {isAuthenticated ? (
           <CommentInput
             onSubmit={handleSubmit}
             replyingTo={replyingTo}

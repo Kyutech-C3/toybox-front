@@ -26,9 +26,8 @@ function useUnsavedChangesGuard(): void {
     }
     state.clearPendingBackendResources();
 
-    const accessToken = useAuthStore.getState().accessToken;
-    if (!accessToken) return;
-    void deletePendingResources(resources, accessToken);
+    if (!useAuthStore.getState().isAuthenticated) return;
+    void deletePendingResources(resources);
   }, [storeApi]);
 
   useSharedUnsavedChangesGuard({

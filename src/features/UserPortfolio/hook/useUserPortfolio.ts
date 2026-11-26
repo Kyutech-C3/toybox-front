@@ -24,11 +24,11 @@ type UseUserPortfolioReturn = {
 
 type GetUserPortfolioSWRKeyParams = {
   userID: string;
-  accessToken: string | null;
+  isAuthenticated: boolean;
   page: number;
 };
 
-export type UserPortfolioSWRKey = readonly [string, string, string | null];
+export type UserPortfolioSWRKey = readonly [string, string, boolean];
 
 export type UserPortfolioData = {
   userProfile: UserProfileData;
@@ -39,25 +39,25 @@ export const USER_WORKS_PAGE_SIZE = 30;
 
 export const getUserPortfolioSWRKey = ({
   userID,
-  accessToken,
+  isAuthenticated,
   page,
 }: GetUserPortfolioSWRKeyParams): UserPortfolioSWRKey =>
   [
     `/users/${userID}`,
     `/works/users/${userID}?page=${page}&limit=${USER_WORKS_PAGE_SIZE}`,
-    accessToken,
+    isAuthenticated,
   ] as const;
 
 const useUserPortfolio = ({
   userID,
   page,
 }: UseUserPortfolioParams): UseUserPortfolioReturn => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const currentUser = useUserStore((state) => state.user);
-  const isOwner = Boolean(accessToken && currentUser?.id === userID);
+  const isOwner = isAuthenticated && currentUser?.id === userID;
   const swrKey = getUserPortfolioSWRKey({
     userID,
-    accessToken,
+    isAuthenticated,
     page,
   });
 
@@ -70,7 +70,7 @@ const useUserPortfolio = ({
           userID,
           page,
           limit: USER_WORKS_PAGE_SIZE,
-          accessToken: accessToken ?? undefined,
+          isAuthenticated,
         }),
       ]);
 

@@ -4,7 +4,7 @@ import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 import useSWR, { mutate } from "swr";
 
 import AuthCallback from "../AuthCallback";
-import { logout, refreshAccessToken } from "../auth";
+import { logout, refreshSession } from "../auth";
 import { consumeLoginCallback, recordLoginCallback } from "../loginCallback";
 import { useAuthStore } from "../store/useAuthStore";
 import { useUserStore } from "../store/useUserStore";
@@ -51,7 +51,7 @@ const META = {
   beforeEach: () => {
     sessionStorage.removeItem("toybox-pending-login");
     useAuthStore.setState({
-      accessToken: null,
+      isAuthenticated: false,
       isInitialized: false,
       hasRestoreFailed: false,
     });
@@ -65,12 +65,7 @@ type Story = StoryObj<typeof META>;
 const mockRefresh = (status: number) => {
   const originalFetch = window.fetch;
   window.fetch = fn()
-    .mockImplementationOnce(async () => {
-      if (status === 200) {
-        return Response.json({ access_token: "storybook-refreshed-token" });
-      }
-      return new Response(null, { status });
-    })
+    .mockImplementationOnce(async () => new Response(null, { status }))
     .mockImplementation(async (input: RequestInfo | URL) =>
       String(input).endsWith("/auth/users/me")
         ? Response.json({
@@ -78,7 +73,7 @@ const mockRefresh = (status: number) => {
             display_name: "テスト",
             icon_url: "",
           })
-        : Response.json({ access_token: "storybook-refreshed-token" }),
+        : new Response(null, { status: 200 }),
     );
   return () => {
     window.fetch = originalFetch;
@@ -106,9 +101,7 @@ export const ServerErrorRetry: Story = {
     await waitFor(() =>
       expect(useAuthStore.getState().hasRestoreFailed).toBe(false),
     );
-    await expect(useAuthStore.getState().accessToken).toBe(
-      "storybook-refreshed-token",
-    );
+    await expect(useAuthStore.getState().isAuthenticated).toBe(true);
     await expect(
       canvas.queryByRole("button", { name: "ログイン状態の確認を再試行" }),
     ).not.toBeInTheDocument();
@@ -122,7 +115,7 @@ export const NoSession: Story = {
     await expect(
       await within(canvasElement).findByText("ログイン確認完了"),
     ).toBeVisible();
-    await expect(useAuthStore.getState().accessToken).toBeNull();
+    await expect(useAuthStore.getState().isAuthenticated).toBe(false);
     await expect(useAuthStore.getState().hasRestoreFailed).toBe(false);
   },
 };
@@ -130,10 +123,7 @@ export const NoSession: Story = {
 export const RequestRecovery: Story = {
   tags: ["test"],
   beforeEach: () => {
-    useAuthStore.setState({
-      accessToken: "storybook-expired-token",
-      isInitialized: true,
-    });
+    useAuthStore.setState({ isAuthenticated: true, isInitialized: true });
     useUserStore.getState().setUser({
       id: "storybook-user",
       display_name: "テストユーザー",
@@ -149,33 +139,31 @@ export const RequestRecovery: Story = {
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
       .mockRejectedValueOnce(new TypeError("Network unavailable"))
       .mockResolvedValueOnce(new Response(null, { status: 401 }))
-      .mockResolvedValueOnce(Response.json({ access_token: "new-token" }))
+      .mockResolvedValueOnce(new Response(null, { status: 200 }))
       .mockResolvedValueOnce(Response.json({ id: "result" }));
     window.fetch = mockFetch;
     try {
-      await expect(
-        fetchDataWithAuth("/auth/users/me", "storybook-expired-token"),
-      ).rejects.toMatchObject({ status: 500 });
-      await expect(
-        fetchDataWithAuth("/auth/users/me", "storybook-expired-token"),
-      ).rejects.toMatchObject({ status: null });
-      await expect(useAuthStore.getState().accessToken).toBe(
-        "storybook-expired-token",
-      );
+      await expect(fetchDataWithAuth("/auth/users/me")).rejects.toMatchObject({
+        status: 500,
+      });
+      await expect(fetchDataWithAuth("/auth/users/me")).rejects.toMatchObject({
+        status: null,
+      });
+      await expect(useAuthStore.getState().isAuthenticated).toBe(true);
       await expect(useAuthStore.getState().sessionVersion).toBe(
         initialSessionVersion,
       );
       await expect(useUserStore.getState().user?.id).toBe("storybook-user");
-      await expect(
-        fetchDataWithAuth("/auth/users/me", "storybook-expired-token"),
-      ).resolves.toEqual({ id: "result" });
-      await expect(mockFetch.mock.calls[6]?.[1]?.headers).toMatchObject({
-        Authorization: "Bearer new-token",
+      await expect(fetchDataWithAuth("/auth/users/me")).resolves.toEqual({
+        id: "result",
+      });
+      await expect(mockFetch.mock.calls[6]?.[1]).toMatchObject({
+        credentials: "include",
       });
       // 明確な失効だけは認証情報を破棄する。
       mockFetch.mockResolvedValueOnce(new Response(null, { status: 400 }));
-      await expect(refreshAccessToken()).rejects.toMatchObject({ status: 400 });
-      await expect(useAuthStore.getState().accessToken).toBeNull();
+      await expect(refreshSession()).rejects.toMatchObject({ status: 400 });
+      await expect(useAuthStore.getState().isAuthenticated).toBe(false);
       await expect(useUserStore.getState().user).toBeNull();
     } finally {
       window.fetch = originalFetch;
@@ -186,12 +174,12 @@ export const RequestRecovery: Story = {
 export const SharedRefresh: Story = {
   tags: ["test"],
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: "old-token", isInitialized: true });
+    useAuthStore.setState({ isAuthenticated: true, isInitialized: true });
   },
   play: async () => {
     const originalFetch = window.fetch;
     const mockFetch = fn().mockResolvedValue(
-      Response.json({ access_token: "new-token" }),
+      new Response(null, { status: 200 }),
     );
     window.fetch = mockFetch;
     let releaseLock = () => {};
@@ -208,8 +196,8 @@ export const SharedRefresh: Story = {
     });
     try {
       await lockHeld;
-      const firstRequest = refreshAccessToken();
-      const secondRequest = refreshAccessToken();
+      const firstRequest = refreshSession();
+      const secondRequest = refreshSession();
       await expect(firstRequest).toBe(secondRequest);
       await waitFor(async () => {
         const locks = await navigator.locks.query();
@@ -219,7 +207,7 @@ export const SharedRefresh: Story = {
       });
       await expect(mockFetch).not.toHaveBeenCalled();
       releaseLock();
-      await expect(firstRequest).resolves.toBe("new-token");
+      await expect(firstRequest).resolves.toBeUndefined();
       await expect(mockFetch).toHaveBeenCalledTimes(1);
     } finally {
       releaseLock();
@@ -230,9 +218,9 @@ export const SharedRefresh: Story = {
 };
 
 const LogoutCacheContent = () => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const { data } = useSWR(
-    accessToken ? ["/logout-private-data", accessToken] : null,
+    isAuthenticated ? ["/logout-private-data", true] : null,
     () => ({ title: "非公開の作品" }),
     { suspense: false },
   );
@@ -246,8 +234,8 @@ export const LogoutSessionCleanup: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const originalFetch = window.fetch;
-    const privateKey = ["/logout-private-data", "storybook-logout-token"];
-    useAuthStore.getState().startSession("storybook-logout-token");
+    const privateKey = ["/logout-private-data", true];
+    useAuthStore.getState().startSession();
     useUserStore
       .getState()
       .setUser({ id: "storybook-user", display_name: "テスト", icon_url: "" });
@@ -262,7 +250,7 @@ export const LogoutSessionCleanup: Story = {
     let request: Promise<void> | undefined;
     try {
       request = logout();
-      await expect(useAuthStore.getState().accessToken).toBeNull();
+      await expect(useAuthStore.getState().isAuthenticated).toBe(false);
       await expect(useUserStore.getState().user).toBeNull();
       await expect(mutate(privateKey)).resolves.toBeUndefined();
       await expect(await canvas.findByText("未認証")).toBeVisible();
@@ -282,9 +270,7 @@ export const ExpectedCallback: Story = {
   beforeEach: () => {
     recordLoginCallback("/works/123?view=detail#comments");
     const originalFetch = window.fetch;
-    window.fetch = fn().mockResolvedValue(
-      Response.json({ access_token: "callback-token" }),
-    );
+    window.fetch = fn(async () => new Response(null, { status: 200 }));
     return () => {
       window.fetch = originalFetch;
     };
@@ -294,7 +280,7 @@ export const ExpectedCallback: Story = {
     await expect(
       await canvas.findByText("/works/123?view=detail#comments"),
     ).toBeVisible();
-    await expect(useAuthStore.getState().accessToken).toBe("callback-token");
+    await expect(useAuthStore.getState().isAuthenticated).toBe(true);
     await expect(sessionStorage.getItem("toybox-pending-login")).toBeNull();
   },
 };

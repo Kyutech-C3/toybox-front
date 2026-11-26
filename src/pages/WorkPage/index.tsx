@@ -26,7 +26,7 @@ type WorkPageContentProps = {
 const WorkPageContent = ({ id, locationKey }: WorkPageContentProps) => {
   const { data } = useWorkDetail({ id });
   const { mutate } = useSWRConfig();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   if (!data) {
     return (
@@ -44,7 +44,7 @@ const WorkPageContent = ({ id, locationKey }: WorkPageContentProps) => {
   };
 
   const handleCommentRetry = async () => {
-    await mutate(getCommentSWRKey(id, accessToken), undefined, {
+    await mutate(getCommentSWRKey(id, isAuthenticated), undefined, {
       revalidate: true,
     });
   };
@@ -82,7 +82,7 @@ const WorkPage = () => {
   const { mutate } = useSWRConfig();
   const { id } = useParams<{ id: string }>();
   const { key: locationKey } = useLocation();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const getErrorMessage = (error: Error) => {
     if (error instanceof ApiError && error.status === 404) {
@@ -97,7 +97,7 @@ const WorkPage = () => {
   const handleWorkRetry = async () => {
     if (!id) return;
 
-    await mutate(getWorkDetailSWRKey(id, accessToken), undefined, {
+    await mutate(getWorkDetailSWRKey(id, isAuthenticated), undefined, {
       revalidate: true,
     });
   };

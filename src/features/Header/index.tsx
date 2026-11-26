@@ -10,7 +10,7 @@ import {
   AuthRefreshError,
   getLoginUrl,
   logout,
-  refreshAccessToken,
+  refreshSession,
 } from "../auth/auth";
 import { useAuthStore } from "../auth/store/useAuthStore";
 import { useUserStore } from "../auth/store/useUserStore";
@@ -64,7 +64,7 @@ const Header = () => {
       setIsLoggingIn(false);
     }
   };
-  const { accessToken, hasRestoreFailed } = useAuthStore();
+  const { isAuthenticated, hasRestoreFailed } = useAuthStore();
   const { user, hasLoadFailed, setUser, setUserLoadFailed, clearUser } =
     useUserStore();
 
@@ -72,7 +72,7 @@ const Header = () => {
     if (isRetryingSession) return;
     setIsRetryingSession(true);
     try {
-      await refreshAccessToken();
+      await refreshSession();
       showToast({ message: "ログイン状態を確認しました", severity: "success" });
     } catch (error) {
       if (error instanceof AuthRefreshError && error.isSessionInvalid) {
@@ -89,14 +89,14 @@ const Header = () => {
   };
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!isAuthenticated) {
       clearUser();
       return;
     }
 
     let isActive = true;
     const fetchUserData = async () => {
-      const data = await getUserData(accessToken);
+      const data = await getUserData();
       if (!isActive) return;
       if (data) setUser(data);
       else setUserLoadFailed();
@@ -110,7 +110,7 @@ const Header = () => {
     return () => {
       isActive = false;
     };
-  }, [accessToken, clearUser, setUser, setUserLoadFailed]);
+  }, [isAuthenticated, clearUser, setUser, setUserLoadFailed]);
 
   const handleLogout = async () => {
     try {
@@ -167,7 +167,7 @@ const Header = () => {
             className={styles["login-button"]}
             onClick={handleLogin}
             isDisabled={isRetryingSession}
-            isLoading={isLoggingIn || (!!accessToken && !hasLoadFailed)}
+            isLoading={isLoggingIn || (isAuthenticated && !hasLoadFailed)}
             icon={<LoginRoundedIcon />}
             ariaLabel="ログイン"
           >
@@ -193,7 +193,7 @@ const Header = () => {
             }
           />
         )}
-        {accessToken && (
+        {isAuthenticated && (
           <FloatingActionButton
             label="投稿"
             icon={<AddRoundedIcon fontSize="inherit" />}

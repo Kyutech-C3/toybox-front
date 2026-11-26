@@ -24,7 +24,7 @@ const META = {
   parameters: { layout: "fullscreen" },
   tags: ["autodocs"],
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: null, hasRestoreFailed: false });
+    useAuthStore.setState({ isAuthenticated: false, hasRestoreFailed: false });
     useUserStore.getState().clearUser();
   },
 } satisfies Meta<typeof Header>;
@@ -127,6 +127,6 @@ export const Dark: Story = {
 
 export const RestoreRetryFailure: Story = {
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: null, hasRestoreFailed: true });
+    useAuthStore.setState({ isAuthenticated: false, hasRestoreFailed: true });
   },
 };

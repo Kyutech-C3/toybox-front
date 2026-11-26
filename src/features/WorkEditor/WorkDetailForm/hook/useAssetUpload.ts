@@ -62,26 +62,20 @@ const useAssetUpload = (): UseAssetUploadReturn => {
     });
     const isCurrentRequest = createRequestGuard();
     try {
-      const { accessToken, sessionVersion: authSessionVersion } =
+      const { isAuthenticated, sessionVersion: authSessionVersion } =
         useAuthStore.getState();
-      if (!accessToken) throw new Error("No access token available");
-      const response = await uploadAsset(file, accessToken);
+      if (!isAuthenticated) throw new Error("Not authenticated");
+      const response = await uploadAsset(file);
       if (!response.id) throw new Error("Failed to upload asset");
       if (!response.url) {
         if (useAuthStore.getState().sessionVersion === authSessionVersion)
-          void deletePendingResources(
-            { assetIDs: [response.id], tagIDs: [] },
-            accessToken,
-          );
+          void deletePendingResources({ assetIDs: [response.id], tagIDs: [] });
         throw new Error("Failed to upload asset URL");
       }
       if (!isCurrentRequest()) {
         if (useAuthStore.getState().sessionVersion !== authSessionVersion)
           return null;
-        void deletePendingResources(
-          { assetIDs: [response.id], tagIDs: [] },
-          accessToken,
-        );
+        void deletePendingResources({ assetIDs: [response.id], tagIDs: [] });
         return null;
       }
       updateAsset(key, {

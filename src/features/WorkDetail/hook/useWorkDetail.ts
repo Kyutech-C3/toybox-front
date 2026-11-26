@@ -13,19 +13,19 @@ interface UseWorkDetailReturn {
   data: Work | undefined;
 }
 
-export const getWorkDetailSWRKey = (id: string, accessToken: string | null) => {
+export const getWorkDetailSWRKey = (id: string, isAuthenticated: boolean) => {
   const url = `/works/${id}`;
-  return accessToken ? ([url, accessToken] as const) : url;
+  return isAuthenticated ? ([url, true] as const) : url;
 };
 
 const useWorkDetail = ({ id }: UseWorkDetailParams): UseWorkDetailReturn => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const { data: response } = useSWR<Work>(
-    getWorkDetailSWRKey(id, accessToken),
+    getWorkDetailSWRKey(id, isAuthenticated),
     () =>
-      accessToken
-        ? fetchDataWithAuth(`/works/${id}`, accessToken)
+      isAuthenticated
+        ? fetchDataWithAuth(`/works/${id}`)
         : fetchData(`/works/${id}`),
     { suspense: true },
   );

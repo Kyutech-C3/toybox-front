@@ -6,6 +6,7 @@ import styles from "./index.module.css";
 
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
+import { getTagOptionsSWRKey } from "@/features/Tag/hook/useTagOptions";
 import WorkEditor from "@/features/WorkEditor";
 import { getWorkEditorSWRKey } from "@/features/WorkEditor/hook/useWorkForEdit";
 import PageErrorBoundary from "@/shared/ui/PageErrorBoundary";
@@ -20,7 +21,7 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
   const { id } = useParams<{ id: string }>();
   const { key: locationKey } = useLocation();
   const { mutate } = useSWRConfig();
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const workID = isNewWork ? null : (id ?? null);
 
   const getErrorMessage = (error: Error) => {
@@ -38,14 +39,18 @@ const EditPage = ({ isNewWork = false }: EditPageProps) => {
 
   const handleRetry = async () => {
     await Promise.all([
-      mutate(accessToken ? ["/tags", accessToken] : "/tags", undefined, {
+      mutate(getTagOptionsSWRKey(isAuthenticated), undefined, {
         revalidate: true,
       }),
       ...(workID
         ? [
-            mutate(getWorkEditorSWRKey({ workID, accessToken }), undefined, {
-              revalidate: true,
-            }),
+            mutate(
+              getWorkEditorSWRKey({ workID, isAuthenticated }),
+              undefined,
+              {
+                revalidate: true,
+              },
+            ),
           ]
         : []),
     ]);

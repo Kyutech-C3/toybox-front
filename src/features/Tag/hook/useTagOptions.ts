@@ -9,15 +9,17 @@ interface UseTagOptionsReturn {
   data: TagDetail[];
 }
 
+const TAGS_URL = "/tags";
+
+export const getTagOptionsSWRKey = (isAuthenticated: boolean) =>
+  isAuthenticated ? ([TAGS_URL, true] as const) : TAGS_URL;
+
 const useTagOptions = (): UseTagOptionsReturn => {
-  const url = "/tags";
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const { data: response } = useSWR<TagListResponse>(
-    accessToken ? [url, accessToken] : url,
-    accessToken
-      ? ([requestUrl, token]) => fetchDataWithAuth(requestUrl, token)
-      : (requestUrl) => fetchData(requestUrl),
+    getTagOptionsSWRKey(isAuthenticated),
+    () => (isAuthenticated ? fetchDataWithAuth(TAGS_URL) : fetchData(TAGS_URL)),
     { suspense: true },
   );
 

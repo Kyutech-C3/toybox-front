@@ -35,7 +35,7 @@ const useFavorite = ({
   isInitiallyLiked,
   isCountVisible,
 }: UseFavoriteParams): UseFavoriteReturn => {
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isListItem = isInitiallyLiked !== undefined;
   const [isLocallyLiked, setIsLocallyLiked] = useState(
     isInitiallyLiked ?? false,
@@ -44,8 +44,8 @@ const useFavorite = ({
   const isSubmittingRef = useRef(false);
   const countKey = isCountVisible ? `/works/${workID}/favorite` : null;
   const statusKey =
-    accessToken && !isListItem
-      ? ([`/auth/works/${workID}/favorite/is-favorite`, accessToken] as const)
+    isAuthenticated && !isListItem
+      ? ([`/auth/works/${workID}/favorite/is-favorite`, true] as const)
       : null;
 
   useEffect(() => {
@@ -59,22 +59,18 @@ const useFavorite = ({
       suspense: false,
     });
   const { data: statusResponse, mutate: mutateStatus } =
-    useSWR<FavoriteStatusResponse>(
-      statusKey,
-      () => getFavoriteStatus(workID, accessToken ?? ""),
-      {
-        suspense: false,
-      },
-    );
+    useSWR<FavoriteStatusResponse>(statusKey, () => getFavoriteStatus(workID), {
+      suspense: false,
+    });
 
   const isLiked = isListItem
     ? isLocallyLiked
     : (statusResponse?.isFavorite ?? false);
   const isLoading =
-    !!accessToken && !isListItem && statusResponse === undefined;
+    isAuthenticated && !isListItem && statusResponse === undefined;
 
   const toggleFavorite = async () => {
-    if (!accessToken || isSubmittingRef.current || isLoading) return;
+    if (!isAuthenticated || isSubmittingRef.current || isLoading) return;
 
     const nextIsLiked = !isLiked;
     const countOffset = nextIsLiked ? 1 : -1;
@@ -100,9 +96,9 @@ const useFavorite = ({
       }
 
       if (nextIsLiked) {
-        await createFavorite(workID, accessToken);
+        await createFavorite(workID);
       } else {
-        await deleteFavorite(workID, accessToken);
+        await deleteFavorite(workID);
       }
       if (!isListItem) void mutateStatus().catch(() => undefined);
       if (isCountVisible) void mutateCount().catch(() => undefined);
@@ -133,7 +129,7 @@ const useFavorite = ({
     isLiked,
     isLoading,
     isSubmitting,
-    canToggle: !!accessToken,
+    canToggle: isAuthenticated,
     toggleFavorite,
   };
 };

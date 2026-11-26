@@ -24,7 +24,7 @@ const META = {
                 <SWRConfig
                   value={{
                     fallback: {
-                      [unstable_serialize(["/tags", "storybook-token"])]: {
+                      [unstable_serialize(["/tags", true])]: {
                         tags: [],
                       },
                     },
@@ -46,7 +46,7 @@ const META = {
   tags: ["autodocs"],
   args: { workID: null },
   beforeEach: () => {
-    useAuthStore.setState({ accessToken: "storybook-token" });
+    useAuthStore.setState({ isAuthenticated: true });
     useUserStore.setState({
       user: {
         id: "owner",

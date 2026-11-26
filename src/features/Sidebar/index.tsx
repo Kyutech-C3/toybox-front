@@ -36,7 +36,7 @@ const Sidebar = () => {
   const [isClosing, setIsClosing] = useState(false);
   const [isPointerOpen, setIsPointerOpen] = useState(false);
   const [isPointerFocus, setIsPointerFocus] = useState(false);
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useUserStore((state) => state.user);
 
   const handleClose = () => setIsClosing(true);
@@ -115,7 +115,7 @@ const Sidebar = () => {
               <HomeRoundedIcon aria-hidden="true" />
               <span>ホーム</span>
             </NavLink>
-            {accessToken && user && (
+            {isAuthenticated && user && (
               <NavLink
                 to={`/users/${user.id}`}
                 className={styles["navigation-link"]}

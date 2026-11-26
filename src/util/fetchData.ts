@@ -1,7 +1,7 @@
 import {
   AuthRefreshError,
   clearAuthSession,
-  refreshAccessToken,
+  refreshSession,
 } from "@/features/auth/auth";
 import { useAuthStore } from "@/features/auth/store/useAuthStore";
 import { API_BASE_URL } from "@/util/apiConfig";
@@ -59,32 +59,22 @@ const throwResponseError = (response: Response): never => {
   throw new ApiError(response.status);
 };
 
-const fetchWithAuth = async (
-  path: string,
-  accessToken: string,
-  init: RequestInit,
-) => {
+const fetchWithAuth = async (path: string, init: RequestInit) => {
   const requestSessionVersion = useAuthStore.getState().sessionVersion;
-  // JWTはCookieで送るため、tokenはリトライ判定にのみ使う。
-  const request = (_token: string) =>
+  const request = () =>
     requestWithNetworkError(path, { ...init, credentials: "include" });
 
-  let response = await request(accessToken);
+  let response = await request();
   if (response.status !== 401) {
     return response;
   }
 
-  const currentAuth = useAuthStore.getState();
-  if (currentAuth.sessionVersion !== requestSessionVersion) {
+  if (useAuthStore.getState().sessionVersion !== requestSessionVersion) {
     throw new ApiError(401);
   }
 
-  let retryToken: string;
   try {
-    retryToken =
-      currentAuth.accessToken && currentAuth.accessToken !== accessToken
-        ? currentAuth.accessToken
-        : await refreshAccessToken();
+    await refreshSession();
   } catch (error) {
     throw new ApiError(
       error instanceof AuthRefreshError
@@ -99,7 +89,7 @@ const fetchWithAuth = async (
     throw new ApiError(401);
   }
 
-  response = await request(retryToken);
+  response = await request();
   if (response.status === 401) {
     await clearAuthSession();
   }
@@ -120,8 +110,8 @@ export const fetchData = async (path: string) => {
   return response.json();
 };
 
-export const fetchDataWithAuth = async (path: string, accessToken: string) => {
-  const response = await fetchWithAuth(path, accessToken, {
+export const fetchDataWithAuth = async (path: string) => {
+  const response = await fetchWithAuth(path, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -147,12 +137,8 @@ export const postData = async (path: string, data: BodyInit) => {
   return response.json();
 };
 
-export const patchDataWithAuth = async (
-  path: string,
-  data: BodyInit,
-  accessToken: string,
-) => {
-  const response = await fetchWithAuth(path, accessToken, {
+export const patchDataWithAuth = async (path: string, data: BodyInit) => {
+  const response = await fetchWithAuth(path, {
     method: "PATCH",
     headers:
       data instanceof FormData ? {} : { "Content-Type": "application/json" },
@@ -164,11 +150,8 @@ export const patchDataWithAuth = async (
   return response.json();
 };
 
-export const deleteDataWithAuth = async (
-  path: string,
-  accessToken: string,
-): Promise<void> => {
-  const response = await fetchWithAuth(path, accessToken, {
+export const deleteDataWithAuth = async (path: string): Promise<void> => {
+  const response = await fetchWithAuth(path, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -179,18 +162,14 @@ export const deleteDataWithAuth = async (
   }
 };
 
-export const postDataWithAuth = async (
-  path: string,
-  data: BodyInit,
-  accessToken: string,
-) => {
+export const postDataWithAuth = async (path: string, data: BodyInit) => {
   const headers: HeadersInit = {};
 
   if (!(data instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetchWithAuth(path, accessToken, {
+  const response = await fetchWithAuth(path, {
     method: "POST",
     headers,
     body: data,
@@ -203,9 +182,8 @@ export const postDataWithAuth = async (
 
 export const postDataWithAuthNoContent = async (
   path: string,
-  accessToken: string,
 ): Promise<void> => {
-  const response = await fetchWithAuth(path, accessToken, {
+  const response = await fetchWithAuth(path, {
     method: "POST",
   });
   if (!response.ok) {
