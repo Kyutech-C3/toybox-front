@@ -65,14 +65,9 @@ const fetchWithAuth = async (
   init: RequestInit,
 ) => {
   const requestSessionVersion = useAuthStore.getState().sessionVersion;
-  const request = (token: string) =>
-    requestWithNetworkError(path, {
-      ...init,
-      headers: {
-        ...init.headers,
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  // JWTはCookieで送るため、tokenはリトライ判定にのみ使う。
+  const request = (_token: string) =>
+    requestWithNetworkError(path, { ...init, credentials: "include" });
 
   let response = await request(accessToken);
   if (response.status !== 401) {
@@ -189,9 +184,7 @@ export const postDataWithAuth = async (
   data: BodyInit,
   accessToken: string,
 ) => {
-  const headers: HeadersInit = {
-    Authorization: `Bearer ${accessToken}`,
-  };
+  const headers: HeadersInit = {};
 
   if (!(data instanceof FormData)) {
     headers["Content-Type"] = "application/json";

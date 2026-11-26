@@ -5,11 +5,11 @@ import { recordLoginCallback } from "./loginCallback";
 import { useAuthStore } from "./store/useAuthStore";
 import { useUserStore } from "./store/useUserStore";
 
-import { API_BASE_URL } from "@/util/apiConfig";
+import { API_BASE_URL, AUTH_BASE_URL } from "@/util/apiConfig";
 
-type AccessTokenResponse = {
-  access_token?: string;
-};
+// JWTはHttpOnly Cookieで送られるためJSからは読めない。
+// storeのaccessTokenはログイン中であることを示す印として使う。
+const COOKIE_SESSION = "cookie";
 
 type LoginURLResponse = {
   url?: string;
@@ -70,7 +70,7 @@ const getLoginUrl = async (
     window.location.search +
     window.location.hash,
 ) => {
-  const request = await fetch(`${API_BASE_URL}/auth/discord`, {
+  const request = await fetch(`${AUTH_BASE_URL}/auth/discord`, {
     credentials: "include",
   });
 
@@ -94,10 +94,9 @@ const requestCallbackAccessToken = async (code: string, generation: number) => {
     () => controller.abort(),
     CALLBACK_TIMEOUT_MS,
   );
-  let response: AccessTokenResponse;
   try {
     const request = await fetch(
-      `${API_BASE_URL}/auth/discord/callback?${searchParams.toString()}`,
+      `${AUTH_BASE_URL}/auth/discord/callback?${searchParams.toString()}`,
       { credentials: "include", signal: controller.signal },
     );
 
@@ -105,18 +104,23 @@ const requestCallbackAccessToken = async (code: string, generation: number) => {
       throw new Error("Failed to process Discord callback");
     }
 
-    response = await request.json();
+    // 初回ログイン時のユーザー登録。登録済みなら何もしない。
+    const register = await fetch(`${API_BASE_URL}/auth/users/me`, {
+      method: "PUT",
+      credentials: "include",
+      signal: controller.signal,
+    });
+
+    if (!register.ok) {
+      throw new Error("Failed to register user");
+    }
   } finally {
     window.clearTimeout(timeoutID);
   }
 
-  if (!response.access_token) {
-    throw new Error("Access token was not returned");
-  }
-
   assertAuthRequestIsCurrent(generation);
-  useAuthStore.getState().startSession(response.access_token);
-  return response.access_token;
+  useAuthStore.getState().startSession(COOKIE_SESSION);
+  return COOKIE_SESSION;
 };
 
 const authenticateWithCode = (code: string) => {
@@ -138,9 +142,8 @@ const requestAccessToken = async (generation: number) => {
     () => controller.abort(),
     REFRESH_TIMEOUT_MS,
   );
-  let response: AccessTokenResponse;
   try {
-    const request = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    const request = await fetch(`${AUTH_BASE_URL}/auth/refresh`, {
       method: "POST",
       credentials: "include",
       signal: controller.signal,
@@ -148,7 +151,6 @@ const requestAccessToken = async (generation: number) => {
     if (!request.ok) {
       throw new AuthRefreshError(request.status);
     }
-    response = await request.json();
   } catch (error) {
     if (error instanceof AuthRefreshError) throw error;
     throw new AuthRefreshError(null);
@@ -156,13 +158,9 @@ const requestAccessToken = async (generation: number) => {
     window.clearTimeout(timeoutID);
   }
 
-  if (!response.access_token) {
-    throw new Error("Access token was not returned");
-  }
-
   assertAuthRequestIsCurrent(generation);
-  useAuthStore.getState().setAccessToken(response.access_token);
-  return response.access_token;
+  useAuthStore.getState().setAccessToken(COOKIE_SESSION);
+  return COOKIE_SESSION;
 };
 
 const refreshAccessToken = () => {
